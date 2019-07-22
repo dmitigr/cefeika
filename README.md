@@ -109,17 +109,18 @@ administrator privileges) and type:
     > cd cefeika\build
     > cmake -DBUILD_TYPE=Debug -P cmake_install.cmake
 
-**A target architecture must corresponds to a bitness of external dependencies!**
+**A bitness of the target architecture must corresponds to the bitness
+of external dependencies!**
 
 To make installed DLLs available for *any* application that depends on it,
 symbolic links can be created:
 
-  - in `%SYSTEMROOT%\System32` for the 64-bit DLL on 64-bit host
-    (or for 32-bit DLL on 32-bit host);
+  - in `%SYSTEMROOT%\System32` for a 64-bit DLL on a 64-bit host
+    (or for the 32-bit DLL on the 32-bit host);
   - in `%SYSTEMROOT%\SysWOW64` for the 32-bit DLL on 64-bit host.
 
-For example, to create symbolic link to `dmitigr_pgfed.dll`, run the elevated
-command prompt and use the `mklink` command:
+For example, to create the symbolic link to `dmitigr_pgfed.dll`, the `mklink`
+command can be used in the elevated command prompt:
 
     > cd /d %SYSTEMROOT%\System32
     > mklink dmitigr_pgfed.dll "%ProgramFiles%\dmitigr_cefeika\lib\dmitigr_pgfed.dll"
@@ -143,19 +144,27 @@ Specifying a library type to use
 --------------------------------
 
 It's possible to explicitly specify a type of library to use. To do it,
-corresponding suffix of a component name should be specified:
+the corresponding suffix of a component name should be specified:
 
   - the suffix "_shared" corresponds to shared libraries;
   - the suffix "_static" corresponds to static libraries;
   - the suffix "_interface" corresponds to header-only libraries.
 
-For example, `find_package(dmitigr_cefeika REQUIRED COMPONENTS fcgi_shared pgfe_interface)`.
+For example, the code below demonstrates how to use the shared [fcgi] library
+and the header-only [pgfe] library in a project side by side:
 
-**Note that libraries of explicitly specified types must be installed to be found!**
+```cmake
+find_package(dmitigr_cefeika REQUIRED COMPONENTS fcgi_shared pgfe_interface)
+# ...
+target_link_libraries(foo dmitigr::fcgi dmitigr::pgfe)
+```
 
-If a type of library is not specified (i.e. suffix of a component name is
-omitted), [find_package()][CMake_find_package] will import first available
-library in the following order:
+**Note that libraries of the explicitly specified types must be installed
+to be found!**
+
+If the type of library is not specified (i.e. suffix of a component name is
+omitted), [find_package()][CMake_find_package] will try to import the first
+available library in the following order:
 
   1. a shared library;
   2. a static library;
