@@ -1140,6 +1140,7 @@ DMITIGR_UTIL_INLINE Socket_readiness poll(const Socket_native socket,
 
   using std::chrono::seconds;
   using std::chrono::milliseconds;
+  using std::chrono::microseconds;
   using std::chrono::duration_cast;
 
   // When (tv_p == nullptr), select(2) treats it as "no timeout".
@@ -1151,7 +1152,7 @@ DMITIGR_UTIL_INLINE Socket_readiness poll(const Socket_native socket,
 
     const auto secs = duration_cast<seconds>(timeout);
     DMITIGR_ASSERT_ALWAYS(secs.count() <= std::numeric_limits<Tv_sec>::max());
-    const auto microsecs = duration_cast<milliseconds>(timeout - secs);
+    const auto microsecs = duration_cast<microseconds>(timeout - secs);
     DMITIGR_ASSERT_ALWAYS(microsecs.count() <= std::numeric_limits<Tv_usec>::max());
 
     tv_p->tv_sec  = static_cast<Tv_sec>(secs.count());
