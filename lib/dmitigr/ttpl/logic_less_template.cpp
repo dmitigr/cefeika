@@ -267,12 +267,16 @@ public:
   {
     std::string result;
     for (const auto fragment : fragments_) {
+      const auto& name = fragment.second;
       switch (fragment.first) {
       case Fragment::text:
-        result.append(fragment.second);
+        result.append(name);
         break;
       case Fragment::parameter:
-        result.append(parameter(fragment.second)->value().value());
+        if (const auto& value = parameter(name)->value(); value)
+          result.append(value.value());
+        else
+          throw std::runtime_error{"the parameter \"" + name + "\" of the text template is unset"};
         break;
       }
     }
