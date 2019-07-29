@@ -196,34 +196,42 @@ public:
     return entries_.size();
   }
 
-  std::optional<std::size_t> entry_index(const std::string& name, const std::size_t offset) const override
+  std::optional<std::size_t> entry_index(const std::string_view name, const std::size_t offset) const override
   {
-    DMITIGR_REQUIRE(offset < entry_count(), std::out_of_range);
-
+    DMITIGR_REQUIRE(offset < entry_count(), std::out_of_range,
+      "invalid form data entry offset (" + std::to_string(offset) + ")"
+      " of the dmitigr::mulf::Form_data instance");
     const auto b = cbegin(entries_);
     const auto e = cend(entries_);
-    const auto i = std::find_if(b + offset, e, [&](const iForm_data_entry& entry) { return entry.name() == name; });
+    const auto i = std::find_if(b + offset, e, [&](const auto& entry) { return entry.name() == name; });
     return i != e ? std::make_optional<std::size_t>(i - b) : std::nullopt;
   }
 
-  const iForm_data_entry* entry(std::size_t index) const override
+  std::size_t entry_index_throw(const std::string_view name, const std::size_t offset) const override
   {
-    DMITIGR_REQUIRE(index < entry_count(), std::out_of_range);
+    const auto result = entry_index(name, offset);
+    DMITIGR_REQUIRE(result, std::out_of_range,
+      "the instance of dmitigr::mulf::Form_data has no entry \"" + std::string{name} + "\"");
+    return *result;
+  }
 
+  const iForm_data_entry* entry(const std::size_t index) const override
+  {
+    DMITIGR_REQUIRE(index < entry_count(), std::out_of_range,
+      "invalid form data entry index (" + std::to_string(index) + ")"
+      " of the dmitigr::mulf::Form_data instance");
     return &entries_[index];
   }
 
-  const iForm_data_entry* entry(const std::string& name, const std::size_t offset) const override
+  const iForm_data_entry* entry(const std::string_view name, const std::size_t offset) const override
   {
-    const auto index = entry_index(name, offset);
-    DMITIGR_REQUIRE(index, std::out_of_range);
-
-    return &entries_[*index];
+    const auto index = entry_index_throw(name, offset);
+    return &entries_[index];
   }
 
-  bool has_entry(const std::string& name, const std::size_t offset) const override
+  bool has_entry(const std::string_view name, const std::size_t offset) const override
   {
-    return bool(entry_index(name, offset));
+    return static_cast<bool>(entry_index(name, offset));
   }
 
   bool has_entries() const override

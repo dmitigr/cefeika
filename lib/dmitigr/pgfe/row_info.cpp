@@ -150,24 +150,25 @@ public:
     return (*shared_field_names_)[index];
   }
 
-  std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset = 0) const override
+  std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset) const override
   {
-    if (const auto i = field_index__(name, offset); i < field_count())
-      return i;
+    if (const auto result = field_index__(name, offset); result < field_count())
+      return result;
     else
       return std::nullopt;
   }
 
-  std::size_t field_index_throw(const std::string& name, std::size_t offset) const override
+  std::size_t field_index_throw(const std::string& name, const std::size_t offset) const override
   {
-    const auto i = field_index__(name, offset);
-    DMITIGR_REQUIRE(i < field_count(), std::out_of_range);
-    return i;
+    const auto result = field_index__(name, offset);
+    DMITIGR_REQUIRE(result < field_count(), std::out_of_range,
+      "the instance of dmitigr::pgfe::Row_info has no field \"" + name + "\"");
+    return result;
   }
 
-  bool has_field(const std::string& name, const std::size_t offset = 0) const override
+  bool has_field(const std::string& name, const std::size_t offset) const override
   {
-    return bool(field_index(name, offset));
+    return static_cast<bool>(field_index(name, offset));
   }
 
   // ---------------------------------------------------------------------------
@@ -252,7 +253,7 @@ private:
     const auto e = cend(*shared_field_names_);
     const auto ident = unquote_identifier(name);
     const auto i = std::find(b + offset, e, ident);
-    return (i - b);
+    return i - b;
   }
 
   pq::Result pq_result_;

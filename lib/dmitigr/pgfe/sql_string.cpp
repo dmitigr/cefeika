@@ -126,22 +126,23 @@ public:
 
   std::optional<std::size_t> parameter_index(const std::string& name) const override
   {
-    if (const auto i = named_parameter_index__(name); i < parameter_count())
-      return i;
+    if (const auto result = named_parameter_index__(name); result < parameter_count())
+      return result;
     else
       return std::nullopt;
   }
 
   std::size_t parameter_index_throw(const std::string& name) const override
   {
-    const auto i = named_parameter_index__(name);
-    DMITIGR_REQUIRE(i < parameter_count(), std::out_of_range);
-    return i;
+    const auto result = named_parameter_index__(name);
+    DMITIGR_REQUIRE(result < parameter_count(), std::out_of_range,
+      "the instance of dmitigr::pgfe::Sql_string has no parameter \"" + name + "\"");
+    return result;
   }
 
   bool has_parameter(const std::string& name) const override
   {
-    return bool(parameter_index(name));
+    return static_cast<bool>(parameter_index(name));
   }
 
   bool has_positional_parameters() const override

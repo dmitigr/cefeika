@@ -15,4 +15,9 @@
  */
 #define DMITIGR_XSTRINGIZED(s) DMITIGR_STRINGIZED(s)
 
+/**
+ * @brief Expands to `x`.
+ */
+#define DMITIGR_EXPAND(x) x
+
 #endif // DMITIGR_UTIL_MACROS_HPP

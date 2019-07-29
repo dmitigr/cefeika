@@ -100,10 +100,18 @@ public:
   virtual std::size_t parameter_count() const = 0;
 
   /**
-   * @returns The parameter index if the parameter with the specified name is
-   * present, or `std::nullopt` otherwise.
+   * @returns The parameter index if `has_parameter(name)`, or
+   * `std::nullopt` otherwise.
    */
   virtual std::optional<std::size_t> parameter_index(std::string_view name) const = 0;
+
+  /**
+   * @returns The parameter index.
+   *
+   * @par Requires
+   * `has_parameter(name)`.
+   */
+  virtual std::size_t parameter_index_throw(std::string_view name) const = 0;
 
   /**
    * @returns The parameter.

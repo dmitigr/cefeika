@@ -84,10 +84,34 @@ constexpr bool is_debug_enabled = true;
  *
  * @throws An instance of type `Exc` if the requirement failure.
  */
-#define DMITIGR_REQUIRE(req, Exc) {                 \
+#define DMITIGR_REQUIRE2(req, Exc) {                \
     if (!(req)) {                                   \
       DMITIGR_THROW_REQUIREMENT_VIOLATED(req, Exc)  \
     }                                               \
   }
+
+/**
+ * @brief Checks the requirement `req`.
+ *
+ * @throws An instance of type `Exc` initialized by `msg`
+ * if the requirement failure.
+ */
+#define DMITIGR_REQUIRE3(req, Exc, msg) {       \
+    if (!(req)) {                               \
+      throw Exc{msg};                           \
+    }                                           \
+  }
+
+/**
+ * @brief Expands to `macro_name`.
+ */
+#define DMITIGR_REQUIRE_NAME__(_1, _2, _3, macro_name, ...) macro_name
+
+/**
+ * @brief Expands to
+ *   - DMITIGR_REQUIRE2(req, Exc) if 2 arguments passed;
+ *   - DMITIGR_REQUIRE3(req, Exc, msg) if 3 arguments passed.
+ */
+#define DMITIGR_REQUIRE(...) DMITIGR_EXPAND(DMITIGR_REQUIRE_NAME__(__VA_ARGS__, DMITIGR_REQUIRE3, DMITIGR_REQUIRE2)(__VA_ARGS__))
 
 #endif  // DMITIGR_UTIL_DEBUG_HPP

@@ -104,13 +104,21 @@ public:
   virtual std::size_t entry_count() const = 0;
 
   /**
-   * @returns The entry index if entry with the specified name is present, or
+   * @returns The entry index if `has_entry(name, offset)`, or
    * `std::nullopt` otherwise.
    *
    * @par Requires
    * `(offset < entry_count())`.
    */
   virtual std::optional<std::size_t> entry_index(std::string_view name, std::size_t offset = 0) const = 0;
+
+  /**
+   * @returns The entry index.
+   *
+   * @par Requires
+   * `has_entry(name, offset)`.
+   */
+  virtual std::size_t entry_index_throw(std::string_view name, std::size_t offset = 0) const = 0;
 
   /**
    * @returns The entry.
@@ -128,9 +136,6 @@ public:
   /**
    * @overload
    *
-   * @param name - the entry name specifier;
-   * @param offset - the entry offset (starting lookup position) specifier.
-   *
    * @par Requires
    * `has_entry(name, offset)`.
    */
@@ -142,7 +147,8 @@ public:
   virtual Entry* entry(std::string_view name, std::size_t offset = 0) = 0;
 
   /**
-   * @returns `true` if the entry named by `name` is presents, or `false` otherwise.
+   * @returns `true` if this instance has the entry with the specified `name`,
+   * or `false` otherwise.
    *
    * @par Requires
    * `(offset < entry_count())`.
@@ -180,7 +186,10 @@ public:
    * @overload
    *
    * @par Requires
-   * `has_entry(name, offset)`.
+   * `(offset < entry_count())`.
+   *
+   * @par Effects
+   * `!has_parameter(name, offset)`.
    */
   virtual void remove_entry(std::string_view name, std::size_t offset = 0) = 0;
 

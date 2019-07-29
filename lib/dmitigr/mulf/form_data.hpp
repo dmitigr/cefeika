@@ -165,42 +165,45 @@ public:
   virtual std::size_t entry_count() const = 0;
 
   /**
-   * @returns The index of entry with the specified name if such an entry
-   * is present.
+   * @returns The entry index if `has_entry(name, offset)`, or
+   * `std::nullopt` otherwise.
    *
    * @par Requires
    * `(offset < entry_count())`.
    */
-  virtual std::optional<std::size_t> entry_index(const std::string& name, const std::size_t offset = 0) const = 0;
+  virtual std::optional<std::size_t> entry_index(std::string_view name, std::size_t offset = 0) const = 0;
+
+  /**
+   * @returns The entry index.
+   *
+   * @par Requires
+   * `has_entry(name, offset)`.
+   */
+  virtual std::size_t entry_index_throw(std::string_view name, std::size_t offset = 0) const = 0;
 
   /**
    * @returns The entry.
    *
-   * @param index - the entry index specifier
-   *
    * @par Requires
-   * Index in range [0, entry_count()).
+   * `(index < entry_count())`.
    */
   virtual const Entry* entry(std::size_t index) const = 0;
 
   /**
    * @overload
    *
-   * @param name - the entry name specifier;
-   * @param offset - the entry offset (starting lookup position) specifier.
-   *
-   * @par Requires
-   * `has_entry(name, offset)`.
+   * @returns `entry(entry_index_throw(name, offset))`.
    */
-  virtual const Entry* entry(const std::string& name, const std::size_t offset = 0) const = 0;
+  virtual const Entry* entry(std::string_view name, std::size_t offset = 0) const = 0;
 
   /**
-   * @returns `true` if the entry named by `name` is presents, or `false` otherwise.
+   * @returns `true` if this instance has the entry with the specified `name`,
+   * or `false` otherwise.
    *
    * @par Requires
    * `(offset < entry_count())`.
    */
-  virtual bool has_entry(const std::string& name, const std::size_t offset = 0) const = 0;
+  virtual bool has_entry(std::string_view name, std::size_t offset = 0) const = 0;
 
   /**
    * @returns `(entry_count() > 0)`

@@ -53,6 +53,9 @@ private:
 
 /**
  * @brief An URL query string.
+ *
+ * @remarks Since several parameters can be named equally, `offset` can be
+ * specified as the starting lookup index in the corresponding methods.
  */
 class Query_string {
 public:
@@ -96,16 +99,21 @@ public:
   virtual std::size_t parameter_count() const = 0;
 
   /**
-   * @returns The parameter index if the parameter with the specified name
-   * is present.
-   *
-   * @param name - parameter name specifier;
-   * @param offset - parameter offset (starting lookup position) specifier.
+   * @returns The parameter index if `has_parameter(name, offset)`, or
+   * `std::nullopt` otherwise.
    *
    * @par Requires
    * `(offset < parameter_count())`.
    */
-  virtual std::optional<std::size_t> parameter_index(std::string_view name, const std::size_t offset = 0) const = 0;
+  virtual std::optional<std::size_t> parameter_index(std::string_view name, std::size_t offset = 0) const = 0;
+
+  /**
+   * @returns The parameter index.
+   *
+   * @par Requires
+   * `has_parameter(name, offset)`.
+   */
+  virtual std::size_t parameter_index_throw(std::string_view name, std::size_t offset = 0) const = 0;
 
   /**
    * @returns The parameter.
@@ -122,9 +130,6 @@ public:
 
   /**
    * @overload
-   *
-   * @param name - parameter name specifier;
-   * @param offset - parameter offset (starting lookup position) specifier.
    *
    * @par Requires
    * `has_parameter(name, offset)`.
@@ -145,7 +150,7 @@ public:
   virtual bool has_parameter(std::string_view name, std::size_t offset = 0) const = 0;
 
   /**
-   * @returns `(parameter_count() > 0)`
+   * @returns `(parameter_count() > 0)`.
    */
   virtual bool has_parameters() const = 0;
 
@@ -174,11 +179,11 @@ public:
   /**
    * @overload
    *
-   * @param name - parameter name specifier;
-   * @param offset - parameter offset (starting lookup position) specifier.
-   *
    * @par Requires
-   * `has_parameter(name, offset)`.
+   * `(offset < parameter_count())`.
+   *
+   * @par Effects
+   * `!has_parameter(name, offset)`.
    */
   virtual void remove_parameter(std::string_view name, std::size_t offset = 0) = 0;
 

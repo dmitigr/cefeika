@@ -199,16 +199,23 @@ public:
   {
     const auto b = cbegin(parameters_);
     const auto e = cend(parameters_);
-    const auto i = std::find_if(b, e, [&](const auto& p) {
-      return p.name() == name;
-    });
+    const auto i = std::find_if(b, e, [&](const auto& p) { return p.name() == name; });
     return (i != e) ? std::make_optional(i - b) : std::nullopt;
+  }
+
+  std::size_t parameter_index_throw(const std::string_view name) const override
+  {
+    const auto result = parameter_index(name);
+    DMITIGR_REQUIRE(result, std::out_of_range,
+      "the instance of dmitigr::ttpl::Logic_less_template has no parameter \"" + std::string{name} + "\"");
+    return *result;
   }
 
   const iParameter* parameter(const std::size_t index) const override
   {
-    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range);
-
+    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range,
+      "invalid parameter index (" + std::to_string(index) + ")"
+      " of the dmitigr::ttpl::Logic_less_template instance");
     return &parameters_[index];
   }
 
@@ -219,10 +226,8 @@ public:
 
   const iParameter* parameter(const std::string_view name) const override
   {
-    const auto index = parameter_index(name);
-    DMITIGR_REQUIRE(index, std::out_of_range);
-
-    return &parameters_[*index];
+    const auto index = parameter_index_throw(name);
+    return &parameters_[index];
   }
 
   iParameter* parameter(const std::string_view name) override
@@ -232,7 +237,7 @@ public:
 
   bool has_parameter(const std::string_view name) const override
   {
-    return bool(parameter_index(name));
+    return static_cast<bool>(parameter_index(name));
   }
 
   bool has_parameters() const override
@@ -273,10 +278,11 @@ public:
         result.append(name);
         break;
       case Fragment::parameter:
-        if (const auto& value = parameter(name)->value(); value)
-          result.append(value.value());
-        else
-          throw std::runtime_error{"the parameter \"" + name + "\" of the text template is unset"};
+        const auto& value = parameter(name)->value();
+        DMITIGR_REQUIRE(value, std::logic_error,
+          "the parameter \"" + name + "\""
+          " of the dmitigr::ttpl::Logic_less_template instance is unset");
+        result.append(value.value());
         break;
       }
     }
@@ -289,30 +295,10 @@ private:
   std::list<std::pair<Fragment, std::string>> fragments_;
   std::vector<iParameter> parameters_;
 
-  // ---------------------------------------------------------------------------
-
   bool is_invariant_ok() const
   {
     const bool cond1 = parameters_.empty() || !fragments_.empty();
     return cond1;
-  }
-
-  // ---------------------------------------------------------------------------
-
-  /**
-   * @returns The vector of *all* parameter names.
-   */
-  std::vector<std::string> parameter_names__() const
-  {
-    auto i = std::cbegin(fragments_);
-    const auto e = std::cend(fragments_);
-    std::vector<std::string> result;
-    result.reserve(parameter_count() * 2);
-    for (; i != e; ++i) {
-      if (i->first == Fragment::parameter)
-        result.emplace_back(i->second);
-    }
-    return result;
   }
 };
 

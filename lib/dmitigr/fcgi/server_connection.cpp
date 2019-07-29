@@ -52,24 +52,31 @@ public:
     return parameters_.pair_index(name);
   }
 
+  std::size_t parameter_index_throw(const std::string_view name) const override
+  {
+    const auto result = parameter_index(name);
+    DMITIGR_REQUIRE(result, std::out_of_range,
+      "the instance of dmitigr::fcgi::Server_connection has no parameter \"" + std::string{name} + "\"");
+    return *result;
+  }
+
   const detail::Name_value* parameter(const std::size_t index) const override
   {
-    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range);
-
+    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range,
+      "invalid parameter index (" + std::to_string(index) + ")"
+      " of the dmitigr::fcgi::Server_connection instance");
     return parameters_.pair(index);
   }
 
   const detail::Name_value* parameter(const std::string_view name) const override
   {
-    const auto index = parameter_index(name);
-    DMITIGR_REQUIRE(index, std::out_of_range);
-
-    return parameters_.pair(*index);
+    const auto index = parameter_index_throw(name);
+    return parameters_.pair(index);
   }
 
   bool has_parameter(const std::string_view name) const override
   {
-    return bool(parameter_index(name));
+    return static_cast<bool>(parameter_index(name));
   }
 
   bool has_parameters() const override

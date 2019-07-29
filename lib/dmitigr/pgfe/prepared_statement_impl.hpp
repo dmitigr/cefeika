@@ -101,22 +101,23 @@ public:
 
   std::optional<std::size_t> parameter_index(const std::string& name) const override
   {
-    if (const auto i = parameter_index__(name); i < parameter_count())
-      return i;
+    if (const auto result = parameter_index__(name); result < parameter_count())
+      return result;
     else
       return std::nullopt;
   }
 
   std::size_t parameter_index_throw(const std::string& name) const override
   {
-    const auto i = parameter_index__(name);
-    DMITIGR_REQUIRE(i < parameter_count(), std::out_of_range);
-    return i;
+    const auto result = parameter_index__(name);
+    DMITIGR_REQUIRE(result < parameter_count(), std::out_of_range,
+      "the instance of dmitigr::pgfe::Prepared_statement has no parameter \"" + name + "\"");
+    return result;
   }
 
   bool has_parameter(const std::string& name) const override
   {
-    return bool(parameter_index(name));
+    return static_cast<bool>(parameter_index(name));
   }
 
   bool has_positional_parameters() const override
@@ -160,7 +161,9 @@ public:
 
   const Data* parameter(const std::size_t index) const override
   {
-    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range);
+    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range,
+      "invalid parameter index (" + std::to_string(index) + ")"
+      " of the dmitigr::pgfe::Prepared_statement instance");
     return parameters_[index].data.get();
   }
 
@@ -312,10 +315,10 @@ private:
 
   std::size_t parameter_index__(const std::string& name) const
   {
-    const auto beg = cbegin(parameters_);
-    const auto end = cend(parameters_);
-    const auto pos = std::find_if(beg, end, [&](const auto& p) { return p.name == name; });
-    return pos - beg;
+    const auto b = cbegin(parameters_);
+    const auto e = cend(parameters_);
+    const auto i = std::find_if(b, e, [&](const auto& p) { return p.name == name; });
+    return i - b;
   }
 
   constexpr static std::size_t maximum_parameter_count_{65536 - 1};

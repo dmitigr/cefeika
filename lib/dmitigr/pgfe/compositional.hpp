@@ -47,7 +47,8 @@ public:
   virtual const std::string& field_name(std::size_t index) const = 0;
 
   /**
-   * @returns The field index if the field with the specified name is present.
+   * @returns The field index if `has_field(name, offset)`, or
+   * `std::nullopt` otherwise.
    *
    * @remarks Since several fields can be named equally, `offset` can be
    * specified as the starting lookup index.
@@ -58,7 +59,7 @@ public:
   virtual std::optional<std::size_t> field_index(const std::string& name, std::size_t offset = 0) const = 0;
 
   /**
-   * @returns `field_index(name, offset).value()`
+   * @returns The field index.
    *
    * @par Requires
    * `has_field(name, offset)`.
@@ -66,7 +67,8 @@ public:
   virtual std::size_t field_index_throw(const std::string& name, std::size_t offset = 0) const = 0;
 
   /**
-   * @returns `true` if the field named by `name` is presents, or `false` otherwise.
+   * @returns `true` if this instance has the field with the specified `name`,
+   * or `false` otherwise.
    *
    * @par Requires
    * `(offset < field_count())`.

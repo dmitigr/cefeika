@@ -110,7 +110,7 @@ public:
    * @param extra_offset - the starting position of lookup in the extra data.
    *
    * @par Requires
-   * `(offset < sql_string_count() && extra_offset < sql_string(i)->extra()->field_count())`,
+   * `(offset < sql_string_count() && extra_offset < sql_string(i)->extra()->field_count())`
    * for each `i` in range `[0, sql_string_count())`.
    *
    * @see Sql_string::extra().
@@ -119,11 +119,10 @@ public:
     std::size_t offset = 0, std::size_t extra_offset = 0) const = 0;
 
   /**
-   * @brief Similar to sql_string_index(const std::string&, const std::string&, std::size_t, std::size_t)
-   * except the requirement.
+   * @brief Similar to sql_string_index() except the requirement.
    *
-   * @par Requires:
-   * `has_sql_string(name)`.
+   * @par Requires
+   * `has_sql_string(extra_name, extra_value, offset, extra_offset)`.
    */
   virtual std::size_t sql_string_index_throw(const std::string& extra_name, const std::string& extra_value,
     std::size_t offset = 0, std::size_t extra_offset = 0) const = 0;

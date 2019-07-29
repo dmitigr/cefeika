@@ -121,14 +121,15 @@ public:
 
   std::size_t field_index_throw(const std::string& name, const std::size_t offset = 0) const override
   {
-    const auto i = field_index__(name, offset);
-    DMITIGR_REQUIRE(i < field_count(), std::out_of_range);
-    return i;
+    const auto result = field_index__(name, offset);
+    DMITIGR_REQUIRE(result < field_count(), std::out_of_range,
+      "the instance of dmitigr::pgfe::Composite has no field \"" + name + "\"");
+    return result;
   }
 
   bool has_field(const std::string& name, const std::size_t offset = 0) const override
   {
-    return bool(field_index(name, offset));
+    return static_cast<bool>(field_index(name, offset));
   }
 
   // ---------------------------------------------------------------------------
@@ -213,9 +214,11 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  void remove_field(const std::string& name, std::size_t offset = 0) override
+  void remove_field(const std::string& name, const std::size_t offset) override
   {
-    remove_field(field_index_throw(name, offset));
+    if (const auto index = field_index(name, offset))
+      datas_.erase(cbegin(datas_) + *index);
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   std::vector<std::pair<std::string, std::unique_ptr<Data>>> to_vector() const override
@@ -251,9 +254,11 @@ protected:
   }
 
 private:
-  std::size_t field_index__(const std::string& name, std::size_t offset) const
+  std::size_t field_index__(const std::string& name, const std::size_t offset) const
   {
-    DMITIGR_REQUIRE(offset < field_count(), std::out_of_range);
+    DMITIGR_REQUIRE(offset < field_count(), std::out_of_range,
+      "invalid field offset (" + std::to_string(offset) + ")"
+      " of the dmitigr::pgfe::Composite instance");
     const auto b = cbegin(datas_);
     const auto e = cend(datas_);
     const auto ident = unquote_identifier(name);

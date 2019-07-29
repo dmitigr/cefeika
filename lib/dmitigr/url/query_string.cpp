@@ -174,20 +174,30 @@ public:
     return parameters_.size();
   }
 
-  std::optional<std::size_t> parameter_index(std::string_view name, const std::size_t offset) const override
+  std::optional<std::size_t> parameter_index(const std::string_view name, const std::size_t offset) const override
   {
-    DMITIGR_REQUIRE(offset < parameter_count(), std::out_of_range);
-
+    DMITIGR_REQUIRE(offset < parameter_count(), std::out_of_range,
+      "invalid parameter offset (" + std::to_string(offset) + ")"
+      " of the dmitigr::url::Query_string instance");
     const auto b = cbegin(parameters_);
     const auto e = cend(parameters_);
     const auto i = std::find_if(b + offset, e, [&](const auto& p) { return p.name() == name; });
     return i != e ? std::make_optional<std::size_t>(i - b) : std::nullopt;
   }
 
+  std::size_t parameter_index_throw(const std::string_view name, const std::size_t offset) const override
+  {
+    const auto result = parameter_index(name, offset);
+    DMITIGR_REQUIRE(result, std::out_of_range,
+      "the instance of dmitigr::url::Query_string has no parameter \"" + std::string{name} + "\"");
+    return *result;
+  }
+
   const iParameter* parameter(const std::size_t index) const override
   {
-    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range);
-
+    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range,
+      "invalid parameter index (" + std::to_string(index) + ")"
+      " of the dmitigr::url::Query_string instance");
     return &parameters_[index];
   }
 
@@ -198,10 +208,8 @@ public:
 
   const iParameter* parameter(const std::string_view name, const std::size_t offset) const override
   {
-    const auto index = parameter_index(name, offset);
-    DMITIGR_REQUIRE(index, std::out_of_range);
-
-    return &parameters_[*index];
+    const auto index = parameter_index_throw(name, offset);
+    return &parameters_[index];
   }
 
   iParameter* parameter(const std::string_view name, const std::size_t offset) override
@@ -211,7 +219,7 @@ public:
 
   bool has_parameter(const std::string_view name, const std::size_t offset) const override
   {
-    return bool(parameter_index(name, offset));
+    return static_cast<bool>(parameter_index(name, offset));
   }
 
   bool has_parameters() const override
@@ -237,10 +245,8 @@ public:
 
   void remove_parameter(const std::string_view name, const std::size_t offset) override
   {
-    const auto index = parameter_index(name, offset);
-    DMITIGR_REQUIRE(index, std::out_of_range);
-
-    parameters_.erase(cbegin(parameters_) + *index);
+    if (const auto index = parameter_index(name, offset))
+      parameters_.erase(cbegin(parameters_) + *index);
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
