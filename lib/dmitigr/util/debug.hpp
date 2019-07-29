@@ -111,7 +111,10 @@ constexpr bool is_debug_enabled = true;
  * @brief Expands to
  *   - DMITIGR_REQUIRE2(req, Exc) if 2 arguments passed;
  *   - DMITIGR_REQUIRE3(req, Exc, msg) if 3 arguments passed.
+ *
+ * @remarks The dummy argument `ARG` is used to avoid the warning that ISO
+ * C++11 requires at least one argument for the "..." in a variadic macro.
  */
-#define DMITIGR_REQUIRE(...) DMITIGR_EXPAND(DMITIGR_REQUIRE_NAME__(__VA_ARGS__, DMITIGR_REQUIRE3, DMITIGR_REQUIRE2)(__VA_ARGS__))
+#define DMITIGR_REQUIRE(...) DMITIGR_EXPAND(DMITIGR_REQUIRE_NAME__(__VA_ARGS__, DMITIGR_REQUIRE3, DMITIGR_REQUIRE2, ARG)(__VA_ARGS__))
 
 #endif  // DMITIGR_UTIL_DEBUG_HPP
