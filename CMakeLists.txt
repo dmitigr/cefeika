@@ -260,6 +260,9 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
     install(FILES ${dmitigr_${lib}_implementations}
       DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
+
+    install(FILES lib/dmitigr/cefeika_header_only.hpp
+      DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr)
   endif()
 
   if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)

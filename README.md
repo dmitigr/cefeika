@@ -173,9 +173,10 @@ available library in the following order:
 Usage without CMake
 -------------------
 
-It's possible to use header-only libraries without [CMake]. It can be done
-by defining the `DMITIGR_LIB_HEADER_ONLY` macros, where `LIB` - is a library
-name, before including a library header, for example:
+Of course, it's possible to use the libraries without [CMake]. In order to use
+header-only libraries the macros `DMITIGR_LIB_HEADER_ONLY`, where `LIB` - is a
+library name in uppercase, must be defined before including a library header,
+for example:
 
 ```cpp
 #define DMITIGR_PGFE_HEADER_ONLY
@@ -183,7 +184,18 @@ name, before including a library header, for example:
 // ...
 ```
 
-Please note, that external dependencies must be linked manually in this case.
+It's highly recommended to use the helper header `cefeika_header_only.hpp`
+in which `DMITIGR_LIB_HEADER_ONLY` macros are already defined, for example:
+
+```cpp
+#include <dmitigr/cefeika_header_only.hpp>
+#include <dmitigr/fcgi.hpp>
+#include <dmitigr/pgfe.hpp>
+// ...
+```
+
+Please note, that external dependencies, such as `Ws2_32.lib` on Microsoft
+Windows, must be linked manually in this case!
 
 Remarks
 -------
