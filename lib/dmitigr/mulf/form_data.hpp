@@ -167,9 +167,6 @@ public:
   /**
    * @returns The entry index if `has_entry(name, offset)`, or
    * `std::nullopt` otherwise.
-   *
-   * @par Requires
-   * `(offset < entry_count())`.
    */
   virtual std::optional<std::size_t> entry_index(std::string_view name, std::size_t offset = 0) const = 0;
 
@@ -199,9 +196,6 @@ public:
   /**
    * @returns `true` if this instance has the entry with the specified `name`,
    * or `false` otherwise.
-   *
-   * @par Requires
-   * `(offset < entry_count())`.
    */
   virtual bool has_entry(std::string_view name, std::size_t offset = 0) const = 0;
 

@@ -109,10 +109,6 @@ public:
    * @param offset - the starting position of lookup in this vector;
    * @param extra_offset - the starting position of lookup in the extra data.
    *
-   * @par Requires
-   * `(offset < sql_string_count() && extra_offset < sql_string(i)->extra()->field_count())`
-   * for each `i` in range `[0, sql_string_count())`.
-   *
    * @see Sql_string::extra().
    */
   virtual std::optional<std::size_t> sql_string_index(const std::string& extra_name, const std::string& extra_value,

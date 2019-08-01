@@ -101,9 +101,6 @@ public:
   /**
    * @returns The parameter index if `has_parameter(name, offset)`, or
    * `std::nullopt` otherwise.
-   *
-   * @par Requires
-   * `(offset < parameter_count())`.
    */
   virtual std::optional<std::size_t> parameter_index(std::string_view name, std::size_t offset = 0) const = 0;
 
@@ -142,10 +139,8 @@ public:
   virtual Parameter* parameter(std::string_view name, std::size_t offset = 0) = 0;
 
   /**
-   * @returns `true` if the parameter named by `name` is presents, or `false` otherwise.
-   *
-   * @par Requires
-   * `(offset < parameter_count())`.
+   * @returns `true` if the parameter named by `name` is presents, or
+   * `false` otherwise.
    */
   virtual bool has_parameter(std::string_view name, std::size_t offset = 0) const = 0;
 
@@ -178,9 +173,6 @@ public:
 
   /**
    * @overload
-   *
-   * @par Requires
-   * `(offset < parameter_count())`.
    *
    * @par Effects
    * `!has_parameter(name, offset)`.

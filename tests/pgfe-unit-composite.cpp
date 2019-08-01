@@ -17,7 +17,7 @@ int main(int, char* argv[])
     ASSERT(c->field_count() == 0);
     ASSERT(!c->has_fields());
     ASSERT(is_logic_throw_works([&](){ c->field_name(0); }));
-    ASSERT(is_logic_throw_works([&](){ c->field_index("foo"); }));
+    ASSERT(!is_logic_throw_works([&](){ c->field_index("foo"); }));
     ASSERT(is_logic_throw_works([&](){ c->data(0); }));
     ASSERT(is_logic_throw_works([&](){ c->data("foo"); }));
     ASSERT(is_logic_throw_works([&](){ c->set_data(0, nullptr); }));

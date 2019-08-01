@@ -113,18 +113,22 @@ public:
 
   std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset = 0) const override
   {
-    if (const auto i = field_index__(name, offset); i < field_count())
-      return i;
-    else
+    if (offset < field_count()) {
+      const auto b = cbegin(datas_);
+      const auto e = cend(datas_);
+      const auto ident = unquote_identifier(name);
+      const auto i = std::find_if(b + offset, e, [&](const auto& pair) { return pair.first == ident; });
+      return i != e ? std::make_optional(i - b) : std::nullopt;
+    } else
       return std::nullopt;
   }
 
   std::size_t field_index_throw(const std::string& name, const std::size_t offset = 0) const override
   {
-    const auto result = field_index__(name, offset);
-    DMITIGR_REQUIRE(result < field_count(), std::out_of_range,
+    const auto result = field_index(name, offset);
+    DMITIGR_REQUIRE(result, std::out_of_range,
       "the instance of dmitigr::pgfe::Composite has no field \"" + name + "\"");
-    return result;
+    return *result;
   }
 
   bool has_field(const std::string& name, const std::size_t offset = 0) const override
@@ -254,18 +258,6 @@ protected:
   }
 
 private:
-  std::size_t field_index__(const std::string& name, const std::size_t offset) const
-  {
-    DMITIGR_REQUIRE(offset < field_count(), std::out_of_range,
-      "invalid field offset (" + std::to_string(offset) + ")"
-      " of the dmitigr::pgfe::Composite instance");
-    const auto b = cbegin(datas_);
-    const auto e = cend(datas_);
-    const auto ident = unquote_identifier(name);
-    const auto i = std::find_if(b + offset, e, [&](const auto& pair) { return pair.first == ident; });
-    return (i - b);
-  }
-
   std::vector<std::pair<std::string, std::unique_ptr<Data>>> datas_;
 };
 

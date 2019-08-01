@@ -109,12 +109,21 @@ public:
   std::optional<std::size_t> sql_string_index(const std::string& extra_name, const std::string& extra_value,
     const std::size_t offset, const std::size_t extra_offset) const override
   {
-    DMITIGR_REQUIRE(offset < sql_string_count(), std::out_of_range,
-      "invalid SQL string offset (" + std::to_string(offset) + ")"
-      " of the dmitigr::pgfe::Sql_vector instance");
-    if (const auto i = sql_string_index__(extra_name, extra_value, offset, extra_offset); i < sql_string_count())
-      return i;
-    else
+    if (offset < sql_string_count()) {
+      const auto b = cbegin(storage_);
+      const auto e = cend(storage_);
+      const auto i = std::find_if(b + offset, e,
+        [&](const auto& sql_string)
+        {
+          DMITIGR_ASSERT(sql_string);
+          if (const auto* const extra = sql_string->extra(); extra && extra_offset < extra->field_count()) {
+            const auto index = extra->field_index(extra_name, extra_offset);
+            return (index && (extra->data(*index)->bytes() == extra_value));
+          } else
+            return false;
+        });
+      return i != e ? std::make_optional(i - b) : std::nullopt;
+    } else
       return std::nullopt;
   }
 
@@ -211,27 +220,6 @@ protected:
   }
 
 private:
-  std::size_t sql_string_index__(const std::string& extra_name, const std::string& extra_value,
-    const std::size_t offset, const std::size_t extra_offset) const
-  {
-    const auto b = cbegin(storage_);
-    const auto e = cend(storage_);
-    const auto i = std::find_if(b + offset, e,
-      [&](const auto& sql_string)
-      {
-        DMITIGR_ASSERT(sql_string);
-        if (const auto* const extra = sql_string->extra()) {
-          if (extra_offset < extra->field_count()) {
-            const auto index = extra->field_index(extra_name, extra_offset);
-            return (index && (extra->data(*index)->bytes() == extra_value));
-          } else
-            return false;
-        } else
-          return false;
-      });
-    return (i - b);
-  }
-
   mutable std::vector<std::unique_ptr<Sql_string>> storage_;
 };
 

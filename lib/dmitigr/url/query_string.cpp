@@ -176,13 +176,13 @@ public:
 
   std::optional<std::size_t> parameter_index(const std::string_view name, const std::size_t offset) const override
   {
-    DMITIGR_REQUIRE(offset < parameter_count(), std::out_of_range,
-      "invalid parameter offset (" + std::to_string(offset) + ")"
-      " of the dmitigr::url::Query_string instance");
-    const auto b = cbegin(parameters_);
-    const auto e = cend(parameters_);
-    const auto i = std::find_if(b + offset, e, [&](const auto& p) { return p.name() == name; });
-    return i != e ? std::make_optional<std::size_t>(i - b) : std::nullopt;
+    if (offset < parameter_count()) {
+      const auto b = cbegin(parameters_);
+      const auto e = cend(parameters_);
+      const auto i = std::find_if(b + offset, e, [&](const auto& p) { return p.name() == name; });
+      return i != e ? std::make_optional(i - b) : std::nullopt;
+    } else
+      return std::nullopt;
   }
 
   std::size_t parameter_index_throw(const std::string_view name, const std::size_t offset) const override

@@ -52,9 +52,6 @@ public:
    *
    * @remarks Since several fields can be named equally, `offset` can be
    * specified as the starting lookup index.
-   *
-   * @par Requires
-   * `(offset < field_count())`.
    */
   virtual std::optional<std::size_t> field_index(const std::string& name, std::size_t offset = 0) const = 0;
 
@@ -69,9 +66,6 @@ public:
   /**
    * @returns `true` if this instance has the field with the specified `name`,
    * or `false` otherwise.
-   *
-   * @par Requires
-   * `(offset < field_count())`.
    */
   virtual bool has_field(const std::string& name, std::size_t offset = 0) const = 0;
 

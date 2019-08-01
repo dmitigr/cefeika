@@ -244,9 +244,6 @@ public:
    *
    * @par Effects
    * `!has_field(name, offset)`.
-   *
-   * @par Requires
-   * `(offset < field_count())`.
    */
   virtual void remove_field(const std::string& name, std::size_t offset = 0) = 0;
 

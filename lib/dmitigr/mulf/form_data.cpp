@@ -198,13 +198,13 @@ public:
 
   std::optional<std::size_t> entry_index(const std::string_view name, const std::size_t offset) const override
   {
-    DMITIGR_REQUIRE(offset < entry_count(), std::out_of_range,
-      "invalid form data entry offset (" + std::to_string(offset) + ")"
-      " of the dmitigr::mulf::Form_data instance");
-    const auto b = cbegin(entries_);
-    const auto e = cend(entries_);
-    const auto i = std::find_if(b + offset, e, [&](const auto& entry) { return entry.name() == name; });
-    return i != e ? std::make_optional<std::size_t>(i - b) : std::nullopt;
+    if (offset < entry_count()) {
+      const auto b = cbegin(entries_);
+      const auto e = cend(entries_);
+      const auto i = std::find_if(b + offset, e, [&](const auto& entry) { return entry.name() == name; });
+      return i != e ? std::make_optional(i - b) : std::nullopt;
+    } else
+      return std::nullopt;
   }
 
   std::size_t entry_index_throw(const std::string_view name, const std::size_t offset) const override
