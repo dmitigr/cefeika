@@ -28,16 +28,19 @@ DMITIGR_UTIL_INLINE const char* coalesce(std::initializer_list<const char*> lite
 
 // =============================================================================
 
-DMITIGR_UTIL_INLINE std::size_t line_number_by_position(const std::string& str, const std::size_t pos)
+DMITIGR_UTIL_INLINE std::size_t
+line_number_by_position(const std::string& str, const std::string::size_type pos)
 {
-  DMITIGR_ASSERT(pos < str.size());
-  return std::count(cbegin(str), cbegin(str) + pos, '\n') + 1;
+  DMITIGR_REQUIRE(pos < str.size(), std::out_of_range,
+    "invalid position for dmitigr::util::line_number_by_position()");
+  return std::count(cbegin(str), cbegin(str) + pos, '\n');
 }
 
 DMITIGR_UTIL_INLINE std::pair<std::size_t, std::size_t>
-line_column_numbers_by_position(const std::string& str, const std::size_t pos)
+line_column_numbers_by_position(const std::string& str, const std::string::size_type pos)
 {
-  DMITIGR_ASSERT(pos < str.size());
+  DMITIGR_REQUIRE(pos < str.size(), std::out_of_range,
+    "invalid position for dmitigr::util::line_column_numbers_by_position()");
   std::size_t line{}, column{};
   for (std::size_t i = 0; i < pos; ++i) {
     ++column;
@@ -46,7 +49,7 @@ line_column_numbers_by_position(const std::string& str, const std::size_t pos)
       column = 0;
     }
   }
-  return std::make_pair(line + 1, column + 1);
+  return std::make_pair(line, column);
 }
 
 // =============================================================================

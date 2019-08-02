@@ -49,19 +49,23 @@ DMITIGR_UTIL_API const char* coalesce(std::initializer_list<const char*> literal
 // -----------------------------------------------------------------------------
 
 /**
- * @returns The line number by the given absolute position.
+ * @returns The line number (which starts at 0) by the given absolute position.
  *
- * @remarks Line numbers starts at 1.
+ * @par Requires
+ * `(pos < str.size())`.
  */
-DMITIGR_UTIL_API std::size_t line_number_by_position(const std::string& str, const std::size_t pos);
+DMITIGR_UTIL_API std::size_t
+line_number_by_position(const std::string& str, const std::string::size_type pos);
 
 /**
- * @returns The line and column numbers by the given absolute position.
+ * @returns The line and column numbers (both starts at 0) by the given absolute
+ * position.
  *
- * @remarks Line and column numbers starts at 1.
+ * @par Requires
+ * `(pos < str.size())`.
  */
-DMITIGR_UTIL_API std::pair<std::size_t, std::size_t> line_column_numbers_by_position(const std::string& str,
-  const std::size_t pos);
+DMITIGR_UTIL_API std::pair<std::size_t, std::size_t>
+line_column_numbers_by_position(const std::string& str, const std::string::size_type pos);
 
 // -----------------------------------------------------------------------------
 // Predicates
