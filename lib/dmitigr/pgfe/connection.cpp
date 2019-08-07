@@ -58,16 +58,6 @@ public:
 
     DMITIGR_REQUIRE(timeout >= milliseconds{-1}, std::invalid_argument);
 
-    if (is_connected())
-      return; // No need to check invariant. Just return.
-
-    // Stage 1: beginning.
-    auto timepoint1 = system_clock::now();
-
-    connect_async();
-    auto current_status = communication_status();
-
-    const bool ignore_timeout = (timeout == milliseconds{-1});
     const auto is_timeout = [&timeout]()
     {
       return timeout <= std::decay_t<decltype (timeout)>::zero();
@@ -78,6 +68,16 @@ public:
       throw detail::iClient_exception{Client_errc::timed_out, "connection timeout"};
     };
 
+    if (is_connected())
+      return; // No need to check invariant. Just return.
+
+    // Stage 1: beginning.
+    auto timepoint1 = system_clock::now();
+
+    connect_async();
+    auto current_status = communication_status();
+
+    const bool ignore_timeout = (timeout == milliseconds{-1});
     if (!ignore_timeout) {
       timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
       if (is_timeout())
@@ -110,7 +110,7 @@ public:
 
       if (!ignore_timeout) {
         timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
-        DMITIGR_ASSERT(current_socket_readiness != Socket_readiness::unready || is_timeout());
+        DMITIGR_ASSERT(!is_timeout() || current_socket_readiness == Socket_readiness::unready);
         if (is_timeout())
           throw_timeout();
       }
