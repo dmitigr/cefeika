@@ -69,6 +69,11 @@ Remarks
   - `LIBPQ_INCLUDE_PREFIX` can be used to specify a *prefix* of the [libpq]
     headers (namely, `libpq-fe.h`).
 
+  Note, on Windows [CMake] will automatically search for some dependency
+  libraries (such as [libpq]) in `<prefix>/lib` for each `<prefix>/[s]bin` in
+  `PATH` environment variable, and `<entry>/lib` for other entries in `PATH`,
+  and the directories in `PATH` itself.
+
 Installation
 ============
 
