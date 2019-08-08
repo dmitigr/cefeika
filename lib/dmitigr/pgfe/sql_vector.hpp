@@ -145,9 +145,6 @@ public:
    * @par Parameters
    * See sql_string_index().
    *
-   * @par Requires
-   * `(offset < sql_string_count())`.
-   *
    * @see Sql_string::extra().
    */
   virtual Sql_string* sql_string(const std::string& extra_name, const std::string& extra_value,
