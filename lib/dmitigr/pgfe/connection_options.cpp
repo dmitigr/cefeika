@@ -97,7 +97,8 @@ public:
     , ssl_certificate_revocation_list_file_{defaults::ssl_certificate_revocation_list_file}
     , ssl_server_hostname_verification_enabled_{defaults::ssl_server_hostname_verification_enabled}
   {
-    DMITIGR_ASSERT(is_invariant_ok());
+    DMITIGR_REQUIRE(is_invariant_ok(), std::logic_error,
+      "invalid connection options defaults (dmitigr::pgfe must be recompiled)");
   }
 
   std::unique_ptr<Connection> make_connection() const override; // defined in connection.cpp
