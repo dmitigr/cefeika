@@ -17,7 +17,7 @@ int main(int, char* argv[])
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
-    const auto form_data = fs::read_to_string(this_exe_dir_name / "mulf-form-data-valid1.txt");
+    const auto form_data = fs::file_data_to_string(this_exe_dir_name / "mulf-form-data-valid1.txt");
 
     const std::string boundary{"AaB03x"};
     auto data = Form_data::make(form_data, boundary);

@@ -117,7 +117,7 @@ private:
           return line[pos] != '#';
       return false;
     };
-    const auto lines = fs::read_lines_to_vector_if(path, is_nor_empty_nor_commented);
+    const auto lines = fs::file_data_to_strings_if(path, is_nor_empty_nor_commented);
     for (std::size_t i = 0; i < lines.size(); ++i) {
       try {
         result.insert(parsed_config_entry(lines[i]));
