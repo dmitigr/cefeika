@@ -355,6 +355,7 @@ int main(int, char* argv[])
           conn->wait_response();
           ++i;
         }
+        ASSERT(conn->completion());
       }
 
       // Execute (rows released rather than dismissed)
@@ -368,6 +369,7 @@ int main(int, char* argv[])
           conn->wait_response();
           ++i;
         }
+        ASSERT(conn->completion());
       }
 
       // Result format
