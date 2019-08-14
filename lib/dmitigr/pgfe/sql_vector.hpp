@@ -88,7 +88,7 @@ public:
   virtual std::size_t sql_string_count() const = 0;
 
   /**
-   * @returns `true` if this SQL vector is empty, or `false` otherwise.
+   * @returns `true` if this SQL vector is not empty, or `false` otherwise.
    */
   virtual bool has_sql_strings() const = 0;
 

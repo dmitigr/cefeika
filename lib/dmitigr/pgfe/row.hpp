@@ -30,7 +30,7 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * Index in range [0, field_count()).
+   * `(index < field_count())`.
    */
   virtual const Data* data(std::size_t index) const = 0;
 
