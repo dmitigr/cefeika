@@ -14,7 +14,7 @@ set(dmitigr_mulf_tests valid1)
 set(dmitigr_pgfe_tests benchmark_array_client benchmark_array_server
   benchmark_sql_string_replace composite connection connection_deferrable
   connection-err_in_mid connection_options connection_ssl conversions
-  conversions_online data hello_world problem ps sql_string sql_vector)
+  conversions_online data entity_vector hello_world problem ps sql_string sql_vector)
 set(dmitigr_ttpl_tests llt)
 set(dmitigr_url_tests qs1 qs2)
 

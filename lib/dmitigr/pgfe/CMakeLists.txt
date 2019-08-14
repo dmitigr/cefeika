@@ -243,6 +243,7 @@ set(dmitigr_pgfe_headers
   conversions_api.hpp
   conversions.hpp
   data.hpp
+  entity_vector.hpp
   errc.hpp
   error.hpp
   exceptions.hpp
