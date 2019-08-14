@@ -111,7 +111,8 @@ protected:
 private:
   const Data_view* data__(const std::size_t index) const noexcept
   {
-    return !info_.pq_result_.is_data_null(0, int(index)) ? &datas_[index] : nullptr;
+    constexpr int row = 0;
+    return !info_.pq_result_.is_data_null(row, static_cast<int>(index)) ? &datas_[index] : nullptr;
   }
 
   pq_Row_info info_; // contains pq::Result
