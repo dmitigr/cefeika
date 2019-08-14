@@ -15,8 +15,6 @@ namespace dmitigr::pgfe::detail {
  */
 class iSql_vector final : public Sql_vector {
 public:
-  using Container = std::vector<std::unique_ptr<Sql_string>>;
-
   /**
    * @brief See Sql_vector::make().
    */
