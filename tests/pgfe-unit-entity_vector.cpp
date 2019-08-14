@@ -58,6 +58,7 @@ int main(int, char* argv[])
     {
       std::cout << "From rows created on the server side:";
       pgfe::Entity_vector<Person> persons{conn.get(), "select * from person"};
+      ASSERT(persons.entity_count() == 2);
       for (std::size_t i = 0; i < persons.entity_count(); ++i) {
         std::cout << "Person " << i << " {\n";
         std::cout << "id: " << persons[i].id << "\n";
@@ -78,20 +79,42 @@ int main(int, char* argv[])
       bella->append_field("id",  2);
       bella->append_field("name", "Bella");
       bella->append_field("age", "33");
+
       std::vector<decltype(alla)> pv;
       pv.emplace_back(std::move(alla));
       pv.emplace_back(std::move(bella));
       pgfe::Entity_vector<Person> persons{std::move(pv)};
-      for (std::size_t i = 0; i < persons.entity_count(); ++i) {
-        std::cout << "Person " << i << " {\n";
-        std::cout << "id: " << persons[i].id << "\n";
-        std::cout << "name: " << persons[i].name << "\n";
-        std::cout << "age: " << persons[i].age << "\n";
+      ASSERT(persons.entity_count() == 2);
+      int i = 0;
+      for (const auto& person : persons) {
+        std::cout << "Person " << i++ << " {\n";
+        std::cout << "id: " << person.id << "\n";
+        std::cout << "name: " << person.name << "\n";
+        std::cout << "age: " << person.age << "\n";
         std::cout << "}\n";
       }
+    }
 
-      const Person daria{3, "Daria", 35};
-      persons.set_entity(0, daria);
+    // Test 3.
+    {
+      auto alla = pgfe::Composite::make();
+      alla->append_field("id",  1);
+      alla->append_field("name", "Alla");
+      alla->append_field("age", "30");
+      pgfe::Entity_vector<Person> persons;
+      persons.append_entity(std::move(alla));
+      ASSERT(persons.entity_count() == 1);
+      persons.remove_entity(cbegin(persons));
+      ASSERT(persons.entity_count() == 0);
+    }
+
+    // Test 4.
+    {
+      pgfe::Entity_vector<Person> persons;
+      auto b = begin(persons);
+      auto e = end(persons);
+      auto cb = cbegin(persons);
+      auto ce = cend(persons);
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);

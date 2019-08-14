@@ -14,6 +14,7 @@
 #include "dmitigr/util/debug.hpp"
 
 #include <cstddef>
+#include <iterator>
 #include <memory>
 #include <vector>
 
@@ -31,7 +32,17 @@ namespace dmitigr::pgfe {
 template<class Entity>
 class Entity_vector final {
 public:
+  /** The alias of entity type. */
   using Value_type = Entity;
+
+  /** The alias of underlying container type. */
+  using Underlying_container_type = std::vector<Entity>;
+
+  /** The alias of iterator. */
+  using Iterator = typename Underlying_container_type::iterator;
+
+  /** The alias of iterator of constant. */
+  using Const_iterator = typename Underlying_container_type::const_iterator;
 
   /// @name Constructors
   /// @{
@@ -124,9 +135,35 @@ public:
    *
    * @see entity_count(), release_entity().
    */
+  Entity& entity(const std::size_t index)
+  {
+    check_index(index);
+    return entities_[index];
+  }
+
+  /**
+   * @returns The entity of this vector.
+   *
+   * @par Requires
+   * `(index < entity_count())`.
+   *
+   * @see entity_count(), release_entity().
+   */
   const Entity& entity(const std::size_t index) const
   {
     check_index(index);
+    return entities_[index];
+  }
+
+  /**
+   * @returns The entity of this vector.
+   *
+   * @remarks The behaviour is undefined if `(index >= entity_count())`.
+   *
+   * @see entity(), entity_count().
+   */
+  Entity& operator[](const std::size_t index)
+  {
     return entities_[index];
   }
 
@@ -143,19 +180,62 @@ public:
   }
 
   /**
-   * @brief Sets the specified entity at the specified index of the vector.
+   * @brief Appends the specified entity to the end of the vector.
+   *
+   * @par Requires
+   * The conversion routine `Conversions<Entity>::to_type(Object&&)`
+   * must be defined.
    *
    * @par Exception safety guarantee
    * Strong.
+   */
+  template<class Object>
+  void append_entity(Object&& object)
+  {
+    entities_.emplace_back(to<Entity>(std::forward<Object>(object)));
+  }
+
+  /**
+   * @brief Appends the specified entity to the end of the vector.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   */
+  void append_entity(const Entity& entity)
+  {
+    entities_.push_back(entity);
+  }
+
+  /**
+   * @overload
+   */
+  void append_entity(Entity&& entity)
+  {
+    entities_.emplace_back(std::move(entity));
+  }
+
+  /**
+   * @brief Removes entity from this vector.
    *
    * @par Requires
    * `(index < entity_count())`.
+   *
+   * @par Exception safety guarantee
+   * Strong.
    */
-  template<class E>
-  void set_entity(const std::size_t index, E&& entity)
+  void remove_entity(const std::size_t index)
   {
     check_index(index);
-    entities_[index] = std::forward<E>(entity);
+    entities_.erase(cbegin(entities_) + index);
+  }
+
+  /**
+   * @overload
+   */
+  void remove_entity(const Const_iterator i)
+  {
+    check_iterator(i);
+    entities_.erase(i);
   }
 
   /**
@@ -194,6 +274,41 @@ public:
     return std::move(result);
   }
 
+  // ===========================================================================
+
+  /**
+   * @returns The iterator that points to the first entity.
+   */
+  Iterator begin()
+  {
+    return entities_.begin();
+  }
+
+  /**
+   * @returns The iterator that points to the element after the last entity.
+   */
+  Iterator end()
+  {
+    return entities_.end();
+  }
+
+  /**
+   * @returns The constant iterator that points to the first entity.
+   */
+  Const_iterator cbegin() const
+  {
+    return entities_.cbegin();
+  }
+
+  /**
+   * @returns The constant iterator that points to the element after the last
+   * entity.
+   */
+  Const_iterator cend() const
+  {
+    return entities_.cend();
+  }
+
 private:
   void check_index(const std::size_t index) const
   {
@@ -201,8 +316,52 @@ private:
       "invalid entity index (" + std::to_string(index) + ") of the pgfe::Entity_vector instance");
   }
 
+  void check_iterator(const Const_iterator i) const
+  {
+    DMITIGR_REQUIRE(i < cend(), std::out_of_range,
+      "invalid entity iterator of the pgfe::Entity_vector instance");
+  }
+
   std::vector<Entity> entities_;
 };
+
+// =============================================================================
+
+/**
+ * @returns `v.begin()`.
+ */
+template<typename Entity>
+auto begin(Entity_vector<Entity>& v)
+{
+  return v.begin();
+}
+
+/**
+ * @returns `v.end()`.
+ */
+template<typename Entity>
+auto end(Entity_vector<Entity>& v)
+{
+  return v.end();
+}
+
+/**
+ * @returns `v.cbegin()`.
+ */
+template<typename Entity>
+auto cbegin(const Entity_vector<Entity>& v)
+{
+  return v.cbegin();
+}
+
+/**
+ * @returns `v.cend()`.
+ */
+template<typename Entity>
+auto cend(const Entity_vector<Entity>& v)
+{
+  return v.cend();
+}
 
 } // namespace dmitigr::pgfe
 
