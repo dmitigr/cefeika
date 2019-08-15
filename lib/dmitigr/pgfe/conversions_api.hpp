@@ -212,7 +212,7 @@ inline std::unique_ptr<Composite> to_composite(T&& value, Types&& ... args)
  * @brief Converts the value of type Row to the value of type `T` by using
  * the specialization of struct template Conversions.
  *
- * @param composite - the object to convert.
+ * @param row - the object to convert.
  * @param args - the optional arguments to be passed to the conversion routines.
  * @tparam T - the destination data type of the conversion.
  *
