@@ -6,7 +6,6 @@
 #define DMITIGR_PGFE_ENTITY_VECTOR_HPP
 
 #include "dmitigr/pgfe/conversions_api.hpp"
-#include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
 #include "dmitigr/pgfe/implementation_header.hpp"
@@ -14,14 +13,13 @@
 #include "dmitigr/util/debug.hpp"
 
 #include <cstddef>
-#include <iterator>
 #include <memory>
 #include <vector>
 
 namespace dmitigr::pgfe {
 
 /**
- * @ingroup conversions
+ * @ingroup conversions.
  *
  * @brief An entity container.
  *
@@ -36,13 +34,13 @@ public:
   using Value_type = Entity;
 
   /** The alias of underlying container type. */
-  using Underlying_container_type = std::vector<Entity>;
+  using Underlying_type = std::vector<Entity>;
 
-  /** The alias of iterator. */
-  using Iterator = typename Underlying_container_type::iterator;
+  /** The alias of underlying container's iterator. */
+  using Iterator = typename Underlying_type::iterator;
 
-  /** The alias of iterator of constant. */
-  using Const_iterator = typename Underlying_container_type::const_iterator;
+  /** The alias of underlying container's iterator of constant. */
+  using Const_iterator = typename Underlying_type::const_iterator;
 
   /// @name Constructors
   /// @{
@@ -53,7 +51,7 @@ public:
   Entity_vector() = default;
 
   /**
-   * @brief Constructs an entity vector from `std::vector<Entity>`.
+   * @brief Constructs an entity vector from the vector of entities.
    */
   Entity_vector(std::vector<Entity>&& entities)
     : entities_{std::move(entities)}
@@ -80,32 +78,83 @@ public:
    * @brief Constructs a vector of entities from the rows returned by the
    * server during the `statement` execution.
    *
+   * @param connection - the connection to use.
+   * @param statement - the statement to prepare and execute.
+   * @param arguments - the prepared statement arguments.
+   *
    * @par Requires
+   * `(connection != nullptr && statement != nullptr)`.
+   *
    * The conversion routine `Conversions<Entity>::to_type(const Row*)`
    * must be defined.
+   *
+   * @see Connection::execute().
    */
   template<typename ... Types>
-  Entity_vector(Connection* const conn, const Sql_string* const statement, Types&& ... parameters)
+  Entity_vector(Connection* const connection, const Sql_string* const statement, Types&& ... arguments)
   {
-    DMITIGR_REQUIRE(conn && statement, std::invalid_argument,
-      "nullptr has been passed to the constructor of dmitigr::pgfe::Entity_vector");
-    conn->execute(statement, std::forward<Types>(parameters)...);
-    entities_.reserve(16);
-    conn->for_each([&](const Row* const row) {
-      if (!(entities_.size() < entities_.capacity()))
-        entities_.reserve(entities_.capacity() * 2);
-      entities_.emplace_back(to<Entity>(row));
-    });
-    entities_.shrink_to_fit();
+    DMITIGR_REQUIRE(connection && statement, std::invalid_argument,
+      "nullptr has been passed to dmitigr::pgfe::Entity_vector::Entity_vector");
+    connection->execute(statement, std::forward<Types>(arguments)...);
+    fill(connection);
   }
 
   /**
    * @overload
+   *
+   * @remarks The `statement` will be preparsed.
    */
   template<typename ... Types>
-  Entity_vector(Connection* const conn, const std::string& statement, Types&& ... parameters)
-    : Entity_vector{conn, Sql_string::make(statement).get(), std::forward<Types>(parameters)...}
+  Entity_vector(Connection* const connection, const std::string& statement, Types&& ... arguments)
+    : Entity_vector{connection, Sql_string::make(statement).get(), std::forward<Types>(arguments)...}
   {}
+
+  /**
+   * @brief Constructs a vector of entities from the rows returned by the
+   * server during the `function` invocation.
+   *
+   * @param connection - the connection to use.
+   * @param function - the function to call.
+   * @param arguments - the function arguments.
+   *
+   * @par Requires
+   * `(connection != nullptr && !function.empty())`.
+   *
+   * The conversion routine `Conversions<Entity>::to_type(const Row*)`
+   * must be defined.
+   *
+   * @see Connection::invoke().
+   */
+  template<typename ... Types>
+  static Entity_vector<Entity> from_function(Connection* const connection, std::string_view function, Types&& ... arguments)
+  {
+    DMITIGR_REQUIRE(connection, std::invalid_argument,
+      "nullptr has been passed to dmitigr::pgfe::Entity_vector::from_function");
+    connection->invoke(function, std::forward<Types>(arguments)...);
+    Entity_vector<Entity> result;
+    result.fill(connection);
+    return result;
+  }
+
+  /**
+   * @brief Similar to from_function().
+   *
+   * @param connection - the connection to use.
+   * @param procedure - the procedure to call.
+   * @param arguments - the procedure arguments.
+   *
+   * @see Connection::call().
+   */
+  template<typename ... Types>
+  static Entity_vector<Entity> from_procedure(Connection* const connection, std::string_view procedure, Types&& ... arguments)
+  {
+    DMITIGR_REQUIRE(connection, std::invalid_argument,
+      "nullptr has been passed to dmitigr::pgfe::Entity_vector::from_procedure");
+    connection->call(procedure, std::forward<Types>(arguments)...);
+    Entity_vector<Entity> result;
+    result.fill(connection);
+    return result;
+  }
 
   /// @}
 
@@ -124,7 +173,7 @@ public:
    */
   bool has_entities() const
   {
-    return entities_.empty();
+    return !entities_.empty();
   }
 
   /**
@@ -177,6 +226,38 @@ public:
   const Entity& operator[](const std::size_t index) const
   {
     return entities_[index];
+  }
+
+  /**
+   * @brief Fills the vector by fetching entities from the connection.
+   *
+   * @par Requires
+   * `(connection != nullptr)`.
+   *
+   * @par Effects
+   * No effects if `(!connection->is_connected() || !connection->row())`.
+   *
+   * @par Exception safety guarantee
+   * Basic.
+   *
+   * @remarks At the beginning calls clear().
+   */
+  void fill(Connection* const connection)
+  {
+    DMITIGR_REQUIRE(connection, std::invalid_argument,
+      "nullptr has been passed to dmitigr::pgfe::Entity_vector::fill");
+
+    if (!connection->is_connected() || !connection->row())
+      return;
+
+    clear();
+    entities_.reserve(16);
+    connection->for_each([&](const Row* const row) {
+      if (!(entities_.size() < entities_.capacity()))
+        entities_.reserve(entities_.capacity() * 2);
+      entities_.emplace_back(to<Entity>(row));
+    });
+    entities_.shrink_to_fit();
   }
 
   /**
@@ -243,14 +324,14 @@ public:
    *
    * @returns The released object of type Entity.
    *
+   * @par Requires
+   * `(index < entity_count())`.
+   *
    * @par Effects
    * Entity at `index` is the default constructed entity.
    *
    * @par Exception safety guarantee
    * Strong.
-   *
-   * @par Requires
-   * `(index < entity_count())`.
    */
   Entity release_entity(const std::size_t index)
   {
@@ -266,12 +347,26 @@ public:
    *
    * @par Effects
    * `!has_entities()`.
+   *
+   * @par Exception safety guarantee
+   * Strong.
    */
   std::vector<Entity> release()
   {
     std::vector<Entity> result;
     entities_.swap(result);
-    return std::move(result);
+    return result;
+  }
+
+  /**
+   * @brief Clears the vector away.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   */
+  void clear()
+  {
+    entities_.clear();
   }
 
   // ===========================================================================

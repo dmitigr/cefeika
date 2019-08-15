@@ -6,11 +6,28 @@
 
 #include "dmitigr/pgfe.hpp"
 
+namespace pgfe = dmitigr::pgfe;
+
 struct Person {
   int id;
   std::string name;
   unsigned int age;
 };
+
+template<class T, typename ... Types>
+pgfe::Entity_vector<T> retrieve(pgfe::Connection* const conn, std::string_view function, Types&& ... args)
+{
+  return pgfe::Entity_vector<T>::from_function(conn, function, std::forward<Types>(args)...);
+}
+
+void print(const Person& p)
+{
+  std::cout << "{\n";
+  std::cout << "  id: " << p.id << "\n";
+  std::cout << "  name: " << p.name << "\n";
+  std::cout << "  age: " << p.age << "\n";
+  std::cout << "}\n";
+}
 
 namespace dmitigr::pgfe {
 
@@ -40,7 +57,6 @@ template<> struct Conversions<Person> {
 
 int main(int, char* argv[])
 {
-  namespace pgfe = dmitigr::pgfe;
   using namespace dmitigr::test;
 
   try {
@@ -54,23 +70,66 @@ int main(int, char* argv[])
                                               age integer not null))");
     conn->execute(R"(insert into person (name, age) values('Alla', 30),('Bella', 33))");
 
-    // Test 1.
+    // Test 1a.
     {
-      std::cout << "From rows created on the server side:";
+      std::cout << "From rows created on the server side:\n";
       pgfe::Entity_vector<Person> persons{conn.get(), "select * from person"};
       ASSERT(persons.entity_count() == 2);
       for (std::size_t i = 0; i < persons.entity_count(); ++i) {
-        std::cout << "Person " << i << " {\n";
-        std::cout << "id: " << persons[i].id << "\n";
-        std::cout << "name: " << persons[i].name << "\n";
-        std::cout << "age: " << persons[i].age << "\n";
-        std::cout << "}\n";
+        std::cout << "Person " << i << "\n";
+        print(persons[i]);
       }
+    }
+
+    // Test 1b.
+    {
+      conn->perform("begin");
+
+      conn->execute(R"(
+      create or replace function all_persons()
+      returns setof person language sql as $function$
+        select * from person;
+      $function$;
+      )");
+
+      std::cout << "From rows created on the server side by function all_persons:\n";
+      auto persons = retrieve<Person>(conn.get(), "all_persons");
+      ASSERT(persons.entity_count() == 2);
+      for (std::size_t i = 0; i < persons.entity_count(); ++i) {
+        std::cout << "Person " << i << "\n";
+        print(persons[i]);
+      }
+
+      conn->perform("rollback");
+    }
+
+    // Test 1c.
+    {
+      using pgfe::_;
+
+      conn->perform("begin");
+
+      conn->execute(R"(
+      create or replace function persons_by_name(fname text)
+      returns setof person language sql as $function$
+        select * from person where name ~ fname;
+      $function$;
+      )");
+
+      std::cout << "From rows created on the server side by function persons_by_name:\n";
+      auto persons = retrieve<Person>(conn.get(), "persons_by_name", _{"fname", "^B"});
+      ASSERT(persons.entity_count() == 1);
+      for (std::size_t i = 0; i < persons.entity_count(); ++i) {
+        std::cout << "Person " << i << "\n";
+        print(persons[i]);
+      }
+
+      conn->perform("rollback");
     }
 
     // Test 2.
     {
-      std::cout << "From composite created on the client side:";
+      std::cout << "From composite created on the client side:\n";
       auto alla = pgfe::Composite::make();
       alla->append_field("id",  1);
       alla->append_field("name", "Alla");
@@ -87,11 +146,8 @@ int main(int, char* argv[])
       ASSERT(persons.entity_count() == 2);
       int i = 0;
       for (const auto& person : persons) {
-        std::cout << "Person " << i++ << " {\n";
-        std::cout << "id: " << person.id << "\n";
-        std::cout << "name: " << person.name << "\n";
-        std::cout << "age: " << person.age << "\n";
-        std::cout << "}\n";
+        std::cout << "Person " << i++ << "\n";
+        print(person);
       }
     }
 
