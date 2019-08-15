@@ -75,10 +75,8 @@ int main(int, char* argv[])
       std::cout << "From rows created on the server side:\n";
       pgfe::Entity_vector<Person> persons{conn.get(), "select * from person"};
       ASSERT(persons.entity_count() == 2);
-      for (std::size_t i = 0; i < persons.entity_count(); ++i) {
-        std::cout << "Person " << i << "\n";
-        print(persons[i]);
-      }
+      print(persons[0]);
+      print(persons[1]);
     }
 
     // Test 1b.
@@ -95,10 +93,8 @@ int main(int, char* argv[])
       std::cout << "From rows created on the server side by function all_persons:\n";
       auto persons = retrieve<Person>(conn.get(), "all_persons");
       ASSERT(persons.entity_count() == 2);
-      for (std::size_t i = 0; i < persons.entity_count(); ++i) {
-        std::cout << "Person " << i << "\n";
-        print(persons[i]);
-      }
+      print(persons.entity(0));
+      print(persons.entity(1));
 
       conn->perform("rollback");
     }
@@ -119,10 +115,8 @@ int main(int, char* argv[])
       std::cout << "From rows created on the server side by function persons_by_name:\n";
       auto persons = retrieve<Person>(conn.get(), "persons_by_name", _{"fname", "^B"});
       ASSERT(persons.entity_count() == 1);
-      for (std::size_t i = 0; i < persons.entity_count(); ++i) {
-        std::cout << "Person " << i << "\n";
-        print(persons[i]);
-      }
+      for (const auto& person : persons)
+        print(person);
 
       conn->perform("rollback");
     }
@@ -144,11 +138,8 @@ int main(int, char* argv[])
       pv.emplace_back(std::move(bella));
       pgfe::Entity_vector<Person> persons{std::move(pv)};
       ASSERT(persons.entity_count() == 2);
-      int i = 0;
-      for (const auto& person : persons) {
-        std::cout << "Person " << i++ << "\n";
+      for (const auto& person : persons)
         print(person);
-      }
     }
 
     // Test 3.
