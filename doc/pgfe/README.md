@@ -59,15 +59,18 @@ int main()
 Features
 ========
 
-Current API allows to work with:
+Current API allows to:
 
-  - database connections (in both blocking and non-blocking IO manner);
-  - prepared statements (named parameters are supported);
-  - [SQLSTATE][errcodes] codes (as simple as with enums);
-  - extensible data type conversions (including support of [PostgreSQL] arrays
-    to/from STL containers conversions);
-  - dynamic SQL;
-  - SQL code separately of C++ code.
+  - work with database connections (in both blocking and non-blocking IO manner);
+  - execute prepared statements (named parameters are supported);
+  - conveniently call functions and procedures;
+  - deal with [SQLSTATE][errcodes] codes as simple as with enums;
+  - easily convert the data from the client side representation to the server
+    side representation and vice versa (conversions of multidimensional
+    [PostgreSQL] arrays to/from any combinations of STL containers are supported
+    out of the box!);
+  - dynamically construct SQL queries;
+  - separate SQL and C++ code (e.g., by placing SQL code into a text file).
 
 Features of the future
 ----------------------
@@ -213,6 +216,56 @@ void explicit_prepare_and_execute(const std::string& name,
   ps->set_parameter("infinum",  1);
   ps->set_parameter("supremum", 3);
   ps->execute();
+}
+```
+
+Invoking functions and calling procedures
+-----------------------------------------
+
+In order to invoke a function the methods dmitigr::pgfe::Connection::invoke()
+and dmitigr::pgfe::Connection::invoke_unexpanded() can be used. Procedures can
+be called by using the method dmitigr::pgfe::Connection::call(). All of these
+methods have the same signatures.
+
+To illustrate the API the following function definition is used:
+
+```sql
+CREATE FUNCTION person_info(id integer, name text, age integer)
+RETURNS text LANGUAGE SQL AS
+$$
+  SELECT format('id=%s name=%s age=%s', id, name, age);
+$$;
+```
+
+Example 1. Using Positional Notation.
+
+```cpp
+void foo(dmitigr::pgfe::Connection* const conn)
+{
+  conn->invoke("person_info", 1, "Dmitry", 36);
+  // ...
+}
+```
+
+Example 2. Using Named Notation.
+
+```cpp
+void foo(dmitigr::pgfe::Connection* const conn)
+{
+  using dmitigr::pgfe::_;
+  conn->invoke("person_info", _{"name", "Dmitry"}, _{"age", 36}, _{"id", 1});
+  // ...
+}
+```
+
+Example 3. Using Mixed Notation.
+
+```cpp
+void foo(dmitigr::pgfe::Connection* const conn)
+{
+  using dmitigr::pgfe::_;
+  conn->invoke("person_info", 1, _{"age", 36}, _{"name", "Dmitry"});
+  // ...
 }
 ```
 
