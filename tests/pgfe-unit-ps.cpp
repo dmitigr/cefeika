@@ -147,6 +147,31 @@ int main(int, char* argv[])
       conn->wait_response();
       ++i;
     }
+
+    // class Named_argument.
+    {
+      using Narg = pgfe::Named_argument;
+
+      Narg na1{"null", nullptr};
+      ASSERT(na1.name() == "null");
+      ASSERT(!na1.data());
+
+      auto data = pgfe::to_data(1);
+
+      Narg na2{"without-ownership", data.get()};
+      ASSERT(na2.name() == "without-ownership");
+      ASSERT(data.get() == na2.data());
+
+      const auto* data_ptr = data.get();
+      Narg na3{"with-ownership", std::move(data)};
+      ASSERT(na3.name() == "with-ownership");
+      ASSERT(!data);
+      ASSERT(na3.data() == data_ptr);
+
+      Narg na4{"ala-php", 14};
+      ASSERT(na4.name() == "ala-php");
+      ASSERT(pgfe::to<int>(na4.data()) == 14);
+    }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

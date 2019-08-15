@@ -7,7 +7,10 @@
 
 #include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/prepared_statement_dfn.hpp"
+#include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
+
+#include "dmitigr/util/debug.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -639,8 +642,8 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks It is **strongly** recommended to specify the types of the parameters
-   * by using explicit type casts to avoid ambiguities or type mismatch mistakes.
+   * @remarks It is recommended to specify the types of the parameters by
+   * using explicit type casts to avoid ambiguities or type mismatch mistakes.
    * For example:
    *   @code{sql}
    *     -- Force to use generate_series(int, int) overload.
@@ -796,6 +799,103 @@ public:
   }
 
   /**
+   * @brief Submits the requests to a server to invoke the specified function
+   * and waits for a response.
+   *
+   * If `function` returns table with multiple columns or has multiple output
+   * parameters they are can be accessed as usual by using Row::data().
+   *
+   * If `function` have named parameters it can be called using either
+   * positional, named or mixed notation.
+   *
+   * When using positional notation all arguments specified traditionally in
+   * order, for example:
+   * @code
+   * conn->invoke("generate_series", 1, 3);
+   * @endcode
+   *
+   * When using named notation, each argument is specified using object of type
+   * Named_argument (or it alias - _), for example:
+   *
+   * @code
+   * conn->invoke("person_info", _{"name", "Christopher"}, _{"id", 1});
+   * @endcode
+   *
+   * When using mixed notation which combines positional and named notation,
+   * named arguments cannot precede positional arguments. The compile time check
+   * will be performed to enforce that. For example:
+   *
+   * @code
+   * conn->invoke("person_info", 1, _{"name", "Christopher"});
+   * @endcode
+   *
+   * See <a href="https://www.postgresql.org/docs/current/static/sql-syntax-calling-funcs.html">calling functions</a>
+   * section of the PostgreSQL documentation for the full details on calling
+   * notations.
+   *
+   * @par Awaited responses
+   * Similar to execute().
+   *
+   * @param function - the function name to invoke;
+   * @param arguments - the function arguments.
+   *
+   * @par Requires
+   * `(!function.empty() && is_ready_for_request())`.
+   *
+   * @par Exception safety guarantee
+   * Basic.
+   *
+   * @remarks It may be problematic to invoke overloaded functions with same
+   * number of parameters. A SQL query with explicit type casts should be
+   * executed is such a case. See remarks of prepare_statement_async().
+   *
+   * @see invoke_unexpanded(), call(), execute().
+   */
+  template<typename ... Types>
+  void invoke(std::string_view function, Types&& ... arguments)
+  {
+    static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
+    const auto stmt = routine_query__(function, "SELECT * FROM", std::forward<Types>(arguments)...);
+    execute(Sql_string::make(stmt).get(), std::forward<Types>(arguments)...);
+  }
+
+  /**
+   * @brief Similar to invoke() but even if `function` returns table with
+   * multiple columns or has multiple output parameters the result row is
+   * always consists of exactly one field.
+   *
+   * @remarks This method is for specific use and in most cases invoke()
+   * should be used instead.
+   *
+   * @see invoke(), call(), execute().
+   */
+  template<typename ... Types>
+  void invoke_unexpanded(std::string_view function, Types&& ... arguments)
+  {
+    static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
+    const auto stmt = routine_query__(function, "SELECT", std::forward<Types>(arguments)...);
+    execute(Sql_string::make(stmt).get(), std::forward<Types>(arguments)...);
+  }
+
+  /**
+   * @brief Submits the requests to a server to invoke the specified procedure
+   * and waits for a response.
+   *
+   * This method is similar to invoke(), but for procedures rather than functions.
+   *
+   * @remarks PostgreSQL supports procedures since version 11.
+   *
+   * @see invoke(), call(), execute().
+   */
+  template<typename ... Types>
+  void call(std::string_view procedure, Types&& ... arguments)
+  {
+    static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
+    const auto stmt = routine_query__(function, "CALL", std::forward<Types>(arguments)...);
+    execute(Sql_string::make(stmt).get(), std::forward<Types>(arguments)...);
+  }
+
+  /**
    * @brief Sets the default data format of the result for a next prepared
    * statement execution.
    *
@@ -933,6 +1033,72 @@ private:
   friend detail::iConnection;
 
   Connection() = default;
+
+  // ===========================================================================
+
+  template<typename ... Types>
+  std::string routine_query__(std::string_view function, std::string_view invocation, Types&& ... arguments)
+  {
+    DMITIGR_REQUIRE(!function.empty(), std::invalid_argument,
+      "invalid routine name specified upon using dmitigr::pgfe::Connection instance");
+    DMITIGR_ASSERT(invocation == "SELECT * FROM" || invocation == "SELECT" || invocation == "CALL");
+    std::string result;
+    if constexpr (sizeof...(arguments) > 0) {
+      result.reserve(64);
+      result.append(invocation).append(" ");
+      result.append(function).append("(");
+      result.append(routine_arguments__(std::make_index_sequence<sizeof ... (Types)>{}, std::forward<Types>(arguments)...));
+      result.append(")");
+    } else {
+      result.reserve(14 + function.size() + 2);
+      result.append(invocation).append(" ").append(function).append("()");
+    }
+    return result;
+  }
+
+  template<std::size_t ... I, typename ... Types>
+  std::string routine_arguments__(std::index_sequence<I...>, Types&& ... arguments)
+  {
+    static_assert(sizeof...(arguments) > 0);
+    static_assert(sizeof...(arguments) == sizeof...(I));
+    std::string result;
+    (result.append(routine_argument__(arguments, I)).append(","), ...);
+    result.pop_back();
+    return result;
+  }
+
+  template<typename T>
+  std::string routine_argument__(const T&, const std::size_t i)
+  {
+    return std::string{"$"}.append(std::to_string(i + 1));
+  }
+
+  std::string routine_argument__(const Named_argument& na, const std::size_t)
+  {
+    return std::string{na.name()}.append("=>:").append(na.name());
+  }
+
+  // ===========================================================================
+
+  template<typename T = void>
+  static constexpr bool is_routine_arguments_ok__()
+  {
+    return true;
+  }
+
+  template<typename T1, typename T2, typename ... Types>
+  static constexpr bool is_routine_arguments_ok__()
+  {
+    using U1 = std::decay_t<T1>;
+    using U2 = std::decay_t<T2>;
+    constexpr bool is_named_1 = std::is_same_v<U1, Named_argument>;
+    constexpr bool is_named_2 = std::is_same_v<U2, Named_argument>;
+    constexpr bool is_both_positionals = !is_named_1 && !is_named_2;
+    constexpr bool is_both_named = is_named_1 && is_named_2;
+    constexpr bool is_named_follows_positional = !is_named_1 && is_named_2;
+    constexpr bool is_ok = (is_both_positionals || is_both_named || is_named_follows_positional);
+    return is_ok && is_routine_arguments_ok__<T2, Types...>();
+  }
 };
 
 } // namespace dmitigr::pgfe

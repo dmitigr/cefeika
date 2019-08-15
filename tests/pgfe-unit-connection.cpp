@@ -372,6 +372,57 @@ int main(int, char* argv[])
         ASSERT(conn->completion());
       }
 
+      // invoke 1
+      {
+        conn->invoke("version");
+        ASSERT(conn->row());
+        ASSERT(conn->row()->has_field("version"));
+        std::cout << "This test runs on " << conn->row()->data("version")->bytes() << std::endl;
+        conn->complete();
+      }
+
+      // invoke 2
+      {
+        using pgfe::_;
+
+        conn->perform("begin");
+
+        conn->execute(R"(
+        create or replace function person_info(id integer, name text, age integer)
+        returns text language sql as $function$
+          select format('id=%s name=%s age=%s', id, name, age);
+        $function$;
+        )");
+
+        const int id = 1;
+        const std::string name = "Dima";
+        const int age = 36;
+        const std::string expected_result = "id=" + std::to_string(id) + " name=" + name + " age=" + std::to_string(age);
+
+        // Using positional notation.
+        conn->invoke("person_info", id, name, age);
+        ASSERT(conn->row());
+        ASSERT(conn->row()->has_field("person_info"));
+        ASSERT(conn->row()->data("person_info")->bytes() == expected_result);
+        conn->complete();
+
+        // Using named notation.
+        conn->invoke("person_info", _{"age", age}, _{"name", name}, _{"id", id});
+        ASSERT(conn->row());
+        ASSERT(conn->row()->has_field("person_info"));
+        ASSERT(conn->row()->data("person_info")->bytes() == expected_result);
+        conn->complete();
+
+        // Using mixed notation.
+        conn->invoke("person_info", id, _{"age", age}, _{"name", name});
+        ASSERT(conn->row());
+        ASSERT(conn->row()->has_field("person_info"));
+        ASSERT(conn->row()->data("person_info")->bytes() == expected_result);
+        conn->complete();
+
+        conn->perform("rollback");
+      }
+
       // Result format
       {
         ASSERT(conn->result_format() == pgfe::Data_format::text);

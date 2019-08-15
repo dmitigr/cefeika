@@ -10,6 +10,9 @@
 #include "dmitigr/pgfe/parameterizable.hpp"
 #include "dmitigr/pgfe/response.hpp"
 
+#include <dmitigr/util/debug.hpp>
+#include <dmitigr/util/memory.hpp>
+
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -18,6 +21,129 @@
 #include <utility>
 
 namespace dmitigr::pgfe {
+
+/**
+ * @ingroup main
+ *
+ * @brief A named argument to pass to a prepared statement,
+ * function or procedure.
+ */
+class Named_argument final {
+public:
+  /**
+   * @brief Constructs the named argument bound to NULL.
+   */
+  Named_argument(std::string name, std::nullptr_t)
+    : name_{std::move(name)}
+  {
+    check_name(name_);
+  }
+
+  /**
+   * @brief Constructs the named argument bound to `data`.
+   *
+   * @par Effects
+   * `(is_data_owner() == false)`.
+   *
+   * @remarks No deep copy of `data` is performed.
+   */
+  Named_argument(std::string name, const Data* const data)
+    : name_{std::move(name)}
+    , data_{data, Data_deletion_required{false}}
+  {
+    check_name(name_);
+  }
+
+  /**
+   * @brief Constructs the named argument bound to `data`.
+   *
+   * @par Effects
+   * `(is_data_owner() == true)`.
+   */
+  Named_argument(std::string name, std::unique_ptr<Data>&& data)
+    : name_{std::move(name)}
+    , data_{data.release(), Data_deletion_required{true}}
+  {
+    check_name(name_);
+  }
+
+  /**
+   * @brief Constructs the named argument bound to data, implicitly
+   * converted from `value` by using to_data().
+   *
+   * @par Effects
+   * `(is_data_owner() == true)`.
+   *
+   * @par Requires
+   * The `value` must be convertible to the Data.
+   */
+  template<typename T>
+  Named_argument(std::enable_if_t<!std::is_same_v<Data*, T>, std::string> name, T&& value)
+    : Named_argument{std::move(name), to_data(std::forward<T>(value))}
+  {
+    check_name(name_);
+  }
+
+  /**
+   * @returns The argument name.
+   */
+  const std::string& name() const
+  {
+    return name_;
+  }
+
+  /**
+   * @returns The bound data.
+   */
+  const Data* data() const
+  {
+    return data_.get();
+  }
+
+  /**
+   * @returns `true` if the bound data is owned by this instance, or
+   * `false` otherwise.
+   */
+  bool is_data_owner() const
+  {
+    return data_.get_deleter().condition();
+  }
+
+  /**
+   * @brief Releases the ownership of the bound data.
+   *
+   * @returns The instance of Data if it's owned by this instance, or
+   * `nullptr` otherwise.
+   */
+  std::unique_ptr<Data> release()
+  {
+    if (!is_data_owner()) {
+      data_.reset();
+      return nullptr;
+    } else
+      return std::unique_ptr<Data>(const_cast<Data*>(data_.release()));
+  }
+
+private:
+  using Data_deletion_required = memory::Conditional_delete<const Data>;
+  using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
+
+  static void check_name(const std::string& name)
+  {
+    DMITIGR_REQUIRE(!name.empty(), std::invalid_argument,
+      "invalid name of dmitigr::pgfe::Named_argument");
+  }
+
+  std::string name_;
+  Data_ptr data_;
+};
+
+/**
+ * @ingroup main
+ *
+ * @brief The alias of Named_argument.
+ */
+using _ = Named_argument;
 
 /**
  * @ingroup main
@@ -353,7 +479,26 @@ private:
   template<std::size_t ... I, typename ... Types>
   void set_parameters__(std::index_sequence<I...>, Types&& ... args)
   {
-    (set_parameter(I, std::forward<Types>(args)), ...);
+    (set_parameter__(I, std::forward<Types>(args)), ...);
+  }
+
+  void set_parameter__(const std::size_t, Named_argument&& na)
+  {
+    set_parameter(na.name(), na.release());
+  }
+
+  void set_parameter__(const std::size_t, const Named_argument& na)
+  {
+    if (na.is_data_owner())
+      set_parameter(na.name(), na.data()->to_data());
+    else
+      set_parameter_no_copy(na.name(), na.data());
+  }
+
+  template<typename T>
+  void set_parameter__(const std::size_t index, T&& value)
+  {
+    set_parameter(index, std::forward<T>(value));
   }
 };
 
