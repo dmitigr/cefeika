@@ -891,7 +891,7 @@ public:
   void call(std::string_view procedure, Types&& ... arguments)
   {
     static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
-    const auto stmt = routine_query__(function, "CALL", std::forward<Types>(arguments)...);
+    const auto stmt = routine_query__(procedure, "CALL", std::forward<Types>(arguments)...);
     execute(Sql_string::make(stmt).get(), std::forward<Types>(arguments)...);
   }
 
