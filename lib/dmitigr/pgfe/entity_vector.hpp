@@ -19,7 +19,7 @@
 namespace dmitigr::pgfe {
 
 /**
- * @ingroup conversions.
+ * @ingroup conversions
  *
  * @brief An entity container.
  *
