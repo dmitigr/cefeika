@@ -1,9 +1,9 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or img.hpp
 
-#include "dmitigr/util/graphicsmagick.hpp"
-#include "dmitigr/util/implementation_header.hpp"
+#include "dmitigr/img/graphicsmagick.hpp"
+#include "dmitigr/img/implementation_header.hpp"
 
 #include <iostream>
 #include <memory>
@@ -12,12 +12,12 @@
 
 namespace dmitigr::img::graphicsmagick {
 
-DMITIGR_UTIL_INLINE void init(const char* const app_path)
+DMITIGR_IMG_INLINE void init(const char* const app_path)
 {
   ::Magick::InitializeMagick(app_path);
 }
 
-DMITIGR_UTIL_INLINE const char* file_type_c_str(const File_type file_type)
+DMITIGR_IMG_INLINE const char* file_type_c_str(const File_type file_type)
 {
   switch (file_type) {
   case File_type::gif:  { return "GIF"; }
@@ -26,7 +26,7 @@ DMITIGR_UTIL_INLINE const char* file_type_c_str(const File_type file_type)
   }
 }
 
-DMITIGR_UTIL_INLINE void resize(std::istream& input,
+DMITIGR_IMG_INLINE void resize(std::istream& input,
   std::ostream& output,
   const unsigned int output_x,
   const unsigned int output_y,
@@ -64,4 +64,4 @@ DMITIGR_UTIL_INLINE void resize(std::istream& input,
 
 } // namespace dmitigr::img::graphicsmagick
 
-#include "dmitigr/util/implementation_footer.hpp"
+#include "dmitigr/img/implementation_footer.hpp"

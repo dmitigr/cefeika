@@ -1,11 +1,11 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or img.hpp
 
-#ifndef DMITIGR_UTIL_GRAPHICSMAGICK_HPP
-#define DMITIGR_UTIL_GRAPHICSMAGICK_HPP
+#ifndef DMITIGR_IMG_GRAPHICSMAGICK_HPP
+#define DMITIGR_IMG_GRAPHICSMAGICK_HPP
 
-#include "dmitigr/util/dll.hpp"
+#include "dmitigr/img/dll.hpp"
 
 #include <iosfwd>
 
@@ -16,19 +16,19 @@ enum class File_type { gif = 1, jpeg, png };
 /**
  * @brief The GraphicsMagick initialization.
  */
-DMITIGR_UTIL_API void init(const char* app_path);
+DMITIGR_IMG_API void init(const char* app_path);
 
 /**
  * @returns MIME in the GraphicsMagick notation.
  */
-DMITIGR_UTIL_API const char* file_type_c_str(File_type file_type);
+DMITIGR_IMG_API const char* file_type_c_str(File_type file_type);
 
 /**
  * @brief Resizes the image read from `input` and writes the result to `output`.
  *
  * @param output_quality - JPEG/MIFF/PNG compression level.
  */
-DMITIGR_UTIL_API void resize(std::istream& input,
+DMITIGR_IMG_API void resize(std::istream& input,
   std::ostream& output,
   unsigned int output_x,
   unsigned int output_y,
@@ -37,8 +37,8 @@ DMITIGR_UTIL_API void resize(std::istream& input,
 
 } // namespace dmitigr::img::graphicsmagick
 
-#ifdef DMITIGR_UTIL_HEADER_ONLY
-#include "dmitigr/util/graphicsmagick.cpp"
+#ifdef DMITIGR_IMG_HEADER_ONLY
+#include "dmitigr/img/graphicsmagick.cpp"
 #endif
 
-#endif  // DMITIGR_UTIL_GRAPHICSMAGICK_HPP
+#endif  // DMITIGR_IMG_GRAPHICSMAGICK_HPP

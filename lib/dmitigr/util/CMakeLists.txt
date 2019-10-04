@@ -60,24 +60,6 @@ set(dmitigr_util_transunits
 # ------------------------------------------------------------------------------
 
 #
-# GraphicsMagick
-#
-
-find_package(GraphicsMagick)
-if (GraphicsMagick_FOUND)
-  message("Found GraphicsMagick++ headers at: ${GraphicsMagick_INCLUDE_DIRS}")
-  include_directories(${GraphicsMagick_INCLUDE_DIRS})
-  list(APPEND dmitigr_util_headers graphicsmagick.hpp)
-  list(APPEND dmitigr_util_implementations graphicsmagick.cpp)
-  list(APPEND dmitigr_util_target_compile_definitions_public -DDMITIGR_CEFEIKA_GRAPHICSMAGICK)
-  if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-    list(APPEND dmitigr_util_target_link_libraries_public ${Suggested_GraphicsMagick_LIBRARIES})
-  else()
-    list(APPEND dmitigr_util_target_link_libraries_interface ${Suggested_GraphicsMagick_LIBRARIES})
-  endif()
-endif()
-
-#
 # System
 #
 
