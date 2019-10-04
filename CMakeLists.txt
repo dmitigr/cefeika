@@ -119,11 +119,6 @@ install(FILES
 # Libraries
 # ------------------------------------------------------------------------------
 
-# Note: dependant libraries must follows dependencies!
-set(dmitigr_cefeika_libraries
-  util dt
-  fcgi http mulf pgfe ttpl url)
-
 foreach(lib ${dmitigr_cefeika_libraries})
   string(TOUPPER "${lib}" LIB)
 
