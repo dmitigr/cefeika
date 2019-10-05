@@ -2,9 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ttpl.hpp
 
-#include "unit.hpp"
-
 #include <dmitigr/ttpl.hpp>
+#include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
 {

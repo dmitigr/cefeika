@@ -2,9 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or dt.hpp
 
-#include "unit.hpp"
-
 #include <dmitigr/dt.hpp>
+#include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
 {

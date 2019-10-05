@@ -2,10 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or mulf.hpp
 
-#include "unit.hpp"
-
-#include <dmitigr/util/fs.hpp>
 #include <dmitigr/mulf.hpp>
+#include <dmitigr/util/fs.hpp>
+#include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
 {

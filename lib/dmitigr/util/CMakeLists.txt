@@ -33,6 +33,7 @@ set(dmitigr_util_headers
   os.hpp
   stream.hpp
   string.hpp
+  test.hpp
   types_fwd.hpp
   )
 

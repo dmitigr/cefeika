@@ -5,13 +5,11 @@
 #ifndef DMITIGR_CEFEIKA_TESTS_PGFE_UNIT_HPP
 #define DMITIGR_CEFEIKA_TESTS_PGFE_UNIT_HPP
 
-#include "unit.hpp"
-
 #include <dmitigr/pgfe/connection.hpp>
 #include <dmitigr/pgfe/connection_options.hpp>
-
 #include <dmitigr/util/debug.hpp>
 #include <dmitigr/util/os.hpp>
+#include <dmitigr/util/test.hpp>
 
 #include <cstdlib>
 #include <fstream>

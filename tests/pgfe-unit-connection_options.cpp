@@ -2,13 +2,12 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "unit.hpp"
-
 // -----------------------------------------------------------------------------
 #ifndef DMITIGR_PGFE_HEADER_ONLY
 #define DMITIGR_PGFE_HEADER_ONLY
 #endif
 #include <dmitigr/pgfe/connection_options.hpp>
+#include <dmitigr/util/test.hpp>
 
 namespace dmitigr::pgfe::detail {
 

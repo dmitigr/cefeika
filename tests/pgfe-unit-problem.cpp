@@ -2,8 +2,6 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "unit.hpp"
-
 #ifndef DMITIGR_PGFE_HEADER_ONLY
 #include <dmitigr/pgfe/problem.cpp>
 #include <dmitigr/pgfe/error.cpp>
@@ -13,6 +11,7 @@
 #include <dmitigr/pgfe/error.hpp>
 #include <dmitigr/pgfe/notice.hpp>
 #endif
+#include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
 {

@@ -2,10 +2,6 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
-remove_definitions(-DDMITIGR_CEFEIKA_DLL_BUILDING)
-
-# ------------------------------------------------------------------------------
-
 set(dmitigr_util_tests net)
 set(dmitigr_dt_tests timestamp)
 set(dmitigr_fcgi_tests hello hellomt overload)
@@ -33,7 +29,7 @@ function(dmitigr_configure_test lib test)
   else()
     set(is_unit_test FALSE)
   endif()
-  set(src "${exe}.cpp" unit.hpp)
+  set(src "${exe}.cpp")
   add_executable(${exe} ${src})
   target_link_libraries(${exe} dmitigr::util dmitigr::${lib} ${dmitigr_${lib}_tests_target_link_libraries})
   dmitigr_target_compile_options(${exe})

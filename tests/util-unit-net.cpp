@@ -2,8 +2,6 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or util.hpp
 
-#include "unit.hpp"
-
 #include <dmitigr/util.hpp>
 
 int main(int, char* argv[])
