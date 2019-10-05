@@ -96,11 +96,21 @@ include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}/lib)
 # is used.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
+if (WIN32)
+  set(dmitigr_cefeika_resource_destination_dir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>")
+elseif (UNIX)
+  set(dmitigr_cefeika_resource_destination_dir "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endif()
+
 # ------------------------------------------------------------------------------
 # Custom targets
 # ------------------------------------------------------------------------------
 
-add_custom_target(uninstall)
+add_custom_target(dmitigr_cefeika_uninstall)
+
+add_custom_target(dmitigr_cefeika_create_resource_destination_dir ALL
+  COMMAND cmake -E make_directory "${dmitigr_cefeika_resource_destination_dir}"
+  )
 
 # --------------------------------------
 # Installing
@@ -280,7 +290,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Uninstalling
   # ------------------------------------
 
-  add_custom_command(TARGET uninstall PRE_BUILD
+  add_custom_command(TARGET dmitigr_cefeika_uninstall PRE_BUILD
     COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}/dmitigr_${lib}*
     COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_DOC_INSTALL_DIR}/dmitigr_${lib}*
     COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/dmitigr_${lib}*
@@ -296,5 +306,27 @@ endforeach()
 if(DMITIGR_CEFEIKA_BUILD_TESTS)
   enable_testing()
   message("Building of tests is enabled")
-  add_subdirectory(tests)
+
+  function(dmitigr_configure_test lib test)
+    set(exe "${lib}-${test}")
+    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/lib/dmitigr/${lib}/test/${exe}.cpp")
+      set(is_unit_test TRUE)
+      set(exe "${lib}-unit-${test}")
+    else()
+      set(is_unit_test FALSE)
+    endif()
+    set(src "${CMAKE_SOURCE_DIR}/lib/dmitigr/${lib}/test/${exe}.cpp")
+    add_executable(${exe} ${src})
+    target_link_libraries(${exe} dmitigr::util dmitigr::${lib} ${dmitigr_${lib}_tests_target_link_libraries})
+    dmitigr_target_compile_options(${exe})
+    if(is_unit_test)
+      add_test(NAME ${exe} COMMAND ${exe})
+    endif()
+  endfunction()
+
+  foreach(lib ${dmitigr_cefeika_libraries})
+    foreach(test ${dmitigr_${lib}_tests})
+      dmitigr_configure_test(${lib} ${test})
+    endforeach()
+  endforeach()
 endif()

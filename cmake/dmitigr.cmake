@@ -88,6 +88,8 @@ macro(dmitigr_propagate_library_settings lib)
     set(dmitigr_${lib}_${st} ${dmitigr_${lib}_${st}} PARENT_SCOPE)
   endforeach()
 
+  set(dmitigr_${lib}_tests ${dmitigr_${lib}_tests} PARENT_SCOPE)
+
   foreach(suff public private interface)
     set(dmitigr_${lib}_target_link_libraries_${suff} ${dmitigr_${lib}_target_link_libraries_${suff}} PARENT_SCOPE)
     set(dmitigr_${lib}_target_compile_definitions_${suff} ${dmitigr_${lib}_target_compile_definitions_${suff}} PARENT_SCOPE)

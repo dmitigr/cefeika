@@ -29,6 +29,27 @@ set(dmitigr_mulf_transunits
   ../mulf.cpp
   )
 
+set(dmitigr_mulf_tests valid1)
+
+# ------------------------------------------------------------------------------
+# Tests
+# ------------------------------------------------------------------------------
+
+add_custom_target(dmitigr_mulf_copy_test_resources ALL
+  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/mulf-form-data-valid1.txt"
+  "${dmitigr_cefeika_resource_destination_dir}"
+  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/mulf-form-data-invalid1.txt"
+  "${dmitigr_cefeika_resource_destination_dir}"
+  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/mulf-form-data-invalid2.txt"
+  "${dmitigr_cefeika_resource_destination_dir}"
+  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/mulf-form-data-invalid3.txt"
+  "${dmitigr_cefeika_resource_destination_dir}"
+  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/mulf-form-data-invalid4.txt"
+  "${dmitigr_cefeika_resource_destination_dir}"
+  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/mulf-form-data-invalid5.txt"
+  "${dmitigr_cefeika_resource_destination_dir}"
+  )
+
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------

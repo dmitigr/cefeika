@@ -38,6 +38,8 @@ set(dmitigr_http_transunits
   ../http.cpp
   )
 
+set(dmitigr_http_tests basics cookie date set_cookie)
+
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
