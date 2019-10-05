@@ -160,8 +160,12 @@ int main(int, char* argv[])
       pgfe::Entity_vector<Person> persons;
       auto b = begin(persons);
       auto e = end(persons);
+      ASSERT(b == e);
       auto cb = cbegin(persons);
       auto ce = cend(persons);
+      ASSERT(cb == ce);
+      ASSERT(b == cb);
+      ASSERT(e == ce);
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
