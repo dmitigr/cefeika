@@ -94,6 +94,12 @@ int main()
 }
 ```
 
+Usage
+=====
+
+Please, see [Cefeika Usage][dmitigr_cefeika_usage] section for hints how to
+link the library to a project.
+
 Copyright
 =========
 
@@ -101,6 +107,7 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 
 [dmitigr_mail]: mailto:dmitigr@gmail.com
 [dmitigr_cefeika]: https://github.com/dmitigr/cefeika.git
+[dmitigr_cefeika_usage]: https://github.com/dmitigr/cefeika.git#usage
 [dmitigr_fcgi_doc]: http://dmitigr.ru/en/projects/cefeika/fcgi/doc/
 [dmitigr_fcgi_doc_diagram]: http://dmitigr.ru/en/projects/cefeika/fcgi/doc/dmitigr_fcgi_overview.violet.html
 
