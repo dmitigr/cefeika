@@ -17,6 +17,11 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 All of these libraries can be used as shared libraries, static libraries or
 header-only libraries.
 
+Some of these libraries are available as standalone versions:
+
+  - [Dmitigr Fcgi][dmitigr_fcgi];
+  - [Dmitigr Pgfe][dmitigr_pgfe].
+
 Dependencies
 ============
 
@@ -26,7 +31,7 @@ Dependencies
 Also:
 
 - [libpq] library for [pgfe];
-- [GraphicsMagick] library for [img];
+- [GraphicsMagick] library for [img].
 
 CMake options
 =============
@@ -61,8 +66,7 @@ Remarks
 
   - `LIBPQ_PREFIX` specifies a prefix for both binary and headers of [libpq].
   For example, if [PostgreSQL] installed relocatably into `/usr/local/pgsql`,
-  the value of `LIBPQ_PREFIX` may be set accordingly at command line such as:
-  `-DLIBPQ_PREFIX=/usr/local/pgsql`;
+  the value of `LIBPQ_PREFIX` may be set accordingly;
   - `LIBPQ_LIB_PREFIX` specifies a prefix of the [libpq] binary (shared library);
   - `LIBPQ_INCLUDE_PREFIX` specifies a prefix of the [libpq] headers (namely,
   `libpq-fe.h`).
@@ -131,7 +135,12 @@ command can be used in the elevated command prompt:
 Usage
 =====
 
-The code below demonstrates how to import Cefeika libraries by using [CMake]:
+With [CMake] it's pretty easy to use the libraries (including standalone versions)
+in two ways: as a system-wide installed library(-es) or as a library(-es) dropped
+into the project source directory.
+
+The code below demonstrates how to import system-wide installed Cefeika libraries
+by using [CMake] (this snippet is also valid when using the standalone libraries):
 
 ```cmake
 cmake_minimum_required(VERSION 3.13)
@@ -142,6 +151,17 @@ set(CXX_STANDARD_REQUIRED ON)
 add_executable(foo foo.cpp)
 target_link_libraries(foo dmitigr::fcgi dmitigr::pgfe)
 ```
+
+The next code demonstrates how to import the standalone [Pgfe][dmitigr_pgfe]
+library dropped directly into the project's source directory `third-party/pgfe`:
+
+```cmake
+set(DMITIGR_CEFEIKA_HEADER_ONLY ON CACHE BOOL "Header-only?")
+add_subdirectory(third-party/pgfe)
+```
+
+Note, that all CMake variables described in [CMake options](#cmake-options) are
+also valid for standalone versions of libraries.
 
 Specifying a library type to use
 --------------------------------
@@ -177,7 +197,7 @@ Usage without CMake
 -------------------
 
 It's possible to use the libraries without [CMake]. In order to use header-only
-libraries the macros `DMITIGR_LIB_HEADER_ONLY`, where `LIB` - is a library name
+libraries the macros `DMITIGR_FOO_HEADER_ONLY`, where `FOO` - is a library name
 in uppercase, must be defined before including a library header, for example:
 
 ```cpp
@@ -187,7 +207,7 @@ in uppercase, must be defined before including a library header, for example:
 ```
 
 It's highly recommended to use the helper header `cefeika_header_only.hpp`
-in which `DMITIGR_LIB_HEADER_ONLY` macros are already defined, for example:
+in which `DMITIGR_FOO_HEADER_ONLY` macros are properly defined, for example:
 
 ```cpp
 #include <dmitigr/cefeika_header_only.hpp>
@@ -228,6 +248,8 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [dmitigr_mail]: mailto:dmitigr@gmail.com
 [dmitigr_paypal]: https://paypal.me/dmitigr
 [dmitigr_cefeika]: https://github.com/dmitigr/cefeika.git
+[dmitigr_fcgi]: https://github.com/dmitigr/fcgi.git
+[dmitigr_pgfe]: https://github.com/dmitigr/pgfe.git
 
 [dt]: https://github.com/dmitigr/cefeika/tree/master/doc/dt
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
