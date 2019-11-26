@@ -5,6 +5,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 
   - [dt] - a library to work with date and time;
   - [fcgi] - a FastCGI implementation (only server at now);
+  - [img] - a library to work with raster images;
   - [http] - a library to work with HTTP (no client nor server now);
   - [mulf] - a library to work with multipart/form-data;
   - [pgfe] - a client API for [PostgreSQL];
@@ -25,15 +26,13 @@ Dependencies
 Also:
 
 - [libpq] library for [pgfe];
-- [GraphicsMagick] library for [util] (optional).
+- [GraphicsMagick] library for [img];
 
-Customization
+CMake options
 =============
 
-The table below (may need to use horizontal scrolling for full view) contains
-variables which can be passed to [CMake] for customization of all Cefeika
-libraries. (The customization variables specific to concrete libraries are
-specified in their documentation.)
+The table below (one may need to use horizontal scrolling for full view)
+contains variables which can be passed to [CMake] for customization.
 
 |CMake variable|Possible values|Default on Unix|Default on Windows|
 |:-------------|:--------------|:--------------|:-----------------|
@@ -52,7 +51,7 @@ specified in their documentation.)
 |DMITIGR_CEFEIKA_DOC_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"${DMITIGR_CEFEIKA_SHARE_INSTALL_DIR}/doc"|"doc"|
 |DMITIGR_CEFEIKA_LIB_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"lib"|"lib"|
 |DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"include"|"include"|
-|**Dependencies**||||
+|**Options of the Pgfe library**||||
 |LIBPQ_PREFIX|*a path*|*not set (rely on CMake)*|*not set (rely on CMake)*|
 |LIBPQ_LIB_PREFIX|*a path*|${LIBPQ_PREFIX}|${LIBPQ_PREFIX}|
 |LIBPQ_INCLUDE_PREFIX|*a path*|${LIBPQ_PREFIX}|${LIBPQ_PREFIX}|
@@ -60,19 +59,18 @@ specified in their documentation.)
 Remarks
 -------
 
-  - `LIBPQ_PREFIX` can be used to speficy a prefix for both binary and headers
-    of [libpq]. For example, if [PostgreSQL] installed relocatably into
-    `/usr/local/pgsql`, the value of `LIBPQ_PREFIX` may be set accordingly at
-    command line such as: `-DLIBPQ_PREFIX=/usr/local/pgsql`;
-  - `LIBPQ_LIB_PREFIX` can be used to specify a *prefix* of the [libpq]
-    binary file (shared library);
-  - `LIBPQ_INCLUDE_PREFIX` can be used to specify a *prefix* of the [libpq]
-    headers (namely, `libpq-fe.h`).
+  - `LIBPQ_PREFIX` specifies a prefix for both binary and headers of [libpq].
+  For example, if [PostgreSQL] installed relocatably into `/usr/local/pgsql`,
+  the value of `LIBPQ_PREFIX` may be set accordingly at command line such as:
+  `-DLIBPQ_PREFIX=/usr/local/pgsql`;
+  - `LIBPQ_LIB_PREFIX` specifies a prefix of the [libpq] binary (shared library);
+  - `LIBPQ_INCLUDE_PREFIX` specifies a prefix of the [libpq] headers (namely,
+  `libpq-fe.h`).
 
-  Note, on Windows [CMake] will automatically search for some dependency
-  libraries (such as [libpq]) in `<prefix>/lib` for each `<prefix>/[s]bin` in
-  `PATH` environment variable, and `<entry>/lib` for other entries in `PATH`,
-  and the directories in `PATH` itself.
+  Note, on Windows [CMake] will automatically search for dependency libraries in
+  `<prefix>/lib` for each `<prefix>/[s]bin` found in `PATH` environment variable,
+  and `<prefix>/lib` for other entries of `PATH`, and the directories of `PATH`
+  itself.
 
 Installation
 ============
@@ -80,12 +78,12 @@ Installation
 Cefeika can be installed as a set of:
 
   - shared libraries if `-DBUILD_SHARED_LIBS=ON` option is specified
-    (it's by default);
+    (by default);
   - static libraries if `-DBUILD_SHARED_LIBS=OFF` option is specified;
   - header-only libraries if `-DDMITIGR_CEFEIKA_HEADER_ONLY=ON` option
     is specified.
 
-The default build type is "Debug".
+The default build type is *Debug*.
 
 Installation on Linux
 ---------------------
@@ -95,7 +93,7 @@ Installation on Linux
     $ cd cefeika/build
     $ cmake ..
     $ cmake --build . --parallel
-    $ sudo make install
+    $ cmake sudo make install
 
 Installation on Microsoft Windows
 ---------------------------------
@@ -156,7 +154,7 @@ the corresponding suffix of a component name should be specified:
   - the suffix "_interface" corresponds to header-only libraries.
 
 For example, the code below demonstrates how to use the shared [fcgi] library
-and the header-only [pgfe] library in a project side by side:
+and the header-only [pgfe] library in a same project side by side:
 
 ```cmake
 find_package(dmitigr_cefeika REQUIRED COMPONENTS fcgi_shared pgfe_interface)
@@ -178,10 +176,9 @@ available library in the following order:
 Usage without CMake
 -------------------
 
-Of course, it's possible to use the libraries without [CMake]. In order to use
-header-only libraries the macros `DMITIGR_LIB_HEADER_ONLY`, where `LIB` - is a
-library name in uppercase, must be defined before including a library header,
-for example:
+It's possible to use the libraries without [CMake]. In order to use header-only
+libraries the macros `DMITIGR_LIB_HEADER_ONLY`, where `LIB` - is a library name
+in uppercase, must be defined before including a library header, for example:
 
 ```cpp
 #define DMITIGR_PGFE_HEADER_ONLY
@@ -199,18 +196,17 @@ in which `DMITIGR_LIB_HEADER_ONLY` macros are already defined, for example:
 // ...
 ```
 
-Please note, that external dependencies, such as `Ws2_32.lib` on Microsoft
-Windows, must be linked manually in this case!
+Please note, that external dependencies  must be linked manually in this case!
 
 Remarks
 -------
 
-Assuming `lib` is the name of library, the following considerations should be
+Assuming `foo` is the name of library, the following considerations should be
 followed:
 
-  - headers other than `dmitigr/lib.hpp` should *not* be used
+  - headers other than `dmitigr/foo.hpp` should *not* be used
     since that headers are subject to reorganize;
-  - the namespace `dmitigr::lib::detail` should *not* be used
+  - the namespace `dmitigr::foo::detail` should *not* be used
     since it consists of the implementation details.
 
 License
@@ -219,11 +215,10 @@ License
 Cefeika is distributed under zlib license. For conditions of distribution and
 use, see file `LICENSE.txt`.
 
-Participation
+Contributions
 =============
 
-Contributions and any feedback are highly appreciated! Donations are
-[welcome][dmitigr_paypal]!
+Any feedback are welcome. Donations are [welcome][dmitigr_paypal].
 
 Copyright
 =========
@@ -237,6 +232,7 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [dt]: https://github.com/dmitigr/cefeika/tree/master/doc/dt
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
 [http]: https://github.com/dmitigr/cefeika/tree/master/doc/http
+[img]: https://github.com/dmitigr/cefeika/tree/master/doc/img
 [mulf]: https://github.com/dmitigr/cefeika/tree/master/doc/mulf
 [pgfe]: https://github.com/dmitigr/cefeika/tree/master/doc/pgfe
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
