@@ -35,6 +35,7 @@ set(dmitigr_util_headers
   string.hpp
   test.hpp
   types_fwd.hpp
+  uuid.hpp
   )
 
 if (WIN32)
@@ -50,13 +51,14 @@ set(dmitigr_util_implementations
   os.cpp
   stream.cpp
   string.cpp
+  uuid.cpp
   )
 
 set(dmitigr_util_transunits
   ../util.cpp
   )
 
-set(dmitigr_util_tests net)
+set(dmitigr_util_tests net uuid)
 
 # ------------------------------------------------------------------------------
 # Dependencies

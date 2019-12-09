@@ -106,6 +106,21 @@ class Error_category;
 
 } // namespace stream
 
+/**
+ * @brief The API.
+ */
+namespace uuid {
+class Uuid;
+
+/**
+ * @brief The implementation detail.
+ */
+namespace detail {
+class iUuid;
+} // namespace detail
+
+} // namespace uuid
+
 } // namespace dmitigr
 
 #endif  // DMITIGR_UTIL_TYPES_FWD_HPP
