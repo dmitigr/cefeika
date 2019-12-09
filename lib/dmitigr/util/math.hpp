@@ -7,9 +7,20 @@
 
 #include "dmitigr/util/debug.hpp"
 
+#include <chrono>
 #include <cstdlib>
 
 namespace dmitigr::math {
+
+/**
+ * Seeds the pseudo-random number generator.
+ */
+inline void seed_by_now()
+{
+  const auto seed = std::chrono::duration_cast<std::chrono::seconds>(
+    std::chrono::system_clock::now().time_since_epoch()).count();
+  std::srand(static_cast<unsigned>(seed));
+}
 
 /**
  * @returns The random number.
@@ -17,9 +28,21 @@ namespace dmitigr::math {
  * @remarks From TC++PL 3rd, 22.7.
  */
 template<typename T>
-constexpr T rand_cpp_pl_3rd(const T num)
+constexpr T rand_cpp_pl_3rd(const T maximum)
 {
-  return static_cast<T>(static_cast<double>(std::rand()) / RAND_MAX) * num;
+  const auto rand_num = static_cast<double>(std::rand());
+  return maximum * (rand_num / RAND_MAX);
+}
+
+/**
+ * @overload
+ */
+template<typename T>
+constexpr T rand_cpp_pl_3rd(const T minimum, const T maximum)
+{
+  DMITIGR_REQUIRE(minimum < maximum, std::invalid_argument);
+  const auto range_length = maximum - minimum;
+  return (rand_cpp_pl_3rd(maximum) % range_length) + minimum;
 }
 
 /**
