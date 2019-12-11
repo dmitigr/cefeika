@@ -33,6 +33,15 @@ Also:
 - [libpq] library for [pgfe];
 - [GraphicsMagick] library for [img].
 
+Bundled dependencies
+====================
+
+|Name|Version|
+|:---|:------|
+|RapidJSON|[rapidjson-commit]|
+
+[rapidjson-commit]: https://github.com/Tencent/rapidjson/commit/dfbe1db9da455552f7a9ad5d2aea17dd9d832ac1
+
 CMake options
 =============
 

@@ -83,8 +83,11 @@ set(CXX_STANDARD_REQUIRED ON)
 # Include directories
 # ------------------------------------------------------------------------------
 
-include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR}/lib)
+include_directories(BEFORE
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib
+  ${CMAKE_CURRENT_BINARY_DIR}/lib
+  ${CMAKE_CURRENT_SOURCE_DIR}/dep
+  ${CMAKE_CURRENT_BINARY_DIR}/dep)
 
 # ------------------------------------------------------------------------------
 # Output settings
@@ -122,6 +125,9 @@ install(FILES
   cmake/dmitigr_cefeika.cmake
   cmake/dmitigr_cefeika-config.cmake
   DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR})
+
+install(DIRECTORY dep/dmitigr
+  DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
 
 # ------------------------------------------------------------------------------
 # Libraries
