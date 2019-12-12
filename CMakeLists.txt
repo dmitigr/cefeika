@@ -18,6 +18,7 @@ include(dmitigr_cefeika)
 # Build options
 # ------------------------------------------------------------------------------
 
+option(CMAKE_VERBOSE_MAKEFILE "Verbose output upon build?" OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
 option(DMITIGR_CEFEIKA_HEADER_ONLY "Header-only?" OFF)
 option(DMITIGR_CEFEIKA_BUILD_TESTS "Build tests?" OFF)
@@ -90,14 +91,13 @@ include_directories(BEFORE
   ${CMAKE_CURRENT_BINARY_DIR}/dep)
 
 # ------------------------------------------------------------------------------
-# Dependencies
+# Third-party dependencies
 # ------------------------------------------------------------------------------
 
-#
-# RapidJSON
-#
-
-add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+if ("rajson" IN_LIST dmitigr_cefeika_libraries)
+  install(DIRECTORY dep/dmitigr/thirdparty/rapidjson
+    DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty)
+endif()
 
 # ------------------------------------------------------------------------------
 # Output settings
@@ -136,9 +136,6 @@ install(FILES
   cmake/dmitigr_cefeika-config.cmake
   DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR})
 
-install(DIRECTORY dep/dmitigr
-  DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
-
 # ------------------------------------------------------------------------------
 # Libraries
 # ------------------------------------------------------------------------------
@@ -155,7 +152,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   dmitigr_set_library_info_lib_variables(${lib})
 
   foreach(file dll.hpp implementation_footer.hpp
-      implementation_header.hpp version.hpp version.rc)
+      implementation_header.hpp version.hpp version.cpp version.rc)
     configure_file(lib/dmitigr/${file}.in
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
       NEWLINE_STYLE UNIX)
@@ -175,6 +172,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   list(APPEND dmitigr_${lib}_preprocessed_headers
     dll.hpp implementation_footer.hpp implementation_header.hpp version.hpp)
+  list(APPEND dmitigr_${lib}_implementations version.cpp)
   if (WIN32)
     list(APPEND dmitigr_${lib}_build_only_sources version.rc)
   endif()

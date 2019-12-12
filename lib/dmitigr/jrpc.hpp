@@ -20,19 +20,16 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_CEFEIKA_HEADER_ONLY_HPP
-#define DMITIGR_CEFEIKA_HEADER_ONLY_HPP
+#ifndef DMITIGR_JRPC_HPP
+#define DMITIGR_JRPC_HPP
 
-#define DMITIGR_DT_HEADER_ONLY
-#define DMITIGR_FCGI_HEADER_ONLY
-#define DMITIGR_HTTP_HEADER_ONLY
-#define DMITIGR_IMG_HEADER_ONLY
-#define DMITIGR_JRPC_HEADER_ONLY
-#define DMITIGR_MULF_HEADER_ONLY
-#define DMITIGR_PGFE_HEADER_ONLY
-#define DMITIGR_RAJSON_HEADER_ONLY
-#define DMITIGR_TTPL_HEADER_ONLY
-#define DMITIGR_URL_HEADER_ONLY
-#define DMITIGR_UTIL_HEADER_ONLY
+#include "dmitigr/jrpc/basics.hpp"
+#include "dmitigr/jrpc/errc.hpp"
+#include "dmitigr/jrpc/error.hpp"
+#include "dmitigr/jrpc/request.hpp"
+#include "dmitigr/jrpc/response.hpp"
+#include "dmitigr/jrpc/result.hpp"
+#include "dmitigr/jrpc/std_system_error.hpp"
+#include "dmitigr/jrpc/version.hpp"
 
-#endif  // DMITIGR_CEFEIKA_HEADER_ONLY_HPP
+#endif  // DMITIGR_JRPC_HPP

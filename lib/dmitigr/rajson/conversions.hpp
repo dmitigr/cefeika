@@ -18,7 +18,7 @@
 #include <string_view>
 #include <utility>
 
-namespace dmitigr::json {
+namespace dmitigr::rajson {
 
 /**
  * @returns The result of conversion of `value` to a JSON string.
@@ -32,7 +32,7 @@ std::string to_stringified_json(const rapidjson::GenericValue<Encoding, Allocato
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer{buffer};
   if (!value.Accept(writer))
-    throw std::runtime_error{"dmitigr::json::to_stringified_json(): accept error"};
+    throw std::runtime_error{"dmitigr::rajson: to_stringified_json() accept error"};
   return std::string{buffer.GetString(), buffer.GetSize()};
 }
 
@@ -51,11 +51,34 @@ template<typename> struct Conversions;
  * value of type `Destination` by using specializations of the template
  * structure Conversions.
  */
-template<typename Destination, typename Source>
-Destination to(Source&& value)
+template<typename Destination, typename Source, typename ... Types>
+Destination to(Source&& value, Types&& ... args)
 {
-  return Conversions<Destination>::from(std::forward<Source>(value));
+  return Conversions<Destination>::from(std::forward<Source>(value), std::forward<Types>(args)...);
 }
+
+/**
+ * @brief Full specialization of Conversions for `int`.
+ */
+template<> struct Conversions<int> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    return value.GetInt();
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::string`.
+ */
+template<>
+struct Conversions<std::string> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    return std::string{value.GetString(), value.GetStringLength()};
+  }
+};
 
 /**
  * @brief Full specialization of Conversions for `std::string_view`.
@@ -70,7 +93,7 @@ struct Conversions<std::string_view> final {
 };
 
 /**
- * @brief Full specialization of Conversions for `rapidjson::StringRef`.
+ * @brief Partial specialization of Conversions for `rapidjson::StringRef`.
  */
 template<class CharType>
 struct Conversions<rapidjson::GenericStringRef<CharType>> final {
@@ -80,7 +103,27 @@ struct Conversions<rapidjson::GenericStringRef<CharType>> final {
   }
 };
 
-} // namespace dmitigr::json
+/**
+ * @brief Partial specialization of Conversions for `rapidjson::GenericValue`.
+ */
+template<class Encoding, class Allocator>
+struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
+  template<typename T>
+  static auto from(T&& value, Allocator& alloc)
+  {
+    using U = std::decay_t<T>;
+    using R = rapidjson::GenericValue<Encoding, Allocator>;
+
+    if constexpr (std::is_arithmetic_v<U>)
+      return R{value};
+    else if constexpr (std::is_same_v<U, std::string_view>)
+      return R{value.data(), value.size()};
+    else
+      return R{std::forward<T>(value), alloc};
+  }
+};
+
+} // namespace dmitigr::rajson
 
 #ifdef DMITIGR_RAJSON_HEADER_ONLY
 #include "dmitigr/rajson/conversions.cpp"
