@@ -27,17 +27,17 @@ public:
   /**
    * @see Response::jsonrpc().
    */
-  std::string_view jsonrpc() const override;
+  DMITIGR_JRPC_API std::string_view jsonrpc() const override;
 
   /**
    * @see Response::id().
    */
-  const rapidjson::Value& id() const override;
+  DMITIGR_JRPC_API const rapidjson::Value& id() const override;
 
   /**
    * @see Response::to_string().
    */
-  std::string to_string() const override;
+  DMITIGR_JRPC_API std::string to_string() const override;
 
   /**
    * @returns A Primitive or Structured value that contains additional
@@ -62,7 +62,7 @@ public:
   /**
    * @see Response::allocator().
    */
-  rapidjson::Value::AllocatorType& allocator() override;
+  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() override;
 
 private:
   friend Response;

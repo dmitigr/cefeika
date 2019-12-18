@@ -114,11 +114,13 @@ struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
     using U = std::decay_t<T>;
     using R = rapidjson::GenericValue<Encoding, Allocator>;
 
-    if constexpr (std::is_arithmetic_v<U>)
+    if constexpr (std::is_arithmetic_v<U>) {
+      (void)alloc;
       return R{value};
-    else if constexpr (std::is_same_v<U, std::string_view>)
+    } else if constexpr (std::is_same_v<U, std::string_view>) {
+      (void)alloc;
       return R{value.data(), value.size()};
-    else
+    } else
       return R{std::forward<T>(value), alloc};
   }
 };
