@@ -23,7 +23,7 @@
 #ifndef DMITIGR_RAJSON_HPP
 #define DMITIGR_RAJSON_HPP
 
-#include "dmitigr/rajson/rapidjson.hpp"
+#include "dmitigr/rajson/fwd.hpp"
 #include "dmitigr/rajson/conversions.hpp"
 #include "dmitigr/rajson/version.hpp"
 

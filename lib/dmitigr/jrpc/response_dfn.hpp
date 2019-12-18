@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <string_view>
+#include <string>
 
 namespace dmitigr::jrpc {
 

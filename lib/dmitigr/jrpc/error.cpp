@@ -61,10 +61,9 @@ DMITIGR_JRPC_INLINE const rapidjson::Value* Error::data() const
 
 DMITIGR_JRPC_INLINE void Error::set_data(rapidjson::Value value)
 {
-  auto& alloc = allocator();
   auto& err = error();
   if (const auto i = err.FindMember("data"); i == err.MemberEnd())
-    err.AddMember("data", std::move(value), alloc);
+    err.AddMember("data", std::move(value), allocator());
   else
     i->value = std::move(value);
 }

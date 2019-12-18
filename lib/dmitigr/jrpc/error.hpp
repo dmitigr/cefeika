@@ -10,7 +10,6 @@
 #include "dmitigr/rajson/conversions.hpp"
 
 #include <memory>
-#include <optional>
 
 namespace dmitigr::jrpc {
 

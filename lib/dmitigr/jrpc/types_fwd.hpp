@@ -12,22 +12,20 @@ namespace dmitigr::jrpc {
 
 enum class Server_errc;
 
+class Request;
 class Response;
 class Error;
 class Result;
-
-class Request;
 
 /**
  * @brief The implementation details.
  */
 namespace detail {
 
+class iRequest;
 class iResponse;
 class iError;
 class iResult;
-
-class iRequest;
 
 } // namespace detail
 

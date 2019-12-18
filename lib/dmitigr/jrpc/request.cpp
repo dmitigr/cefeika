@@ -8,13 +8,14 @@
 #include "dmitigr/util/debug.hpp"
 #include "dmitigr/util/string.hpp"
 
-#include <iostream>
-
 namespace dmitigr::jrpc::detail {
 
+/**
+ * @brief Implementation of Request.
+ */
 class iRequest final : public Request {
 public:
-  iRequest(const std::string_view input)
+  explicit iRequest(const std::string_view input)
     : rep_{rajson::to_parsed_json(input)}
   {
     if (rep_.HasParseError())

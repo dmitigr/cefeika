@@ -9,6 +9,9 @@
 
 namespace dmitigr::jrpc::detail {
 
+/**
+ * @brief Implementation of Result.
+ */
 class iResult final : public Result {
 public:
   explicit iResult(rapidjson::Value id)
@@ -21,15 +24,15 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  iResult(const std::optional<int> id)
+  explicit iResult(const std::optional<int> id)
     : iResult{id ? rapidjson::Value{*id} : rapidjson::Value{}}
   {}
 
-  iResult(const std::string_view id)
+  explicit iResult(const std::string_view id)
     : iResult{rapidjson::Value{id.data(), id.size(), allocator()}}
   {}
 
-  iResult(rapidjson::Document rep)
+  explicit iResult(rapidjson::Document rep)
     : rep_{std::move(rep)}
   {
     DMITIGR_ASSERT(is_invariant_ok());
