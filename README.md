@@ -5,10 +5,12 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 
   - [dt] - a library to work with date and time;
   - [fcgi] - a FastCGI implementation (only server at now);
-  - [img] - a library to work with raster images;
   - [http] - a library to work with HTTP (no client nor server now);
+  - [img] - a library to work with raster images;
+  - [jrpc] - a [JSON-RPC 2.0 specification][json-rpc2] implementation;
   - [mulf] - a library to work with multipart/form-data;
   - [pgfe] - a client API for [PostgreSQL];
+  - [rajson] - a very thin wrapper around [RapidJSON];
   - [ttpl] - a library to work with text templates;
   - [url] - a library to work with URL;
   - [util] - a library to support the needs of Cefeika libraries, but may be
@@ -264,8 +266,10 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
 [http]: https://github.com/dmitigr/cefeika/tree/master/doc/http
 [img]: https://github.com/dmitigr/cefeika/tree/master/doc/img
+[jrpc]: https://github.com/dmitigr/cefeika/tree/master/doc/jrpc
 [mulf]: https://github.com/dmitigr/cefeika/tree/master/doc/mulf
 [pgfe]: https://github.com/dmitigr/cefeika/tree/master/doc/pgfe
+[rajson]: https://github.com/dmitigr/cefeika/tree/master/doc/rajson
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
 [util]: https://github.com/dmitigr/cefeika/tree/master/doc/util
@@ -274,6 +278,8 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [CMake_find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
 [GCC]: https://gcc.gnu.org/
 [GraphicsMagick]: http://www.graphicsmagick.org/
+[json-rpc2]: https://www.jsonrpc.org/specification
 [libpq]: https://www.postgresql.org/docs/current/static/libpq.html
 [PostgreSQL]: https://www.postgresql.org/
+[RapidJSON]: http://rapidjson.org/
 [Visual_Studio]: https://www.visualstudio.com/
