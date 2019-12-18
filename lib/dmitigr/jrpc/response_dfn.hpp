@@ -16,7 +16,7 @@
 namespace dmitigr::jrpc {
 
 /**
- * A response response.
+ * @brief A response.
  */
 class Response {
 public:

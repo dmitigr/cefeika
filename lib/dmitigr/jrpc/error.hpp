@@ -14,7 +14,7 @@
 namespace dmitigr::jrpc {
 
 /**
- * An error response.
+ * @brief An error response.
  */
 class Error final : public Response, public std::system_error {
 public:
