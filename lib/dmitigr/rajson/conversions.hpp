@@ -8,10 +8,10 @@
 #include "dmitigr/rajson/dll.hpp"
 #include "dmitigr/rajson/fwd.hpp"
 
-#include "dmitigr/thirdparty/rapidjson/document.h"
-#include "dmitigr/thirdparty/rapidjson/schema.h"
-#include "dmitigr/thirdparty/rapidjson/stringbuffer.h"
-#include "dmitigr/thirdparty/rapidjson/writer.h"
+#include <rapidjson/document.h>
+#include <rapidjson/schema.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 #include <stdexcept>
 #include <string>

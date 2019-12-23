@@ -85,20 +85,16 @@ set(CXX_STANDARD_REQUIRED ON)
 # ------------------------------------------------------------------------------
 
 include_directories(BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}/lib
-  ${CMAKE_CURRENT_BINARY_DIR}/lib
-  ${CMAKE_CURRENT_SOURCE_DIR}/dep
-  ${CMAKE_CURRENT_BINARY_DIR}/dep
-  ${CMAKE_CURRENT_SOURCE_DIR}/dep/dmitigr/thirdparty
-  ${CMAKE_CURRENT_BINARY_DIR}/dep/dmitigr/thirdparty)
+  ${CMAKE_SOURCE_DIR}/lib
+  ${CMAKE_BINARY_DIR}/lib
+  )
 
 # ------------------------------------------------------------------------------
 # Third-party dependencies
 # ------------------------------------------------------------------------------
 
 if ("rajson" IN_LIST dmitigr_cefeika_libraries)
-  install(DIRECTORY dep/dmitigr/thirdparty/rapidjson
-    DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty)
+  include_directories(BEFORE "${CMAKE_SOURCE_DIR}/dep/rapidjson/include")
 endif()
 
 # ------------------------------------------------------------------------------
