@@ -94,7 +94,7 @@ include_directories(BEFORE
 # ------------------------------------------------------------------------------
 
 if ("rajson" IN_LIST dmitigr_cefeika_libraries)
-  include_directories(BEFORE "${CMAKE_SOURCE_DIR}/dep/rapidjson/include")
+  include_directories(BEFORE "${CMAKE_SOURCE_DIR}/thirdparty/rapidjson/include")
 endif()
 
 # ------------------------------------------------------------------------------
