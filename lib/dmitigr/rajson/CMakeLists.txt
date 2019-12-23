@@ -44,10 +44,10 @@ foreach(t public interface)
     -DRAPIDJSON_NO_SIZETYPEDEFINE)
 endforeach()
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/thirdparty/rapidjson/include"
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/rapidjson")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/thirdparty/rapidjson/include/"
+  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
 
-set(rapidjson_include_dir "${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/rapidjson/include")
+set(rapidjson_include_dir "${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
 list(APPEND dmitigr_rajson_target_include_directories_public "${rapidjson_include_dir}")
 list(APPEND dmitigr_rajson_target_include_directories_interface "${rapidjson_include_dir}")
 
