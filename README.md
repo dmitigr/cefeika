@@ -13,6 +13,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [rajson] - a very thin wrapper around [RapidJSON];
   - [ttpl] - a library to work with text templates;
   - [url] - a library to work with URL;
+  - [usockx] - a very thin wrapper around [uSockets];
   - [util] - a library to support the needs of Cefeika libraries, but may be
   useful for other projects as well;
   - [uvli] - a very thin wrapper around [libuv].
@@ -25,8 +26,8 @@ Some of these libraries are available as standalone versions:
   - [Dmitigr Fcgi][dmitigr_fcgi];
   - [Dmitigr Pgfe][dmitigr_pgfe].
 
-Dependencies
-============
+External dependencies
+=====================
 
 - [CMake] build system version 3.10+;
 - C++17 compiler ([GCC] 7.4+ or [Microsoft Visual C++][Visual_Studio] 15.7+).
@@ -289,4 +290,5 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [libuv]: https://libuv.org/
 [PostgreSQL]: https://www.postgresql.org/
 [RapidJSON]: http://rapidjson.org/
+[uSockets]: https://github.com/uNetworking/uSockets
 [Visual_Studio]: https://www.visualstudio.com/
