@@ -20,10 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_LIUV_HPP
-#define DMITIGR_LIUV_HPP
+#ifndef DMITIGR_UVLI_HPP
+#define DMITIGR_UVLI_HPP
 
-#include "dmitigr/liuv/types_fwd.hpp"
-#include "dmitigr/liuv/version.hpp"
+#include "dmitigr/uvli/types_fwd.hpp"
+#include "dmitigr/uvli/version.hpp"
 
-#endif  // DMITIGR_LIUV_HPP
+#endif  // DMITIGR_UVLI_HPP

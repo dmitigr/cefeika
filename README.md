@@ -14,7 +14,8 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [ttpl] - a library to work with text templates;
   - [url] - a library to work with URL;
   - [util] - a library to support the needs of Cefeika libraries, but may be
-    useful for other projects as well.
+  useful for other projects as well;
+  - [uvli] - a very thin wrapper around [libuv].
 
 All of these libraries can be used as shared libraries, static libraries or
 header-only libraries.
@@ -41,8 +42,10 @@ Bundled dependencies
 |Name|Version|
 |:---|:------|
 |RapidJSON|[rapidjson-commit]|
+|libuv|[libuv-commit]|
 
 [rapidjson-commit]: https://github.com/Tencent/rapidjson/commit/dfbe1db9da455552f7a9ad5d2aea17dd9d832ac1
+[libuv-commit]: https://github.com/libuv/libuv/commit/2ab3dc1567d67924b634be6f478d25f4528ce574
 
 CMake options
 =============
@@ -273,6 +276,7 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
 [util]: https://github.com/dmitigr/cefeika/tree/master/doc/util
+[uvli]: https://github.com/dmitigr/cefeika/tree/master/doc/uvli
 
 [CMake]: https://cmake.org/
 [CMake_find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
@@ -280,6 +284,7 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [GraphicsMagick]: http://www.graphicsmagick.org/
 [json-rpc2]: https://www.jsonrpc.org/specification
 [libpq]: https://www.postgresql.org/docs/current/static/libpq.html
+[libuv]: https://libuv.org/
 [PostgreSQL]: https://www.postgresql.org/
 [RapidJSON]: http://rapidjson.org/
 [Visual_Studio]: https://www.visualstudio.com/
