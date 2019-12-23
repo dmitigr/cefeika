@@ -101,13 +101,6 @@ if ("rajson" IN_LIST dmitigr_cefeika_libraries)
     DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty)
 endif()
 
-if ("liuv" IN_LIST dmitigr_cefeika_libraries)
-  install(DIRECTORY dep/dmitigr/thirdparty/uv
-    DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty)
-  install(FILES dep/dmitigr/thirdparty/uv.h
-    DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty)
-endif()
-
 # ------------------------------------------------------------------------------
 # Output settings
 # ------------------------------------------------------------------------------
