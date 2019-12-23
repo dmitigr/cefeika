@@ -43,9 +43,11 @@ Bundled dependencies
 |:---|:------|
 |RapidJSON|[rapidjson-commit]|
 |libuv|[libuv-commit]|
+|uSockets|[usockets-commit]|
 
-[rapidjson-commit]: https://github.com/Tencent/rapidjson/commit/dfbe1db9da455552f7a9ad5d2aea17dd9d832ac1
-[libuv-commit]: https://github.com/libuv/libuv/commit/2ab3dc1567d67924b634be6f478d25f4528ce574
+[rapidjson-commit]: https://github.com/dmitigr/rapidjson/commit/dfbe1db9da455552f7a9ad5d2aea17dd9d832ac1
+[libuv-commit]: https://github.com/dmitigr/libuv/commit/2ab3dc1567d67924b634be6f478d25f4528ce574
+[usockets-commit]: https://github.com/dmitigr/uSockets/commit/070d03fb141abbf8edd7bd971a94101b01461670
 
 CMake options
 =============
