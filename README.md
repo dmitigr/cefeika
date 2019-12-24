@@ -13,21 +13,21 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [rajson] - a very thin wrapper around [RapidJSON];
   - [ttpl] - a library to work with text templates;
   - [url] - a library to work with URL;
-  - [usockx] - a very thin wrapper around [uSockets];
   - [util] - a library to support the needs of Cefeika libraries, but may be
   useful for other projects as well;
-  - [uvli] - a very thin wrapper around [libuv].
+  - [wsbe] - a WebSockets backend framework;
 
 All of these libraries can be used as shared libraries, static libraries or
-header-only libraries.
+header-only libraries. ([wsbe] requires to build some third-party libraries
+such as [libuv] and [uSockets] which are shipped with Cefeika.)
 
 Some of these libraries are available as standalone versions:
 
   - [Dmitigr Fcgi][dmitigr_fcgi];
   - [Dmitigr Pgfe][dmitigr_pgfe].
 
-External dependencies
-=====================
+Third-party dependencies
+========================
 
 - [CMake] build system version 3.10+;
 - C++17 compiler ([GCC] 7.4+ or [Microsoft Visual C++][Visual_Studio] 15.7+).
@@ -37,8 +37,8 @@ Also:
 - [libpq] library for [pgfe];
 - [GraphicsMagick] library for [img].
 
-Bundled dependencies
-====================
+Third-party dependencies which are shipped with Cefeika
+-------------------------------------------------------
 
 |Name|Version|
 |:---|:------|
@@ -279,7 +279,7 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
 [util]: https://github.com/dmitigr/cefeika/tree/master/doc/util
-[uvli]: https://github.com/dmitigr/cefeika/tree/master/doc/uvli
+[wsbe]: https://github.com/dmitigr/cefeika/tree/master/doc/wsbe
 
 [CMake]: https://cmake.org/
 [CMake_find_package]: https://cmake.org/cmake/help/latest/command/find_package.html

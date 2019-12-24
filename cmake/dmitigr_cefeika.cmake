@@ -3,7 +3,7 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 set(dmitigr_cefeika_libraries
-  util dt rajson uvli usockx
+  util dt rajson wsbe
   fcgi http img jrpc mulf pgfe ttpl url)
 
 set(dmitigr_cefeika_dt_deps util)
@@ -16,5 +16,4 @@ set(dmitigr_cefeika_pgfe_deps util)
 set(dmitigr_cefeika_rajson_deps util)
 set(dmitigr_cefeika_ttpl_deps util)
 set(dmitigr_cefeika_url_deps  util)
-set(dmitigr_cefeika_usockx_deps uvli util)
-set(dmitigr_cefeika_uvli_deps util)
+set(dmitigr_cefeika_wsbe_deps util)

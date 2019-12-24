@@ -73,6 +73,20 @@ elseif(WIN32)
 endif()
 
 # ------------------------------------------------------------------------------
+# Global variables (constants)
+# ------------------------------------------------------------------------------
+
+if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+  if(BUILD_SHARED_LIBS)
+    set(export_file_suffix "shared")
+  else()
+    set(export_file_suffix "static")
+  endif()
+else() # header-only
+  set(export_file_suffix "interface")
+endif()
+
+# ------------------------------------------------------------------------------
 # Languages
 # ------------------------------------------------------------------------------
 
@@ -94,11 +108,12 @@ include_directories(BEFORE
 # ------------------------------------------------------------------------------
 
 if ("rajson" IN_LIST dmitigr_cefeika_libraries)
-  include_directories(BEFORE "${CMAKE_SOURCE_DIR}/thirdparty/rapidjson/include")
+  add_subdirectory(thirdparty/rapidjson)
 endif()
 
-if ("usockx" IN_LIST dmitigr_cefeika_libraries)
-  include_directories(BEFORE "${CMAKE_SOURCE_DIR}/thirdparty/uv/include")
+if ("wsbe" IN_LIST dmitigr_cefeika_libraries)
+  add_subdirectory(thirdparty/uv)
+  add_subdirectory(thirdparty/usockets)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -284,16 +299,6 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
     install(FILES lib/dmitigr/cefeika_header_only.hpp
       DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr)
-  endif()
-
-  if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-    if(BUILD_SHARED_LIBS)
-      set(export_file_suffix "shared")
-    else()
-      set(export_file_suffix "static")
-    endif()
-  else() # header-only
-    set(export_file_suffix "interface")
   endif()
 
   install(EXPORT dmitigr_${lib}_export

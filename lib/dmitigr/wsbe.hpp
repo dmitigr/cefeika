@@ -20,10 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_USOCKX_HPP
-#define DMITIGR_USOCKX_HPP
+#ifndef DMITIGR_WSBE_HPP
+#define DMITIGR_WSBE_HPP
 
-#include "dmitigr/usockx/types_fwd.hpp"
-#include "dmitigr/usockx/version.hpp"
+#include "dmitigr/wsbe/types_fwd.hpp"
+#include "dmitigr/wsbe/version.hpp"
 
-#endif  // DMITIGR_USOCKX_HPP
+#endif  // DMITIGR_WSBE_HPP

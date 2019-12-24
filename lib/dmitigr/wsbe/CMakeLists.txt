@@ -6,46 +6,38 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(rajson 0 1 "The wrapper around RapidJSON library")
+dmitigr_set_library_info(wsbe 0 1 "Websockets backend")
 
 # ------------------------------------------------------------------------------
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_rajson_root_headers
-  ../rajson.hpp
+set(dmitigr_wsbe_root_headers
+  ../wsbe.hpp
   )
 
-set(dmitigr_rajson_headers
-  conversions.hpp
-  fwd.hpp
+set(dmitigr_wsbe_headers
   )
 
-set(dmitigr_rajson_implementations
-  conversions.cpp
+set(dmitigr_wsbe_implementations
   )
 
-set(dmitigr_rajson_transunits
-  ../rajson.cpp
+set(dmitigr_wsbe_transunits
+  ../wsbe.cpp
   )
 
-set(dmitigr_rajson_tests
+set(dmitigr_wsbe_tests
   )
 
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_rajson_target_link_libraries_public thirdparty_rapidjson dmitigr::util)
-set(dmitigr_rajson_target_link_libraries_interface thirdparty_rapidjson dmitigr::util)
-foreach(t public interface)
-  set(dmitigr_rajson_target_compile_definitions_${t}
-    -DRAPIDJSON_HAS_STDSTRING
-    -DRAPIDJSON_NO_SIZETYPEDEFINE)
-endforeach()
+set(dmitigr_wsbe_target_link_libraries_public thirdparty_usockets dmitigr::util)
+set(dmitigr_wsbe_target_link_libraries_interface thirdparty_usockets dmitigr::util)
 
 # ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(rajson)
+dmitigr_propagate_library_settings(wsbe)
