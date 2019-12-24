@@ -97,6 +97,10 @@ if ("rajson" IN_LIST dmitigr_cefeika_libraries)
   include_directories(BEFORE "${CMAKE_SOURCE_DIR}/thirdparty/rapidjson/include")
 endif()
 
+if ("usockx" IN_LIST dmitigr_cefeika_libraries)
+  include_directories(BEFORE "${CMAKE_SOURCE_DIR}/thirdparty/uv/include")
+endif()
+
 # ------------------------------------------------------------------------------
 # Output settings
 # ------------------------------------------------------------------------------

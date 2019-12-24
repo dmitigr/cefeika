@@ -43,7 +43,7 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
   list(APPEND usockets_cflags
     -fPIC
     -fvisibility=hidden
-    --std=c99
+    --std=c11
     -Wall
     -Wextra
     #-Wstrict-prototypes
@@ -63,14 +63,6 @@ set(usockets_sources
 
 if(WIN32)
   list(APPEND usockets_defines WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0600)
-  list(APPEND usockets_libraries
-    advapi32
-    iphlpapi
-    psapi
-    shell32
-    user32
-    userenv
-    ws2_32)
 else()
   list(APPEND usockets_defines _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE)
 endif()
@@ -95,7 +87,7 @@ list(APPEND dmitigr_usockx_target_include_directories_interface "${usockets_incl
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_usockx_target_link_libraries_public dmitigr::util)
+set(dmitigr_usockx_target_link_libraries_public dmitigr::uvli dmitigr::util)
 set(dmitigr_usockx_target_link_libraries_private usockets_static)
 
 # ------------------------------------------------------------------------------
