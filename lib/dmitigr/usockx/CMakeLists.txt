@@ -67,16 +67,16 @@ else()
   list(APPEND usockets_defines _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE)
 endif()
 
-list(TRANSFORM usockets_sources PREPEND "${CMAKE_SOURCE_DIR}/thirdparty/uSockets/")
+list(TRANSFORM usockets_sources PREPEND "${CMAKE_SOURCE_DIR}/thirdparty/usockets/")
 
 add_library(usockets_static OBJECT ${usockets_sources})
 target_compile_definitions(usockets_static PRIVATE ${usockets_defines})
 target_compile_options(usockets_static PRIVATE ${usockets_cflags})
 target_include_directories(usockets_static
-  PRIVATE "${CMAKE_SOURCE_DIR}/thirdparty/uSockets/include" "${CMAKE_SOURCE_DIR}/thirdparty/uSockets/src")
+  PRIVATE "${CMAKE_SOURCE_DIR}/thirdparty/usockets/include" "${CMAKE_SOURCE_DIR}/thirdparty/usockets/src")
 target_link_libraries(usockets_static ${usockets_libraries})
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/thirdparty/uSockets/include/"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/thirdparty/usockets/include/"
   DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
 
 set(usockets_include_dir "${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
