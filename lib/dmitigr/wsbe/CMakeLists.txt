@@ -33,8 +33,8 @@ set(dmitigr_wsbe_tests
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_wsbe_target_link_libraries_public thirdparty_usockets dmitigr::util)
-set(dmitigr_wsbe_target_link_libraries_interface thirdparty_usockets dmitigr::util)
+set(dmitigr_wsbe_target_link_libraries_public thirdparty_uwebsockets dmitigr::util)
+set(dmitigr_wsbe_target_link_libraries_interface thirdparty_uwebsockets dmitigr::util)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

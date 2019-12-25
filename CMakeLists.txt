@@ -114,6 +114,7 @@ endif()
 if ("wsbe" IN_LIST dmitigr_cefeika_libraries)
   add_subdirectory(thirdparty/uv)
   add_subdirectory(thirdparty/usockets)
+  add_subdirectory(thirdparty/uwebsockets)
 endif()
 
 # ------------------------------------------------------------------------------
