@@ -17,9 +17,18 @@ set(dmitigr_wsbe_root_headers
   )
 
 set(dmitigr_wsbe_headers
+  basics.hpp
+  listener.hpp
+  listener_options.hpp
+  server_connection.hpp
+  types_fwd.hpp
   )
 
 set(dmitigr_wsbe_implementations
+  basics.cpp
+  listener.cpp
+  listener_options.cpp
+  server_connection.cpp
   )
 
 set(dmitigr_wsbe_transunits
@@ -33,8 +42,9 @@ set(dmitigr_wsbe_tests
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_wsbe_target_link_libraries_public thirdparty_uwebsockets dmitigr::util)
-set(dmitigr_wsbe_target_link_libraries_interface thirdparty_uwebsockets dmitigr::util)
+foreach (t public interface)
+  set(dmitigr_wsbe_target_link_libraries_${t} thirdparty_uwebsockets dmitigr::util)
+endforeach()
 
 # ------------------------------------------------------------------------------
 # Variables propagation

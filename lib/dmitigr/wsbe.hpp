@@ -23,6 +23,10 @@
 #ifndef DMITIGR_WSBE_HPP
 #define DMITIGR_WSBE_HPP
 
+#include "dmitigr/wsbe/basics.hpp"
+#include "dmitigr/wsbe/listener.hpp"
+#include "dmitigr/wsbe/listener_options.hpp"
+#include "dmitigr/wsbe/server_connection.hpp"
 #include "dmitigr/wsbe/types_fwd.hpp"
 #include "dmitigr/wsbe/version.hpp"
 

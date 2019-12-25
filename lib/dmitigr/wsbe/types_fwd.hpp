@@ -10,10 +10,16 @@
  */
 namespace dmitigr::wsbe {
 
+class Server_connection;
+class Listener;
+class Listener_options;
+
 /**
  * @brief The implementation details.
  */
 namespace detail {
+class iListener;
+class iListener_options;
 } // namespace detail
 
 } // namespace dmitigr::wsbe

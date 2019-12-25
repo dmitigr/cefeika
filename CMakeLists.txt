@@ -18,11 +18,16 @@ include(dmitigr_cefeika)
 # Build options
 # ------------------------------------------------------------------------------
 
-option(CMAKE_VERBOSE_MAKEFILE "Verbose output upon build?" OFF)
-option(BUILD_SHARED_LIBS "Build shared libraries?" ON)
-option(DMITIGR_CEFEIKA_HEADER_ONLY "Header-only?" OFF)
-option(DMITIGR_CEFEIKA_BUILD_TESTS "Build tests?" OFF)
-option(DMITIGR_LIBRARIAN_DEBUG "Print librarian.cmake debug output?" OFF)
+set(CMAKE_VERBOSE_MAKEFILE FALSE CACHE BOOL
+  "Verbose output upon build?")
+set(BUILD_SHARED_LIBS TRUE CACHE BOOL
+  "Build shared libraries?")
+set(DMITIGR_CEFEIKA_HEADER_ONLY FALSE CACHE BOOL
+  "Header-only?")
+set(DMITIGR_CEFEIKA_BUILD_TESTS FALSE CACHE BOOL
+  "Build tests?")
+set(DMITIGR_LIBRARIAN_DEBUG FALSE CACHE BOOL
+  "Print librarian.cmake debug output?")
 
 if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   if(BUILD_SHARED_LIBS)
