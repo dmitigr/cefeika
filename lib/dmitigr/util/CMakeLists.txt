@@ -34,6 +34,7 @@ set(dmitigr_util_headers
   stream.hpp
   string.hpp
   test.hpp
+  thread.hpp
   types_fwd.hpp
   uuid.hpp
   )
@@ -51,6 +52,7 @@ set(dmitigr_util_implementations
   os.cpp
   stream.cpp
   string.cpp
+  thread.cpp
   uuid.cpp
   )
 
@@ -72,11 +74,15 @@ if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   dmitigr_append_cppfs(dmitigr_util_target_link_libraries_public)
   if (WIN32)
     list(APPEND dmitigr_util_target_link_libraries_public Ws2_32.lib)
+  else()
+    list(APPEND dmitigr_util_target_link_libraries_public pthread)
   endif()
 else()
   dmitigr_append_cppfs(dmitigr_util_target_link_libraries_interface)
   if (WIN32)
     list(APPEND dmitigr_util_target_link_libraries_interface Ws2_32.lib)
+  else()
+    list(APPEND dmitigr_util_target_link_libraries_interface pthread)
   endif()
 endif()
 

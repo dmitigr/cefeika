@@ -40,6 +40,7 @@
 #include "dmitigr/util/stream.hpp"
 #include "dmitigr/util/string.hpp"
 #include "dmitigr/util/test.hpp"
+#include "dmitigr/util/thread.hpp"
 #include "dmitigr/util/uuid.hpp"
 #include "dmitigr/util/version.hpp"
 #ifdef _WIN32

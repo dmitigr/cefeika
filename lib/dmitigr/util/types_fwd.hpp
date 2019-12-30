@@ -109,6 +109,22 @@ class Error_category;
 /**
  * @brief The API.
  */
+namespace thread {
+
+class Simple_threadpool;
+
+/**
+ * @brief The implementation detail.
+ */
+namespace detail {
+class iSimple_threadpool;
+} // namespace detail
+
+} // namespace thread
+
+/**
+ * @brief The API.
+ */
 namespace uuid {
 class Uuid;
 
