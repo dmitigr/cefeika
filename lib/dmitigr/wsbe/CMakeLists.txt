@@ -18,6 +18,7 @@ set(dmitigr_wsbe_root_headers
 
 set(dmitigr_wsbe_headers
   basics.hpp
+  connection.hpp
   listener.hpp
   listener_options.hpp
   server_connection.hpp

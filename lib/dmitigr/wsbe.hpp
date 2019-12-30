@@ -24,6 +24,7 @@
 #define DMITIGR_WSBE_HPP
 
 #include "dmitigr/wsbe/basics.hpp"
+#include "dmitigr/wsbe/connection.hpp"
 #include "dmitigr/wsbe/listener.hpp"
 #include "dmitigr/wsbe/listener_options.hpp"
 #include "dmitigr/wsbe/server_connection.hpp"

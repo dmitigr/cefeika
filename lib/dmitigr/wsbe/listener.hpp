@@ -9,7 +9,6 @@
 #include "dmitigr/wsbe/dll.hpp"
 #include "dmitigr/wsbe/types_fwd.hpp"
 
-#include <functional>
 #include <memory>
 
 namespace dmitigr::wsbe {
@@ -19,13 +18,8 @@ namespace dmitigr::wsbe {
  */
 class Listener {
 public:
-  /**
-   * @brief Denotes the server connection maker.
-   *
-   * This function to be called on every accepted connection in order to create
-   * an instance of class derived from Server_connection.
-   */
-  using Connection_maker = std::function<std::shared_ptr<Server_connection> ()>;
+  /// @brief Alias of Listener_options.
+  using Options = Listener_options;
 
   /**
    * @brief The destructor.
@@ -36,22 +30,22 @@ public:
   /// @{
 
   /**
-   * @returns An instance of the listener.
+   * @brief Constructs an instance of Listener.
    */
-  static DMITIGR_WSBE_API std::unique_ptr<Listener> make(const Listener_options* options);
+  explicit DMITIGR_WSBE_API Listener(Options options);
 
   /// @}
 
   /**
    * @returns Options of the listener.
    */
-  virtual const Listener_options* options() const = 0;
+  virtual DMITIGR_WSBE_API const Options& options() const;
 
   /**
-   * @returns `true` if the listener is listening for new client connections, or
-   * `false` otherwise.
+   * @returns `true` if the listener is listening for new client connections,
+   * or `false` otherwise.
    */
-  virtual bool is_listening() const = 0;
+  DMITIGR_WSBE_API bool is_listening() const;
 
   /**
    * @brief Starts listening.
@@ -59,27 +53,24 @@ public:
    * @par Requires
    * `!is_listening()`.
    */
-  virtual void listen() = 0;
+  DMITIGR_WSBE_API void listen();
 
   /**
    * @brief Stops listening.
    */
-  virtual void close() = 0;
-
-  /**
-   * @brief Sets the connection maker.
-   */
-  virtual void set_connection_maker(Connection_maker maker);
-
-  /**
-   * @returns The connection maker.
-   */
-  virtual Connection_maker connection_maker() const = 0;
+  DMITIGR_WSBE_API void close();
 
 private:
-  friend detail::iListener;
+  /**
+   * @returns The new connection instance.
+   *
+   * @brief This function to be called on every accepted connection in
+   * order to create an instance of class derived from Server_connection.
+   */
+  virtual std::shared_ptr<Server_connection> make_connection() const = 0;
 
-  Listener() = default;
+private:
+  std::unique_ptr<detail::iListener> rep_;
 };
 
 } // namespace dmitigr::wsbe

@@ -7,34 +7,32 @@
 
 #include "dmitigr/util/debug.hpp"
 
-namespace dmitigr::wsbe {
+namespace dmitigr::wsbe::detail {
 
-struct Server_connection::Rep final {
-  Rep(const Listener* const listener, std::string remote_ip_address)
-    : listener_{listener}
-    , remote_ip_address_{std::move(remote_ip_address)}
+class iServer_connection final {
+public:
+  explicit iServer_connection(std::string remote_ip_address)
+    : remote_ip_address_{std::move(remote_ip_address)}
   {
-    DMITIGR_ASSERT(listener_);
     DMITIGR_ASSERT(7 <= remote_ip_address_.size() && remote_ip_address_.size() <= 15);
   }
 
-  const Listener* listener_{};
   std::string remote_ip_address_;
 };
 
-DMITIGR_WSBE_INLINE Server_connection::~Server_connection() = default;
+} // namespace dmitigr::wsbe::detail
 
-DMITIGR_WSBE_INLINE Server_connection::Server_connection() = default;
+namespace dmitigr::wsbe {
 
-DMITIGR_WSBE_INLINE void Server_connection::init(const Listener* const listener, std::string remote_ip_address)
+DMITIGR_WSBE_INLINE void Server_connection::init(std::string remote_ip_address)
 {
-  rep_ = std::make_unique<Rep>(listener, std::move(remote_ip_address));
+  rep_ = std::make_unique<detail::iServer_connection>(std::move(remote_ip_address));
   DMITIGR_ASSERT(rep_);
 }
 
-DMITIGR_WSBE_INLINE const Listener* Server_connection::listener() const noexcept
+DMITIGR_WSBE_INLINE bool Server_connection::is_connected() const
 {
-  return rep_ ? rep_->listener_ : nullptr;
+  return static_cast<bool>(rep_);
 }
 
 DMITIGR_WSBE_INLINE std::string Server_connection::remote_ip_address() const

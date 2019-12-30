@@ -23,45 +23,51 @@ public:
   /**
    * @brief The destructor.
    */
-  virtual ~Listener_options()  = default;
+  virtual DMITIGR_WSBE_API ~Listener_options();
 
   /// @name Constructors
   /// @{
 
   /**
-   * @returns A new instance of the options for listeners of network.
+   * @brief Constructs a new instance of the options for listeners of network.
    *
    * @param address - IPv4 or IPv6 address to use for binding on.
    * @param port - the port number to use for binding on.
    *
    * @par Requires
-   * `(port > 0)`.
+   * `address` is a valid IP address and `(port > 0)`.
    */
-  static DMITIGR_WSBE_API std::unique_ptr<Listener_options> make(std::string address, int port);
+  DMITIGR_WSBE_API Listener_options(std::string address, int port);
 
   /**
-   * @returns A new instance of the Listener initialized with this instance.
-   *
-   * @see Listener::make().
+   * @brief Copy-constructible.
    */
-  virtual std::unique_ptr<Listener> make_listener() const = 0;
+  DMITIGR_WSBE_API Listener_options(const Listener_options& rhs);
 
   /**
-   * @returns The copy of this instance.
+   * @brief Copy-assignable.
    */
-  virtual std::unique_ptr<Listener_options> to_listener_options() const = 0;
+  DMITIGR_WSBE_API Listener_options& operator=(const Listener_options& rhs);
+
+  /**
+   * @brief Move-constructible.
+   */
+  Listener_options(Listener_options&& rhs) = default;
+
+  /**
+   * @brief Move-assignable.
+   */
+  Listener_options& operator=(Listener_options&& rhs) = default;
 
   /// @}
 
   /**
    * @returns The endpoint identifier.
    */
-  virtual const net::Endpoint_id* endpoint_id() const = 0;
+  DMITIGR_WSBE_API const net::Endpoint_id* endpoint_id() const;
 
 private:
-  friend detail::iListener_options;
-
-  Listener_options() = default;
+  std::unique_ptr<detail::iListener_options> rep_;
 };
 
 } // namespace dmitigr::wsbe

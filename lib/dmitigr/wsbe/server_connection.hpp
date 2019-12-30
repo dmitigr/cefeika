@@ -5,60 +5,34 @@
 #ifndef DMITIGR_WSBE_SERVER_CONNECTION_HPP
 #define DMITIGR_WSBE_SERVER_CONNECTION_HPP
 
-#include "dmitigr/wsbe/basics.hpp"
+#include "dmitigr/wsbe/connection.hpp"
 #include "dmitigr/wsbe/dll.hpp"
-#include "dmitigr/wsbe/types_fwd.hpp"
 
 #include <memory>
-#include <string>
-#include <string_view>
 
 namespace dmitigr::wsbe {
 
 /**
  * @brief A WebSockets server connection.
  */
-class Server_connection : public std::enable_shared_from_this<Server_connection> {
+class Server_connection : public Connection, public std::enable_shared_from_this<Server_connection> {
 public:
   /**
-   * @brief The destructor.
+   * @see Connection::is_connected().
    */
-  virtual DMITIGR_WSBE_API ~Server_connection();
+  DMITIGR_WSBE_API bool is_connected() const override;
 
   /**
-   * @returns The listener of this instance, or `nullptr` if this instance
-   * is not valid.
+   * @see Connection::remote_ip_address().
    */
-  DMITIGR_WSBE_API const Listener* listener() const noexcept;
-
-  /**
-   * @returns The textual representation of the remote IP address, or empty
-   * string if this instance is not valid.
-   */
-  DMITIGR_WSBE_API std::string remote_ip_address() const;
-
-protected:
-  /**
-   * @brief The constructor.
-   */
-  DMITIGR_WSBE_API Server_connection();
-
-private:
-  /**
-   * @brief This function is called by Server on every incoming message.
-   *
-   * @remarks Throwing exceptions is safe, since the Server can automatically
-   * handle them.
-   */
-  virtual void handle(std::string_view message, Opcode opcode) = 0;
+  DMITIGR_WSBE_API std::string remote_ip_address() const override;
 
 private:
   friend detail::iListener;
 
-  void init(const Listener* const listener, std::string remote_ip_address);
+  void init(std::string remote_ip_address);
 
-  struct Rep;
-  std::unique_ptr<Rep> rep_;
+  std::unique_ptr<detail::iServer_connection> rep_;
 };
 
 } // namespace dmitigr::wsbe
