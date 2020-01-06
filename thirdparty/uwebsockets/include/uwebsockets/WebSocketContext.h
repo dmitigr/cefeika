@@ -100,6 +100,11 @@ private:
                 if (!webSocketData->fragmentBuffer.length()) {
                     webSocketData->fragmentBuffer.reserve(length + remainingBytes);
                 }
+                /* Fragments forming a big message are not caught until appending them */
+                if (refusePayloadLength(length + webSocketData->fragmentBuffer.length(), webSocketState, s)) {
+                    forceClose(webSocketState, s);
+                    return true;
+                }
                 webSocketData->fragmentBuffer.append(data, length);
 
                 /* Are we done now? */
@@ -179,7 +184,7 @@ private:
             } else {
                 /* Here we never mind any size optimizations as we are in the worst possible path */
                 webSocketData->fragmentBuffer.append(data, length);
-                webSocketData->controlTipLength += length;
+                webSocketData->controlTipLength += (int) length;
 
                 if (!remainingBytes && fin) {
                     char *controlBuffer = (char *) webSocketData->fragmentBuffer.data() + webSocketData->fragmentBuffer.length() - webSocketData->controlTipLength;

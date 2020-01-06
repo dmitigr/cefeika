@@ -26,6 +26,7 @@
 #include "AsyncSocket.h"
 
 #include <string_view>
+#include <iostream>
 #include "f2/function2.hpp"
 
 namespace uWS {
@@ -140,15 +141,12 @@ private:
                 /* Mark pending request and emit it */
                 httpResponseData->state = HttpResponseData<SSL>::HTTP_RESPONSE_PENDING;
 
-                /* Route the method and URL in two passes */
-                typename HttpContextData<SSL>::RouterData routerData = {(HttpResponse<SSL> *) s, httpRequest};
-                if (!httpContextData->router.route(httpRequest->getMethod(), httpRequest->getUrl(), routerData)) {
-                    /* If first pass failed, we try and match by "any" method */
-                    if (!httpContextData->router.route("*", httpRequest->getUrl(), routerData)) {
-                        /* If second pass fail, we have to force close this socket as we have no handler for it */
-                        us_socket_close(SSL, (us_socket_t *) s);
-                        return nullptr;
-                    }
+                /* Route the method and URL */
+                httpContextData->router.getUserData() = {(HttpResponse<SSL> *) s, httpRequest};
+                if (!httpContextData->router.route(httpRequest->getMethod(), httpRequest->getUrl())) {
+                    /* We have to force close this socket as we have no handler for it */
+                    us_socket_close(SSL, (us_socket_t *) s);
+                    return nullptr;
                 }
 
                 /* First of all we need to check if this socket was deleted due to upgrade */
@@ -221,12 +219,13 @@ private:
                 return nullptr;
             });
 
-            // basically we need to uncork in all cases, except for nullptr
+            /* We need to uncork in all cases, except for nullptr (closed socket, or upgraded socket) */
             if (returnedSocket != nullptr) {
                 /* Timeout on uncork failure */
                 auto [written, failed] = ((AsyncSocket<SSL> *) returnedSocket)->uncork();
                 if (failed) {
-                    // do we have the same timeout for websockets?
+                    /* All Http sockets timeout by this, and this behavior match the one in HttpResponse::cork */
+                    /* Warning: both HTTP_IDLE_TIMEOUT_S and HTTP_TIMEOUT_S are 10 seconds and both are used the same */
                     ((AsyncSocket<SSL> *) s)->timeout(HTTP_IDLE_TIMEOUT_S);
                 }
 
@@ -239,7 +238,7 @@ private:
                 AsyncSocket<SSL> *asyncSocket = (AsyncSocket<SSL> *) httpContextData->upgradedWebSocket;
 
                 /* Uncork here as well (note: what if we failed to uncork and we then pub/sub before we even upgraded?) */
-                auto [written, failed] = asyncSocket->uncork();
+                /*auto [written, failed] = */asyncSocket->uncork();
 
                 /* Reset upgradedWebSocket before we return */
                 httpContextData->upgradedWebSocket = nullptr;
@@ -247,6 +246,9 @@ private:
                 /* Return the new upgraded websocket */
                 return (us_socket_t *) asyncSocket;
             }
+
+            /* It is okay to uncork a closed socket and we need to */
+            ((AsyncSocket<SSL> *) s)->uncork();
 
             /* We cannot return nullptr to the underlying stack in any case */
             return s;
@@ -279,7 +281,7 @@ private:
             }
 
             /* Drain any socket buffer, this might empty our backpressure and thus finish the request */
-            auto [written, failed] = asyncSocket->write(nullptr, 0, true, 0);
+            /*auto [written, failed] = */asyncSocket->write(nullptr, 0, true, 0);
 
             /* Expect another writable event, or another request within the timeout */
             asyncSocket->timeout(HTTP_IDLE_TIMEOUT_S);
@@ -346,12 +348,21 @@ public:
     }
 
     /* Register an HTTP route handler acording to URL pattern */
-    void onHttp(std::string method, std::string pattern, fu2::unique_function<void(HttpResponse<SSL> *, HttpRequest *)> &&handler) {
+    void onHttp(std::string method, std::string pattern, fu2::unique_function<void(HttpResponse<SSL> *, HttpRequest *)> &&handler, bool upgrade = false) {
         HttpContextData<SSL> *httpContextData = getSocketContextData();
 
-        httpContextData->router.add(method, pattern, [handler = std::move(handler)](typename HttpContextData<SSL>::RouterData &user, std::pair<int, std::string_view *> params) mutable {
+        /* Todo: This is ugly, fix */
+        std::vector<std::string> methods;
+        if (method == "*") {
+            methods = httpContextData->router.methods;
+        } else {
+            methods = {method};
+        }
+
+        httpContextData->router.add(methods, pattern, [handler = std::move(handler)](auto *r) mutable {
+            auto user = r->getUserData();
             user.httpRequest->setYield(false);
-            user.httpRequest->setParameters(params);
+            user.httpRequest->setParameters(r->getParameters());
             handler(user.httpResponse, user.httpRequest);
 
             /* If any handler yielded, the router will keep looking for a suitable handler. */
@@ -359,7 +370,7 @@ public:
                 return false;
             }
             return true;
-        });
+        }, method == "*" ? httpContextData->router.LOW_PRIORITY : (upgrade ? httpContextData->router.HIGH_PRIORITY : httpContextData->router.MEDIUM_PRIORITY));
     }
 
     /* Listen to port using this HttpContext */

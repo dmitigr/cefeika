@@ -77,7 +77,7 @@ private:
 
     /* Called only once per request */
     void writeMark() {
-        writeHeader("uWebSockets", "v0.16");
+        writeHeader("uWebSockets", "v0.17");
     }
 
     /* Returns true on success, indicating that it might be feasible to write more data.
@@ -88,7 +88,7 @@ private:
 
         /* If no total size given then assume this chunk is everything */
         if (!totalSize) {
-            totalSize = data.length();
+            totalSize = (int) data.length();
         }
 
         HttpResponseData<SSL> *httpResponseData = getHttpResponseData();
@@ -99,11 +99,11 @@ private:
             /* Do not allow sending 0 chunk here */
             if (data.length()) {
                 Super::write("\r\n", 2);
-                writeUnsignedHex(data.length());
+                writeUnsignedHex((unsigned int) data.length());
                 Super::write("\r\n", 2);
 
                 /* Ignoring optional for now */
-                Super::write(data.data(), data.length());
+                Super::write(data.data(), (int) data.length());
             }
 
             /* Terminating 0 chunk */
@@ -138,11 +138,11 @@ private:
              * if it failed to drain any prior failed header writes */
 
             /* Write as much as possible without causing backpressure */
-            auto [written, failed] = Super::write(data.data(), data.length(), optional);
+            auto [written, failed] = Super::write(data.data(), (int) data.length(), optional);
             httpResponseData->offset += written;
 
             /* Success is when we wrote the entire thing without any failures */
-            bool success = written == data.length() && !failed;
+            bool success = (unsigned int) written == data.length() && !failed;
 
             /* If we are now at the end, start a timeout. Also start a timeout if we failed. */
             if (!success || httpResponseData->offset == totalSize) {
@@ -185,7 +185,7 @@ public:
         httpResponseData->state |= HttpResponseData<SSL>::HTTP_STATUS_CALLED;
 
         Super::write("HTTP/1.1 ", 9);
-        Super::write(status.data(), status.length());
+        Super::write(status.data(), (int) status.length());
         Super::write("\r\n", 2);
         return this;
     }
@@ -194,16 +194,16 @@ public:
     HttpResponse *writeHeader(std::string_view key, std::string_view value) {
         writeStatus(HTTP_200_OK);
 
-        Super::write(key.data(), key.length());
+        Super::write(key.data(), (int) key.length());
         Super::write(": ", 2);
-        Super::write(value.data(), value.length());
+        Super::write(value.data(), (int) value.length());
         Super::write("\r\n", 2);
         return this;
     }
 
     /* Write an HTTP header with unsigned int value */
     HttpResponse *writeHeader(std::string_view key, unsigned int value) {
-        Super::write(key.data(), key.length());
+        Super::write(key.data(), (int) key.length());
         Super::write(": ", 2);
         writeUnsigned(value);
         Super::write("\r\n", 2);
@@ -212,7 +212,7 @@ public:
 
     /* End the response with an optional data chunk. Always starts a timeout. */
     void end(std::string_view data = {}) {
-        internalEnd(data, data.length(), false);
+        internalEnd(data, (int) data.length(), false);
     }
 
     /* Try and end the response. Returns [true, true] on success.
@@ -242,10 +242,10 @@ public:
         }
 
         Super::write("\r\n", 2);
-        writeUnsignedHex(data.length());
+        writeUnsignedHex((unsigned int) data.length());
         Super::write("\r\n", 2);
 
-        auto [written, failed] = Super::write(data.data(), data.length());
+        auto [written, failed] = Super::write(data.data(), (int) data.length());
         if (failed) {
             Super::timeout(HTTP_TIMEOUT_S);
         }
@@ -268,23 +268,22 @@ public:
         return !(httpResponseData->state & HttpResponseData<SSL>::HTTP_RESPONSE_PENDING);
     }
 
-    /* EXPERIMENTAL - corks the response if possible */
+    /* Corks the response if possible. Leaves already corked socket be. */
     HttpResponse *cork(fu2::unique_function<void()> &&handler) {
-        bool corked = Super::isCorked();
-        if (!corked && Super::canCork()) {
+        if (!Super::isCorked() && Super::canCork()) {
             Super::cork();
-            corked = true;
-        }
+            handler();
 
-        handler();
-
-        if (corked) {
-            /* Timeout on uncork failure (EXPERIMENTAL) */
+            /* Timeout on uncork failure, since most writes will succeed while corked */
             auto [written, failed] = Super::uncork();
             if (failed) {
-                // do we have the same timeout for websockets?
-                Super::timeout(10); // this is completely wrong!
+                /* For now we only have one single timeout so let's use it */
+                /* This behavior should equal the behavior in HttpContext when uncorking fails */
+                Super::timeout(HTTP_TIMEOUT_S);
             }
+        } else {
+            /* We are already corked, or can't cork so let's just call the handler */
+            handler();
         }
 
         return this;

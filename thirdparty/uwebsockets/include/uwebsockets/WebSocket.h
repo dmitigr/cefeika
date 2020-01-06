@@ -55,12 +55,6 @@ public:
 
     /* Send or buffer a WebSocket frame, compressed or not. Returns false on increased user space backpressure. */
     bool send(std::string_view message, uWS::OpCode opCode = uWS::OpCode::BINARY, bool compress = false) {
-        /* Every send resets the timeout */
-        WebSocketContextData<SSL> *webSocketContextData = (WebSocketContextData<SSL> *) us_socket_context_ext(SSL,
-            (us_socket_context_t *) us_socket_context(SSL, (us_socket_t *) this)
-        );
-        AsyncSocket<SSL>::timeout(webSocketContextData->idleTimeout);
-
         /* Transform the message to compressed domain if requested */
         if (compress) {
             WebSocketData *webSocketData = (WebSocketData *) Super::getAsyncSocketData();
@@ -79,19 +73,43 @@ public:
             }
         }
 
+        /* Check to see if we can cork for the user */
+        bool automaticallyCorked = false;
+        if (!Super::isCorked() && Super::canCork()) {
+            automaticallyCorked = true;
+            Super::cork();
+        }
+
         /* Get size, alloate size, write if needed */
         size_t messageFrameSize = protocol::messageFrameSize(message.length());
         auto[sendBuffer, requiresWrite] = Super::getSendBuffer(messageFrameSize);
         protocol::formatMessage<isServer>(sendBuffer, message.data(), message.length(), opCode, message.length(), compress);
+        /* This is the slow path, when we couldn't cork for the user */
         if (requiresWrite) {
-            auto[written, failed] = Super::write(sendBuffer, messageFrameSize);
+            auto[written, failed] = Super::write(sendBuffer, (int) messageFrameSize);
 
-            /* For now, we are slow here (fix!) */
+            /* For now, we are slow here */
             free(sendBuffer);
 
-            /* Return true for success */
-            return !failed;
+            if (failed) {
+                /* Return false for failure, skipping to reset the timeout below */
+                return false;
+            }
         }
+
+        /* Uncork here if we automatically corked for the user */
+        if (automaticallyCorked) {
+            auto [written, failed] = Super::uncork();
+            if (failed) {
+                return false;
+            }
+        }
+
+        /* Every successful send resets the timeout */
+        WebSocketContextData<SSL> *webSocketContextData = (WebSocketContextData<SSL> *) us_socket_context_ext(SSL,
+            (us_socket_context_t *) us_socket_context(SSL, (us_socket_t *) this)
+        );
+        AsyncSocket<SSL>::timeout(webSocketContextData->idleTimeout);
 
         /* Return success */
         return true;
@@ -110,9 +128,9 @@ public:
 
         /* Format and send the close frame */
         static const int MAX_CLOSE_PAYLOAD = 123;
-        int length = std::min<size_t>(MAX_CLOSE_PAYLOAD, message.length());
+        int length = (int) std::min<size_t>(MAX_CLOSE_PAYLOAD, message.length());
         char closePayload[MAX_CLOSE_PAYLOAD + 2];
-        int closePayloadLength = protocol::formatClosePayload(closePayload, code, message.data(), length);
+        int closePayloadLength = (int) protocol::formatClosePayload(closePayload, (uint16_t) code, message.data(), length);
         bool ok = send(std::string_view(closePayload, closePayloadLength), OpCode::CLOSE);
 
         /* FIN if we are ok and not corked */
@@ -137,6 +155,21 @@ public:
         webSocketContextData->topicTree.unsubscribeAll(webSocketData->subscriber);
         delete webSocketData->subscriber;
         webSocketData->subscriber = nullptr;
+    }
+
+    /* Corks the response if possible. Leaves already corked socket be. */
+    void cork(fu2::unique_function<void()> &&handler) {
+        if (!Super::isCorked() && Super::canCork()) {
+            Super::cork();
+            handler();
+
+            /* There is no timeout when failing to uncork for WebSockets,
+             * as that is handled by idleTimeout */
+            auto [written, failed] = Super::uncork();
+        } else {
+            /* We are already corked, or can't cork so let's just call the handler */
+            handler();
+        }
     }
 
     /* Subscribe to a topic according to MQTT rules and syntax */

@@ -105,35 +105,40 @@ T cond_byte_swap(T value) {
 static bool isValidUtf8(unsigned char *s, size_t length)
 {
     for (unsigned char *e = s + length; s != e; ) {
-        if (s + 4 <= e && ((*(uint32_t *) s) & 0x80808080) == 0) {
-            s += 4;
-        } else {
-            while (!(*s & 0x80)) {
-                if (++s == e) {
-                    return true;
-                }
-            }
-
-            if ((s[0] & 0x60) == 0x40) {
-                if (s + 1 >= e || (s[1] & 0xc0) != 0x80 || (s[0] & 0xfe) == 0xc0) {
-                    return false;
-                }
-                s += 2;
-            } else if ((s[0] & 0xf0) == 0xe0) {
-                if (s + 2 >= e || (s[1] & 0xc0) != 0x80 || (s[2] & 0xc0) != 0x80 ||
-                        (s[0] == 0xe0 && (s[1] & 0xe0) == 0x80) || (s[0] == 0xed && (s[1] & 0xe0) == 0xa0)) {
-                    return false;
-                }
-                s += 3;
-            } else if ((s[0] & 0xf8) == 0xf0) {
-                if (s + 3 >= e || (s[1] & 0xc0) != 0x80 || (s[2] & 0xc0) != 0x80 || (s[3] & 0xc0) != 0x80 ||
-                        (s[0] == 0xf0 && (s[1] & 0xf0) == 0x80) || (s[0] == 0xf4 && s[1] > 0x8f) || s[0] > 0xf4) {
-                    return false;
-                }
+        if (s + 4 <= e) {
+            uint32_t tmp;
+            memcpy(&tmp, s, 4);
+            if ((tmp & 0x80808080) == 0) {
                 s += 4;
-            } else {
+                continue;
+            }
+        }
+
+        while (!(*s & 0x80)) {
+            if (++s == e) {
+                return true;
+            }
+        }
+
+        if ((s[0] & 0x60) == 0x40) {
+            if (s + 1 >= e || (s[1] & 0xc0) != 0x80 || (s[0] & 0xfe) == 0xc0) {
                 return false;
             }
+            s += 2;
+        } else if ((s[0] & 0xf0) == 0xe0) {
+            if (s + 2 >= e || (s[1] & 0xc0) != 0x80 || (s[2] & 0xc0) != 0x80 ||
+                    (s[0] == 0xe0 && (s[1] & 0xe0) == 0x80) || (s[0] == 0xed && (s[1] & 0xe0) == 0xa0)) {
+                return false;
+            }
+            s += 3;
+        } else if ((s[0] & 0xf8) == 0xf0) {
+            if (s + 3 >= e || (s[1] & 0xc0) != 0x80 || (s[2] & 0xc0) != 0x80 || (s[3] & 0xc0) != 0x80 ||
+                    (s[0] == 0xf0 && (s[1] & 0xf0) == 0x80) || (s[0] == 0xf4 && s[1] > 0x8f) || s[0] > 0xf4) {
+                return false;
+            }
+            s += 4;
+        } else {
+            return false;
         }
     }
     return true;
@@ -162,7 +167,10 @@ static inline size_t formatClosePayload(char *dst, uint16_t code, const char *me
     if (code) {
         code = cond_byte_swap<uint16_t>(code);
         memcpy(dst, &code, 2);
-        memcpy(dst + 2, message, length);
+        /* It is invalid to pass nullptr to memcpy, even though length is 0 */
+        if (message) {
+            memcpy(dst + 2, message, length);
+        }
         return length + 2;
     }
     return 0;
@@ -189,23 +197,23 @@ static inline size_t formatMessage(char *dst, const char *src, size_t length, Op
     size_t headerLength;
     if (reportedLength < 126) {
         headerLength = 2;
-        dst[1] = reportedLength;
+        dst[1] = (char) reportedLength;
     } else if (reportedLength <= UINT16_MAX) {
         headerLength = 4;
         dst[1] = 126;
-        uint16_t tmp = cond_byte_swap<uint16_t>(reportedLength);
+        uint16_t tmp = cond_byte_swap<uint16_t>((uint16_t) reportedLength);
         memcpy(&dst[2], &tmp, sizeof(uint16_t));
     } else {
         headerLength = 10;
         dst[1] = 127;
-        uint64_t tmp = cond_byte_swap<uint64_t>(reportedLength);
+        uint64_t tmp = cond_byte_swap<uint64_t>((uint64_t) reportedLength);
         memcpy(&dst[2], &tmp, sizeof(uint64_t));
     }
 
     int flags = 0;
-    dst[0] = (flags & SND_NO_FIN ? 0 : 128) | (compressed ? SND_COMPRESSED : 0);
+    dst[0] = (char) ((flags & SND_NO_FIN ? 0 : 128) | (compressed ? SND_COMPRESSED : 0));
     if (!(flags & SND_CONTINUATION)) {
-        dst[0] |= opCode;
+        dst[0] |= (char) opCode;
     }
 
     char mask[4];
@@ -320,7 +328,7 @@ protected:
             }
 
             src += payLength + MESSAGE_HEADER;
-            length -= payLength + MESSAGE_HEADER;
+            length -= (unsigned int) (payLength + MESSAGE_HEADER);
             wState->state.spillLength = 0;
             return false;
         } else {
@@ -419,7 +427,7 @@ public:
             }
             if (length) {
                 memcpy(wState->state.spill, src, length);
-                wState->state.spillLength = length;
+                wState->state.spillLength = length & 0xf;
             }
         } else if (consumeContinuation(src, length, wState, user)) {
             goto parseNext;

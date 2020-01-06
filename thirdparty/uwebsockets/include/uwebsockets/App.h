@@ -149,7 +149,7 @@ public:
         webSocketContext->getExt()->idleTimeout = behavior.idleTimeout;
         webSocketContext->getExt()->maxBackpressure = behavior.maxBackpressure;
 
-        return std::move(get(pattern, [webSocketContext, httpContext = this->httpContext, behavior = std::move(behavior)](auto *res, auto *req) mutable {
+        httpContext->onHttp("get", pattern, [webSocketContext, httpContext = this->httpContext, behavior = std::move(behavior)](auto *res, auto *req) mutable {
 
             /* If we have this header set, it's a websocket */
             std::string_view secWebSocketKey = req->getHeader("sec-websocket-key");
@@ -223,7 +223,7 @@ public:
                             (us_socket_context_t *) webSocketContext, (us_socket_t *) res, sizeof(WebSocketData) + sizeof(UserData));
 
                 /* Update corked socket in case we got a new one (assuming we always are corked in handlers). */
-                webSocket->cork();
+                webSocket->AsyncSocket<SSL>::cork();
 
                 /* Initialize websocket with any moved backpressure intact */
                 httpContext->upgradeToWebSocket(
@@ -248,7 +248,8 @@ public:
                 /* Tell the router that we did not handle this request */
                 req->setYield(true);
             }
-        }));
+        }, true);
+        return std::move(*this);
     }
 
     TemplatedApp &&get(std::string pattern, fu2::unique_function<void(HttpResponse<SSL> *, HttpRequest *)> &&handler) {
