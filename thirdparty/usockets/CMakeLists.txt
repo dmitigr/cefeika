@@ -3,7 +3,7 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 if(MSVC)
-  list(APPEND usockets_cflags /W4)
+  list(APPEND usockets_cflags /W0)
 elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
   list(APPEND usockets_cflags
     -fvisibility=hidden
@@ -42,7 +42,9 @@ set_target_properties(${lib}
   LINKER_LANGUAGE "C"
   POSITION_INDEPENDENT_CODE True
   DEBUG_POSTFIX "d")
-target_compile_definitions(${lib} PRIVATE ${usockets_defines})
+target_compile_definitions(${lib}
+  PRIVATE ${usockets_defines}
+  PUBLIC LIBUS_USE_LIBUV LIBUS_NO_SSL)
 target_compile_options(${lib} PRIVATE ${usockets_cflags})
 target_include_directories(${lib}
   PUBLIC

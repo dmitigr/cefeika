@@ -1,8 +1,8 @@
 WebSockets backend framework in C++ {#mainpage}
 ===============================================
 
-Dmitigr Wsbe (hereinafter referred to as Wsbe) - is a WebSockets backend
-framework powered by [uWebSockets] and [libuv]. Wsbe is a part of the
+Dmitigr Ws (hereinafter referred to as Ws) - is a C++ library to work with
+WebSockets powered by [uWebSockets] and [libuv]. Ws is a part of the
 [Dmitigr Cefeika][dmitigr_cefeika] project.
 
 **ATTENTION, this software is "alpha" quality, and the API is a subject to change!**
@@ -10,7 +10,7 @@ framework powered by [uWebSockets] and [libuv]. Wsbe is a part of the
 Documentation
 =============
 
-The [Doxygen]-generated documentation is located [here][dmitigr_wsbe_doc].
+The [Doxygen]-generated documentation is located [here][dmitigr_ws_doc].
 
 Features
 ========
@@ -24,7 +24,7 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 
 [dmitigr_mail]: mailto:dmitigr@gmail.com
 [dmitigr_cefeika]: https://github.com/dmitigr/cefeika.git
-[dmitigr_wsbe_doc]: http://dmitigr.ru/en/projects/cefeika/wsbe/doc/
+[dmitigr_ws_doc]: http://dmitigr.ru/en/projects/cefeika/ws/doc/
 
 [Doxygen]: http://doxygen.org/
 [libuv]: https://libuv.org/

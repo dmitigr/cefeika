@@ -116,7 +116,7 @@ if ("rajson" IN_LIST dmitigr_cefeika_libraries)
   add_subdirectory(thirdparty/rapidjson)
 endif()
 
-if ("wsbe" IN_LIST dmitigr_cefeika_libraries)
+if ("ws" IN_LIST dmitigr_cefeika_libraries)
   add_subdirectory(thirdparty/uv)
   add_subdirectory(thirdparty/usockets)
   add_subdirectory(thirdparty/uwebsockets)

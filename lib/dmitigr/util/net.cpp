@@ -242,6 +242,18 @@ public:
     throw std::runtime_error{"invalid IP address"};
   }
 
+  static iIp_address from_binary(const std::string_view bin)
+  {
+    iIp_address result;
+    const auto binsz = bin.size();
+    DMITIGR_REQUIRE(binsz == 4 || binsz == 16, std::invalid_argument);
+    if (binsz == 4)
+      result.init< ::in_addr>(bin);
+    else
+      result.init< ::in6_addr>(bin);
+    return result;
+  }
+
   Ip_version family() const override
   {
     return std::visit([](const auto& addr) {
@@ -281,9 +293,20 @@ public:
 private:
   std::variant<::in_addr, ::in6_addr> binary_;
 
+  iIp_address() = default;
+
   void* binary()
   {
     return const_cast<void*>(static_cast<const iIp_address*>(this)->binary());
+  }
+
+  template<typename Addr>
+  void init(const std::string_view bin)
+  {
+    DMITIGR_ASSERT(sizeof(Addr) == bin.size());
+    Addr tmp;
+    std::memcpy(&tmp, bin.data(), bin.size());
+    binary_ = tmp;
   }
 };
 
@@ -292,6 +315,11 @@ private:
 DMITIGR_UTIL_INLINE std::unique_ptr<Ip_address> Ip_address::make(const std::string& str)
 {
   return std::make_unique<detail::iIp_address>(str);
+}
+
+DMITIGR_UTIL_INLINE std::unique_ptr<Ip_address> Ip_address::make_from_binary(std::string_view bin)
+{
+  return std::make_unique<detail::iIp_address>(detail::iIp_address::from_binary(bin));
 }
 
 DMITIGR_UTIL_INLINE bool Ip_address::is_valid(const std::string& str)

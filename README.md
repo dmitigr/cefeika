@@ -15,10 +15,10 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [url] - a library to work with URL;
   - [util] - a library to support the needs of Cefeika libraries, but may be
   useful for other projects as well;
-  - [wsbe] - a WebSockets backend framework;
+  - [ws] - a library to work with WebSockets.
 
 All of these libraries can be used as shared libraries, static libraries or
-header-only libraries. ([wsbe] requires to build some third-party libraries
+header-only libraries. ([ws] requires to build some third-party libraries
 such as [libuv] and [uSockets] which are shipped with Cefeika.)
 
 Some of these libraries are available as standalone versions:
@@ -281,7 +281,7 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
 [util]: https://github.com/dmitigr/cefeika/tree/master/doc/util
-[wsbe]: https://github.com/dmitigr/cefeika/tree/master/doc/wsbe
+[ws]: https://github.com/dmitigr/cefeika/tree/master/doc/ws
 
 [CMake]: https://cmake.org/
 [CMake_find_package]: https://cmake.org/cmake/help/latest/command/find_package.html

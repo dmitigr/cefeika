@@ -31,7 +31,7 @@ template<typename T>
 constexpr T rand_cpp_pl_3rd(const T maximum)
 {
   const auto rand_num = static_cast<double>(std::rand());
-  return static_cast<T>(maximum * (rand_num / RAND_MAX));
+  return static_cast<T>((maximum + 1) * (rand_num / RAND_MAX));
 }
 
 /**

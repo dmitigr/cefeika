@@ -20,15 +20,15 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_WSBE_HPP
-#define DMITIGR_WSBE_HPP
+#ifndef DMITIGR_WS_HPP
+#define DMITIGR_WS_HPP
 
-#include "dmitigr/wsbe/basics.hpp"
-#include "dmitigr/wsbe/connection.hpp"
-#include "dmitigr/wsbe/listener.hpp"
-#include "dmitigr/wsbe/listener_options.hpp"
-#include "dmitigr/wsbe/server_connection.hpp"
-#include "dmitigr/wsbe/types_fwd.hpp"
-#include "dmitigr/wsbe/version.hpp"
+#include "dmitigr/ws/basics.hpp"
+#include "dmitigr/ws/connection.hpp"
+#include "dmitigr/ws/http_request.hpp"
+#include "dmitigr/ws/listener.hpp"
+#include "dmitigr/ws/listener_options.hpp"
+#include "dmitigr/ws/types_fwd.hpp"
+#include "dmitigr/ws/version.hpp"
 
-#endif  // DMITIGR_WSBE_HPP
+#endif  // DMITIGR_WS_HPP

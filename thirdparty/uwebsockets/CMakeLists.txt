@@ -9,6 +9,7 @@ target_include_directories(${lib} INTERFACE
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/thirdparty/uwebsockets/include>
   $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>)
 target_link_libraries(${lib} INTERFACE thirdparty_usockets)
+target_compile_definitions(${lib} INTERFACE -DUWS_NO_ZLIB)
 
 install(DIRECTORY "include/"
   DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")

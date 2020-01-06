@@ -183,9 +183,14 @@ public:
   virtual ~Ip_address() = default;
 
   /**
-   * @returns A new instance of this class.
+   * @returns A new instance of this class from string representation.
    */
   static DMITIGR_UTIL_API std::unique_ptr<Ip_address> make(const std::string& str);
+
+  /**
+   * @returns A new instance of this class from binary representation.
+   */
+  static DMITIGR_UTIL_API std::unique_ptr<Ip_address> make_from_binary(std::string_view bin);
 
   /**
    * @returns `true` if `text` is either valid IPv4 or IPv6 address, or
