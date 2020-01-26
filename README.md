@@ -40,17 +40,12 @@ Also:
 Third-party dependencies which are shipped with Cefeika
 -------------------------------------------------------
 
-|Name|Version|
+|Name|Source|
 |:---|:------|
-|libuv|[libuv-commit]|
-|RapidJSON|[rapidjson-commit]|
-|uSockets|[usockets-commit]|
-|uWebSockets|[uwebsockets-commit]|
-
-[libuv-commit]: https://github.com/dmitigr/libuv/commit/3ac654c8a2e467a876fd793e5808f19a09bac051
-[rapidjson-commit]: https://github.com/dmitigr/rapidjson/commit/dfbe1db9da455552f7a9ad5d2aea17dd9d832ac1
-[usockets-commit]: https://github.com/dmitigr/uSockets/commit/070d03fb141abbf8edd7bd971a94101b01461670
-[uwebsockets-commit]: https://github.com/dmitigr/uWebSockets/commit/b06336a94163464f0fe794b9d419f1c61832a8f2
+|libuv|https://github.com/dmitigr/libuv/tree/v1.x|
+|RapidJSON|https://github.com/dmitigr/rapidjson/tree/master|
+|uSockets|https://github.com/dmitigr/uSockets/tree/master|
+|uWebSockets|https://github.com/dmitigr/uWebSockets/tree/fork|
 
 CMake options
 =============
