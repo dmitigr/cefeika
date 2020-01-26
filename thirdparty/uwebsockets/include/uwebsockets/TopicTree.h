@@ -136,12 +136,6 @@ private:
                 /* Add this topic to triggered */
                 if (!iterator->terminatingWildcardChild->triggered) {
                     triggeredTopics[numTriggeredTopics++] = iterator->terminatingWildcardChild;
-
-                    /* Keep track of lowest subscriber */
-                    if (*iterator->terminatingWildcardChild->subs.begin() < min) {
-                        min = *iterator->terminatingWildcardChild->subs.begin();
-                    }
-
                     iterator->terminatingWildcardChild->triggered = true;
                 }
             }
@@ -166,12 +160,6 @@ private:
         /* Add this topic to triggered */
         if (!iterator->triggered) {
             triggeredTopics[numTriggeredTopics++] = iterator;
-
-            /* Keep track of lowest subscriber */
-            if (*iterator->subs.begin() < min) {
-                min = *iterator->subs.begin();
-            }
-
             iterator->triggered = true;
         }
     }
