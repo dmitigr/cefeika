@@ -1,9 +1,8 @@
-WebSockets backend framework in C++ {#mainpage}
-===============================================
+WebSockets framework in C++ {#mainpage}
+=======================================
 
 Dmitigr Ws (hereinafter referred to as Ws) - is a C++ library to work with
-WebSockets powered by [uWebSockets] and [libuv]. Ws is a part of the
-[Dmitigr Cefeika][dmitigr_cefeika] project.
+WebSockets. Ws is a part of the [Dmitigr Cefeika][dmitigr_cefeika] project.
 
 **ATTENTION, this software is "beta" quality, and the API is a subject to change!**
 
@@ -113,5 +112,3 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [dmitigr_ws_doc]: http://dmitigr.ru/en/projects/cefeika/ws/doc/
 
 [Doxygen]: http://doxygen.org/
-[libuv]: https://libuv.org/
-[uWebSockets]: https://github.com/uNetworking/uWebSockets
