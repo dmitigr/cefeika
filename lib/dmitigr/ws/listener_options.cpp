@@ -97,7 +97,7 @@ private:
 
   std::unique_ptr<net::Listener_options> net_options_;
   std::optional<std::chrono::milliseconds> idle_timeout_;
-  std::size_t max_payload_size_{std::numeric_limits<int>::max()};
+  std::size_t max_payload_size_{static_cast<std::size_t>(std::numeric_limits<int>::max())};
 
   bool is_invariant_ok() const
   {

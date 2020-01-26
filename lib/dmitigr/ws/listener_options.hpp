@@ -54,12 +54,12 @@ public:
   /**
    * @brief Move-constructible.
    */
-  Listener_options(Listener_options&& rhs);
+  DMITIGR_WS_API Listener_options(Listener_options&& rhs);
 
   /**
    * @brief Move-assignable.
    */
-  Listener_options& operator=(Listener_options&& rhs);
+  DMITIGR_WS_API Listener_options& operator=(Listener_options&& rhs);
 
   /**
    * @returns A copy of this instance.
