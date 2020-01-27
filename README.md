@@ -26,6 +26,8 @@ Some of these libraries are available as standalone versions:
   - [Dmitigr Fcgi][dmitigr_fcgi];
   - [Dmitigr Pgfe][dmitigr_pgfe].
 
+Any feedback are [welcome][dmitigr_mail]. Donations are also [welcome][dmitigr_paypal].
+
 Third-party dependencies
 ========================
 
@@ -37,8 +39,8 @@ Also:
 - [libpq] library for [pgfe];
 - [GraphicsMagick] library for [img].
 
-Third-party dependencies which are shipped with Cefeika
--------------------------------------------------------
+Third-party software which are shipped with Cefeika
+---------------------------------------------------
 
 |Name|Source|
 |:---|:------|
@@ -243,21 +245,20 @@ followed:
   - the namespace `dmitigr::foo::detail` should *not* be used
     since it consists of the implementation details.
 
-License
-=======
+Licenses and copyrights
+=======================
 
-Cefeika is distributed under zlib license. For conditions of distribution and
-use, see file `LICENSE.txt`.
+Cefeika itself (except the software of third parties it's includes) is
+distributed under zlib [LICENSE](LICENSE.txt).
 
-Contributions
-=============
+Cefeika includes the following software of third parties:
 
-Any feedback are welcome. Donations are [welcome][dmitigr_paypal].
+  - [RapidJSON] distributed under the following [LICENSE](thirdparty/rapidjson/license.txt);
+  - [uSockets] distributed under the following [LICENSE](thirdparty/usockets/LICENSE);
+  - [libuv] distributed under the following [LICENSE](thirdparty/uv/LICENSE);
+  - [uWebSockets] distributed under the following [LICENSE](thirdparty/uwebsockets/LICENSE).
 
-Copyright
-=========
-
-Copyright (C) [Dmitry Igrishin][dmitigr_mail]
+For conditions of distribution and use, please see the corresponding license.
 
 [dmitigr_mail]: mailto:dmitigr@gmail.com
 [dmitigr_paypal]: https://paypal.me/dmitigr
@@ -288,4 +289,5 @@ Copyright (C) [Dmitry Igrishin][dmitigr_mail]
 [PostgreSQL]: https://www.postgresql.org/
 [RapidJSON]: http://rapidjson.org/
 [uSockets]: https://github.com/uNetworking/uSockets
+[uWebSockets]: https://github.com/uNetworking/uWebSockets
 [Visual_Studio]: https://www.visualstudio.com/
