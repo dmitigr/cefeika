@@ -24,6 +24,9 @@ public:
    */
   virtual ~Simple_threadpool() = default;
 
+  /// @name Constructors
+  /// @{
+
   /**
    * @brief Constructs the threadpool with size of `size`.
    *
@@ -31,6 +34,8 @@ public:
    * `(size > 0 && queue_max_size > 0)`.
    */
   static DMITIGR_UTIL_API std::unique_ptr<Simple_threadpool> make(std::size_t size);
+
+  /// @}
 
   /**
    * @brief Submit the function to run on the threadpool.
