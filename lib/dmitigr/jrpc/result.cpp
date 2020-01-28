@@ -10,7 +10,7 @@
 namespace dmitigr::jrpc::detail {
 
 /**
- * @brief Implementation of Result.
+ * @brief An implementation of Result.
  */
 class iResult final : public Result {
 public:

@@ -86,7 +86,7 @@ DMITIGR_JRPC_INLINE std::unique_ptr<Response> Response::make(const std::string_v
         rajson::to<std::string>(msgi->value),
         std::make_shared<rapidjson::Document>(std::move(rep))}};
     } else
-      throw std::runtime_error{"dmitigr::jrpc: Error has invalid type of \"error\" member"};
+      throw std::runtime_error{"dmitigr::jrpc: invalid type of \"error\" member"};
   } else
     throw std::runtime_error{"dmitigr::jrpc: nor \"result\" nor \"error\" member found in response"};
 }

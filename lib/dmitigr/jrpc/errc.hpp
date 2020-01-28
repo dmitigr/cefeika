@@ -16,7 +16,7 @@ enum class Server_errc {
   /** Invalid JSON was received by the server. */
   parse_error = -32700,
 
-  /** The JSON sent is not a valid Request object.*/
+  /** The JSON sent is not a valid Request object. */
   invalid_request = -32600,
 
   /** The method does not exist / is not available. */

@@ -10,6 +10,7 @@
  */
 namespace dmitigr::jrpc {
 
+enum class Parameters_notation;
 enum class Server_errc;
 
 class Request;

@@ -21,14 +21,19 @@ namespace dmitigr::jrpc {
 class Response {
 public:
   /**
+   * @brief The destructor.
+   */
+  virtual ~Response() = default;
+
+  /// @name Constructors
+  /// @{
+
+  /**
    * @returns A new instance of Response.
    */
   static DMITIGR_JRPC_API std::unique_ptr<Response> make(std::string_view input);
 
-  /**
-   * @brief The destructor.
-   */
-  virtual ~Response() = default;
+  /// @}
 
   /**
    * @returns A String specifying the version of the JSON-RPC protocol.
@@ -38,7 +43,7 @@ public:
   /**
    * @returns A response identifier which the same as the value of the id member
    * in the Request. If there was an error in detecting the id in the Request
-   * (e.g. Parse error/Invalid Request), the returned value is Null.
+   * (e.g. Parse error/Invalid Request), the returned value is `Null`.
    */
   virtual const rapidjson::Value& id() const = 0;
 

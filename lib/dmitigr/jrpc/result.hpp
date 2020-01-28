@@ -17,6 +17,9 @@ namespace dmitigr::jrpc {
  */
 class Result : public Response {
 public:
+  /// @name Constructors
+  /// @{
+
   /**
    * @returns A new instance of result.
    */
@@ -26,6 +29,8 @@ public:
    * @overload
    */
   static DMITIGR_JRPC_API std::unique_ptr<Result> make(std::string_view id);
+
+  /// @}
 
   /**
    * @returns The value determined by the method invoked on the server.

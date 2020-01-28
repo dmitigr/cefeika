@@ -2,6 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
+#include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/error.hpp"
 #include "dmitigr/jrpc/implementation_header.hpp"
 

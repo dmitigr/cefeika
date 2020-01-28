@@ -22,6 +22,14 @@ namespace dmitigr::jrpc {
 class Request {
 public:
   /**
+   * @brief The destructor.
+   */
+  virtual ~Request() = default;
+
+  /// @name Constructors
+  /// @{
+
+  /**
    * @returns A new instance of Request.
    */
   static DMITIGR_JRPC_API std::unique_ptr<Request> make(std::string_view input);
@@ -41,10 +49,7 @@ public:
    */
   static DMITIGR_JRPC_API std::unique_ptr<Request> make_notification(std::string_view method);
 
-  /**
-   * @brief The destructor.
-   */
-  virtual ~Request() = default;
+  /// @}
 
   /**
    * @returns A String specifying the version of the JSON-RPC protocol.
