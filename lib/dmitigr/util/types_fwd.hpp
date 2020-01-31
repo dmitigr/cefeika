@@ -18,6 +18,22 @@ class Wsa_error_category;
 /**
  * @brief The API.
  */
+namespace app {
+
+class Program_parameters;
+
+/**
+ * @brief The implementation details.
+ */
+namespace detail {
+class iProgram_parameters;
+} // namespace detail
+
+} // namespace app
+
+/**
+ * @brief The API.
+ */
 namespace config {
 class Flat;
 

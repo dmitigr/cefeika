@@ -18,6 +18,7 @@ set(dmitigr_util_root_headers
 
 set(dmitigr_util_headers
   algorithm.hpp
+  app.hpp
   basics.hpp
   config.hpp
   console.hpp
@@ -44,6 +45,7 @@ if (WIN32)
 endif()
 
 set(dmitigr_util_implementations
+  app.cpp
   config.cpp
   console.cpp
   exceptions.cpp
@@ -60,7 +62,7 @@ set(dmitigr_util_transunits
   ../util.cpp
   )
 
-set(dmitigr_util_tests net uuid)
+set(dmitigr_util_tests net uuid app-program_options)
 
 # ------------------------------------------------------------------------------
 # Dependencies

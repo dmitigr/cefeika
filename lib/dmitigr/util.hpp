@@ -24,6 +24,7 @@
 #define DMITIGR_UTIL_HPP
 
 #include "dmitigr/util/algorithm.hpp"
+#include "dmitigr/util/app.hpp"
 #include "dmitigr/util/basics.hpp"
 #include "dmitigr/util/config.hpp"
 #include "dmitigr/util/console.hpp"
