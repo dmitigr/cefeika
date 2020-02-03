@@ -18,6 +18,7 @@ set(dmitigr_rajson_root_headers
 
 set(dmitigr_rajson_headers
   conversions.hpp
+  flat.hpp
   fwd.hpp
   )
 
@@ -29,7 +30,16 @@ set(dmitigr_rajson_transunits
   ../rajson.cpp
   )
 
-set(dmitigr_rajson_tests
+set(dmitigr_rajson_tests flat
+  )
+
+# ------------------------------------------------------------------------------
+# Tests
+# ------------------------------------------------------------------------------
+
+add_custom_target(dmitigr_rajson_copy_test_resources ALL
+  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/rajson-unit-flat.json"
+  "${dmitigr_cefeika_resource_destination_dir}"
   )
 
 # ------------------------------------------------------------------------------

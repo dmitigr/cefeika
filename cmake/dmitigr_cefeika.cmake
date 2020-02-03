@@ -4,8 +4,9 @@
 
 set(dmitigr_cefeika_libraries
   util dt rajson ws
-  fcgi http img jrpc mulf pgfe ttpl url)
+  app fcgi http img jrpc mulf pgfe ttpl url)
 
+set(dmitigr_cefeika_app_deps util)
 set(dmitigr_cefeika_dt_deps util)
 set(dmitigr_cefeika_fcgi_deps util)
 set(dmitigr_cefeika_http_deps dt util)

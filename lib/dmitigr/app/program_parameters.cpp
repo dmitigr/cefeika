@@ -1,15 +1,20 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or app.hpp
 
-#include "dmitigr/util/app.hpp"
+#include "dmitigr/app/program_parameters.hpp"
+#include "dmitigr/app/implementation_header.hpp"
+
 #include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/implementation_header.hpp"
+#include "dmitigr/util/fs.hpp"
 
 #include <algorithm>
 
 namespace dmitigr::app::detail {
 
+/**
+ * @brief An implementation of Program_parameters.
+ */
 class iProgram_parameters final : public Program_parameters {
 public:
   iProgram_parameters(const int argc, const char* const* argv)
@@ -106,11 +111,11 @@ private:
 
 namespace dmitigr::app {
 
-DMITIGR_UTIL_INLINE std::unique_ptr<Program_parameters> Program_parameters::make(const int argc, const char* const* argv)
+DMITIGR_APP_INLINE std::unique_ptr<Program_parameters> Program_parameters::make(const int argc, const char* const* argv)
 {
   return std::make_unique<detail::iProgram_parameters>(argc, argv);
 }
 
 } // namespace dmitigr::app
 
-#include "dmitigr/util/implementation_footer.hpp"
+#include "dmitigr/app/implementation_footer.hpp"

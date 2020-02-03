@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2019 Dmitry Igrishin
+// Copyright (C) 2020 Dmitry Igrishin
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -20,31 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_UTIL_HPP
-#define DMITIGR_UTIL_HPP
+#ifndef DMITIGR_APP_HPP
+#define DMITIGR_APP_HPP
 
-#include "dmitigr/util/algorithm.hpp"
-#include "dmitigr/util/basics.hpp"
-#include "dmitigr/util/config.hpp"
-#include "dmitigr/util/console.hpp"
-#include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/exceptions.hpp"
-#include "dmitigr/util/filesystem.hpp"
-#include "dmitigr/util/fs.hpp"
-#include "dmitigr/util/io.hpp"
-#include "dmitigr/util/macros.hpp"
-#include "dmitigr/util/math.hpp"
-#include "dmitigr/util/memory.hpp"
-#include "dmitigr/util/net.hpp"
-#include "dmitigr/util/os.hpp"
-#include "dmitigr/util/stream.hpp"
-#include "dmitigr/util/string.hpp"
-#include "dmitigr/util/test.hpp"
-#include "dmitigr/util/thread.hpp"
-#include "dmitigr/util/uuid.hpp"
-#include "dmitigr/util/version.hpp"
-#ifdef _WIN32
-#include "dmitigr/util/windows.hpp"
-#endif
+#include "dmitigr/app/program_parameters.hpp"
+#include "dmitigr/app/version.hpp"
 
-#endif  // DMITIGR_UTIL_HPP
+#endif  // DMITIGR_APP_HPP

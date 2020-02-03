@@ -1,15 +1,17 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or app.hpp
 
-#ifndef DMITIGR_UTIL_APP_HPP
-#define DMITIGR_UTIL_APP_HPP
+#ifndef DMITIGR_APP_PROGRAM_PARAMETERS_HPP
+#define DMITIGR_APP_PROGRAM_PARAMETERS_HPP
 
-#include "dmitigr/util/dll.hpp"
+#include "dmitigr/app/dll.hpp"
+#include "dmitigr/app/types_fwd.hpp"
+#include "dmitigr/util/debug.hpp"
 #include "dmitigr/util/filesystem.hpp"
-#include "dmitigr/util/types_fwd.hpp"
 
 #include <map>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -55,7 +57,7 @@ public:
    * @par Requires
    * `(argc > 0 && argv && argv[0])`.
    */
-  static DMITIGR_UTIL_API std::unique_ptr<Program_parameters> make(int argc,
+  static DMITIGR_APP_API std::unique_ptr<Program_parameters> make(int argc,
     const char* const* argv);
 
   /// @}
@@ -96,8 +98,8 @@ private:
 
 } // namespace dmitigr::app
 
-#ifdef DMITIGR_UTIL_HEADER_ONLY
-#include "dmitigr/util/app.cpp"
+#ifdef DMITIGR_APP_HEADER_ONLY
+#include "dmitigr/app/program_parameters.cpp"
 #endif
 
-#endif // DMITIGR_UTIL_APP_HPP
+#endif // DMITIGR_APP_PROGRAM_PARAMETERS_HPP

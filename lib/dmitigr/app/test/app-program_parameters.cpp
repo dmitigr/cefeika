@@ -1,8 +1,9 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or app.hpp
 
-#include <dmitigr/util.hpp>
+#include <dmitigr/app.hpp>
+#include <dmitigr/util/test.hpp>
 
 #include <iostream>
 

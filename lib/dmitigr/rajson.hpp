@@ -25,6 +25,7 @@
 
 #include "dmitigr/rajson/fwd.hpp"
 #include "dmitigr/rajson/conversions.hpp"
+#include "dmitigr/rajson/flat.hpp"
 #include "dmitigr/rajson/version.hpp"
 
 #endif  // DMITIGR_RAJSON_HPP
