@@ -2,12 +2,15 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
+enable_language(C)
+set(C_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+
 if(MSVC)
   list(APPEND usockets_cflags /W0)
 elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
   list(APPEND usockets_cflags
     -fvisibility=hidden
-    --std=c11
     -Wall
     -Wextra
     #-Wstrict-prototypes
