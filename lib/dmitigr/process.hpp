@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2019 Dmitry Igrishin
+// Copyright (C) 2020 Dmitry Igrishin
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -20,22 +20,11 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_CEFEIKA_HEADER_ONLY_HPP
-#define DMITIGR_CEFEIKA_HEADER_ONLY_HPP
+#ifndef DMITIGR_PROCESS_HPP
+#define DMITIGR_PROCESS_HPP
 
-#define DMITIGR_APP_HEADER_ONLY
-#define DMITIGR_DT_HEADER_ONLY
-#define DMITIGR_FCGI_HEADER_ONLY
-#define DMITIGR_HTTP_HEADER_ONLY
-#define DMITIGR_IMG_HEADER_ONLY
-#define DMITIGR_JRPC_HEADER_ONLY
-#define DMITIGR_MULF_HEADER_ONLY
-#define DMITIGR_PGFE_HEADER_ONLY
-#define DMITIGR_PROCESS_HEADER_ONLY
-#define DMITIGR_RAJSON_HEADER_ONLY
-#define DMITIGR_TTPL_HEADER_ONLY
-#define DMITIGR_URL_HEADER_ONLY
-#define DMITIGR_UTIL_HEADER_ONLY
-#define DMITIGR_WS_HEADER_ONLY
+#include "dmitigr/process/detach.hpp"
+#include "dmitigr/process/info.hpp"
+#include "dmitigr/process/version.hpp"
 
-#endif  // DMITIGR_CEFEIKA_HEADER_ONLY_HPP
+#endif  // DMITIGR_PROCESS_HPP
