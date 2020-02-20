@@ -1,0 +1,46 @@
+# -*- cmake -*-
+# Copyright (C) Dmitry Igrishin
+# For conditions of distribution and use, see file LICENSE.txt
+
+# ------------------------------------------------------------------------------
+# Info
+# ------------------------------------------------------------------------------
+
+dmitigr_set_library_info(web 0 1 "Web utilities")
+
+# ------------------------------------------------------------------------------
+# Sources
+# ------------------------------------------------------------------------------
+
+set(dmitigr_web_root_headers
+  ../web.hpp
+  )
+
+set(dmitigr_web_headers
+  types_fwd.hpp
+  )
+
+set(dmitigr_web_implementations
+  )
+
+set(dmitigr_web_transunits
+  ../web.cpp
+  )
+
+set(dmitigr_web_tests)
+
+# ------------------------------------------------------------------------------
+# Dependencies
+# ------------------------------------------------------------------------------
+
+foreach (t public interface)
+  set(dmitigr_web_target_link_libraries_${t}
+    dmitigr::fcgi dmitigr::jrpc dmitigr::mulf dmitigr::pgfe
+    dmitigr::ws dmitigr::ttpl dmitigr::url dmitigr::util)
+endforeach()
+
+# ------------------------------------------------------------------------------
+# Variables propagation
+# ------------------------------------------------------------------------------
+
+dmitigr_propagate_library_settings(web)
