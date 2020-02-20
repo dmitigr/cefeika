@@ -51,7 +51,7 @@ target_compile_definitions(${lib}
 target_compile_options(${lib} PRIVATE ${usockets_cflags})
 target_include_directories(${lib}
   PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/thirdparty/usockets/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>
   PRIVATE
   src)

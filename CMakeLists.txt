@@ -104,8 +104,8 @@ set(CXX_STANDARD_REQUIRED ON)
 # ------------------------------------------------------------------------------
 
 include_directories(BEFORE
-  ${CMAKE_SOURCE_DIR}/lib
-  ${CMAKE_BINARY_DIR}/lib
+  ${CMAKE_CURRENT_SOURCE_DIR}/lib
+  ${CMAKE_CURRENT_BINARY_DIR}/lib
   )
 
 # ------------------------------------------------------------------------------
@@ -335,14 +335,14 @@ if(DMITIGR_CEFEIKA_BUILD_TESTS)
 
   function(dmitigr_configure_test lib test)
     set(full_name "${lib}-${test}")
-    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/lib/dmitigr/${lib}/test/${full_name}.cpp")
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/test/${full_name}.cpp")
       set(is_unit_test TRUE)
       set(full_name "${lib}-unit-${test}")
     else()
       set(is_unit_test FALSE)
     endif()
     set(exe "${full_name}")
-    set(src "${CMAKE_SOURCE_DIR}/lib/dmitigr/${lib}/test/${full_name}.cpp")
+    set(src "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/test/${full_name}.cpp")
     add_executable(${exe} ${src})
     target_link_libraries(${exe} PRIVATE dmitigr::util dmitigr::${lib} ${dmitigr_${lib}_tests_target_link_libraries})
     dmitigr_target_compile_options(${exe})

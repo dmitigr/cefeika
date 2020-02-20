@@ -6,7 +6,7 @@ set(lib thirdparty_rapidjson)
 
 add_library(${lib} INTERFACE)
 target_include_directories(${lib} INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/thirdparty/rapidjson/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>)
 
 install(DIRECTORY "include/"
