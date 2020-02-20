@@ -45,8 +45,9 @@ set(dmitigr_ws_tests echo echo-threads threads
 # ------------------------------------------------------------------------------
 
 foreach (t public interface)
-  set(dmitigr_ws_target_link_libraries_${t} thirdparty_uwebsockets dmitigr::util)
+  set(dmitigr_ws_target_link_libraries_${t} dmitigr::util)
 endforeach()
+set(dmitigr_ws_target_link_libraries_private thirdparty_uwebsockets)
 
 # ------------------------------------------------------------------------------
 # Variables propagation
