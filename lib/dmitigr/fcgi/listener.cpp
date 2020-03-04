@@ -9,8 +9,8 @@
 #include "dmitigr/fcgi/streams.hpp"
 #include "dmitigr/fcgi/implementation_header.hpp"
 
+#include <dmitigr/net.hpp>
 #include <dmitigr/util/debug.hpp>
-#include <dmitigr/util/net.hpp>
 
 #include <array>
 #include <limits>

@@ -6,8 +6,8 @@
 #include "dmitigr/jrpc/error.hpp"
 #include "dmitigr/jrpc/implementation_header.hpp"
 
+#include "dmitigr/str.hpp"
 #include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/string.hpp"
 
 namespace dmitigr::jrpc::detail {
 
@@ -54,7 +54,7 @@ public:
     if (const auto i = rep_.FindMember("method"); i != e) {
       if (i->value.IsString()) {
         const auto method = rajson::to<std::string_view>(i->value);
-        if (string::is_begins_with(method, std::string_view{"rpc.", 4}))
+        if (str::is_begins_with(method, std::string_view{"rpc.", 4}))
           throw_invalid_request("method names that begin with \"rpc.\" are reserved");
       } else
         throw_invalid_request("invalid type of \"method\" member");

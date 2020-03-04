@@ -1,0 +1,45 @@
+# -*- cmake -*-
+# Copyright (C) Dmitry Igrishin
+# For conditions of distribution and use, see file LICENSE.txt
+
+# ------------------------------------------------------------------------------
+# Info
+# ------------------------------------------------------------------------------
+
+dmitigr_set_library_info(uuid 0 1 "The library to work with UUID")
+
+# ------------------------------------------------------------------------------
+# Sources
+# ------------------------------------------------------------------------------
+
+set(dmitigr_uuid_root_headers
+  ../uuid.hpp
+  )
+
+set(dmitigr_uuid_headers
+  uuid.hpp
+  types_fwd.hpp
+  )
+
+set(dmitigr_uuid_implementations
+  uuid.cpp
+  )
+
+set(dmitigr_uuid_transunits
+  ../uuid.cpp
+  )
+
+set(dmitigr_uuid_tests)
+
+# ------------------------------------------------------------------------------
+# Dependencies
+# ------------------------------------------------------------------------------
+
+set(dmitigr_uuid_target_link_libraries_public dmitigr::rng dmitigr::util)
+set(dmitigr_uuid_target_link_libraries_interface dmitigr::rng dmitigr::util)
+
+# ------------------------------------------------------------------------------
+# Variables propagation
+# ------------------------------------------------------------------------------
+
+dmitigr_propagate_library_settings(uuid)

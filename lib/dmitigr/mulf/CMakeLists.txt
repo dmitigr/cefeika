@@ -30,6 +30,7 @@ set(dmitigr_mulf_transunits
   )
 
 set(dmitigr_mulf_tests valid1)
+set(dmitigr_mulf_tests_target_link_libraries dmitigr::fs)
 
 # ------------------------------------------------------------------------------
 # Tests
@@ -54,8 +55,8 @@ add_custom_target(dmitigr_mulf_copy_test_resources ALL
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_mulf_target_link_libraries_public dmitigr::util)
-set(dmitigr_mulf_target_link_libraries_interface dmitigr::util)
+set(dmitigr_mulf_target_link_libraries_public dmitigr::util dmitigr::str)
+set(dmitigr_mulf_target_link_libraries_interface dmitigr::util dmitigr::str)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

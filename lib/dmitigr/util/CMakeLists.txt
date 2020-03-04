@@ -17,25 +17,14 @@ set(dmitigr_util_root_headers
   )
 
 set(dmitigr_util_headers
-  algorithm.hpp
   basics.hpp
-  config.hpp
-  console.hpp
   debug.hpp
   exceptions.hpp
   filesystem.hpp
-  fs.hpp
   io.hpp
   macros.hpp
-  math.hpp
-  memory.hpp
-  net.hpp
-  os.hpp
-  string.hpp
   test.hpp
-  thread.hpp
   types_fwd.hpp
-  uuid.hpp
   )
 
 if (WIN32)
@@ -43,46 +32,14 @@ if (WIN32)
 endif()
 
 set(dmitigr_util_implementations
-  config.cpp
-  console.cpp
   exceptions.cpp
-  fs.cpp
-  net.cpp
-  os.cpp
-  string.cpp
-  thread.cpp
-  uuid.cpp
   )
 
 set(dmitigr_util_transunits
   ../util.cpp
   )
 
-set(dmitigr_util_tests net uuid)
-
-# ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-#
-# System
-#
-
-if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-  dmitigr_append_cppfs(dmitigr_util_target_link_libraries_public)
-  if (WIN32)
-    list(APPEND dmitigr_util_target_link_libraries_public Ws2_32.lib)
-  else()
-    list(APPEND dmitigr_util_target_link_libraries_public pthread)
-  endif()
-else()
-  dmitigr_append_cppfs(dmitigr_util_target_link_libraries_interface)
-  if (WIN32)
-    list(APPEND dmitigr_util_target_link_libraries_interface Ws2_32.lib)
-  else()
-    list(APPEND dmitigr_util_target_link_libraries_interface pthread)
-  endif()
-endif()
+set(dmitigr_util_tests)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

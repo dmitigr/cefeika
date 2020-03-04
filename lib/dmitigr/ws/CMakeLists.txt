@@ -40,12 +40,14 @@ set(dmitigr_ws_transunits
 set(dmitigr_ws_tests echo echo-threads threads
   )
 
+set(dmitigr_ws_tests_target_link_libraries dmitigr::rng dmitigr::thread)
+
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
 
 foreach (t public interface)
-  set(dmitigr_ws_target_link_libraries_${t} dmitigr::util)
+  set(dmitigr_ws_target_link_libraries_${t} dmitigr::net dmitigr::util)
 endforeach()
 set(dmitigr_ws_target_link_libraries_private thirdparty_uwebsockets)
 

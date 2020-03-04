@@ -30,6 +30,7 @@ set(dmitigr_url_transunits
   )
 
 set(dmitigr_url_tests qs1 qs2)
+set(dmitigr_url_tests_target_link_libraries dmitigr::str)
 
 # ------------------------------------------------------------------------------
 # Dependencies

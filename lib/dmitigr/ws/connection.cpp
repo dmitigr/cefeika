@@ -14,8 +14,8 @@
 #include "dmitigr/ws/connection.hpp"
 #include "dmitigr/ws/implementation_header.hpp"
 
+#include "dmitigr/net.hpp"
 #include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/net.hpp"
 
 #include <uwebsockets/App.h>
 

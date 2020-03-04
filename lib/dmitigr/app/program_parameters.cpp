@@ -6,9 +6,6 @@
 #include "dmitigr/app/implementation_header.hpp"
 
 #include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/fs.hpp"
-
-#include <algorithm>
 
 namespace dmitigr::app::detail {
 

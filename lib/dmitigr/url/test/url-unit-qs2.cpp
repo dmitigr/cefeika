@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or url.hpp
 
+#include <dmitigr/str.hpp>
 #include <dmitigr/url.hpp>
-#include <dmitigr/util/string.hpp>
 #include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
@@ -13,7 +13,7 @@ int main(int, char* argv[])
 
   try {
     {
-      using dmitigr::string::to_lowercase;
+      using dmitigr::str::to_lowercase;
       const std::string str{"name=%D0%B4%D0%B8%D0%BC%D0%B0&%d0%b2%d0%be%d0%b7%d1%80%d0%b0%d1%81%d1%82=35"};
       auto qs = url::Query_string::make(str);
       const auto str1 = to_lowercase(str);

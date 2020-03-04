@@ -33,6 +33,8 @@ set(dmitigr_rajson_transunits
 set(dmitigr_rajson_tests flat
   )
 
+set(dmitigr_rajson_tests_target_link_libraries dmitigr::str dmitigr::fs)
+
 # ------------------------------------------------------------------------------
 # Tests
 # ------------------------------------------------------------------------------

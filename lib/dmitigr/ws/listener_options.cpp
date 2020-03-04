@@ -6,8 +6,8 @@
 #include "dmitigr/ws/listener_options.hpp"
 #include "dmitigr/ws/implementation_header.hpp"
 
+#include "dmitigr/net.hpp"
 #include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/net.hpp"
 
 #include <limits>
 #include <stdexcept>

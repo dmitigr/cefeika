@@ -7,8 +7,7 @@
 
 #include "dmitigr/app/dll.hpp"
 #include "dmitigr/app/types_fwd.hpp"
-#include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/filesystem.hpp"
+#include "dmitigr/fs.hpp"
 
 #include <map>
 #include <memory>

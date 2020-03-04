@@ -6,9 +6,9 @@
 #include "dmitigr/http/syntax.hpp"
 #include "dmitigr/http/implementation_header.hpp"
 
+#include <dmitigr/net.hpp>
+#include <dmitigr/str.hpp>
 #include <dmitigr/util/debug.hpp>
-#include <dmitigr/util/net.hpp>
-#include <dmitigr/util/string.hpp>
 
 #include <locale>
 #include <stdexcept>
@@ -55,7 +55,7 @@ public:
     std::string attr_type;
     const auto process_boolean_attr_type = [&](std::string& str)
     {
-      string::lowercase(str);
+      str::lowercase(str);
       if (str == "secure")
         is_secure_ = true;
       else if (str == "httponly")
@@ -66,7 +66,7 @@ public:
     };
     const auto set_attr_type = [&](std::string& str)
     {
-      string::lowercase(str);
+      str::lowercase(str);
       attr_type = std::move(str);
       str = {};
     };
@@ -97,7 +97,7 @@ public:
           throw std::runtime_error{"dmitigr::http: invalid value of the Path attribute"};
         path_ = std::move(str);
       } else if (attr_type == "samesite") {
-        string::lowercase(str);
+        str::lowercase(str);
         if (str == "strict")
           same_site_ = Same_site::strict;
         else if (str == "lax")
@@ -438,12 +438,12 @@ private:
   static const char* requirement_violation_details(const std::string& name, const bool is_secure,
     const std::optional<std::string>& domain, const std::optional<std::string>& path)
   {
-    if (string::is_begins_with(name, "__Secure-")) {
+    if (str::is_begins_with(name, "__Secure-")) {
       if (!is_secure)
         return "cookies with name starting __Secure- must be set with \"secure\" flag";
     }
 
-    if (string::is_begins_with(name, "__Host-")) {
+    if (str::is_begins_with(name, "__Host-")) {
       if (!is_secure)
         return "cookies with name starting __Host- must be set with \"secure\" flag";
       if (domain)

@@ -336,6 +336,8 @@ set(dmitigr_pgfe_tests benchmark_array_client benchmark_array_server
   connection-err_in_mid connection_options connection-rows connection_ssl
   conversions conversions_online data  hello_world problem ps row_info sql_string sql_vector)
 
+set(dmitigr_pgfe_tests_target_link_libraries dmitigr::os dmitigr::str)
+
 # ------------------------------------------------------------------------------
 # Tests
 # ------------------------------------------------------------------------------
@@ -349,8 +351,8 @@ add_custom_target(dmitigr_pgfe_copy_test_resources ALL
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_pgfe_target_link_libraries_public dmitigr::util)
-set(dmitigr_pgfe_target_link_libraries_interface dmitigr::util)
+set(dmitigr_pgfe_target_link_libraries_public dmitigr::mem dmitigr::net dmitigr::str dmitigr::util)
+set(dmitigr_pgfe_target_link_libraries_interface dmitigr::mem dmitigr::net dmitigr::str dmitigr::util)
 
 #
 # libpq

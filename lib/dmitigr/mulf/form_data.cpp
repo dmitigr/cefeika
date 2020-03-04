@@ -5,8 +5,8 @@
 #include "dmitigr/mulf/form_data.hpp"
 #include "dmitigr/mulf/implementation_header.hpp"
 
+#include <dmitigr/str.hpp>
 #include <dmitigr/util/debug.hpp>
-#include <dmitigr/util/string.hpp>
 
 #include <algorithm>
 #include <locale>
@@ -436,7 +436,7 @@ private:
       switch (state) {
       case name:
         if (c == ':') {
-          string::lowercase(extracted);
+          str::lowercase(extracted);
           if (extracted == "content-disposition")
             type = content_disposition;
           else if (extracted == "content-type")
@@ -462,7 +462,7 @@ private:
 
       case parameter_name:
         if (c == ';' || c == '=' || c == '\r') {
-          string::lowercase(extracted);
+          str::lowercase(extracted);
           process_parameter_name(std::move(extracted));
           extracted = {};
           state = (c == ';') ? before_parameter_name : (c == '=') ? before_parameter_value : cr;

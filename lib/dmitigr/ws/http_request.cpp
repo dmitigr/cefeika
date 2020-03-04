@@ -5,8 +5,8 @@
 #include "dmitigr/ws/http_request.hpp"
 #include "dmitigr/ws/implementation_header.hpp"
 
+#include "dmitigr/net.hpp"
 #include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/net.hpp"
 
 #include <uwebsockets/HttpParser.h>
 

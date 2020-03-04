@@ -2,21 +2,22 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or mulf.hpp
 
+#include <dmitigr/fs.hpp>
 #include <dmitigr/mulf.hpp>
-#include <dmitigr/util/string.hpp>
+#include <dmitigr/str.hpp>
 #include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
 {
   namespace mulf = dmitigr::mulf;
-  namespace string = dmitigr::string;
+  namespace str = dmitigr::str;
   using mulf::Form_data;
   using namespace dmitigr::test;
 
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
-    const auto form_data = string::file_data_to_string(this_exe_dir_name / "mulf-form-data-valid1.txt");
+    const auto form_data = str::file_data_to_string(this_exe_dir_name / "mulf-form-data-valid1.txt");
 
     const std::string boundary{"AaB03x"};
     auto data = Form_data::make(form_data, boundary);

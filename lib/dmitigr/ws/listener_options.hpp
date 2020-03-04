@@ -8,7 +8,7 @@
 #include "dmitigr/ws/dll.hpp"
 #include "dmitigr/ws/types_fwd.hpp"
 
-#include "dmitigr/util/types_fwd.hpp"
+#include "dmitigr/net/types_fwd.hpp"
 
 #include <chrono>
 #include <memory>

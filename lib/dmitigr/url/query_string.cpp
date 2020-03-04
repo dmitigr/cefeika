@@ -5,8 +5,8 @@
 #include "dmitigr/url/query_string.hpp"
 #include "dmitigr/url/implementation_header.hpp"
 
+#include <dmitigr/str.hpp>
 #include <dmitigr/util/debug.hpp>
-#include <dmitigr/util/string.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -268,7 +268,7 @@ public:
         else if (c == '+')
           result += "%2B";
         else
-          result.append("%").append(string::to_string(static_cast<unsigned char>(c), static_cast<unsigned char>(16)));
+          result.append("%").append(str::to_string(static_cast<unsigned char>(c), static_cast<unsigned char>(16)));
       }
       return result;
     };

@@ -2,17 +2,17 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
+#include <dmitigr/rng.hpp>
 #include <dmitigr/ws.hpp>
 #include <dmitigr/util/test.hpp>
-#include <dmitigr/util/math.hpp>
 
 #include <chrono>
 #include <sstream>
 #include <thread>
 #include <vector>
 
+namespace rng = dmitigr::rng;
 namespace ws = dmitigr::ws;
-namespace math = dmitigr::math;
 
 namespace {
 
@@ -25,7 +25,7 @@ class Connection : public ws::Connection {
   {
     std::clog << "The message with data \"" << data << "\" is handled" << std::endl;
     std::vector<std::thread> workers{16};
-    const auto closer_index = math::rand_cpp_pl_3rd(workers.size());
+    const auto closer_index = rng::cpp_pl_3rd(workers.size());
     for (std::size_t i = 0; i < workers.size(); ++i) {
       workers[i] = std::thread{[ws = shared_from_this(), format, is_closer = (i == closer_index)]
       {
@@ -63,7 +63,7 @@ class Listener : public ws::Listener {
   std::shared_ptr<ws::Connection> make_connection(const ws::Http_request* const handshake) const override
   {
     std::clog << "The connection to " << handshake->remote_ip_address() << " is about to be opened" << std::endl;
-    const bool is_should_be_created = math::rand_cpp_pl_3rd(1);
+    const bool is_should_be_created = rng::cpp_pl_3rd(1);
     return is_should_be_created ? std::make_shared<Connection>() : nullptr;
   }
 };
@@ -74,7 +74,7 @@ int main(int, char* argv[])
 {
   using namespace dmitigr::test;
 
-  math::seed_by_now();
+  rng::seed_by_now();
 
   try {
     constexpr auto listening_duration = std::chrono::seconds{15};

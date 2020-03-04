@@ -39,13 +39,14 @@ set(dmitigr_http_transunits
   )
 
 set(dmitigr_http_tests basics cookie date set_cookie)
+set(dmitigr_http_tests_target_link_libraries dmitigr::str)
 
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_http_target_link_libraries_public dmitigr::util dmitigr::dt)
-set(dmitigr_http_target_link_libraries_interface dmitigr::util dmitigr::dt)
+set(dmitigr_http_target_link_libraries_public dmitigr::net dmitigr::dt dmitigr::util)
+set(dmitigr_http_target_link_libraries_interface dmitigr::net dmitigr::dt dmitigr::util)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

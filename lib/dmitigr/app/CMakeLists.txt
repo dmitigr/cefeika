@@ -35,8 +35,8 @@ set(dmitigr_app_tests program_parameters)
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_app_target_link_libraries_public dmitigr::util)
-set(dmitigr_app_target_link_libraries_interface dmitigr::util)
+set(dmitigr_app_target_link_libraries_public dmitigr::fs dmitigr::util)
+set(dmitigr_app_target_link_libraries_interface dmitigr::fs dmitigr::util)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

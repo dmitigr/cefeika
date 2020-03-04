@@ -55,11 +55,6 @@ public:
    * @throws `std::runtime_error` on failure.
    */
   virtual void close() = 0;
-
-private:
-  friend net::detail::iDescriptor;
-
-  Descriptor() = default;
 };
 
 } // namespace dmitigr::io

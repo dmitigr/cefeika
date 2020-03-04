@@ -5,10 +5,10 @@
 #ifndef DMITIGR_CEFEIKA_TESTS_PGFE_UNIT_HPP
 #define DMITIGR_CEFEIKA_TESTS_PGFE_UNIT_HPP
 
+#include <dmitigr/os/env.hpp>
 #include <dmitigr/pgfe/connection.hpp>
 #include <dmitigr/pgfe/connection_options.hpp>
 #include <dmitigr/util/debug.hpp>
-#include <dmitigr/util/os.hpp>
 #include <dmitigr/util/test.hpp>
 
 #include <cstdlib>
@@ -56,7 +56,7 @@ inline std::unique_ptr<Connection> make_ssl_connection()
   ASSERT(appdata);
   const auto certs_dir = std::filesystem::path{*appdata} / "postgresql";
 #else // Unix
-  auto home = os::environment_variable("HOME");
+  auto home = os::env::environment_variable("HOME");
   ASSERT(home);
   const auto certs_dir = std::filesystem::path{*home} / ".postgresql";
 #endif

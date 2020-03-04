@@ -6,9 +6,9 @@
 #include "dmitigr/fcgi/connection.hpp"
 #include "dmitigr/fcgi/implementation_header.hpp"
 
+#include <dmitigr/math.hpp>
 #include <dmitigr/util/debug.hpp>
 #include <dmitigr/util/io.hpp>
-#include <dmitigr/util/math.hpp>
 
 #include <algorithm>
 #include <array>
