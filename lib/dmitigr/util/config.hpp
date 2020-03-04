@@ -21,9 +21,9 @@ namespace dmitigr::config {
  *
  * Each line of the configuration store can be written in form:
  *
- *   - "param1=one";
- *   - "param123='one two  three';
- *   - "param1234='one \'two three\' four'.
+ *   - param1=one;
+ *   - param123='one two  three';
+ *   - param1234='one \'two three\' four'.
  */
 class Flat {
 public:
