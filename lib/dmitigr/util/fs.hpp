@@ -8,9 +8,7 @@
 #include "dmitigr/util/dll.hpp"
 #include "dmitigr/util/filesystem.hpp"
 
-#include <fstream>
 #include <optional>
-#include <string>
 #include <vector>
 
 namespace dmitigr::fs {
@@ -41,57 +39,6 @@ file_paths_by_extension(const std::filesystem::path& root,
  */
 DMITIGR_UTIL_API std::optional<std::filesystem::path>
 parent_directory_path(const std::filesystem::path& dir);
-
-/**
- * @brief Reads the file into the vector of strings.
- *
- * @param path - the path to the file to read the data from;
- * @param pred - the callback function of form `pred(str)`, where `str` - is
- * a string that has been read from the file, that returns `true` to indicate
- * that `str` must be included into the result vector, or `false` otherwise;
- * @param delimiter - the delimiter character;
- * @param is_binary - the indicator of binary read mode.
- *
- * This function calls the the callback `pred(line)`, where
- */
-template<typename Pred>
-std::vector<std::string> file_data_to_strings_if(const std::filesystem::path& path,
-  Pred pred, const char delimiter = '\n', const bool is_binary = false)
-{
-  std::vector<std::string> result;
-  std::string line;
-  const std::ios_base::openmode om =
-    is_binary ? (std::ios_base::in | std::ios_base::binary) : std::ios_base::in;
-  std::ifstream lines{path, om};
-  while (getline(lines, line, delimiter)) {
-    if (pred(line))
-      result.push_back(line);
-  }
-  return result;
-}
-
-/**
- * @brief The convenient shortcut of file_data_to_strings_if().
- *
- * @see file_data_to_strings().
- */
-inline std::vector<std::string> file_data_to_strings(const std::filesystem::path& path,
-  const char delimiter = '\n', const bool is_binary = false)
-{
-  return file_data_to_strings_if(path, [](const auto&) { return true; },
-    delimiter, is_binary);
-}
-
-/**
- * @brief Reads the file data into an instance of `std::string`.
- *
- * @param path - the path to the file to read the data from.
- * @param is_binary - the indicator of binary read mode.
- *
- * @returns The string with the file data.
- */
-DMITIGR_UTIL_API std::string file_data_to_string(const std::filesystem::path& path,
-  const bool is_binary = true);
 
 } // namespace dmitigr::fs
 

@@ -4,10 +4,7 @@
 
 #include "dmitigr/util/debug.hpp"
 #include "dmitigr/util/fs.hpp"
-#include "dmitigr/util/stream.hpp"
 #include "dmitigr/util/implementation_header.hpp"
-
-#include <stdexcept>
 
 namespace dmitigr::fs {
 
@@ -56,18 +53,6 @@ DMITIGR_UTIL_INLINE std::optional<std::filesystem::path> parent_directory_path(c
     else
       return std::nullopt;
   }
-}
-
-DMITIGR_UTIL_INLINE std::string file_data_to_string(const std::filesystem::path& path,
-  const bool is_binary)
-{
-  const std::ios_base::openmode om =
-    is_binary ? (std::ios_base::in | std::ios_base::binary) : std::ios_base::in;
-  std::ifstream stream{path, om};
-  if (stream)
-    return stream::read_to_string(stream);
-  else
-    throw std::runtime_error{"unable to open the file \"" + path.generic_string() + "\""};
 }
 
 } // namespace dmitigr::fs

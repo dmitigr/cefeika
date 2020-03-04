@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or rajson.hpp
 
 #include <dmitigr/rajson.hpp>
-#include <dmitigr/util/fs.hpp>
+#include <dmitigr/util/string.hpp>
 #include <dmitigr/util/test.hpp>
 
 #include <iostream>
@@ -31,13 +31,13 @@ template<> struct Conversions<Db_params> final {
 int main(int, char* argv[])
 {
   namespace rajson = dmitigr::rajson;
-  namespace fs = dmitigr::fs;
+  namespace string = dmitigr::string;
   using namespace dmitigr::test;
 
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
-    const auto input = fs::file_data_to_string(this_exe_dir_name / "rajson-unit-flat.json");
+    const auto input = string::file_data_to_string(this_exe_dir_name / "rajson-unit-flat.json");
     rajson::Flat json{input};
     const auto host = json.mandatory<std::string>("host");
     ASSERT(host == "localhost");

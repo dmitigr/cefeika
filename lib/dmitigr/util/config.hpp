@@ -6,7 +6,7 @@
 #define DMITIGR_UTIL_CONFIG_HPP
 
 #include "dmitigr/util/dll.hpp"
-#include "dmitigr/util/fs.hpp"
+#include "dmitigr/util/string.hpp"
 #include "dmitigr/util/types_fwd.hpp"
 
 #include <map>

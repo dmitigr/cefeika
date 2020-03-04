@@ -31,7 +31,6 @@ set(dmitigr_util_headers
   memory.hpp
   net.hpp
   os.hpp
-  stream.hpp
   string.hpp
   test.hpp
   thread.hpp
@@ -50,7 +49,6 @@ set(dmitigr_util_implementations
   fs.cpp
   net.cpp
   os.cpp
-  stream.cpp
   string.cpp
   thread.cpp
   uuid.cpp

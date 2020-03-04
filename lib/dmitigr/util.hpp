@@ -37,7 +37,6 @@
 #include "dmitigr/util/memory.hpp"
 #include "dmitigr/util/net.hpp"
 #include "dmitigr/util/os.hpp"
-#include "dmitigr/util/stream.hpp"
 #include "dmitigr/util/string.hpp"
 #include "dmitigr/util/test.hpp"
 #include "dmitigr/util/thread.hpp"

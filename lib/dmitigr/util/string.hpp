@@ -6,17 +6,105 @@
 #define DMITIGR_UTIL_STRING_HPP
 
 #include "dmitigr/util/debug.hpp"
+#include "dmitigr/util/filesystem.hpp"
 #include "dmitigr/util/dll.hpp"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <fstream>
 #include <functional>
 #include <initializer_list>
+#include <iosfwd>
 #include <limits>
 #include <locale>
 #include <string>
+#include <system_error>
 #include <utility>
+#include <vector>
+
+namespace dmitigr::string {
+
+// -----------------------------------------------------------------------------
+// Exceptions
+// -----------------------------------------------------------------------------
+
+/**
+ * @brief A read error code.
+ */
+enum class Read_errc { success = 0, stream_error, invalid_input };
+
+/**
+ * @brief An exception that may be thrown by `read_*()` functions.
+ */
+class Read_exception final : public std::system_error {
+public:
+  /**
+   * @brief The constuctor.
+   */
+  DMITIGR_UTIL_API explicit Read_exception(std::error_condition condition);
+
+  /**
+   * @overload
+   */
+  DMITIGR_UTIL_API Read_exception(std::error_condition condition, std::string&& context);
+
+  /**
+   * @returns The reference to the incomplete result.
+   */
+  DMITIGR_UTIL_API const std::string& context() const;
+
+  /**
+   * @returns The string literal "dmitigr::stream::Read_exception".
+   */
+  const char* what() const noexcept override;
+
+private:
+  std::string context_;
+};
+
+/**
+ * @brief A type to support category of `dmitigr::stream` runtime errors.
+ */
+class Error_category final : public std::error_category {
+public:
+  /**
+   * @returns The string literal "dmitigr_stream_error".
+   */
+  const char* name() const noexcept override;
+
+  /**
+   * @returns The error message.
+   */
+  std::string message(const int ev) const override;
+};
+
+/**
+ * @returns A reference to an object of a type Error_category.
+ *
+ * @remarks The object's name() function returns a pointer to
+ * the string "dmitigr_stream_error".
+ */
+DMITIGR_UTIL_API const Error_category& error_category() noexcept;
+
+/**
+ * @returns `std::error_code{int(errc), parse_error_category()}`
+ */
+DMITIGR_UTIL_API std::error_code make_error_code(Read_errc errc) noexcept;
+
+/**
+ * @returns `std::error_condition{int(errc), parse_error_category()}`
+ */
+DMITIGR_UTIL_API std::error_condition make_error_condition(Read_errc errc) noexcept;
+
+} // namespace dmitigr::string
+
+// Integration with the `std::system_error` framework
+namespace std {
+
+template<> struct is_error_condition_enum<dmitigr::string::Read_errc> : true_type {};
+
+} // namespace std
 
 namespace dmitigr::string {
 
@@ -43,6 +131,84 @@ inline const char* literal(const char* const literal) noexcept
  * `nullptr` if all of the `literals` are nulls.
  */
 DMITIGR_UTIL_API const char* coalesce(std::initializer_list<const char*> literals) noexcept;
+
+// -----------------------------------------------------------------------------
+// Readers
+// -----------------------------------------------------------------------------
+
+/**
+ * @brief Reads a whole stream to a string.
+ *
+ * @returns The string with the content read from the stream.
+ */
+DMITIGR_UTIL_API std::string read_to_string(std::istream& input);
+
+/**
+ * @brief Reads a next "simple phrase" from the `input`.
+ *
+ * Whitespaces (i.e. space, tab or newline) or the quote (i.e. '"')
+ * that follows after the phrase are preserved in the `input`.
+ *
+ * @returns The string with the "simple phrase".
+ *
+ * @throws Read_exception with the appropriate code and incomplete result
+ * of parsing.
+ *
+ * @remarks the "simple phrase" - an unquoted expression without spaces, or
+ * quoted expression (which can include any characters).
+ */
+DMITIGR_UTIL_API std::string read_simple_phrase_to_string(std::istream& input);
+
+/**
+ * @brief Reads the file into the vector of strings.
+ *
+ * @param path - the path to the file to read the data from;
+ * @param pred - the callback function of form `pred(str)`, where `str` - is
+ * a string that has been read from the file, that returns `true` to indicate
+ * that `str` must be included into the result vector, or `false` otherwise;
+ * @param delimiter - the delimiter character;
+ * @param is_binary - the indicator of binary read mode.
+ *
+ * This function calls the the callback `pred(line)`, where
+ */
+template<typename Pred>
+std::vector<std::string> file_data_to_strings_if(const std::filesystem::path& path,
+  Pred pred, const char delimiter = '\n', const bool is_binary = false)
+{
+  std::vector<std::string> result;
+  std::string line;
+  const std::ios_base::openmode om =
+    is_binary ? (std::ios_base::in | std::ios_base::binary) : std::ios_base::in;
+  std::ifstream lines{path, om};
+  while (getline(lines, line, delimiter)) {
+    if (pred(line))
+      result.push_back(line);
+  }
+  return result;
+}
+
+/**
+ * @brief The convenient shortcut of file_data_to_strings_if().
+ *
+ * @see file_data_to_strings().
+ */
+inline std::vector<std::string> file_data_to_strings(const std::filesystem::path& path,
+  const char delimiter = '\n', const bool is_binary = false)
+{
+  return file_data_to_strings_if(path, [](const auto&) { return true; },
+    delimiter, is_binary);
+}
+
+/**
+ * @brief Reads the file data into an instance of `std::string`.
+ *
+ * @param path - the path to the file to read the data from.
+ * @param is_binary - the indicator of binary read mode.
+ *
+ * @returns The string with the file data.
+ */
+DMITIGR_UTIL_API std::string file_data_to_string(const std::filesystem::path& path,
+  const bool is_binary = true);
 
 // -----------------------------------------------------------------------------
 // Text lines manipulations
