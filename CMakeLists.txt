@@ -326,7 +326,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
 endforeach()
 
 # ------------------------------------------------------------------------------
-# Testing
+# Tests
 # ------------------------------------------------------------------------------
 
 if(DMITIGR_CEFEIKA_BUILD_TESTS)
@@ -335,14 +335,14 @@ if(DMITIGR_CEFEIKA_BUILD_TESTS)
 
   function(dmitigr_configure_test lib test)
     set(full_name "${lib}-${test}")
-    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/test/${full_name}.cpp")
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}/${full_name}.cpp")
       set(is_unit_test TRUE)
       set(full_name "${lib}-unit-${test}")
     else()
       set(is_unit_test FALSE)
     endif()
     set(exe "${full_name}")
-    set(src "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/test/${full_name}.cpp")
+    set(src "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}/${full_name}.cpp")
     add_executable(${exe} ${src})
     target_link_libraries(${exe} PRIVATE dmitigr::util dmitigr::${lib} ${dmitigr_${lib}_tests_target_link_libraries})
     dmitigr_target_compile_options(${exe})
@@ -352,8 +352,11 @@ if(DMITIGR_CEFEIKA_BUILD_TESTS)
   endfunction()
 
   foreach(lib ${dmitigr_cefeika_libraries})
-    foreach(test ${dmitigr_${lib}_tests})
-      dmitigr_configure_test(${lib} ${test})
-    endforeach()
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}")
+      add_subdirectory(test/${lib})
+      foreach(test ${dmitigr_${lib}_tests})
+        dmitigr_configure_test(${lib} ${test})
+      endforeach()
+    endif()
   endforeach()
 endif()

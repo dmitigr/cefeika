@@ -29,15 +29,9 @@ set(dmitigr_fs_transunits
   ../fs.cpp
   )
 
-set(dmitigr_fs_tests)
-
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
-
-#
-# System
-#
 
 set(dmitigr_fs_target_link_libraries_public dmitigr::util)
 set(dmitigr_fs_target_link_libraries_interface dmitigr::util)

@@ -37,11 +37,6 @@ set(dmitigr_ws_transunits
   ../ws.cpp
   )
 
-set(dmitigr_ws_tests echo echo-threads threads
-  )
-
-set(dmitigr_ws_tests_target_link_libraries dmitigr::rng dmitigr::thread)
-
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------

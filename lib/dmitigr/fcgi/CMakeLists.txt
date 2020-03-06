@@ -40,17 +40,6 @@ set(dmitigr_fcgi_transunits
   ../fcgi.cpp
   )
 
-set(dmitigr_fcgi_tests hello hellomt overload)
-
-# ------------------------------------------------------------------------------
-# Tests
-# ------------------------------------------------------------------------------
-
-# Tests-specific linkage
-if(UNIX)
-  set(dmitigr_fcgi_tests_target_link_libraries pthread)
-endif()
-
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------

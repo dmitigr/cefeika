@@ -30,20 +30,6 @@ set(dmitigr_rajson_transunits
   ../rajson.cpp
   )
 
-set(dmitigr_rajson_tests flat
-  )
-
-set(dmitigr_rajson_tests_target_link_libraries dmitigr::str dmitigr::fs)
-
-# ------------------------------------------------------------------------------
-# Tests
-# ------------------------------------------------------------------------------
-
-add_custom_target(dmitigr_rajson_copy_test_resources ALL
-  COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/test/rajson-unit-flat.json"
-  "${dmitigr_cefeika_resource_destination_dir}"
-  )
-
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------

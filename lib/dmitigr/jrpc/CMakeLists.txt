@@ -42,9 +42,6 @@ set(dmitigr_jrpc_transunits
   ../jrpc.cpp
   )
 
-set(dmitigr_jrpc_tests request response)
-set(dmitigr_jrpc_tests_target_link_libraries dmitigr::str)
-
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------

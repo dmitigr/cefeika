@@ -38,9 +38,6 @@ set(dmitigr_http_transunits
   ../http.cpp
   )
 
-set(dmitigr_http_tests basics cookie date set_cookie)
-set(dmitigr_http_tests_target_link_libraries dmitigr::str)
-
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
