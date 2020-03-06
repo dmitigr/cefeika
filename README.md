@@ -1,5 +1,4 @@
-The cross-platform C++ libraries for the backend development
-============================================================
+# The cross-platform C++ libraries for the backend development
 
 Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 
@@ -43,8 +42,7 @@ Some of these libraries are available as standalone versions:
 
 Any feedback are [welcome][dmitigr_mail]. Donations are also [welcome][dmitigr_paypal].
 
-Third-party dependencies
-========================
+## Third-party dependencies
 
 - [CMake] build system version 3.10+;
 - C++17 compiler ([GCC] 7.4+ or [Microsoft Visual C++][Visual_Studio] 15.7+).
@@ -54,8 +52,7 @@ Also:
 - [libpq] library for [pgfe];
 - [GraphicsMagick] library for [img].
 
-Third-party software which are shipped with Cefeika
----------------------------------------------------
+## Third-party software which are shipped with Cefeika
 
 |Name|Source|
 |:---|:------|
@@ -64,8 +61,7 @@ Third-party software which are shipped with Cefeika
 |uSockets|https://github.com/dmitigr/uSockets/tree/master|
 |uWebSockets|https://github.com/dmitigr/uWebSockets/tree/master|
 
-CMake options
-=============
+## CMake options
 
 The table below (one may need to use horizontal scrolling for full view)
 contains variables which can be passed to [CMake] for customization.
@@ -92,8 +88,7 @@ contains variables which can be passed to [CMake] for customization.
 |LIBPQ_LIB_PREFIX|*a path*|${LIBPQ_PREFIX}|${LIBPQ_PREFIX}|
 |LIBPQ_INCLUDE_PREFIX|*a path*|${LIBPQ_PREFIX}|${LIBPQ_PREFIX}|
 
-Remarks
--------
+### Remarks
 
   - `LIBPQ_PREFIX` specifies a prefix for both binary and headers of [libpq].
   For example, if [PostgreSQL] installed relocatably into `/usr/local/pgsql`,
@@ -107,8 +102,7 @@ Remarks
   and `<prefix>/lib` for other entries of `PATH`, and the directories of `PATH`
   itself.
 
-Installation
-============
+## Installation
 
 Cefeika can be installed as a set of:
 
@@ -120,8 +114,7 @@ Cefeika can be installed as a set of:
 
 The default build type is *Debug*.
 
-Installation on Linux
----------------------
+### Installation on Linux
 
     $ git clone https://github.com/dmitigr/cefeika.git
     $ mkdir cefeika/build
@@ -130,8 +123,7 @@ Installation on Linux
     $ cmake --build . --parallel
     $ cmake sudo make install
 
-Installation on Microsoft Windows
----------------------------------
+### Installation on Microsoft Windows
 
 Run Developer Command Prompt for Visual Studio and type:
 
@@ -163,8 +155,17 @@ command can be used in the elevated command prompt:
     > cd /d %SYSTEMROOT%\System32
     > mklink dmitigr_pgfed.dll "%ProgramFiles%\dmitigr_cefeika\lib\dmitigr_pgfed.dll"
 
-Usage
-=====
+## Usage
+
+Assuming `foo` is the name of library, the following considerations should be
+followed:
+
+  - headers other than `dmitigr/foo.hpp` should *not* be used
+    since these headers are subject to reorganize;
+  - namespace `dmitigr::foo::detail` should *not* be used directly
+    since it consists of the implementation details.
+
+### Usage with CMake
 
 With [CMake] it's pretty easy to use the libraries (including standalone versions)
 in two ways: as a system-wide installed library(-es) or as a library(-es) dropped
@@ -194,8 +195,7 @@ add_subdirectory(third-party/pgfe)
 Note, that all CMake variables described in [CMake options](#cmake-options) are
 also valid for standalone versions of libraries.
 
-Specifying a library type to use
---------------------------------
+#### Specifying a library type to use
 
 It's possible to explicitly specify a type of library to use. To do it,
 the corresponding suffix of a component name should be specified:
@@ -224,8 +224,7 @@ available library in the following order:
   2. a static library;
   3. a header-only library.
 
-Usage without CMake
--------------------
+### Usage without CMake
 
 It's possible to use the libraries without [CMake]. In order to use header-only
 libraries the macros `DMITIGR_FOO_HEADER_ONLY`, where `FOO` - is a library name
@@ -249,19 +248,7 @@ in which `DMITIGR_FOO_HEADER_ONLY` macros are properly defined, for example:
 
 Please note, that external dependencies  must be linked manually in this case!
 
-Remarks
--------
-
-Assuming `foo` is the name of library, the following considerations should be
-followed:
-
-  - headers other than `dmitigr/foo.hpp` should *not* be used
-    since that headers are subject to reorganize;
-  - the namespace `dmitigr::foo::detail` should *not* be used
-    since it consists of the implementation details.
-
-Licenses and copyrights
-=======================
+## Licenses and copyrights
 
 Cefeika itself (except the software of third parties it's includes) is
 distributed under zlib [LICENSE](LICENSE.txt).
