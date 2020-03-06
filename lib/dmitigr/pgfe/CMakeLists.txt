@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(pgfe 1 0 "The client API for PostgreSQL")
+dmitigr_set_library_info(pgfe 1 0 "Powerful client API for PostgreSQL")
 
 # ------------------------------------------------------------------------------
 # Default connection options

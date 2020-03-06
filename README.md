@@ -3,23 +3,38 @@ The cross-platform C++ libraries for the backend development
 
 Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 
-  - [dt] - a library to work with date and time;
-  - [fcgi] - a FastCGI implementation (only server at now);
-  - [http] - a library to work with HTTP (no client nor server now);
-  - [img] - a library to work with raster images;
-  - [jrpc] - a [JSON-RPC 2.0 specification][json-rpc2] implementation;
-  - [mulf] - a library to work with multipart/form-data;
-  - [pgfe] - a client API for [PostgreSQL];
-  - [rajson] - a very thin wrapper around [RapidJSON];
-  - [ttpl] - a library to work with text templates;
-  - [url] - a library to work with URL;
-  - [util] - a library to support the needs of Cefeika libraries, but may be
-  useful for other projects as well;
-  - [ws] - a library to work with WebSockets.
+  - [algo] - algorithms library
+  - [app] - application support library
+  - [cfg] - library to work with configuration files
+  - [dt] - library to work with date and time
+  - [fcgi] - powerful FastCGI implementation (server)
+  - [fs] - filesystem extras
+  - [http] - HTTP library
+  - [img] - image processing library
+  - [jrpc] - [JSON-RPC 2.0][json-rpc2] implementation
+  - [math] - mathematical stuff
+  - [mem] - memory management utilities
+  - [mulf] - multipart/form-data library
+  - [net] - networking library
+  - [os] - OS interaction
+  - [pgfe] - powerful client API for [PostgreSQL]
+  - [rajson] - [RapidJSON] wrapper
+  - [rng] - random number generators
+  - [str] - string extras
+  - [thread] - threading stuff
+  - [ttpl] - text templates library
+  - [url] - URL processing
+  - [util] - basic utilities
+  - [uuid] - UUID processing
+  - [web] - Web utilities
+  - [ws] - Websockets library
 
 All of these libraries can be used as shared libraries, static libraries or
 header-only libraries. ([ws] requires to build some third-party libraries
 such as [libuv] and [uSockets] which are shipped with Cefeika.)
+
+**Most of these libraries are in *work in progress* state! Participations and
+contributions of any kind are welcome!**
 
 Some of these libraries are available as standalone versions:
 
@@ -47,7 +62,7 @@ Third-party software which are shipped with Cefeika
 |libuv|https://github.com/dmitigr/libuv/tree/v1.x|
 |RapidJSON|https://github.com/dmitigr/rapidjson/tree/master|
 |uSockets|https://github.com/dmitigr/uSockets/tree/master|
-|uWebSockets|https://github.com/dmitigr/uWebSockets/tree/fork|
+|uWebSockets|https://github.com/dmitigr/uWebSockets/tree/master|
 
 CMake options
 =============
@@ -266,17 +281,30 @@ For conditions of distribution and use, please see the corresponding license.
 [dmitigr_fcgi]: https://github.com/dmitigr/fcgi.git
 [dmitigr_pgfe]: https://github.com/dmitigr/pgfe.git
 
+[algo]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/algo
+[app]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/app
+[cfg]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/cfg
 [dt]: https://github.com/dmitigr/cefeika/tree/master/doc/dt
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
+[fs]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/fs
 [http]: https://github.com/dmitigr/cefeika/tree/master/doc/http
 [img]: https://github.com/dmitigr/cefeika/tree/master/doc/img
 [jrpc]: https://github.com/dmitigr/cefeika/tree/master/doc/jrpc
+[math]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/math
+[mem]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/mem
 [mulf]: https://github.com/dmitigr/cefeika/tree/master/doc/mulf
+[net]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/net
+[os]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/os
 [pgfe]: https://github.com/dmitigr/cefeika/tree/master/doc/pgfe
 [rajson]: https://github.com/dmitigr/cefeika/tree/master/doc/rajson
+[rng]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/rng
+[str]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/str
+[thread]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/thread
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
 [util]: https://github.com/dmitigr/cefeika/tree/master/doc/util
+[uuid]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/uuid
+[web]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/web
 [ws]: https://github.com/dmitigr/cefeika/tree/master/doc/ws
 
 [CMake]: https://cmake.org/
