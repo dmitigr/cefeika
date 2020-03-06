@@ -33,8 +33,8 @@ set(dmitigr_url_transunits
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_url_target_link_libraries_public dmitigr::util)
-set(dmitigr_url_target_link_libraries_interface dmitigr::util)
+set(dmitigr_url_target_link_libraries_public dmitigr::str dmitigr::util)
+set(dmitigr_url_target_link_libraries_interface dmitigr::str dmitigr::util)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

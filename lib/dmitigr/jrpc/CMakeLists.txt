@@ -46,8 +46,8 @@ set(dmitigr_jrpc_transunits
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_jrpc_target_link_libraries_public dmitigr::rajson dmitigr::util)
-set(dmitigr_jrpc_target_link_libraries_interface dmitigr::rajson dmitigr::util)
+set(dmitigr_jrpc_target_link_libraries_public dmitigr::rajson dmitigr::str dmitigr::util)
+set(dmitigr_jrpc_target_link_libraries_interface dmitigr::rajson dmitigr::str dmitigr::util)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

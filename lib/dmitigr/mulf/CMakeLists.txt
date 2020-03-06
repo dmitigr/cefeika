@@ -33,8 +33,8 @@ set(dmitigr_mulf_transunits
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_mulf_target_link_libraries_public dmitigr::util dmitigr::str)
-set(dmitigr_mulf_target_link_libraries_interface dmitigr::util dmitigr::str)
+set(dmitigr_mulf_target_link_libraries_public dmitigr::str dmitigr::util)
+set(dmitigr_mulf_target_link_libraries_interface dmitigr::str dmitigr::util)
 
 # ------------------------------------------------------------------------------
 # Variables propagation
