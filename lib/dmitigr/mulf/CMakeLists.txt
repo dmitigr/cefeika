@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(mulf 0 1 "The multipart/form-data library")
+dmitigr_set_library_info(mulf 0 1 "Multipart/form-data library")
 
 # ------------------------------------------------------------------------------
 # Sources

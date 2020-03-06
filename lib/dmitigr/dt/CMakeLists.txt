@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(dt 0 1 "The date and time library")
+dmitigr_set_library_info(dt 0 1 "Date and time library")
 
 # ------------------------------------------------------------------------------
 # Sources

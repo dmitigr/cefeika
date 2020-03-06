@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(jrpc 0 1 "The JSON RPC library")
+dmitigr_set_library_info(jrpc 0 1 "JSON RPC implementation")
 
 # ------------------------------------------------------------------------------
 # Sources

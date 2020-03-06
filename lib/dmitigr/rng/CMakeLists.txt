@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(rng 0 1 "The random number generators library")
+dmitigr_set_library_info(rng 0 1 "Random number generators")
 
 # ------------------------------------------------------------------------------
 # Sources

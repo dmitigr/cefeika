@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(app 0 1 "The application support library")
+dmitigr_set_library_info(app 0 1 "Application support library")
 
 # ------------------------------------------------------------------------------
 # Sources

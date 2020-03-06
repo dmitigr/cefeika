@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(fs 0 1 "The filesystem extras library")
+dmitigr_set_library_info(fs 0 1 "Filesystem extras")
 
 # ------------------------------------------------------------------------------
 # Sources

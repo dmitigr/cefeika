@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(cfg 0 1 "The ... library")
+dmitigr_set_library_info(cfg 0 1 "Library to work with configuration files")
 
 # ------------------------------------------------------------------------------
 # Sources

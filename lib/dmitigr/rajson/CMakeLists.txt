@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(rajson 0 1 "The wrapper around RapidJSON library")
+dmitigr_set_library_info(rajson 0 1 "RapidJSON wrapper")
 
 # ------------------------------------------------------------------------------
 # Sources

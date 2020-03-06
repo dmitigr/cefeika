@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(fcgi 1 0 "The FastCGI implementation")
+dmitigr_set_library_info(fcgi 1 0 "FastCGI implementation")
 
 # ------------------------------------------------------------------------------
 # Sources

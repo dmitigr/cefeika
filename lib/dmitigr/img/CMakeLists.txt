@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(img 0 1 "The image processing library")
+dmitigr_set_library_info(img 0 1 "Image processing library")
 
 # ------------------------------------------------------------------------------
 # Sources

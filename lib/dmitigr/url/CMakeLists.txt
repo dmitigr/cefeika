@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(url 0 1 "The URL library")
+dmitigr_set_library_info(url 0 1 "URL processing")
 
 # ------------------------------------------------------------------------------
 # Sources

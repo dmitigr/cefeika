@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(uuid 0 1 "The library to work with UUID")
+dmitigr_set_library_info(uuid 0 1 "UUID processing")
 
 # ------------------------------------------------------------------------------
 # Sources

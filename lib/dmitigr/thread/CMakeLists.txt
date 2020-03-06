@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(thread 0 1 "The library to work with threads")
+dmitigr_set_library_info(thread 0 1 "Threading stuff")
 
 # ------------------------------------------------------------------------------
 # Sources

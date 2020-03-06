@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(http 0 1 "The HTTP library")
+dmitigr_set_library_info(http 0 1 "HTTP library")
 
 # ------------------------------------------------------------------------------
 # Sources

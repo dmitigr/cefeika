@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(net 0 1 "The networking library")
+dmitigr_set_library_info(net 0 1 "Networking library")
 
 # ------------------------------------------------------------------------------
 # Sources

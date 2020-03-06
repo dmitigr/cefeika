@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(math 0 1 "The math library")
+dmitigr_set_library_info(math 0 1 "Mathematical stuff")
 
 # ------------------------------------------------------------------------------
 # Sources

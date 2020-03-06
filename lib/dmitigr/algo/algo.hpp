@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or algo.hpp
 
-#ifndef DMITIGR_ALGO_HPP
-#define DMITIGR_ALGO_HPP
+#ifndef DMITIGR_ALGO_ALGO_HPP
+#define DMITIGR_ALGO_ALGO_HPP
 
 #include <algorithm>
 
@@ -31,4 +31,4 @@ bool is_begins_with(const Container& input, const Container& pattern)
 
 } // namespace dmitigr::algo
 
-#endif  // DMITIGR_ALGO_HPP
+#endif  // DMITIGR_ALGO_ALGO_HPP

@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(util 0 1 "The utility library")
+dmitigr_set_library_info(util 0 1 "Basic utilities")
 
 # ------------------------------------------------------------------------------
 # Sources

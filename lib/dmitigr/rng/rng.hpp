@@ -47,4 +47,4 @@ constexpr T cpp_pl_3rd(const T minimum, const T maximum)
 
 } // namespace dmitigr::rng
 
-#endif  // DMITIGR_RAND_RAND_HPP
+#endif  // DMITIGR_RNG_RNG_HPP

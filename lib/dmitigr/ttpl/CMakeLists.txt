@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(ttpl 0 1 "The text templates library")
+dmitigr_set_library_info(ttpl 0 1 "Text templates library")
 
 # ------------------------------------------------------------------------------
 # Sources

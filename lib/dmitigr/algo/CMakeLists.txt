@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(algo 0 1 "The algorithm library")
+dmitigr_set_library_info(algo 0 1 "Algorithms library")
 
 # ------------------------------------------------------------------------------
 # Sources

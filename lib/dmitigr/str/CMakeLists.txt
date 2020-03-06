@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(str 0 1 "The library to work with strings")
+dmitigr_set_library_info(str 0 1 "String extras")
 
 # ------------------------------------------------------------------------------
 # Sources

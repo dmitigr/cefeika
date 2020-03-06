@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(mem 0 1 "The memory management utilities")
+dmitigr_set_library_info(mem 0 1 "Memory management utilities")
 
 # ------------------------------------------------------------------------------
 # Sources
