@@ -66,11 +66,9 @@ set(dmitigr_cefeika_os_deps
 set(dmitigr_cefeika_ttpl_deps
   util)
 set(dmitigr_cefeika_url_deps
-  str
-  util)
+  str util)
 set(dmitigr_cefeika_uuid_deps
-  rng
-  util)
+  rng util)
 # Abstraction level 4
 set(dmitigr_cefeika_fcgi_deps
   net fs util)

@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(ws 0 1 "Websockets library")
+dmitigr_set_library_info(ws 0 1 "WebSocket library")
 
 # ------------------------------------------------------------------------------
 # Sources
