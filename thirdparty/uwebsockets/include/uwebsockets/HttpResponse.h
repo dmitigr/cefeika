@@ -2,10 +2,6 @@
  * Authored by Alex Hultman, 2018-2019.
  * Intellectual property of third-party.
 
- *
- * Modified by Dmitry Igrishin.
- *
-
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -81,7 +77,9 @@ private:
 
     /* Called only once per request */
     void writeMark() {
+#ifndef UWS_HTTPRESPONSE_NO_WRITEMARK
         writeHeader("uWebSockets", "v0.17");
+#endif
     }
 
     /* Returns true on success, indicating that it might be feasible to write more data.
@@ -122,7 +120,7 @@ private:
             /* Write content-length on first call */
             if (!(httpResponseData->state & HttpResponseData<SSL>::HTTP_END_CALLED)) {
                 /* Write mark, this propagates to WebSockets too */
-                //writeMark();
+                writeMark();
 
                 /* WebSocket upgrades does not allow content-length */
                 if (allowContentLength) {
@@ -239,7 +237,7 @@ public:
 
         if (!(httpResponseData->state & HttpResponseData<SSL>::HTTP_WRITE_CALLED)) {
             /* Write mark on first call to write */
-            //writeMark();
+            writeMark();
 
             writeHeader("Transfer-Encoding", "chunked");
             httpResponseData->state |= HttpResponseData<SSL>::HTTP_WRITE_CALLED;
