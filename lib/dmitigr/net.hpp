@@ -24,6 +24,7 @@
 #define DMITIGR_NET_HPP
 
 #include "dmitigr/net/descriptor.hpp"
+#include "dmitigr/net/exceptions.hpp"
 #include "dmitigr/net/net.hpp"
 #include "dmitigr/net/version.hpp"
 

@@ -52,7 +52,7 @@ inline std::unique_ptr<Connection> make_ssl_connection()
 
   namespace os = dmitigr::os;
 #ifdef _WIN32
-  auto appdata = os::environment_variable("APPDATA");
+  auto appdata = os::env::environment_variable("APPDATA");
   ASSERT(appdata);
   const auto certs_dir = std::filesystem::path{*appdata} / "postgresql";
 #else // Unix

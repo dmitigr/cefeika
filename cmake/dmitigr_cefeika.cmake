@@ -73,7 +73,7 @@ set(dmitigr_cefeika_uuid_deps
 set(dmitigr_cefeika_fcgi_deps
   net fs util)
 set(dmitigr_cefeika_http_deps
-  dt util)
+  dt str util)
 set(dmitigr_cefeika_pgfe_deps
   mem net str util)
 set(dmitigr_cefeika_ws_deps

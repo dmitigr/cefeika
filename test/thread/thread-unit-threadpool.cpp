@@ -21,7 +21,7 @@ int main(int, char* argv[])
     ASSERT(pool->is_queue_empty());
     ASSERT(!pool->is_working());
 
-    for (decltype(+size) i = 0; i < 16*size; ++i) {
+    for (std::size_t i = 0; i < 16*size; ++i) {
       pool->submit([]{
         std::this_thread::sleep_for(std::chrono::milliseconds{5});
         std::cout << "Hello from thread " << std::this_thread::get_id() << std::endl;
