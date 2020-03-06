@@ -15,15 +15,6 @@ class Sys_exception;
 class Wsa_exception;
 class Wsa_error_category;
 
-/**
- * @brief The API.
- */
-namespace io {
-
-class Descriptor;
-
-} // namespace io
-
 } // namespace dmitigr
 
 #endif  // DMITIGR_UTIL_TYPES_FWD_HPP

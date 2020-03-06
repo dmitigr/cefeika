@@ -8,7 +8,6 @@
 #include "dmitigr/fs.hpp"
 #include "dmitigr/net/dll.hpp"
 #include "dmitigr/net/types_fwd.hpp"
-#include "dmitigr/util/types_fwd.hpp"
 #include "dmitigr/util/basics.hpp"
 
 #include <chrono>
@@ -416,14 +415,14 @@ public:
   /**
    * @brief Accepts a new client connection.
    *
-   * @returns A new instance of type io::Descriptor.
+   * @returns A new instance of type Descriptor.
    *
    * @par Requires
    * `is_listening()`.
    *
    * @see wait().
    */
-  virtual std::unique_ptr<io::Descriptor> accept() = 0;
+  virtual std::unique_ptr<Descriptor> accept() = 0;
 
   /**
    * @brief Stops the listening.

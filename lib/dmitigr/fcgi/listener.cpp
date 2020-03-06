@@ -54,7 +54,7 @@ public:
   /**
    * @brief The constructor.
    */
-  explicit stack_buffers_Server_connection(std::unique_ptr<io::Descriptor> io, const Role role,
+  explicit stack_buffers_Server_connection(std::unique_ptr<net::Descriptor> io, const Role role,
     const int request_id, const bool is_keep_connection)
     : iServer_connection{std::move(io), role, request_id, is_keep_connection}
     , in_{this, in_buffer_.data(), static_cast<std::streamsize>(in_buffer_.size())}

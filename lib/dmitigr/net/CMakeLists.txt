@@ -17,6 +17,7 @@ set(dmitigr_net_root_headers
   )
 
 set(dmitigr_net_headers
+  descriptor.hpp
   net.hpp
   types_fwd.hpp
   )

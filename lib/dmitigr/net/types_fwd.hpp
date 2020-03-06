@@ -18,6 +18,7 @@ enum class Communication_mode;
 enum class Socket_readiness;
 enum class Ip_version;
 
+class Descriptor;
 class Ip_address;
 class Endpoint_id;
 class Listener_options;

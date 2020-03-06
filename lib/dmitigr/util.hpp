@@ -27,7 +27,6 @@
 #include "dmitigr/util/debug.hpp"
 #include "dmitigr/util/exceptions.hpp"
 #include "dmitigr/util/filesystem.hpp"
-#include "dmitigr/util/io.hpp"
 #include "dmitigr/util/macros.hpp"
 #include "dmitigr/util/test.hpp"
 #include "dmitigr/util/version.hpp"

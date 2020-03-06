@@ -21,7 +21,6 @@ set(dmitigr_util_headers
   debug.hpp
   exceptions.hpp
   filesystem.hpp
-  io.hpp
   macros.hpp
   test.hpp
   types_fwd.hpp

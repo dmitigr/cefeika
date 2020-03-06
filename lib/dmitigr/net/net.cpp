@@ -2,12 +2,12 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or net.hpp
 
+#include "dmitigr/net/descriptor.hpp"
 #include "dmitigr/net/net.hpp"
 #include "dmitigr/net/implementation_header.hpp"
 
 #include "dmitigr/util/debug.hpp"
 #include "dmitigr/util/exceptions.hpp"
-#include "dmitigr/util/io.hpp"
 #ifdef _WIN32
 #include "dmitigr/util/windows.hpp"
 #endif
@@ -565,15 +565,15 @@ Listener_options::make(std::string address, const int port, const int backlog)
 }
 
 // -----------------------------------------------------------------------------
-// io::Descriptor
+// Descriptor
 // -----------------------------------------------------------------------------
 
 namespace detail {
 
 /**
- * @brief The base implementation of io::Descriptor.
+ * @brief The base implementation of Descriptor.
  */
-class iDescriptor : public io::Descriptor {
+class iDescriptor : public Descriptor {
 public:
   std::streamsize max_read_size() const override
   {
@@ -587,7 +587,7 @@ public:
 };
 
 /**
- * @brief The implementation of io::Descriptor based on sockets.
+ * @brief The implementation of Descriptor based on sockets.
  */
 class socket_Descriptor final : public iDescriptor {
 public:
@@ -687,7 +687,7 @@ private:
 #ifdef _WIN32
 
 /**
- * @brief The implementation of io::Descriptor based on Windows Named Pipes.
+ * @brief The implementation of Descriptor based on Windows Named Pipes.
  */
 class pipe_Descriptor final : public iDescriptor {
 public:
@@ -903,7 +903,7 @@ public:
     return bool(mask & Sr::read_ready);
   }
 
-  std::unique_ptr<io::Descriptor> accept() override
+  std::unique_ptr<Descriptor> accept() override
   {
     DMITIGR_REQUIRE(is_listening(), std::logic_error);
 
@@ -1055,7 +1055,7 @@ public:
     return true;
   }
 
-  std::unique_ptr<io::Descriptor> accept() override
+  std::unique_ptr<Descriptor> accept() override
   {
     wait();
     DMITIGR_ASSERT(pipe_ != INVALID_HANDLE_VALUE);
