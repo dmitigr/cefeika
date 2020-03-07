@@ -6,35 +6,35 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(thread 0 1 "Threading stuff")
+dmitigr_set_library_info(mp 0 1 "Multiprocessing stuff")
 
 # ------------------------------------------------------------------------------
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_thread_root_headers
-  ../thread.hpp
+set(dmitigr_mp_root_headers
+  ../mp.hpp
   )
 
-set(dmitigr_thread_headers
-  thread.hpp
+set(dmitigr_mp_headers
+  simple_thread_pool.hpp
   types_fwd.hpp
   )
 
-set(dmitigr_thread_implementations
-  thread.cpp
+set(dmitigr_mp_implementations
+  simple_thread_pool.cpp
   )
 
-set(dmitigr_thread_transunits
-  ../thread.cpp
+set(dmitigr_mp_transunits
+  ../mp.cpp
   )
 
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_thread_target_link_libraries_public dmitigr::util)
-set(dmitigr_thread_target_link_libraries_interface dmitigr::util)
+set(dmitigr_mp_target_link_libraries_public dmitigr::util)
+set(dmitigr_mp_target_link_libraries_interface dmitigr::util)
 
 #
 # System
@@ -42,11 +42,11 @@ set(dmitigr_thread_target_link_libraries_interface dmitigr::util)
 
 if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   if (UNIX)
-    list(APPEND dmitigr_thread_target_link_libraries_public pthread)
+    list(APPEND dmitigr_mp_target_link_libraries_public pthread)
   endif()
 else()
   if (UNIX)
-    list(APPEND dmitigr_thread_target_link_libraries_interface pthread)
+    list(APPEND dmitigr_mp_target_link_libraries_interface pthread)
   endif()
 endif()
 
@@ -54,4 +54,4 @@ endif()
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(thread)
+dmitigr_propagate_library_settings(mp)

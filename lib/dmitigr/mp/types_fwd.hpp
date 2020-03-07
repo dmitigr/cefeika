@@ -1,16 +1,16 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or thread.hpp
+// For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
-#ifndef DMITIGR_THREAD_TYPES_FWD_HPP
-#define DMITIGR_THREAD_TYPES_FWD_HPP
+#ifndef DMITIGR_MP_TYPES_FWD_HPP
+#define DMITIGR_MP_TYPES_FWD_HPP
 
 namespace dmitigr {
 
 /**
  * @brief The API.
  */
-namespace thread {
+namespace mp {
 
 class Simple_threadpool;
 
@@ -20,7 +20,7 @@ class Simple_threadpool;
 namespace detail {
 class iSimple_threadpool;
 } // namespace detail
-} // namespace thread
+} // namespace mp
 } // namespace dmitigr
 
-#endif  // DMITIGR_THREAD_TYPES_FWD_HPP
+#endif  // DMITIGR_MP_TYPES_FWD_HPP

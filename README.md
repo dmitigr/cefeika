@@ -20,7 +20,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [rajson] - [RapidJSON] wrapper
   - [rng] - random number generators
   - [str] - string extras
-  - [thread] - threading stuff
+  - [mp] - multiprocessing stuff
   - [ttpl] - text templates library
   - [url] - URL processing
   - [util] - basic utilities
@@ -279,6 +279,7 @@ For conditions of distribution and use, please see the corresponding license.
 [jrpc]: https://github.com/dmitigr/cefeika/tree/master/doc/jrpc
 [math]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/math
 [mem]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/mem
+[mp]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/mp
 [mulf]: https://github.com/dmitigr/cefeika/tree/master/doc/mulf
 [net]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/net
 [os]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/os
@@ -286,7 +287,6 @@ For conditions of distribution and use, please see the corresponding license.
 [rajson]: https://github.com/dmitigr/cefeika/tree/master/doc/rajson
 [rng]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/rng
 [str]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/str
-[thread]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/thread
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
 [util]: https://github.com/dmitigr/cefeika/tree/master/doc/util

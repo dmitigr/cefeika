@@ -10,10 +10,10 @@ set(dmitigr_cefeika_libraries
   fs
   math
   mem
+  mp
   rajson
   rng
   str
-  thread
   # Abstraction level 3
   app
   cfg
@@ -42,10 +42,10 @@ set(dmitigr_cefeika_algo_deps util)
 set(dmitigr_cefeika_fs_deps util)
 set(dmitigr_cefeika_math_deps util)
 set(dmitigr_cefeika_mem_deps util)
+set(dmitigr_cefeika_mp_deps util)
 set(dmitigr_cefeika_rajson_deps util)
 set(dmitigr_cefeika_rng_deps util)
 set(dmitigr_cefeika_str_deps util)
-set(dmitigr_cefeika_thread_deps util)
 # Abstraction level 3
 set(dmitigr_cefeika_app_deps
   fs util)

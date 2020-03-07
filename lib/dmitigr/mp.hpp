@@ -20,10 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_THREAD_HPP
-#define DMITIGR_THREAD_HPP
+#ifndef DMITIGR_MP_HPP
+#define DMITIGR_MP_HPP
 
-#include "dmitigr/thread/thread.hpp"
-#include "dmitigr/thread/version.hpp"
+#include "dmitigr/mp/simple_thread_pool.hpp"
+#include "dmitigr/mp/version.hpp"
 
-#endif  // DMITIGR_THREAD_HPP
+#endif  // DMITIGR_MP_HPP

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or thread.hpp
+// For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
-#include "dmitigr/thread/thread.hpp"
-#include "dmitigr/thread/implementation_header.hpp"
+#include "dmitigr/mp/simple_thread_pool.hpp"
+#include "dmitigr/mp/implementation_header.hpp"
 
 #include "dmitigr/util/debug.hpp"
 
@@ -13,7 +13,7 @@
 #include <thread>
 #include <utility>
 
-namespace dmitigr::thread::detail {
+namespace dmitigr::mp::detail {
 
 /**
  * @brief The implementation of simple threadpool.
@@ -169,15 +169,15 @@ private:
   bool is_working_{};
 };
 
-} // namespace dmitigr::thread::detail
+} // namespace dmitigr::mp::detail
 
-namespace dmitigr::thread {
+namespace dmitigr::mp {
 
-DMITIGR_THREAD_INLINE std::unique_ptr<Simple_threadpool> Simple_threadpool::make(const std::size_t size)
+DMITIGR_MP_INLINE std::unique_ptr<Simple_threadpool> Simple_threadpool::make(const std::size_t size)
 {
   return std::make_unique<detail::iSimple_threadpool>(size);
 }
 
-} // namespace dmitigr::thread
+} // namespace dmitigr::mp
 
-#include "dmitigr/thread/implementation_footer.hpp"
+#include "dmitigr/mp/implementation_footer.hpp"

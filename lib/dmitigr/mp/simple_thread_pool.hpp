@@ -1,18 +1,18 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or thread.hpp
+// For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
-#ifndef DMITIGR_THREAD_THREAD_HPP
-#define DMITIGR_THREAD_THREAD_HPP
+#ifndef DMITIGR_MP_MP_HPP
+#define DMITIGR_MP_MP_HPP
 
-#include "dmitigr/thread/types_fwd.hpp"
-#include "dmitigr/thread/dll.hpp"
+#include "dmitigr/mp/types_fwd.hpp"
+#include "dmitigr/mp/dll.hpp"
 
 #include <cstddef>
 #include <functional>
 #include <memory>
 
-namespace dmitigr::thread {
+namespace dmitigr::mp {
 
 /**
  * @brief Simple threadpool.
@@ -33,7 +33,7 @@ public:
    * @par Requires
    * `(size > 0 && queue_max_size > 0)`.
    */
-  static DMITIGR_THREAD_API std::unique_ptr<Simple_threadpool> make(std::size_t size);
+  static DMITIGR_MP_API std::unique_ptr<Simple_threadpool> make(std::size_t size);
 
   /// @}
 
@@ -88,10 +88,10 @@ private:
   Simple_threadpool() = default;
 };
 
-} // namespace dmitigr::thread
+} // namespace dmitigr::mp
 
-#ifdef DMITIGR_THREAD_HEADER_ONLY
-#include "dmitigr/thread/thread.cpp"
+#ifdef DMITIGR_MP_HEADER_ONLY
+#include "dmitigr/mp/simple_thread_pool.cpp"
 #endif
 
-#endif  // DMITIGR_THREAD_THREAD_HPP
+#endif  // DMITIGR_MP_MP_HPP

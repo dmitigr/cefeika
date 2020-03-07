@@ -1,8 +1,8 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or thread.hpp
+// For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
-#include <dmitigr/thread.hpp>
+#include <dmitigr/mp.hpp>
 #include <dmitigr/util/test.hpp>
 
 #include <chrono>
@@ -10,12 +10,12 @@
 
 int main(int, char* argv[])
 {
-  namespace thread = dmitigr::thread;
+  namespace mp = dmitigr::mp;
   using namespace dmitigr::test;
 
   try {
     const auto size = std::thread::hardware_concurrency() * 2;
-    const auto pool = thread::Simple_threadpool::make(size);
+    const auto pool = mp::Simple_threadpool::make(size);
     ASSERT(pool->size() == size);
     ASSERT(pool->queue_size() == 0);
     ASSERT(pool->is_queue_empty());
