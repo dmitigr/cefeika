@@ -26,7 +26,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [util] - basic utilities
   - [uuid] - UUID processing
   - [web] - Web utilities
-  - [ws] - Websockets library
+  - [ws] - WebSocket library
 
 All of these libraries can be used as shared libraries, static libraries or
 header-only libraries. ([ws] requires to build some third-party libraries
