@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-/*
- * Modified by Dmitry Igrishin
- */
-
 #ifndef LIBUSOCKETS_H
 #define LIBUSOCKETS_H
 
@@ -38,9 +34,6 @@
 #define LIBUS_SOCKET_DESCRIPTOR SOCKET
 #define WIN32_EXPORT __declspec(dllexport)
 #define alignas(x) __declspec(align(x))
-#ifdef interface
-#undef interface
-#endif
 #else
 #include <stdalign.h>
 #define LIBUS_SOCKET_DESCRIPTOR int
