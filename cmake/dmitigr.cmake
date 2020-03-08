@@ -119,6 +119,7 @@ endmacro()
 macro(dmitigr_propagate_tests_settings lib)
   set(dmitigr_${lib}_tests ${dmitigr_${lib}_tests} PARENT_SCOPE)
   set(dmitigr_${lib}_tests_target_link_libraries ${dmitigr_${lib}_tests_target_link_libraries} PARENT_SCOPE)
+  set(dmitigr_${lib}_tests_target_compile_definitions ${dmitigr_${lib}_tests_target_compile_definitions} PARENT_SCOPE)
 endmacro()
 
 # ------------------------------------------------------------------------------
