@@ -38,7 +38,7 @@ public:
   virtual const rapidjson::Value& data() const = 0;
 
   /**
-   * @brief Sets the additional information about the error.
+   * @brief Sets the mandatory information about the success.
    */
   virtual void set_data(rapidjson::Value value) = 0;
 
