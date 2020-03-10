@@ -39,7 +39,8 @@ int main(int, char* argv[])
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
     const auto input = str::file_data_to_string(this_exe_dir_name / "rajson-unit-flat.json");
-    rajson::Flat json{input};
+    const auto document = rajson::to_parsed_json(input);
+    rajson::Value_view json{document};
     const auto host = json.mandatory<std::string>("host");
     ASSERT(host == "localhost");
     const auto port = json.mandatory<int>("port");
@@ -48,6 +49,16 @@ int main(int, char* argv[])
     ASSERT(db.hostname == "localhost");
     ASSERT(db.port == 5432);
     ASSERT(db.database == "postgres");
+    //
+    {
+      const auto dbv = json.mandatory("db");
+      const auto hostname = dbv.mandatory<std::string>("hostname");
+      const auto port = dbv.mandatory<int>("port");
+      const auto database = dbv.mandatory<std::string>("database");
+      ASSERT(hostname == "localhost");
+      ASSERT(port == 5432);
+      ASSERT(database == "postgres");
+    }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

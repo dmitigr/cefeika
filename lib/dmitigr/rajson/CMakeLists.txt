@@ -18,7 +18,7 @@ set(dmitigr_rajson_root_headers
 
 set(dmitigr_rajson_headers
   conversions.hpp
-  flat.hpp
+  value_view.hpp
   fwd.hpp
   )
 
