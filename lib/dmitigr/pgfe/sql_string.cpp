@@ -224,7 +224,7 @@ public:
   void replace_parameter(const std::string& name, const Sql_string* const replacement) override
   {
     DMITIGR_REQUIRE(has_parameter(name), std::out_of_range);
-    DMITIGR_REQUIRE(replacement, std::invalid_argument);
+    DMITIGR_REQUIRE(replacement && replacement != this, std::invalid_argument);
     const auto* const ireplacement = dynamic_cast<const iSql_string*>(replacement);
     DMITIGR_ASSERT_ALWAYS(ireplacement);
 

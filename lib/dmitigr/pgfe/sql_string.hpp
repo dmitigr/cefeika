@@ -123,7 +123,7 @@ public:
    * `replacement`.
    *
    * @par Requires
-   * `(has_parameter(name) && replacement)`.
+   * `(has_parameter(name) && replacement && replacement != this)`.
    *
    * @par Effects
    * This instance contains the given `replacement` instead of the parameter
