@@ -189,9 +189,9 @@ line_column_numbers_by_position(const std::string& str, const std::string::size_
 
 // =============================================================================
 
-DMITIGR_STR_INLINE bool is_begins_with(std::string_view input, std::string_view pattern)
+DMITIGR_STR_INLINE bool is_begins_with(const std::string_view input, const std::string_view pattern)
 {
-  return (pattern.size() <= input.size()) && std::equal(cbegin(input), cend(input), cbegin(pattern));
+  return (pattern.size() <= input.size()) && std::equal(cbegin(pattern), cend(pattern), cbegin(input));
 }
 
 // =============================================================================
