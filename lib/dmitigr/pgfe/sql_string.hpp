@@ -120,7 +120,7 @@ public:
 
   /**
    * @brief Replaces the parameter named by the `name` with the specified
-   * `sql_string`.
+   * `replacement`.
    *
    * @par Requires
    * `(has_parameter(name) && replacement)`.
