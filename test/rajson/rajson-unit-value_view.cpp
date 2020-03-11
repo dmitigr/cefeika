@@ -38,7 +38,7 @@ int main(int, char* argv[])
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
-    const auto input = str::file_data_to_string(this_exe_dir_name / "rajson-unit-flat.json");
+    const auto input = str::file_data_to_string(this_exe_dir_name / "rajson-unit-value_view.json");
     const auto document = rajson::to_parsed_json(input);
     rajson::Value_view json{document};
     const auto host = json.mandatory<std::string>("host");
