@@ -17,6 +17,7 @@ set(dmitigr_web_root_headers
   )
 
 set(dmitigr_web_headers
+  web.hpp
   types_fwd.hpp
   )
 

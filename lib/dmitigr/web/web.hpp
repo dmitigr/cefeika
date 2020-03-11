@@ -1,0 +1,43 @@
+// -*- C++ -*-
+// Copyright (C) Dmitry Igrishin
+// For conditions of distribution and use, see files LICENSE.txt or web.hpp
+
+#ifndef DMITIGR_WEB_WEB_HPP
+#define DMITIGR_WEB_WEB_HPP
+
+#include "dmitigr/web/dll.hpp"
+#include "dmitigr/fs.hpp"
+#include "dmitigr/fcgi.hpp"
+#include "dmitigr/jrpc.hpp"
+#include "dmitigr/mulf.hpp"
+#include "dmitigr/ttpl.hpp"
+
+#include <functional>
+#include <map>
+#include <string_view>
+
+namespace dmitigr::web {
+
+struct Handle_options final {
+  using Htmler = std::function<void(fcgi::Server_connection*, ttpl::Logic_less_template*)>;
+  using Caller = std::function<void(fcgi::Server_connection*, const jrpc::Request*)>;
+  using Former = std::function<void(fcgi::Server_connection*, const mulf::Form_data*)>;
+  using Custom = std::function<void(fcgi::Server_connection*)>;
+
+  std::filesystem::path docroot;
+  std::map<std::string_view, Htmler> loaders;
+  std::map<std::string_view, Caller> callers;
+  std::map<std::string_view, Former> formers;
+  std::map<std::string_view, Custom> customs;
+  Custom fallback;
+};
+
+DMITIGR_WEB_API void handle(fcgi::Server_connection* fcgi, const Handle_options& opts);
+
+} // namespace dmitigr::web
+
+#ifdef DMITIGR_WEB_HEADER_ONLY
+#include "dmitigr/web/web.cpp"
+#endif
+
+#endif // DMITIGR_WEB_WEB_HPP

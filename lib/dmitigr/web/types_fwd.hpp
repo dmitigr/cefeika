@@ -12,6 +12,8 @@ namespace dmitigr {
  */
 namespace web {
 
+struct Handle_options;
+
 /**
  * @brief The implementation details.
  */
