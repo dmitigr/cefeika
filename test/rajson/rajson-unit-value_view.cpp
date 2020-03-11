@@ -53,10 +53,10 @@ int main(int, char* argv[])
     {
       const auto dbv = json.mandatory("db");
       const auto hostname = dbv.mandatory<std::string>("hostname");
-      const auto port = dbv.mandatory<int>("port");
+      const auto portnum = dbv.mandatory<int>("port");
       const auto database = dbv.mandatory<std::string>("database");
       ASSERT(hostname == "localhost");
-      ASSERT(port == 5432);
+      ASSERT(portnum == 5432);
       ASSERT(database == "postgres");
     }
   } catch (const std::exception& e) {
