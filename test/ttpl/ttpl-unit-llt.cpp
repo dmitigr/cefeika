@@ -91,6 +91,29 @@ int main(int, char* argv[])
       t->parameter("name")->set_value("name");
       ASSERT(t->to_output() == "Parameter {{name}}!");
     }
+
+    {
+      const std::string input1{"Text1 {{ p1 }}, text3 {{ p3 }}, text2 {{ p2 }}."};
+      const auto t1 = Logic_less_template::make(input1);
+      ASSERT(t1->parameter_count() == 3);
+      ASSERT(t1->has_parameter("p1"));
+      ASSERT(t1->has_parameter("p2"));
+      ASSERT(t1->has_parameter("p3"));
+
+      const std::string input2{"text2 {{ p2 }}, text4 {{ p4 }}"};
+      const auto t2 = Logic_less_template::make(input2);
+      std::cout << t2->parameter_count() << std::endl;
+      ASSERT(t2->parameter_count() == 2);
+      ASSERT(t2->has_parameter("p2"));
+      ASSERT(t2->has_parameter("p4"));
+
+      t1->replace_parameter("p3", t2.get());
+      ASSERT(t1->parameter_count() == 3);
+      ASSERT(t1->has_parameter("p1"));
+      ASSERT(t1->has_parameter("p2"));
+      ASSERT(t1->has_parameter("p4"));
+      ASSERT(t1->to_string() == "Text1 {{ p1 }}, text3 text2 {{ p2 }}, text4 {{ p4 }}, text2 {{ p2 }}.");
+    }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

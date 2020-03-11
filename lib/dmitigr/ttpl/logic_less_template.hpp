@@ -70,8 +70,8 @@ public:
    * by using Parameter::set_value() method. The parameter name *must* be
    * surrounded with doubled opening and closing curly brackets and *exactly one*
    * space on both sides, or otherwise, it will be treated as the regular text
-   * and will be outputted as is. The name of parameter can only consist of alpha
-   * characters, the underscore character ("_") and the hyphen character ("-").
+   * and will be outputted as is. The name of parameter can only consist of
+   * alphanumerics, the underscore character ("_") and the hyphen character ("-").
    *
    * Examples of valid input:
    *
@@ -157,6 +157,29 @@ public:
    * @see parameter().
    */
   virtual bool has_unset_parameters() const = 0;
+
+  /**
+   * @brief Replaces the parameter named by the `name` with the specified
+   * `replacement`.
+   *
+   * @par Requires
+   * `(has_parameter(name) && replacement && replacement != this)`.
+   *
+   * @par Effects
+   * This instance contains the given `replacement` instead of the parameter
+   * named by the `name`. Parameter indexes likely changed.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   *
+   * @see has_parameter().
+   */
+  virtual void replace_parameter(std::string_view name, const Logic_less_template* replacement) = 0;
+
+  /**
+   * @overload
+   */
+  virtual void replace_parameter(std::string_view name, std::string_view replacement) = 0;
 
   /// @name Conversions
   /// @{

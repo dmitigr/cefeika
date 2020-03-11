@@ -72,7 +72,7 @@ public:
     static const auto is_valid_parameter_name_character = [](const char c)
     {
       static const std::locale l{"C"};
-      return std::isalpha(c, l) || (c == '_') || (c == '-');
+      return std::isalnum(c, l) || (c == '_') || (c == '-');
     };
 
     std::string extracted_text;
@@ -176,7 +176,10 @@ public:
       extracted_text += c;
     }
 
-    if (!extracted_parameter.empty())
+    if (state == rbrace2) {
+      store_extracted_text();
+      store_extracted_parameter();
+    } else if (!extracted_parameter.empty())
       extracted_text.append(extracted_parameter);
 
     if (!extracted_text.empty())
@@ -250,6 +253,53 @@ public:
     return std::any_of(cbegin(parameters_), cend(parameters_), [](const auto& p) {
       return !p.value();
     });
+  }
+
+  void replace_parameter(const std::string_view name, const Logic_less_template* const replacement) override
+  {
+    DMITIGR_REQUIRE(has_parameter(name), std::out_of_range);
+    DMITIGR_REQUIRE(replacement && replacement != this, std::invalid_argument);
+    const auto* const ireplacement = dynamic_cast<const iLogic_less_template*>(replacement);
+    DMITIGR_ASSERT_ALWAYS(ireplacement);
+
+    auto old_fragments = fragments_;
+    auto old_parameters = parameters_;
+    try {
+      // Borrowing fragments.
+      for (auto fi = begin(fragments_); fi != end(fragments_);) {
+        if (fi->first == Fragment::parameter && fi->second == name) {
+          // Firstly, we'll insert the `replacement` just before `fi`.
+          fragments_.insert(fi, cbegin(ireplacement->fragments_), cend(ireplacement->fragments_));
+          // Secondly, we'll erase the parameter pointed by `fi` and got the next iterator.
+          fi = fragments_.erase(fi);
+        } else
+          ++fi;
+      }
+
+      // Removing parameters from the original which are in replacement.
+      for (const auto& p : ireplacement->parameters_) {
+        if (const auto i = parameter_index(p.name()))
+          parameters_.erase(begin(parameters_) + *i);
+      }
+
+      // Borrowing parameters from the replacement.
+      const auto idx = parameter_index(name);
+      DMITIGR_ASSERT(idx);
+      const auto itr = parameters_.erase(begin(parameters_) + *idx);
+      parameters_.insert(itr, begin(ireplacement->parameters_), end(ireplacement->parameters_));
+    } catch (...) {
+      parameters_.swap(old_parameters);
+      fragments_.swap(old_fragments);
+      throw;
+    }
+
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  void replace_parameter(const std::string_view name, const std::string_view replacement) override
+  {
+    iLogic_less_template r(replacement);
+    replace_parameter(name, &r); // includes invariant check
   }
 
   std::string to_string() const override
