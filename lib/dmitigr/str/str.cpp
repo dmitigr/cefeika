@@ -196,7 +196,7 @@ DMITIGR_STR_INLINE bool is_begins_with(const std::string_view input, const std::
 
 // =============================================================================
 
-DMITIGR_STR_INLINE std::string sparsed_string(std::string_view input, const std::string& delimiter)
+DMITIGR_STR_INLINE std::string sparsed_string(const std::string_view input, const std::string& delimiter)
 {
   std::string result;
   if (!input.empty()) {
@@ -225,7 +225,7 @@ DMITIGR_STR_INLINE void lowercase(std::string& str, const std::locale& loc)
   std::transform(b, e, b, [&loc](const char c) { return std::tolower(c, loc); });
 }
 
-DMITIGR_STR_INLINE std::string to_lowercase(std::string_view str, const std::locale& loc)
+DMITIGR_STR_INLINE std::string to_lowercase(const std::string_view str, const std::locale& loc)
 {
   std::string result{str};
   lowercase(result, loc);
@@ -239,19 +239,19 @@ DMITIGR_STR_INLINE void uppercase(std::string& str, const std::locale& loc)
   std::transform(b, e, b, [&loc](const char c) { return std::toupper(c, loc); });
 }
 
-DMITIGR_STR_INLINE std::string to_uppercase(std::string_view str, const std::locale& loc)
+DMITIGR_STR_INLINE std::string to_uppercase(const std::string_view str, const std::locale& loc)
 {
   std::string result{str};
   uppercase(result, loc);
   return result;
 }
 
-DMITIGR_STR_INLINE bool is_lowercased(std::string_view str, const std::locale& loc)
+DMITIGR_STR_INLINE bool is_lowercased(const std::string_view str, const std::locale& loc)
 {
   return std::all_of(cbegin(str), cend(str), [&loc](const char c) { return std::islower(c, loc); });
 }
 
-DMITIGR_STR_INLINE bool is_uppercased(std::string_view str, const std::locale& loc)
+DMITIGR_STR_INLINE bool is_uppercased(const std::string_view str, const std::locale& loc)
 {
   return std::all_of(cbegin(str), cend(str), [&loc](const char c) { return std::isupper(c, loc); });
 }
