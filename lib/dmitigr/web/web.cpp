@@ -30,7 +30,7 @@ make_ttpl_deep(const std::filesystem::path& path, const std::filesystem::path& t
     return result;
   } else
     return nullptr;
-};
+}
 
 } // namespace
 
