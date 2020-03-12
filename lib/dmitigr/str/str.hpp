@@ -172,7 +172,7 @@ DMITIGR_STR_API std::string read_simple_phrase_to_string(std::istream& input);
  * This function calls the the callback `pred(line)`, where
  */
 template<typename Pred>
-std::vector<std::string> file_data_to_strings_if(const std::filesystem::path& path,
+std::vector<std::string> file_to_strings_if(const std::filesystem::path& path,
   Pred pred, const char delimiter = '\n', const bool is_binary = false)
 {
   std::vector<std::string> result;
@@ -192,10 +192,10 @@ std::vector<std::string> file_data_to_strings_if(const std::filesystem::path& pa
  *
  * @see file_data_to_strings().
  */
-inline std::vector<std::string> file_data_to_strings(const std::filesystem::path& path,
+inline std::vector<std::string> file_to_strings(const std::filesystem::path& path,
   const char delimiter = '\n', const bool is_binary = false)
 {
-  return file_data_to_strings_if(path, [](const auto&) { return true; },
+  return file_to_strings_if(path, [](const auto&) { return true; },
     delimiter, is_binary);
 }
 
@@ -207,7 +207,7 @@ inline std::vector<std::string> file_data_to_strings(const std::filesystem::path
  *
  * @returns The string with the file data.
  */
-DMITIGR_STR_API std::string file_data_to_string(const std::filesystem::path& path,
+DMITIGR_STR_API std::string file_to_string(const std::filesystem::path& path,
   const bool is_binary = true);
 
 // -----------------------------------------------------------------------------

@@ -149,7 +149,7 @@ DMITIGR_STR_INLINE std::string read_simple_phrase_to_string(std::istream& input)
   return result;
 }
 
-DMITIGR_STR_INLINE std::string file_data_to_string(const std::filesystem::path& path,
+DMITIGR_STR_INLINE std::string file_to_string(const std::filesystem::path& path,
   const bool is_binary)
 {
   const std::ios_base::openmode om =
