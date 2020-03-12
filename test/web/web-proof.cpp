@@ -13,11 +13,16 @@ int main()
   namespace mulf = dmitigr::mulf;
 
   web::Handle_options ho = {
+    // docroot
     "/",
+    // tplroot
+    "/",
+    // index
+    "index.html",
     // htmlers
-    {{"/", [](fcgi::Server_connection*, ttpl::Logic_less_template*){}}},
+    {{"/", [](fcgi::Server_connection*, ttpl::Logic_less_template*) {}}},
     // callers
-    {{"/api", [](fcgi::Server_connection*, const jrpc::Request*){}}},
+    {{"/api", [](fcgi::Server_connection*, const jrpc::Request*) { return nullptr;  }}},
     // formers
     {{"/", [](fcgi::Server_connection*, const mulf::Form_data*){}}},
     // customs

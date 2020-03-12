@@ -20,12 +20,14 @@ namespace dmitigr::web {
 
 struct Handle_options final {
   using Htmler = std::function<void(fcgi::Server_connection*, ttpl::Logic_less_template*)>;
-  using Caller = std::function<void(fcgi::Server_connection*, const jrpc::Request*)>;
+  using Caller = std::function<std::unique_ptr<jrpc::Response>(fcgi::Server_connection*, const jrpc::Request*)>;
   using Former = std::function<void(fcgi::Server_connection*, const mulf::Form_data*)>;
   using Custom = std::function<void(fcgi::Server_connection*)>;
 
   std::filesystem::path docroot;
-  std::map<std::string_view, Htmler> loaders;
+  std::filesystem::path tplroot;
+  std::string index;
+  std::map<std::string_view, Htmler> htmlers;
   std::map<std::string_view, Caller> callers;
   std::map<std::string_view, Former> formers;
   std::map<std::string_view, Custom> customs;
