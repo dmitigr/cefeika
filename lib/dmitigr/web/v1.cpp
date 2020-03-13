@@ -109,6 +109,8 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
       }
     }
   } catch (const http::Server_exception& e) {
+    DMITIGR_REQUIRE(!fcgi->out().tellp(), std::logic_error,
+      "http::Server_exception thrown but some data is already sent");
     fcgi->out() << "Status: " << e.code().value() << fcgi::crlfcrlf;
     return;
   }
