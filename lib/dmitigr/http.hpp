@@ -27,7 +27,9 @@
 #include "dmitigr/http/cookie.hpp"
 #include "dmitigr/http/date.hpp"
 #include "dmitigr/http/errc.hpp"
+#include "dmitigr/http/exceptions.hpp"
 #include "dmitigr/http/set_cookie.hpp"
+#include "dmitigr/http/std_system_error.hpp"
 #include "dmitigr/http/syntax.hpp"
 #include "dmitigr/http/version.hpp"
 
