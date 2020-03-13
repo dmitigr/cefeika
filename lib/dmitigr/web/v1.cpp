@@ -44,28 +44,30 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
   const auto call_custom_or_fallback = [fcgi, location, &opts]
   {
     if (const auto i = opts.customs.find(location); i != opts.customs.cend()) {
-      DMITIGR_ASSERT_ALWAYS(i->second);
-      return i->second(fcgi);
+      DMITIGR_REQUIRE(i->second, std::logic_error,
+        "custom handler for \"" + std::string{location} +"\" is unset");
+      i->second(fcgi);
     } else if (opts.fallback)
-      return opts.fallback(fcgi);
-
-    fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
+      opts.fallback(fcgi);
+    else
+      fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
   };
 
+  // TODO: catch HTTP error code and set the Status header.
+
   if (method == "GET") {
-    const std::filesystem::path locpath{location};
-    const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
-    if (const auto tpl = make_ttpl_deep(tplfile, opts.tplroot)) {
-      if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
+    if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
+      const std::filesystem::path locpath{location};
+      const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
+      if (const auto tpl = make_ttpl_deep(tplfile, opts.tplroot)) {
         DMITIGR_REQUIRE(i->second, std::logic_error,
-          "htmler for \"" + std::string{location} + "\" is unset");
-        // TODO: catch HTTP error code and set the Status header.
+          "htmler handler for \"" + std::string{location} +"\" is unset");
         i->second(fcgi, tpl.get());
         const auto o = tpl->to_output();
         fcgi->out() << "Content-Type: text/html" << fcgi::crlfcrlf;
         fcgi->out().write(o.data(), o.size());
       } else {
-        fcgi->out() << "Status: 500" << fcgi::crlfcrlf;
+        fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
       }
       return;
     }
@@ -74,18 +76,17 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
     if (content_type == "application/json") {
       if (const auto i = opts.callers.find(location); i != opts.callers.cend()) {
         DMITIGR_REQUIRE(i->second, std::logic_error,
-          "caller for \"" + std::string{location} + "\" is unset");
+          "caller handler for \"" + std::string{location} +"\" is unset");
+        std::string o;
         try {
           const auto request = jrpc::Request::make(str::read_to_string(fcgi->in()));
           const auto response = i->second(fcgi, request.get());
-          const auto o = response->to_string();
-          fcgi->out() << "Content-Type: application/json" << fcgi::crlfcrlf;
-          fcgi->out().write(o.data(), o.size());
+          o = response->to_string();
         } catch (const jrpc::Error& e) {
-          const auto o = e.to_string();
-          fcgi->out() << "Content-Type: application/json" << fcgi::crlfcrlf;
-          fcgi->out().write(o.data(), o.size());
+          o = e.to_string();
         }
+        fcgi->out() << "Content-Type: application/json" << fcgi::crlfcrlf;
+        fcgi->out().write(o.data(), o.size());
         return;
       }
     } else {
@@ -96,9 +97,10 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
         std::regex::icase | std::regex::optimize};
       std::smatch sm;
       if (std::regex_search(content_type, sm, mpfdre)) {
+        DMITIGR_ASSERT(sm.size() >= 2);
         if (const auto i = opts.formers.find(location); i != opts.formers.cend()) {
           DMITIGR_REQUIRE(i->second, std::logic_error,
-            "former for \"" + std::string{location} +"\" is unset");
+            "former handler for \"" + std::string{location} +"\" is unset");
           const auto boundary = sm.str(1);
           const auto form = mulf::Form_data::make(str::read_to_string(fcgi->in()), boundary);
           return i->second(fcgi, form.get());
