@@ -6,7 +6,7 @@
 
 int main()
 {
-  namespace web = dmitigr::web;
+  namespace web = dmitigr::web::v1;
   namespace fcgi = dmitigr::fcgi;
   namespace ttpl = dmitigr::ttpl;
   namespace jrpc = dmitigr::jrpc;

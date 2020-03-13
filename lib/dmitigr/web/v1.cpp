@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or web.hpp
 
-#include "dmitigr/web/web.hpp"
+#include "dmitigr/web/v1.hpp"
 #include "dmitigr/web/implementation_header.hpp"
 
 #include "dmitigr/str.hpp"
@@ -10,7 +10,7 @@
 
 #include <regex>
 
-namespace dmitigr::web {
+namespace dmitigr::web::v1 {
 
 namespace {
 
@@ -110,6 +110,6 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
   call_custom_or_fallback();
 }
 
-} // namespace dmitigr::web
+} // namespace dmitigr::web::v1
 
 #include "dmitigr/web/implementation_footer.hpp"

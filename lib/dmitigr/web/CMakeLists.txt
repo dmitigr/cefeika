@@ -17,11 +17,12 @@ set(dmitigr_web_root_headers
   )
 
 set(dmitigr_web_headers
-  web.hpp
+  v1.hpp
   types_fwd.hpp
   )
 
 set(dmitigr_web_implementations
+  v1.cpp
   )
 
 set(dmitigr_web_transunits

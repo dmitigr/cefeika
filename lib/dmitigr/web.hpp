@@ -20,5 +20,5 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#include "dmitigr/web/web.hpp"
+#include "dmitigr/web/v1.hpp"
 #include "dmitigr/web/types_fwd.hpp"

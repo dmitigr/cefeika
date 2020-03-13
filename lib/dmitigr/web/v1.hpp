@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or web.hpp
 
-#ifndef DMITIGR_WEB_WEB_HPP
-#define DMITIGR_WEB_WEB_HPP
+#ifndef DMITIGR_WEB_V1_HPP
+#define DMITIGR_WEB_V1_HPP
 
 #include "dmitigr/web/dll.hpp"
 #include "dmitigr/fs.hpp"
@@ -16,7 +16,7 @@
 #include <map>
 #include <string_view>
 
-namespace dmitigr::web {
+namespace dmitigr::web::v1 {
 
 struct Handle_options final {
   using Htmler = std::function<void(fcgi::Server_connection*, ttpl::Logic_less_template*)>;
@@ -36,10 +36,10 @@ struct Handle_options final {
 
 DMITIGR_WEB_API void handle(fcgi::Server_connection* fcgi, const Handle_options& opts);
 
-} // namespace dmitigr::web
+} // namespace dmitigr::web::v1
 
 #ifdef DMITIGR_WEB_HEADER_ONLY
-#include "dmitigr/web/web.cpp"
+#include "dmitigr/web/v1.cpp"
 #endif
 
-#endif // DMITIGR_WEB_WEB_HPP
+#endif // DMITIGR_WEB_V1_HPP

@@ -10,7 +10,7 @@ namespace dmitigr {
 /**
  * @brief The API.
  */
-namespace web {
+namespace web::v1 {
 
 struct Handle_options;
 
@@ -19,7 +19,7 @@ struct Handle_options;
  */
 namespace detail {
 } // namespace detail
-} // namespace web
+} // namespace web::v1
 } // namespace dmitigr
 
 #endif  // DMITIGR_WEB_TYPES_FWD_HPP
