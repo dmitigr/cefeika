@@ -35,8 +35,12 @@ set(dmitigr_web_transunits
 
 foreach (t public interface)
   set(dmitigr_web_target_link_libraries_${t}
-    dmitigr::fcgi dmitigr::jrpc dmitigr::mulf dmitigr::pgfe
-    dmitigr::ws dmitigr::ttpl dmitigr::url dmitigr::util)
+    dmitigr::fcgi
+    dmitigr::http
+    dmitigr::jrpc
+    dmitigr::mulf
+    dmitigr::ttpl
+    dmitigr::util)
 endforeach()
 
 # ------------------------------------------------------------------------------

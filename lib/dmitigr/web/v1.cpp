@@ -5,6 +5,7 @@
 #include "dmitigr/web/v1.hpp"
 #include "dmitigr/web/implementation_header.hpp"
 
+#include "dmitigr/http.hpp"
 #include "dmitigr/str.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -53,60 +54,63 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
       fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
   };
 
-  // TODO: catch HTTP error code and set the Status header.
-
-  if (method == "GET") {
-    if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
-      const std::filesystem::path locpath{location};
-      const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
-      if (const auto tpl = make_ttpl_deep(tplfile, opts.tplroot)) {
-        DMITIGR_REQUIRE(i->second, std::logic_error,
-          "htmler handler for \"" + std::string{location} +"\" is unset");
-        i->second(fcgi, tpl.get());
-        const auto o = tpl->to_output();
-        fcgi->out() << "Content-Type: text/html" << fcgi::crlfcrlf;
-        fcgi->out().write(o.data(), o.size());
-      } else {
-        fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
-      }
-      return;
-    }
-  } else if (method == "POST") {
-    const std::string content_type{fcgi->parameter("CONTENT_TYPE")->value()};
-    if (content_type == "application/json") {
-      if (const auto i = opts.callers.find(location); i != opts.callers.cend()) {
-        DMITIGR_REQUIRE(i->second, std::logic_error,
-          "caller handler for \"" + std::string{location} +"\" is unset");
-        std::string o;
-        try {
-          const auto request = jrpc::Request::make(str::read_to_string(fcgi->in()));
-          const auto response = i->second(fcgi, request.get());
-          o = response->to_string();
-        } catch (const jrpc::Error& e) {
-          o = e.to_string();
+  try {
+    if (method == "GET") {
+      if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
+        const std::filesystem::path locpath{location};
+        const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
+        if (const auto tpl = make_ttpl_deep(tplfile, opts.tplroot)) {
+          DMITIGR_REQUIRE(i->second, std::logic_error,
+            "htmler handler for \"" + std::string{location} +"\" is unset");
+          i->second(fcgi, tpl.get());
+          const auto o = tpl->to_output();
+          fcgi->out() << "Content-Type: text/html" << fcgi::crlfcrlf;
+          fcgi->out().write(o.data(), o.size());
+        } else {
+          fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
         }
-        fcgi->out() << "Content-Type: application/json" << fcgi::crlfcrlf;
-        fcgi->out().write(o.data(), o.size());
         return;
       }
-    } else {
-      // bcharnospace := -'()+,./:=?\w
-      // boundary=[bcharsnospace or space]{1,69}[bcharsnospace]{1}
-      static const std::regex mpfdre{
-        R"(multipart/form-data;\s*boundary="?([-'()+,./:=?\w\s]{1,69}[-'()+,./:=?\w]{1}))" "\"?",
-        std::regex::icase | std::regex::optimize};
-      std::smatch sm;
-      if (std::regex_search(content_type, sm, mpfdre)) {
-        DMITIGR_ASSERT(sm.size() >= 2);
-        if (const auto i = opts.formers.find(location); i != opts.formers.cend()) {
+    } else if (method == "POST") {
+      const std::string content_type{fcgi->parameter("CONTENT_TYPE")->value()};
+      if (content_type == "application/json") {
+        if (const auto i = opts.callers.find(location); i != opts.callers.cend()) {
           DMITIGR_REQUIRE(i->second, std::logic_error,
-            "former handler for \"" + std::string{location} +"\" is unset");
-          const auto boundary = sm.str(1);
-          const auto form = mulf::Form_data::make(str::read_to_string(fcgi->in()), boundary);
-          return i->second(fcgi, form.get());
+            "caller handler for \"" + std::string{location} +"\" is unset");
+          std::string o;
+          try {
+            const auto request = jrpc::Request::make(str::read_to_string(fcgi->in()));
+            const auto response = i->second(fcgi, request.get());
+            o = response->to_string();
+          } catch (const jrpc::Error& e) {
+            o = e.to_string();
+          }
+          fcgi->out() << "Content-Type: application/json" << fcgi::crlfcrlf;
+          fcgi->out().write(o.data(), o.size());
+          return;
+        }
+      } else {
+        // bcharnospace := -'()+,./:=?\w
+        // boundary=[bcharsnospace or space]{1,69}[bcharsnospace]{1}
+        static const std::regex mpfdre{
+          R"(multipart/form-data;\s*boundary="?([-'()+,./:=?\w\s]{1,69}[-'()+,./:=?\w]{1}))" "\"?",
+          std::regex::icase | std::regex::optimize};
+        std::smatch sm;
+        if (std::regex_search(content_type, sm, mpfdre)) {
+          DMITIGR_ASSERT(sm.size() >= 2);
+          if (const auto i = opts.formers.find(location); i != opts.formers.cend()) {
+            DMITIGR_REQUIRE(i->second, std::logic_error,
+              "former handler for \"" + std::string{location} +"\" is unset");
+            const auto boundary = sm.str(1);
+            const auto form = mulf::Form_data::make(str::read_to_string(fcgi->in()), boundary);
+            return i->second(fcgi, form.get());
+          }
         }
       }
     }
+  } catch (const http::Server_exception& e) {
+    fcgi->out() << "Status: " << e.code().value() << fcgi::crlfcrlf;
+    return;
   }
 
   call_custom_or_fallback();
