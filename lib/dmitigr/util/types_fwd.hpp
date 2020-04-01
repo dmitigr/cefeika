@@ -10,10 +10,7 @@
  */
 namespace dmitigr {
 
-class Net_exception;
 class Sys_exception;
-class Wsa_exception;
-class Wsa_error_category;
 
 } // namespace dmitigr
 
