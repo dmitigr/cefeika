@@ -30,8 +30,5 @@
 #include "dmitigr/util/macros.hpp"
 #include "dmitigr/util/test.hpp"
 #include "dmitigr/util/version.hpp"
-#ifdef _WIN32
-#include "dmitigr/util/windows.hpp"
-#endif
 
 #endif  // DMITIGR_UTIL_HPP

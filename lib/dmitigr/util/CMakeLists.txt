@@ -26,10 +26,6 @@ set(dmitigr_util_headers
   types_fwd.hpp
   )
 
-if (WIN32)
-  list(APPEND dmitigr_util_headers windows.hpp)
-endif()
-
 set(dmitigr_util_implementations
   )
 

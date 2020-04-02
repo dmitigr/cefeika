@@ -6,7 +6,7 @@
 #include "dmitigr/net/implementation_header.hpp"
 
 #ifdef _WIN32
-#include "dmitigr/util/windows.hpp"
+#include "dmitigr/os/windows.hpp"
 
 #include <cassert>
 #include <cstdio>

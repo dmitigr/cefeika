@@ -23,6 +23,10 @@ set(dmitigr_os_headers
   types_fwd.hpp
   )
 
+if (WIN32)
+  list(APPEND dmitigr_os_headers windows.hpp)
+endif()
+
 set(dmitigr_os_implementations
   env.cpp
   proc.cpp

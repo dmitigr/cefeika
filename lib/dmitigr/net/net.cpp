@@ -6,11 +6,12 @@
 #include "dmitigr/net/net.hpp"
 #include "dmitigr/net/implementation_header.hpp"
 
+#ifdef _WIN32
+#include "dmitigr/os/windows.hpp"
+#endif
+
 #include "dmitigr/util/debug.hpp"
 #include "dmitigr/util/exceptions.hpp"
-#ifdef _WIN32
-#include "dmitigr/util/windows.hpp"
-#endif
 
 #include <algorithm>
 #include <array>

@@ -13,7 +13,7 @@
 
 #ifdef _WIN32
 
-#include "dmitigr/util/windows.hpp"
+#include "dmitigr/os/windows.hpp"
 
 #include <Winnls.h>
 #include <Lmcons.h>

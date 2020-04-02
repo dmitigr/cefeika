@@ -27,5 +27,8 @@
 #include "dmitigr/os/proc.hpp"
 #include "dmitigr/os/proc_detach.hpp"
 #include "dmitigr/os/version.hpp"
+#ifdef _WIN32
+#include "dmitigr/os/windows.hpp"
+#endif
 
 #endif  // DMITIGR_OS_HPP
