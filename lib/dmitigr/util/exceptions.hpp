@@ -5,8 +5,8 @@
 #ifndef DMITIGR_UTIL_EXCEPTIONS_HPP
 #define DMITIGR_UTIL_EXCEPTIONS_HPP
 
-#include "dmitigr/util/dll.hpp"
-
+#include <cassert>
+#include <cstdio>
 #include <string>
 #include <system_error>
 
@@ -20,23 +20,32 @@ public:
   /**
    * @brief The constructor.
    */
-  DMITIGR_UTIL_API explicit Sys_exception(const std::string& func);
+  explicit Sys_exception(const std::string& what)
+    : std::system_error{last_error(), std::system_category(), what}
+  {}
 
   /**
    * @brief Prints the last system error to the standard error.
    */
-  static DMITIGR_UTIL_API void report(const char* const func) noexcept;
+  static void report(const char* const what) noexcept
+  {
+    assert(what);
+    std::fprintf(stderr, "%s: error %d\n", what, last_error());
+  }
 
   /**
    * @returns The last system error code.
    */
-  static DMITIGR_UTIL_API int last_error() noexcept;
+  static int last_error() noexcept
+  {
+#ifdef _WIN32
+    return static_cast<int>(::GetLastError());
+#else
+    return errno;
+#endif
+  }
 };
 
 } // namespace dmitigr
-
-#ifdef DMITIGR_UTIL_HEADER_ONLY
-#include "dmitigr/util/exceptions.cpp"
-#endif
 
 #endif  // DMITIGR_UTIL_EXCEPTIONS_HPP

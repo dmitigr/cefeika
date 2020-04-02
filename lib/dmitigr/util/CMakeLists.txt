@@ -31,7 +31,6 @@ if (WIN32)
 endif()
 
 set(dmitigr_util_implementations
-  exceptions.cpp
   )
 
 set(dmitigr_util_transunits
