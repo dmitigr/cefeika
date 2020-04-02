@@ -229,7 +229,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
     if(BUILD_SHARED_LIBS)
       target_compile_definitions(${lib}
         PRIVATE -DDMITIGR_CEFEIKA_DLL_BUILDING
-        INTERFACE -DDMITIGR_${LIB}_DLL)
+        PUBLIC -DDMITIGR_${LIB}_DLL)
     elseif(WIN32)
       set(output_name "dmitigr_${lib}_static")
     endif()
