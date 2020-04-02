@@ -108,8 +108,8 @@ DMITIGR_HTTP_INLINE std::unique_ptr<Date> Date::make(const dt::Timestamp* const 
 
   if (const auto* const t = dynamic_cast<const dt::detail::iTimestamp*>(ts))
     return std::make_unique<iDate>(*t);
-  else
-    DMITIGR_ASSERT(!true);
+
+  DMITIGR_ASSERT_ALWAYS(!true);
 }
 
 } // namespace dmitigr::http

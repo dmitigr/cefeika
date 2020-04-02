@@ -5,7 +5,9 @@
 #ifndef DMITIGR_UTIL_FILESYSTEM_HPP
 #define DMITIGR_UTIL_FILESYSTEM_HPP
 
-#if __GNUG__
+#if __clang__
+#include <filesystem>
+#elif __GNUG__
   #if (__GNUC__ >= 8)
     #include <filesystem>
   #else

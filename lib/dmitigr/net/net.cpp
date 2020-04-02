@@ -818,7 +818,6 @@ public:
     DMITIGR_REQUIRE(!is_listening(), std::logic_error);
 
     const auto* const eid = options_->endpoint_id();
-    const auto cm = eid->communication_mode();
 
     const auto tcp_create_bind = [&]()
     {
@@ -881,7 +880,7 @@ public:
         throw DMITIGR_NET_EXCEPTION{"bind"};
     };
 
-    if (cm == Communication_mode::net)
+    if (const auto cm = eid->communication_mode(); cm == Communication_mode::net)
       tcp_create_bind();
     else
       uds_create_bind();

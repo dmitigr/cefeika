@@ -28,6 +28,11 @@ namespace dmitigr::cfg {
 class Flat {
 public:
   /**
+   * @brief The destructor.
+   */
+  virtual ~Flat() = default;
+
+  /**
    * @returns A new instance of this class.
    */
   static DMITIGR_CFG_API std::unique_ptr<Flat> make(const std::filesystem::path& path);

@@ -19,6 +19,11 @@ namespace dmitigr::uuid {
 class Uuid {
 public:
   /**
+   * @brief The destructor.
+   */
+  virtual ~Uuid() = default;
+
+  /**
    * Constructs the random UUID (version 4).
    *
    * @remarks Be sure to seed the pseudo-random number generator with
