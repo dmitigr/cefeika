@@ -5,10 +5,6 @@
 #include "dmitigr/util/exceptions.hpp"
 #include "dmitigr/util/implementation_header.hpp"
 
-#ifdef _WIN32
-#include "dmitigr/util/windows.hpp"
-#endif
-
 #include <cassert>
 #include <cstdio>
 

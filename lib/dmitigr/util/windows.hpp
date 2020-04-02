@@ -12,9 +12,8 @@
 #define DMITIGR_UTIL_WINDOWS_HPP
 
 #include "dmitigr/util/exceptions.hpp"
-#include "dmitigr/util/implementation_header.hpp"
 
-#include <algorithm>
+#include <utility>
 
 /*
  * For historical reasons, the Windows.h header defaults to including the
