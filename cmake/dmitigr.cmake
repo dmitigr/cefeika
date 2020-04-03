@@ -65,6 +65,10 @@ endfunction()
 # ------------------------------------------------------------------------------
 
 macro(dmitigr_set_library_info lib version_major version_minor description)
+  if((${version_major} LESS 0) OR (${version_minor} LESS 0))
+    message(FATAL_ERROR "Invalid major or minor version of ${lib} specified")
+  endif()
+
   set(dmitigr_${lib}_name "${lib}")
   string(TOUPPER "${lib}" dmitigr_${lib}_NAME)
 

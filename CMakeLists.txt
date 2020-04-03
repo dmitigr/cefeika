@@ -23,7 +23,7 @@ set(CMAKE_VERBOSE_MAKEFILE FALSE CACHE BOOL
 set(BUILD_SHARED_LIBS TRUE CACHE BOOL
   "Build shared libraries?")
 set(DMITIGR_CEFEIKA_HEADER_ONLY FALSE CACHE BOOL
-  "Header-only?")
+  "Whole header-only?")
 set(DMITIGR_CEFEIKA_BUILD_TESTS FALSE CACHE BOOL
   "Build tests?")
 set(DMITIGR_LIBRARIAN_DEBUG FALSE CACHE BOOL
@@ -169,16 +169,10 @@ foreach(lib ${dmitigr_cefeika_libraries})
   add_subdirectory(lib/dmitigr/${lib})
 
   # ------------------------------------
-  # Preprocessing
+  # Unconditional preprocessing
   # ------------------------------------
 
   dmitigr_set_library_info_lib_variables(${lib})
-
-  foreach(file dll.hpp version.hpp version.cpp version.rc)
-    configure_file(lib/dmitigr/${file}.in
-      ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
-      NEWLINE_STYLE UNIX)
-  endforeach()
 
   configure_file(doc/Doxyfile.in
     ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/Doxyfile @ONLY
@@ -188,14 +182,42 @@ foreach(lib ${dmitigr_cefeika_libraries})
     file(TOUCH ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/doxyfile.specific)
   endif()
 
-  # ------------------------------------
-  # Sources
-  # ------------------------------------
+  # -------------------------------------
+  # Conditional preprocessing and sources
+  # -------------------------------------
 
-  list(APPEND dmitigr_${lib}_preprocessed_headers dll.hpp version.hpp)
-  list(APPEND dmitigr_${lib}_implementations version.cpp)
-  if (WIN32)
-    list(APPEND dmitigr_${lib}_build_only_sources version.rc)
+  # Length of 0 means that the library is header-only anyway.
+  list(LENGTH dmitigr_${lib}_implementations dmitigr_${lib}_implementations_length)
+  if(${dmitigr_${lib}_implementations_length} EQUAL 0)
+    set(dmitigr_${lib}_header_only TRUE)
+  else()
+    set(dmitigr_${lib}_header_only ${DMITIGR_CEFEIKA_HEADER_ONLY})
+  endif()
+
+  if(NOT ${dmitigr_${lib}_header_only})
+    foreach(file dll.hpp)
+      configure_file(lib/dmitigr/${file}.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
+        NEWLINE_STYLE UNIX)
+      list(APPEND dmitigr_${lib}_preprocessed_headers ${file})
+    endforeach()
+  endif()
+
+  # Both major and minor versions of 0 means that the library handles
+  # versioning by itself, so no version.* files needs to be configured.
+  if((${dmitigr_${lib}_version_major} GREATER 0) OR (${dmitigr_${lib}_version_minor} GREATER 0))
+    # Preprocessing
+    configure_file(lib/dmitigr/version.hpp.in
+      ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.hpp @ONLY
+      NEWLINE_STYLE UNIX)
+    list(APPEND dmitigr_${lib}_preprocessed_headers version.hpp)
+
+    if(WIN32 AND NOT ${dmitigr_${lib}_header_only})
+      configure_file(lib/dmitigr/version.rc.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.rc @ONLY
+        NEWLINE_STYLE UNIX)
+      list(APPEND dmitigr_${lib}_build_only_sources version.rc)
+    endif()
   endif()
 
   foreach(st ${dmitigr_source_types})
@@ -215,14 +237,14 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Targets
   # ------------------------------------
 
-  if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+  if(NOT ${dmitigr_${lib}_header_only})
     add_library(${lib} ${dmitigr_${lib}_sources})
   else()
     add_library(${lib} INTERFACE)
   endif()
   add_library(dmitigr::${lib} ALIAS ${lib})
 
-  if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+  if(NOT ${dmitigr_${lib}_header_only})
     set(output_name "dmitigr_${lib}")
     if(BUILD_SHARED_LIBS)
       target_compile_definitions(${lib}
@@ -245,7 +267,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
     target_compile_definitions(${lib} INTERFACE -DDMITIGR_${LIB}_HEADER_ONLY)
   endif()
 
-  if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+  if(NOT ${dmitigr_${lib}_header_only})
     target_compile_definitions(${lib}
       PRIVATE ${dmitigr_${lib}_target_compile_definitions_private}
       PUBLIC  ${dmitigr_${lib}_target_compile_definitions_public})
@@ -265,7 +287,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Dependencies
   # ------------------------------------
 
-  if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+  if(NOT ${dmitigr_${lib}_header_only})
     target_link_libraries(${lib}
       PRIVATE ${dmitigr_${lib}_target_link_libraries_private}
       PUBLIC  ${dmitigr_${lib}_target_link_libraries_public})
@@ -286,7 +308,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   install(FILES ${dmitigr_${lib}_headers}
     DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
 
-  if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+  if(NOT ${dmitigr_${lib}_header_only})
     install(TARGETS ${lib}
       EXPORT dmitigr_${lib}_export
       ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
