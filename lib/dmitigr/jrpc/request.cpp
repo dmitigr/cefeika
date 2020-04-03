@@ -4,7 +4,7 @@
 
 #include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/error.hpp"
-#include "dmitigr/str.hpp"
+#include "dmitigr/str/str.hpp"
 #include "dmitigr/util/debug.hpp"
 
 namespace dmitigr::jrpc::detail {

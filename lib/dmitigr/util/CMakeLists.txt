@@ -18,7 +18,6 @@ set(dmitigr_util_headers
   filesystem.hpp
   macros.hpp
   test.hpp
-  types_fwd.hpp
   )
 
 set(dmitigr_util_implementations

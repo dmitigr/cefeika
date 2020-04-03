@@ -4,8 +4,8 @@
 
 #include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/util.hpp"
-#include <dmitigr/net.hpp>
-#include <dmitigr/str.hpp>
+#include <dmitigr/net/net.hpp>
+#include <dmitigr/str/str.hpp>
 #include <dmitigr/util/debug.hpp>
 
 #include <cerrno>

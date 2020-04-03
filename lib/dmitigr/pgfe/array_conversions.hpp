@@ -10,7 +10,7 @@
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/exceptions.hpp"
 
-#include <dmitigr/str.hpp>
+#include <dmitigr/str/str.hpp>
 #include <dmitigr/util/debug.hpp>
 
 #include <algorithm>

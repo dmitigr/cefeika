@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or mulf.hpp
 
 #include "dmitigr/mulf/form_data.hpp"
-#include <dmitigr/str.hpp>
+#include <dmitigr/str/str.hpp>
 #include <dmitigr/util/debug.hpp>
 
 #include <algorithm>

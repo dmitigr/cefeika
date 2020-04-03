@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or cfg.hpp
 
 #include "dmitigr/cfg/flat.hpp"
-#include "dmitigr/str.hpp"
+#include "dmitigr/str/str.hpp"
 #include "dmitigr/util/debug.hpp"
 
 #include <locale>

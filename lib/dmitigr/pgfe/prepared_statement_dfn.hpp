@@ -10,7 +10,7 @@
 #include "dmitigr/pgfe/parameterizable.hpp"
 #include "dmitigr/pgfe/response.hpp"
 
-#include <dmitigr/mem.hpp>
+#include <dmitigr/mem/mem.hpp>
 #include <dmitigr/util/debug.hpp>
 
 #include <cstdint>

@@ -12,7 +12,7 @@
 
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/connection.hpp"
-#include "dmitigr/net.hpp"
+#include "dmitigr/net/net.hpp"
 #include "dmitigr/util/debug.hpp"
 
 #include <uwebsockets/App.h>

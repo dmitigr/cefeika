@@ -4,7 +4,7 @@
 
 #include "dmitigr/fcgi/basics.hpp"
 #include "dmitigr/fcgi/connection.hpp"
-#include <dmitigr/math.hpp>
+#include <dmitigr/math/math.hpp>
 #include <dmitigr/net/descriptor.hpp>
 #include <dmitigr/util/debug.hpp>
 
