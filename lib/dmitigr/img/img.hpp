@@ -20,13 +20,12 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_IMG_IMG_HPP
+#define DMITIGR_IMG_IMG_HPP
 
-#ifndef DMITIGR_STR_HPP
-#define DMITIGR_STR_HPP
+#ifdef DMITIGR_IMG_GRAPHICSMAGICK
+#include "dmitigr/img/graphicsmagick.hpp"
+#endif
+#include "dmitigr/img/version.hpp"
 
-#include "dmitigr/str/str.hpp"
-
-#endif  // DMITIGR_STR_HPP
+#endif  // DMITIGR_IMG_IMG_HPP

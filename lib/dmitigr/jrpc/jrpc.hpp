@@ -20,13 +20,16 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_JRPC_JRPC_HPP
+#define DMITIGR_JRPC_JRPC_HPP
 
-#ifndef DMITIGR_STR_HPP
-#define DMITIGR_STR_HPP
+#include "dmitigr/jrpc/basics.hpp"
+#include "dmitigr/jrpc/errc.hpp"
+#include "dmitigr/jrpc/error.hpp"
+#include "dmitigr/jrpc/request.hpp"
+#include "dmitigr/jrpc/response.hpp"
+#include "dmitigr/jrpc/result.hpp"
+#include "dmitigr/jrpc/std_system_error.hpp"
+#include "dmitigr/jrpc/version.hpp"
 
-#include "dmitigr/str/str.hpp"
-
-#endif  // DMITIGR_STR_HPP
+#endif  // DMITIGR_JRPC_JRPC_HPP

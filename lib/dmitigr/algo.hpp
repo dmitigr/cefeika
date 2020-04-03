@@ -20,10 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_ALGO_HPP
 #define DMITIGR_ALGO_HPP
 
 #include "dmitigr/algo/algo.hpp"
-#include "dmitigr/algo/version.hpp"
 
 #endif  // DMITIGR_ALGO_HPP

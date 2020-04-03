@@ -20,13 +20,12 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_RAJSON_RAJSON_HPP
+#define DMITIGR_RAJSON_RAJSON_HPP
 
-#ifndef DMITIGR_STR_HPP
-#define DMITIGR_STR_HPP
+#include "dmitigr/rajson/fwd.hpp"
+#include "dmitigr/rajson/conversions.hpp"
+#include "dmitigr/rajson/value_view.hpp"
+#include "dmitigr/rajson/version.hpp"
 
-#include "dmitigr/str/str.hpp"
-
-#endif  // DMITIGR_STR_HPP
+#endif  // DMITIGR_RAJSON_RAJSON_HPP

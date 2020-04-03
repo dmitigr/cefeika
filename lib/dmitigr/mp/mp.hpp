@@ -20,13 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_MP_MP_HPP
+#define DMITIGR_MP_MP_HPP
 
-#ifndef DMITIGR_STR_HPP
-#define DMITIGR_STR_HPP
+#include "dmitigr/mp/simple_thread_pool.hpp"
+#include "dmitigr/mp/version.hpp"
 
-#include "dmitigr/str/str.hpp"
-
-#endif  // DMITIGR_STR_HPP
+#endif  // DMITIGR_MP_MP_HPP

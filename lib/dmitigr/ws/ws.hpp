@@ -20,13 +20,15 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_WS_WS_HPP
+#define DMITIGR_WS_WS_HPP
 
-#ifndef DMITIGR_STR_HPP
-#define DMITIGR_STR_HPP
+#include "dmitigr/ws/basics.hpp"
+#include "dmitigr/ws/connection.hpp"
+#include "dmitigr/ws/http_request.hpp"
+#include "dmitigr/ws/listener.hpp"
+#include "dmitigr/ws/listener_options.hpp"
+#include "dmitigr/ws/types_fwd.hpp"
+#include "dmitigr/ws/version.hpp"
 
-#include "dmitigr/str/str.hpp"
-
-#endif  // DMITIGR_STR_HPP
+#endif  // DMITIGR_WS_WS_HPP

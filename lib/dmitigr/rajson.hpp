@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2019 Dmitry Igrishin
+// Copyright (C) 2020 Dmitry Igrishin
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -20,12 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_RAJSON_HPP
 #define DMITIGR_RAJSON_HPP
 
-#include "dmitigr/rajson/fwd.hpp"
-#include "dmitigr/rajson/conversions.hpp"
-#include "dmitigr/rajson/value_view.hpp"
-#include "dmitigr/rajson/version.hpp"
+#include "dmitigr/rajson/rajson.hpp"
 
 #endif  // DMITIGR_RAJSON_HPP

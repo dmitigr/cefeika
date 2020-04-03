@@ -20,13 +20,16 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_FCGI_FCGI_HPP
+#define DMITIGR_FCGI_FCGI_HPP
 
-#ifndef DMITIGR_STR_HPP
-#define DMITIGR_STR_HPP
+#include "dmitigr/fcgi/basics.hpp"
+#include "dmitigr/fcgi/connection.hpp"
+#include "dmitigr/fcgi/listener.hpp"
+#include "dmitigr/fcgi/listener_options.hpp"
+#include "dmitigr/fcgi/server_connection.hpp"
+#include "dmitigr/fcgi/streambuf.hpp"
+#include "dmitigr/fcgi/streams.hpp"
+#include "dmitigr/fcgi/version.hpp"
 
-#include "dmitigr/str/str.hpp"
-
-#endif  // DMITIGR_STR_HPP
+#endif  // DMITIGR_FCGI_FCGI_HPP

@@ -20,10 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_CFG_HPP
 #define DMITIGR_CFG_HPP
 
-#include "dmitigr/cfg/flat.hpp"
-#include "dmitigr/cfg/version.hpp"
+#include "dmitigr/cfg/cfg.hpp"
 
 #endif  // DMITIGR_CFG_HPP

@@ -2,8 +2,6 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or net.hpp
 
-#include "dmitigr/net/descriptor.hpp"
-#include "dmitigr/net/exceptions.hpp"
 #include "dmitigr/net/net.hpp"
 #ifdef _WIN32
 #include "dmitigr/os/windows.hpp"

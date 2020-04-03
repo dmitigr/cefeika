@@ -1,50 +1,30 @@
 // -*- C++ -*-
-// Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or rng.hpp
+// Copyright (C) 2020 Dmitry Igrishin
+//
+// This software is provided 'as-is', without any express or implied
+// warranty. In no event will the authors be held liable for any damages
+// arising from the use of this software.
+//
+// Permission is granted to anyone to use this software for any purpose,
+// including commercial applications, and to alter it and redistribute it
+// freely, subject to the following restrictions:
+//
+// 1. The origin of this software must not be misrepresented; you must not
+//    claim that you wrote the original software. If you use this software
+//    in a product, an acknowledgment in the product documentation would be
+//    appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be
+//    misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+//
+// Dmitry Igrishin
+// dmitigr@gmail.com
 
 #ifndef DMITIGR_RNG_RNG_HPP
 #define DMITIGR_RNG_RNG_HPP
 
-#include "dmitigr/util/debug.hpp"
-
-#include <chrono>
-#include <cstdlib>
-
-namespace dmitigr::rng {
-
-/**
- * @brief Seeds the pseudo-random number generator.
- */
-inline void seed_by_now()
-{
-  const auto seed = std::chrono::duration_cast<std::chrono::seconds>(
-    std::chrono::system_clock::now().time_since_epoch()).count();
-  std::srand(static_cast<unsigned>(seed));
-}
-
-/**
- * @returns The random number.
- *
- * @remarks From TC++PL 3rd, 22.7.
- */
-template<typename T>
-constexpr T cpp_pl_3rd(const T maximum)
-{
-  const auto rand_num = static_cast<double>(std::rand());
-  return static_cast<T>((maximum + 1) * (rand_num / RAND_MAX));
-}
-
-/**
- * @overload
- */
-template<typename T>
-constexpr T cpp_pl_3rd(const T minimum, const T maximum)
-{
-  DMITIGR_REQUIRE(minimum < maximum, std::invalid_argument);
-  const auto range_length = maximum - minimum;
-  return (cpp_pl_3rd(maximum) % range_length) + minimum;
-}
-
-} // namespace dmitigr::rng
+#include "dmitigr/rng/gen.hpp"
+#include "dmitigr/rng/str.hpp"
+#include "dmitigr/rng/version.hpp"
 
 #endif  // DMITIGR_RNG_RNG_HPP

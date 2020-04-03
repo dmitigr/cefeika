@@ -20,13 +20,17 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_HTTP_HTTP_HPP
+#define DMITIGR_HTTP_HTTP_HPP
 
-#ifndef DMITIGR_STR_HPP
-#define DMITIGR_STR_HPP
+#include "dmitigr/http/basics.hpp"
+#include "dmitigr/http/cookie.hpp"
+#include "dmitigr/http/date.hpp"
+#include "dmitigr/http/errc.hpp"
+#include "dmitigr/http/exceptions.hpp"
+#include "dmitigr/http/set_cookie.hpp"
+#include "dmitigr/http/std_system_error.hpp"
+#include "dmitigr/http/syntax.hpp"
+#include "dmitigr/http/version.hpp"
 
-#include "dmitigr/str/str.hpp"
-
-#endif  // DMITIGR_STR_HPP
+#endif  // DMITIGR_HTTP_HTTP_HPP

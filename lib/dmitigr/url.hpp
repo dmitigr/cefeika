@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2019 Dmitry Igrishin
+// Copyright (C) 2020 Dmitry Igrishin
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -20,10 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_URL_HPP
 #define DMITIGR_URL_HPP
 
-#include "dmitigr/url/query_string.hpp"
-#include "dmitigr/url/version.hpp"
+#include "dmitigr/url/url.hpp"
 
 #endif  // DMITIGR_URL_HPP

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2019 Dmitry Igrishin
+// Copyright (C) 2020 Dmitry Igrishin
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -20,17 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_HTTP_HPP
 #define DMITIGR_HTTP_HPP
 
-#include "dmitigr/http/basics.hpp"
-#include "dmitigr/http/cookie.hpp"
-#include "dmitigr/http/date.hpp"
-#include "dmitigr/http/errc.hpp"
-#include "dmitigr/http/exceptions.hpp"
-#include "dmitigr/http/set_cookie.hpp"
-#include "dmitigr/http/std_system_error.hpp"
-#include "dmitigr/http/syntax.hpp"
-#include "dmitigr/http/version.hpp"
+#include "dmitigr/http/http.hpp"
 
 #endif  // DMITIGR_HTTP_HPP

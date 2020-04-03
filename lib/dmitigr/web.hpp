@@ -20,5 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#include "dmitigr/web/v1.hpp"
-#include "dmitigr/web/types_fwd.hpp"
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#ifndef DMITIGR_WEB_HPP
+#define DMITIGR_WEB_HPP
+
+#include "dmitigr/web/web.hpp"
+
+#endif  // DMITIGR_WEB_HPP

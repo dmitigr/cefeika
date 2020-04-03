@@ -20,11 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_RNG_HPP
 #define DMITIGR_RNG_HPP
 
 #include "dmitigr/rng/rng.hpp"
-#include "dmitigr/rng/str.hpp"
-#include "dmitigr/rng/version.hpp"
 
 #endif  // DMITIGR_RNG_HPP

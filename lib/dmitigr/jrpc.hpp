@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2019 Dmitry Igrishin
+// Copyright (C) 2020 Dmitry Igrishin
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -20,16 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_JRPC_HPP
 #define DMITIGR_JRPC_HPP
 
-#include "dmitigr/jrpc/basics.hpp"
-#include "dmitigr/jrpc/errc.hpp"
-#include "dmitigr/jrpc/error.hpp"
-#include "dmitigr/jrpc/request.hpp"
-#include "dmitigr/jrpc/response.hpp"
-#include "dmitigr/jrpc/result.hpp"
-#include "dmitigr/jrpc/std_system_error.hpp"
-#include "dmitigr/jrpc/version.hpp"
+#include "dmitigr/jrpc/jrpc.hpp"
 
 #endif  // DMITIGR_JRPC_HPP

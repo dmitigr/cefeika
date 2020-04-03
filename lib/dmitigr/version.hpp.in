@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or @dmitigr_lib_name@.hpp
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file was generated automatically. Edit version.hpp.in instead!!!!!!!!!!!
+// This file is generated automatically. Edit version.hpp.in instead!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #ifndef DMITIGR_@dmitigr_lib_NAME@_VERSION_HPP

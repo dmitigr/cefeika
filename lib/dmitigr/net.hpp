@@ -20,12 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_NET_HPP
 #define DMITIGR_NET_HPP
 
-#include "dmitigr/net/descriptor.hpp"
-#include "dmitigr/net/exceptions.hpp"
 #include "dmitigr/net/net.hpp"
-#include "dmitigr/net/version.hpp"
 
 #endif  // DMITIGR_NET_HPP

@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
-#ifndef DMITIGR_MP_MP_HPP
-#define DMITIGR_MP_MP_HPP
+#ifndef DMITIGR_MP_SIMPLE_THREAD_POOL_HPP
+#define DMITIGR_MP_SIMPLE_THREAD_POOL_HPP
 
 #include "dmitigr/mp/types_fwd.hpp"
 #include "dmitigr/mp/dll.hpp"
@@ -94,4 +94,4 @@ private:
 #include "dmitigr/mp/simple_thread_pool.cpp"
 #endif
 
-#endif  // DMITIGR_MP_MP_HPP
+#endif  // DMITIGR_MP_SIMPLE_THREAD_POOL_HPP

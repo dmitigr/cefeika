@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Copyright (C) 2019 Dmitry Igrishin
+// Copyright (C) 2020 Dmitry Igrishin
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -20,14 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file was generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_UTIL_HPP
 #define DMITIGR_UTIL_HPP
 
-#include "dmitigr/util/basics.hpp"
-#include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/filesystem.hpp"
-#include "dmitigr/util/macros.hpp"
-#include "dmitigr/util/test.hpp"
-#include "dmitigr/util/version.hpp"
+#include "dmitigr/util/util.hpp"
 
 #endif  // DMITIGR_UTIL_HPP
