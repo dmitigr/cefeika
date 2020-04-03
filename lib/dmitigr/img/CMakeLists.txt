@@ -12,19 +12,11 @@ dmitigr_set_library_info(img 0 1 "Image processing library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_img_root_headers
-  ../img.hpp
-  )
-
 set(dmitigr_img_headers
   types_fwd.hpp
   )
 
 set(dmitigr_img_implementations
-  )
-
-set(dmitigr_img_transunits
-  ../img.cpp
   )
 
 # ------------------------------------------------------------------------------

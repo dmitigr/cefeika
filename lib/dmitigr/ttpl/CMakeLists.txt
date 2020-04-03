@@ -12,10 +12,6 @@ dmitigr_set_library_info(ttpl 0 1 "Text templates library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_ttpl_root_headers
-  ../ttpl.hpp
-  )
-
 set(dmitigr_ttpl_headers
   logic_less_template.hpp
   types_fwd.hpp
@@ -23,10 +19,6 @@ set(dmitigr_ttpl_headers
 
 set(dmitigr_ttpl_implementations
   logic_less_template.cpp
-  )
-
-set(dmitigr_ttpl_transunits
-  ../ttpl.cpp
   )
 
 # ------------------------------------------------------------------------------

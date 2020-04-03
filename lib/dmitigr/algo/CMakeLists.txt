@@ -12,19 +12,11 @@ dmitigr_set_library_info(algo 0 1 "Algorithms library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_algo_root_headers
-  ../algo.hpp
-  )
-
 set(dmitigr_algo_headers
   algo.hpp
   )
 
 set(dmitigr_algo_implementations
-  )
-
-set(dmitigr_algo_transunits
-  ../algo.cpp
   )
 
 # ------------------------------------------------------------------------------

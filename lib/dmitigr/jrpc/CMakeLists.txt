@@ -12,10 +12,6 @@ dmitigr_set_library_info(jrpc 0 1 "JSON RPC implementation")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_jrpc_root_headers
-  ../jrpc.hpp
-  )
-
 set(dmitigr_jrpc_headers
   basics.hpp
   errc.hpp
@@ -36,10 +32,6 @@ set(dmitigr_jrpc_implementations
   response.cpp
   result.cpp
   std_system_error.cpp
-  )
-
-set(dmitigr_jrpc_transunits
-  ../jrpc.cpp
   )
 
 # ------------------------------------------------------------------------------

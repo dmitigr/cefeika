@@ -12,10 +12,6 @@ dmitigr_set_library_info(uuid 0 1 "UUID processing")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_uuid_root_headers
-  ../uuid.hpp
-  )
-
 set(dmitigr_uuid_headers
   uuid.hpp
   types_fwd.hpp
@@ -23,10 +19,6 @@ set(dmitigr_uuid_headers
 
 set(dmitigr_uuid_implementations
   uuid.cpp
-  )
-
-set(dmitigr_uuid_transunits
-  ../uuid.cpp
   )
 
 # ------------------------------------------------------------------------------

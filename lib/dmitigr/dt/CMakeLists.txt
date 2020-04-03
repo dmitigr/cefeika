@@ -12,10 +12,6 @@ dmitigr_set_library_info(dt 0 1 "Date and time library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_dt_root_headers
-  ../dt.hpp
-  )
-
 set(dmitigr_dt_headers
   basics.hpp
   timestamp.hpp
@@ -25,10 +21,6 @@ set(dmitigr_dt_headers
 set(dmitigr_dt_implementations
   basics.cpp
   timestamp.cpp
-  )
-
-set(dmitigr_dt_transunits
-  ../dt.cpp
   )
 
 # ------------------------------------------------------------------------------

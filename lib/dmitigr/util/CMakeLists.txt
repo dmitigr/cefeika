@@ -12,10 +12,6 @@ dmitigr_set_library_info(util 0 1 "Basic utilities")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_util_root_headers
-  ../util.hpp
-  )
-
 set(dmitigr_util_headers
   basics.hpp
   debug.hpp
@@ -26,10 +22,6 @@ set(dmitigr_util_headers
   )
 
 set(dmitigr_util_implementations
-  )
-
-set(dmitigr_util_transunits
-  ../util.cpp
   )
 
 # ------------------------------------------------------------------------------

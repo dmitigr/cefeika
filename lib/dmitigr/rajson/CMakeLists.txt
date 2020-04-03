@@ -12,10 +12,6 @@ dmitigr_set_library_info(rajson 0 1 "RapidJSON wrapper")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_rajson_root_headers
-  ../rajson.hpp
-  )
-
 set(dmitigr_rajson_headers
   conversions.hpp
   value_view.hpp
@@ -24,10 +20,6 @@ set(dmitigr_rajson_headers
 
 set(dmitigr_rajson_implementations
   conversions.cpp
-  )
-
-set(dmitigr_rajson_transunits
-  ../rajson.cpp
   )
 
 # ------------------------------------------------------------------------------

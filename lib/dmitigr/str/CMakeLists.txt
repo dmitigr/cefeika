@@ -12,10 +12,6 @@ dmitigr_set_library_info(str 0 1 "String extras")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_str_root_headers
-  ../str.hpp
-  )
-
 set(dmitigr_str_headers
   str.hpp
   types_fwd.hpp
@@ -23,10 +19,6 @@ set(dmitigr_str_headers
 
 set(dmitigr_str_implementations
   str.cpp
-  )
-
-set(dmitigr_str_transunits
-  ../str.cpp
   )
 
 # ------------------------------------------------------------------------------

@@ -254,10 +254,6 @@ configure_file(defaults.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/defaults.hpp
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_pgfe_root_headers
-  ../pgfe.hpp
-  )
-
 set(dmitigr_pgfe_preprocessed_headers
   defaults.hpp
   )
@@ -325,10 +321,6 @@ set(dmitigr_pgfe_implementations
 
 set(dmitigr_pgfe_cmake_unpreprocessed
   defaults.hpp.in
-  )
-
-set(dmitigr_pgfe_transunits
-  ../pgfe.cpp
   )
 
 # ------------------------------------------------------------------------------

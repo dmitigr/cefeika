@@ -12,10 +12,6 @@ dmitigr_set_library_info(http 0 1 "HTTP library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_http_root_headers
-  ../http.hpp
-  )
-
 set(dmitigr_http_headers
   basics.hpp
   cookie.hpp
@@ -38,10 +34,6 @@ set(dmitigr_http_implementations
   set_cookie.cpp
   std_system_error.cpp
   syntax.cpp
-  )
-
-set(dmitigr_http_transunits
-  ../http.cpp
   )
 
 # ------------------------------------------------------------------------------

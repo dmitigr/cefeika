@@ -1,0 +1,7 @@
+// -*- C++ -*-
+// Copyright (C) Dmitry Igrishin
+// For conditions of distribution and use, see files LICENSE.txt or @dmitigr_lib_name@.hpp
+
+#define DMITIGR_@dmitigr_lib_NAME@_HEADER_ONLY
+#define DMITIGR_@dmitigr_lib_NAME@_BUILDING
+#include "dmitigr/@dmitigr_lib_name@.hpp"

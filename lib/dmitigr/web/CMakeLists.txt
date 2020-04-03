@@ -12,10 +12,6 @@ dmitigr_set_library_info(web 0 1 "Web utilities")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_web_root_headers
-  ../web.hpp
-  )
-
 set(dmitigr_web_headers
   v1.hpp
   types_fwd.hpp
@@ -23,10 +19,6 @@ set(dmitigr_web_headers
 
 set(dmitigr_web_implementations
   v1.cpp
-  )
-
-set(dmitigr_web_transunits
-  ../web.cpp
   )
 
 # ------------------------------------------------------------------------------

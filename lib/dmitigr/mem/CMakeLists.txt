@@ -12,20 +12,12 @@ dmitigr_set_library_info(mem 0 1 "Memory management utilities")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_mem_root_headers
-  ../mem.hpp
-  )
-
 set(dmitigr_mem_headers
   mem.hpp
   types_fwd.hpp
   )
 
 set(dmitigr_mem_implementations
-  )
-
-set(dmitigr_mem_transunits
-  ../mem.cpp
   )
 
 # ------------------------------------------------------------------------------

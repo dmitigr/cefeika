@@ -12,10 +12,6 @@ dmitigr_set_library_info(mulf 0 1 "Multipart/form-data library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_mulf_root_headers
-  ../mulf.hpp
-  )
-
 set(dmitigr_mulf_headers
   form_data.hpp
   types_fwd.hpp
@@ -23,10 +19,6 @@ set(dmitigr_mulf_headers
 
 set(dmitigr_mulf_implementations
   form_data.cpp
-  )
-
-set(dmitigr_mulf_transunits
-  ../mulf.cpp
   )
 
 # ------------------------------------------------------------------------------

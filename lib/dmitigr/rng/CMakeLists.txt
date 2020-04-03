@@ -12,10 +12,6 @@ dmitigr_set_library_info(rng 0 1 "Random number generators")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_rng_root_headers
-  ../rng.hpp
-  )
-
 set(dmitigr_rng_headers
   rng.hpp
   str.hpp
@@ -24,10 +20,6 @@ set(dmitigr_rng_headers
 
 set(dmitigr_rng_implementations
   str.cpp
-  )
-
-set(dmitigr_rng_transunits
-  ../rng.cpp
   )
 
 # ------------------------------------------------------------------------------

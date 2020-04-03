@@ -12,10 +12,6 @@ dmitigr_set_library_info(ws 0 1 "WebSocket library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_ws_root_headers
-  ../ws.hpp
-  )
-
 set(dmitigr_ws_headers
   basics.hpp
   connection.hpp
@@ -31,10 +27,6 @@ set(dmitigr_ws_implementations
   http_request.cpp
   listener.cpp
   listener_options.cpp
-  )
-
-set(dmitigr_ws_transunits
-  ../ws.cpp
   )
 
 # ------------------------------------------------------------------------------

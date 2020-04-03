@@ -12,10 +12,6 @@ dmitigr_set_library_info(net 0 1 "Networking library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_net_root_headers
-  ../net.hpp
-  )
-
 set(dmitigr_net_headers
   descriptor.hpp
   exceptions.hpp
@@ -26,10 +22,6 @@ set(dmitigr_net_headers
 set(dmitigr_net_implementations
   exceptions.cpp
   net.cpp
-  )
-
-set(dmitigr_net_transunits
-  ../net.cpp
   )
 
 # ------------------------------------------------------------------------------

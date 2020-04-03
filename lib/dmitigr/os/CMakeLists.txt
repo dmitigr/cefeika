@@ -12,10 +12,6 @@ dmitigr_set_library_info(os 0 1 "OS interaction")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_os_root_headers
-  ../os.hpp
-  )
-
 set(dmitigr_os_headers
   env.hpp
   exceptions.hpp
@@ -32,10 +28,6 @@ set(dmitigr_os_implementations
   env.cpp
   proc.cpp
   proc_detach.cpp
-  )
-
-set(dmitigr_os_transunits
-  ../os.cpp
   )
 
 # ------------------------------------------------------------------------------

@@ -12,10 +12,6 @@ dmitigr_set_library_info(app 0 1 "Application support library")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_app_root_headers
-  ../app.hpp
-  )
-
 set(dmitigr_app_headers
   program_parameters.hpp
   types_fwd.hpp
@@ -23,10 +19,6 @@ set(dmitigr_app_headers
 
 set(dmitigr_app_implementations
   program_parameters.cpp
-  )
-
-set(dmitigr_app_transunits
-  ../app.cpp
   )
 
 # ------------------------------------------------------------------------------

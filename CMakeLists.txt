@@ -194,13 +194,26 @@ foreach(lib ${dmitigr_cefeika_libraries})
     set(dmitigr_${lib}_header_only ${DMITIGR_CEFEIKA_HEADER_ONLY})
   endif()
 
+  # Root headers
+  configure_file(lib/dmitigr/lib.hpp.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.hpp @ONLY
+    NEWLINE_STYLE UNIX)
+  list(APPEND dmitigr_${lib}_root_headers "../${lib}.hpp")
+
   if(NOT ${dmitigr_${lib}_header_only})
+    # Preprocessed headers
     foreach(file dll.hpp)
       configure_file(lib/dmitigr/${file}.in
         ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
         NEWLINE_STYLE UNIX)
       list(APPEND dmitigr_${lib}_preprocessed_headers ${file})
     endforeach()
+
+    # Transunits
+    configure_file(lib/dmitigr/lib.cpp.in
+      ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.cpp @ONLY
+      NEWLINE_STYLE UNIX)
+    list(APPEND dmitigr_${lib}_transunits "../${lib}.cpp")
   endif()
 
   # Both major and minor versions of 0 means that the library handles

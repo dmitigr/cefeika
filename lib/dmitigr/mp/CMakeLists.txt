@@ -12,10 +12,6 @@ dmitigr_set_library_info(mp 0 1 "Multiprocessing stuff")
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_mp_root_headers
-  ../mp.hpp
-  )
-
 set(dmitigr_mp_headers
   simple_thread_pool.hpp
   types_fwd.hpp
@@ -23,10 +19,6 @@ set(dmitigr_mp_headers
 
 set(dmitigr_mp_implementations
   simple_thread_pool.cpp
-  )
-
-set(dmitigr_mp_transunits
-  ../mp.cpp
   )
 
 # ------------------------------------------------------------------------------
