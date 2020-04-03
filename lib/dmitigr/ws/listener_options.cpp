@@ -4,8 +4,6 @@
 
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/listener_options.hpp"
-#include "dmitigr/ws/implementation_header.hpp"
-
 #include "dmitigr/net.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -174,5 +172,3 @@ DMITIGR_WS_API void Listener_options::swap(Listener_options& other)
 }
 
 } // namespace dmitigr::ws
-
-#include "dmitigr/ws/implementation_footer.hpp"

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
 #include "dmitigr/jrpc/errc.hpp"
-#include "dmitigr/jrpc/implementation_header.hpp"
 
 namespace dmitigr::jrpc {
 
@@ -25,5 +24,3 @@ DMITIGR_JRPC_INLINE const char* to_literal(const Server_errc errc)
 }
 
 } // namespace dmitigr::jrpc
-
-#include "dmitigr/jrpc/implementation_footer.hpp"

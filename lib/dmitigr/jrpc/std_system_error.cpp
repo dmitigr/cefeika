@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
 #include "dmitigr/jrpc/std_system_error.hpp"
-#include "dmitigr/jrpc/implementation_header.hpp"
 
 namespace dmitigr::jrpc {
 
@@ -44,5 +43,3 @@ DMITIGR_JRPC_INLINE std::error_condition make_error_condition(const Server_errc 
 }
 
 } // namespace dmitigr::jrpc
-
-#include "dmitigr/jrpc/implementation_footer.hpp"

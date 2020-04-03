@@ -4,8 +4,6 @@
 
 #include "dmitigr/jrpc/error.hpp"
 #include "dmitigr/jrpc/result.hpp"
-#include "dmitigr/jrpc/implementation_header.hpp"
-
 #include "dmitigr/rajson/conversions.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -92,5 +90,3 @@ DMITIGR_JRPC_INLINE std::unique_ptr<Response> Response::make(const std::string_v
 }
 
 } // namespace dmitigr::jrpc
-
-#include "dmitigr/jrpc/implementation_footer.hpp"

@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or mulf.hpp
 
 #include "dmitigr/mulf/form_data.hpp"
-#include "dmitigr/mulf/implementation_header.hpp"
-
 #include <dmitigr/str.hpp>
 #include <dmitigr/util/debug.hpp>
 
@@ -586,5 +584,3 @@ DMITIGR_MULF_INLINE std::unique_ptr<Form_data> Form_data::make(std::string data,
 }
 
 } // namespace dmitigr::mulf
-
-#include "dmitigr/mulf/implementation_footer.hpp"

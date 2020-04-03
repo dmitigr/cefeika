@@ -5,8 +5,6 @@
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/notification.hpp"
 #include "dmitigr/pgfe/pq.hpp"
-#include "dmitigr/pgfe/implementation_header.hpp"
-
 #include <dmitigr/util/debug.hpp>
 
 #include <cstring>
@@ -90,5 +88,3 @@ private:
 };
 
 } // namespace dmitigr::pgfe::detail
-
-#include "dmitigr/pgfe/implementation_footer.hpp"

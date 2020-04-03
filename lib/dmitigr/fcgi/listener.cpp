@@ -7,8 +7,6 @@
 #include "dmitigr/fcgi/listener_options.hpp"
 #include "dmitigr/fcgi/server_connection.hpp"
 #include "dmitigr/fcgi/streams.hpp"
-#include "dmitigr/fcgi/implementation_header.hpp"
-
 #include <dmitigr/net.hpp>
 #include <dmitigr/util/debug.hpp>
 
@@ -208,5 +206,3 @@ DMITIGR_FCGI_INLINE std::unique_ptr<Listener> Listener::make(const Listener_opti
 }
 
 } // namespace dmitigr::fcgi
-
-#include "dmitigr/fcgi/implementation_footer.hpp"

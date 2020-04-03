@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
 #include "dmitigr/jrpc/result.hpp"
-#include "dmitigr/jrpc/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 namespace dmitigr::jrpc::detail {
@@ -122,5 +120,3 @@ DMITIGR_JRPC_INLINE std::unique_ptr<Result> Result::make(rapidjson::Document rep
 }
 
 } // namespace dmitigr::jrpc
-
-#include "dmitigr/jrpc/implementation_footer.hpp"

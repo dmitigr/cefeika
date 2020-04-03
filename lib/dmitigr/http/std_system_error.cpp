@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
 #include "dmitigr/http/std_system_error.hpp"
-#include "dmitigr/http/implementation_header.hpp"
 
 namespace dmitigr::http {
 
@@ -44,5 +43,3 @@ DMITIGR_HTTP_INLINE std::error_condition make_error_condition(const Server_errc 
 }
 
 } // namespace dmitigr::http
-
-#include "dmitigr/http/implementation_footer.hpp"

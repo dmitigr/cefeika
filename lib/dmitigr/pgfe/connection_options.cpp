@@ -4,8 +4,6 @@
 
 #include "dmitigr/pgfe/connection_options.hpp"
 #include "dmitigr/pgfe/defaults.hpp"
-#include "dmitigr/pgfe/implementation_header.hpp"
-
 #include <dmitigr/net.hpp>
 #include <dmitigr/util/debug.hpp>
 
@@ -834,5 +832,3 @@ DMITIGR_PGFE_INLINE std::unique_ptr<Connection_options> Connection_options::make
 }
 
 } // namespace dmitigr::pgfe
-
-#include "dmitigr/pgfe/implementation_footer.hpp"

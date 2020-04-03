@@ -4,8 +4,6 @@
 
 #include "dmitigr/http/cookie.hpp"
 #include "dmitigr/http/syntax.hpp"
-#include "dmitigr/http/implementation_header.hpp"
-
 #include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
@@ -285,5 +283,3 @@ DMITIGR_HTTP_INLINE std::unique_ptr<Cookie> Cookie::make(const std::string_view 
 }
 
 } // namespace dmitigr::http
-
-#include "dmitigr/http/implementation_footer.hpp"

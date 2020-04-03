@@ -6,8 +6,6 @@
 #include "dmitigr/ws/http_request.hpp"
 #include "dmitigr/ws/listener.hpp"
 #include "dmitigr/ws/listener_options.hpp"
-#include "dmitigr/ws/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 #include <uwebsockets/App.h>
@@ -230,5 +228,3 @@ DMITIGR_WS_INLINE void Listener::close()
 #ifdef DMITIGR_WS_DEBUG
 #undef DMITIGR_WS_DEBUG
 #endif
-
-#include "dmitigr/ws/implementation_footer.hpp"

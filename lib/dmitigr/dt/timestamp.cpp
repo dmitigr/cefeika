@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or dt.hpp
 
 #include "dmitigr/dt/timestamp.hpp"
-#include "dmitigr/dt/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 namespace dmitigr::dt::detail {
@@ -328,5 +326,3 @@ DMITIGR_DT_INLINE std::unique_ptr<Timestamp> Timestamp::from_rfc7231(std::string
 }
 
 } // namespace dmitigr::dt
-
-#include "dmitigr/dt/implementation_footer.hpp"

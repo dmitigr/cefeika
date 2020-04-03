@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
 #include "dmitigr/http/date.hpp"
-#include "dmitigr/http/implementation_header.hpp"
-
 #include <dmitigr/util/debug.hpp>
 
 namespace dmitigr::http::detail {
@@ -113,5 +111,3 @@ DMITIGR_HTTP_INLINE std::unique_ptr<Date> Date::make(const dt::Timestamp* const 
 }
 
 } // namespace dmitigr::http
-
-#include "dmitigr/http/implementation_footer.hpp"

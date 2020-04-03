@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or url.hpp
 
 #include "dmitigr/url/query_string.hpp"
-#include "dmitigr/url/implementation_header.hpp"
-
 #include <dmitigr/str.hpp>
 #include <dmitigr/util/debug.hpp>
 
@@ -327,5 +325,3 @@ DMITIGR_URL_INLINE std::unique_ptr<Query_string> Query_string::make(const std::s
 }
 
 } // namespace dmitigr::url
-
-#include "dmitigr/url/implementation_footer.hpp"

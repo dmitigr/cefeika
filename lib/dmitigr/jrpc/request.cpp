@@ -4,8 +4,6 @@
 
 #include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/error.hpp"
-#include "dmitigr/jrpc/implementation_header.hpp"
-
 #include "dmitigr/str.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -284,5 +282,3 @@ DMITIGR_JRPC_INLINE std::unique_ptr<Request> Request::make_notification(const st
 }
 
 } // namespace dmitigr::jrpc
-
-#include "dmitigr/jrpc/implementation_footer.hpp"

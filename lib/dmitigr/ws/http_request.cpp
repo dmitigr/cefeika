@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/http_request.hpp"
-#include "dmitigr/ws/implementation_header.hpp"
-
 #include "dmitigr/net.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -57,5 +55,3 @@ private:
 };
 
 } // namespace dmitigr::ws::detail
-
-#include "dmitigr/ws/implementation_footer.hpp"

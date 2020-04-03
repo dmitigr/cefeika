@@ -5,12 +5,9 @@
 #include "dmitigr/net/descriptor.hpp"
 #include "dmitigr/net/exceptions.hpp"
 #include "dmitigr/net/net.hpp"
-#include "dmitigr/net/implementation_header.hpp"
-
 #ifdef _WIN32
 #include "dmitigr/os/windows.hpp"
 #endif
-
 #include "dmitigr/util/debug.hpp"
 
 #include <algorithm>
@@ -1240,5 +1237,3 @@ DMITIGR_NET_INLINE Socket_readiness poll(const Socket_native socket,
 }
 
 } // namespace dmitigr::net
-
-#include "dmitigr/net/implementation_footer.hpp"

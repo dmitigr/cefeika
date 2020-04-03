@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
 #include "dmitigr/pgfe/compositional.hpp"
-#include "dmitigr/pgfe/implementation_header.hpp"
-
 #include <dmitigr/util/debug.hpp>
 
 #include <functional>
@@ -29,5 +27,3 @@ inline bool is_invariant_ok(Compositional& o)
 }
 
 } // namespace dmitigr::pgfe::detail
-
-#include "dmitigr/pgfe/implementation_footer.hpp"

@@ -12,8 +12,6 @@
 
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/connection.hpp"
-#include "dmitigr/ws/implementation_header.hpp"
-
 #include "dmitigr/net.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -169,8 +167,6 @@ DMITIGR_WS_INLINE void Connection::handle_close(int, std::string_view)
 {}
 
 } // namespace dmitigr::ws
-
-#include "dmitigr/ws/implementation_footer.hpp"
 
 #ifdef __GNUG__
 #pragma GCC diagnostic pop

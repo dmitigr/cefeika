@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or os.hpp
 
 #include "dmitigr/os/env.hpp"
-#include "dmitigr/os/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 #include <cstdlib>
@@ -131,5 +129,3 @@ DMITIGR_OS_INLINE std::optional<std::string> environment_variable(const std::str
 }
 
 } // namespace dmitigr::os::env
-
-#include "dmitigr/os/implementation_footer.hpp"

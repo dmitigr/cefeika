@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or fs.hpp
 
 #include "dmitigr/fs/fs.hpp"
-#include "dmitigr/fs/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 namespace dmitigr::fs {
@@ -57,5 +55,3 @@ DMITIGR_FS_INLINE std::optional<std::filesystem::path> parent_directory_path(con
 }
 
 } // namespace dmitigr::fs
-
-#include "dmitigr/fs/implementation_footer.hpp"

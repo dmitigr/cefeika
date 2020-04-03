@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
 #include "dmitigr/http/errc.hpp"
-#include "dmitigr/http/implementation_header.hpp"
 
 namespace dmitigr::http {
 
@@ -36,5 +35,3 @@ DMITIGR_HTTP_INLINE const char* to_literal(const Server_errc errc)
 }
 
 } // namespace dmitigr::http
-
-#include "dmitigr/http/implementation_footer.hpp"

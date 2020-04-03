@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or img.hpp
 
 #include "dmitigr/img/graphicsmagick.hpp"
-#include "dmitigr/img/implementation_header.hpp"
 
 #include <iostream>
 #include <memory>
@@ -63,5 +62,3 @@ DMITIGR_IMG_INLINE void resize(std::istream& input,
 }
 
 } // namespace dmitigr::img::graphicsmagick
-
-#include "dmitigr/img/implementation_footer.hpp"

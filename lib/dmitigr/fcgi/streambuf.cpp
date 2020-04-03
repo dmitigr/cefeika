@@ -5,8 +5,6 @@
 #include "dmitigr/fcgi/basics.hpp"
 #include "dmitigr/fcgi/server_connection.hpp"
 #include "dmitigr/fcgi/streambuf.hpp"
-#include "dmitigr/fcgi/implementation_header.hpp"
-
 #include <dmitigr/math.hpp>
 #include <dmitigr/util/debug.hpp>
 
@@ -587,5 +585,3 @@ private:
 };
 
 } // namespace dmitigr::fcgi::detail
-
-#include "dmitigr/fcgi/implementation_footer.hpp"

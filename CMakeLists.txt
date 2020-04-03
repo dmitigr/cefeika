@@ -174,8 +174,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   dmitigr_set_library_info_lib_variables(${lib})
 
-  foreach(file dll.hpp implementation_footer.hpp
-      implementation_header.hpp version.hpp version.cpp version.rc)
+  foreach(file dll.hpp version.hpp version.cpp version.rc)
     configure_file(lib/dmitigr/${file}.in
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
       NEWLINE_STYLE UNIX)
@@ -193,8 +192,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Sources
   # ------------------------------------
 
-  list(APPEND dmitigr_${lib}_preprocessed_headers
-    dll.hpp implementation_footer.hpp implementation_header.hpp version.hpp)
+  list(APPEND dmitigr_${lib}_preprocessed_headers dll.hpp version.hpp)
   list(APPEND dmitigr_${lib}_implementations version.cpp)
   if (WIN32)
     list(APPEND dmitigr_${lib}_build_only_sources version.rc)

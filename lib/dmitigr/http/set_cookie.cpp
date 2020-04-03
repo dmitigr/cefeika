@@ -4,8 +4,6 @@
 
 #include "dmitigr/http/set_cookie.hpp"
 #include "dmitigr/http/syntax.hpp"
-#include "dmitigr/http/implementation_header.hpp"
-
 #include <dmitigr/net.hpp>
 #include <dmitigr/str.hpp>
 #include <dmitigr/util/debug.hpp>
@@ -489,5 +487,3 @@ DMITIGR_HTTP_INLINE std::unique_ptr<Set_cookie> Set_cookie::make(std::string nam
 }
 
 } // namespace dmitigr::http
-
-#include "dmitigr/http/implementation_footer.hpp"

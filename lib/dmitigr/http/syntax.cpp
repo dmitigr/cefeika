@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
 #include "dmitigr/http/syntax.hpp"
-#include "dmitigr/http/implementation_header.hpp"
 
 namespace dmitigr::http {
 
@@ -19,5 +18,3 @@ DMITIGR_HTTP_INLINE bool is_valid_cookie_value(const std::string_view value)
 }
 
 } // namespace dmitigr::http
-
-#include "dmitigr/http/implementation_footer.hpp"

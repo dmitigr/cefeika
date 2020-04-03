@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or uuid.hpp
 
 #include "dmitigr/uuid/uuid.hpp"
-#include "dmitigr/uuid/implementation_header.hpp"
-
 #include "dmitigr/rng.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -88,5 +86,3 @@ DMITIGR_UUID_INLINE std::unique_ptr<Uuid> Uuid::make()
 }
 
 } // namespace dmitigr::uuid
-
-#include "dmitigr/uuid/implementation_footer.hpp"

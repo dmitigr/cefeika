@@ -7,7 +7,6 @@
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #include "dmitigr/@dmitigr_lib_name@/version.hpp"
-#include "dmitigr/@dmitigr_lib_name@/implementation_header.hpp"
 
 namespace dmitigr::@dmitigr_lib_name@ {
 
@@ -22,5 +21,3 @@ DMITIGR_@dmitigr_lib_NAME@_INLINE std::int_fast32_t version() noexcept
 }
 
 } // namespace dmitigr::@dmitigr_lib_name@
-
-#include "dmitigr/@dmitigr_lib_name@/implementation_footer.hpp"

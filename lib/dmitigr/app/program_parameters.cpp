@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or app.hpp
 
 #include "dmitigr/app/program_parameters.hpp"
-#include "dmitigr/app/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 namespace dmitigr::app::detail {
@@ -114,5 +112,3 @@ DMITIGR_APP_INLINE std::unique_ptr<Program_parameters> Program_parameters::make(
 }
 
 } // namespace dmitigr::app
-
-#include "dmitigr/app/implementation_footer.hpp"

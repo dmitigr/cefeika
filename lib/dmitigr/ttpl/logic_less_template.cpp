@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or ttpl.hpp
 
 #include "dmitigr/ttpl/logic_less_template.hpp"
-#include "dmitigr/ttpl/implementation_header.hpp"
-
 #include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
@@ -362,5 +360,3 @@ DMITIGR_TTPL_INLINE std::unique_ptr<Logic_less_template> Logic_less_template::ma
 }
 
 } // namespace dmitigr::ttpl
-
-#include "dmitigr/ttpl/implementation_footer.hpp"

@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or web.hpp
 
 #include "dmitigr/web/v1.hpp"
-#include "dmitigr/web/implementation_header.hpp"
-
 #include "dmitigr/http.hpp"
 #include "dmitigr/str.hpp"
 #include "dmitigr/util/debug.hpp"
@@ -119,5 +117,3 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
 }
 
 } // namespace dmitigr::web::v1
-
-#include "dmitigr/web/implementation_footer.hpp"

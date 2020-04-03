@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
 #include "dmitigr/http/basics.hpp"
-#include "dmitigr/http/implementation_header.hpp"
-
 #include <dmitigr/util/debug.hpp>
 
 namespace dmitigr::http {
@@ -29,5 +27,3 @@ DMITIGR_HTTP_INLINE std::string to_string(const Same_site ss)
 }
 
 } // namespace dmitigr::http
-
-#include "dmitigr/http/implementation_footer.hpp"

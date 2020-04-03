@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or dt.hpp
 
 #include "dmitigr/dt/basics.hpp"
-#include "dmitigr/dt/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 namespace dmitigr::dt {
@@ -166,5 +164,3 @@ DMITIGR_DT_INLINE bool is_leap_year(const int year)
 }
 
 } // namespace dmitigr::dt
-
-#include "dmitigr/dt/implementation_footer.hpp"

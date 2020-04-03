@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or rajson.hpp
 
 #include "dmitigr/rajson/conversions.hpp"
-#include "dmitigr/rajson/implementation_header.hpp"
 
 namespace dmitigr::rajson {
 
@@ -15,5 +14,3 @@ DMITIGR_RAJSON_INLINE rapidjson::Document to_parsed_json(const std::string_view 
 }
 
 } // namespace dmitigr::rajson
-
-#include "dmitigr/rajson/implementation_footer.hpp"

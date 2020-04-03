@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or str.hpp
 
 #include "dmitigr/str/str.hpp"
-#include "dmitigr/str/implementation_header.hpp"
 
 #include <istream>
 #include <type_traits>
@@ -330,5 +329,3 @@ unquoted_substring(const std::string& str, std::string::size_type pos, const std
 }
 
 } // namespace dmitigr::str
-
-#include "dmitigr/str/implementation_footer.hpp"

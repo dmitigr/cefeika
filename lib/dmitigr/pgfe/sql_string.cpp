@@ -6,8 +6,6 @@
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/parameterizable.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
-#include "dmitigr/pgfe/implementation_header.hpp"
-
 #include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
@@ -1374,5 +1372,3 @@ DMITIGR_PGFE_INLINE std::unique_ptr<Sql_string> Sql_string::make(const std::stri
 }
 
 } // namespace dmitigr::pgfe
-
-#include "dmitigr/pgfe/implementation_footer.hpp"

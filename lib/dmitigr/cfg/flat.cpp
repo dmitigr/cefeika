@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or cfg.hpp
 
 #include "dmitigr/cfg/flat.hpp"
-#include "dmitigr/cfg/implementation_header.hpp"
-
 #include "dmitigr/str.hpp"
 #include "dmitigr/util/debug.hpp"
 
@@ -146,5 +144,3 @@ DMITIGR_CFG_INLINE std::unique_ptr<Flat> Flat::make(const std::filesystem::path&
 }
 
 } // namespace dmitigr::cfg
-
-#include "dmitigr/cfg/implementation_footer.hpp"

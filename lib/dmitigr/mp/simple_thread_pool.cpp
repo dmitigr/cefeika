@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
 #include "dmitigr/mp/simple_thread_pool.hpp"
-#include "dmitigr/mp/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 #include <condition_variable>
@@ -179,5 +177,3 @@ DMITIGR_MP_INLINE std::unique_ptr<Simple_threadpool> Simple_threadpool::make(con
 }
 
 } // namespace dmitigr::mp
-
-#include "dmitigr/mp/implementation_footer.hpp"

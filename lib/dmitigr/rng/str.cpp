@@ -4,8 +4,6 @@
 
 #include "dmitigr/rng/rng.hpp"
 #include "dmitigr/rng/str.hpp"
-#include "dmitigr/rng/implementation_header.hpp"
-
 #include "dmitigr/util/debug.hpp"
 
 namespace dmitigr::rng {
@@ -36,5 +34,3 @@ DMITIGR_RNG_INLINE std::string random_string(const char beg, const char end, con
 }
 
 } // namespace dmitigr::rng
-
-#include "dmitigr/rng/implementation_footer.hpp"

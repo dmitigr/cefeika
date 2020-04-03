@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or net.hpp
 
 #include "dmitigr/net/exceptions.hpp"
-#include "dmitigr/net/implementation_header.hpp"
-
 #ifdef _WIN32
 #include "dmitigr/os/windows.hpp"
 
@@ -56,5 +54,3 @@ DMITIGR_NET_INLINE int Wsa_exception::last_error() noexcept
 #endif  // _WIN32
 
 } // namespace dmitigr::net
-
-#include "dmitigr/net/implementation_footer.hpp"
