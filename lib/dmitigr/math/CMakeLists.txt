@@ -18,7 +18,6 @@ set(dmitigr_math_root_headers
 
 set(dmitigr_math_headers
   math.hpp
-  types_fwd.hpp
   )
 
 set(dmitigr_math_implementations

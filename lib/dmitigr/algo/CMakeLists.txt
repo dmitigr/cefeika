@@ -18,7 +18,6 @@ set(dmitigr_algo_root_headers
 
 set(dmitigr_algo_headers
   algo.hpp
-  types_fwd.hpp
   )
 
 set(dmitigr_algo_implementations
