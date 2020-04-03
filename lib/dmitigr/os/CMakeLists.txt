@@ -18,6 +18,7 @@ set(dmitigr_os_root_headers
 
 set(dmitigr_os_headers
   env.hpp
+  exceptions.hpp
   proc.hpp
   proc_detach.hpp
   types_fwd.hpp

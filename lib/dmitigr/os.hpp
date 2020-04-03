@@ -24,6 +24,7 @@
 #define DMITIGR_OS_HPP
 
 #include "dmitigr/os/env.hpp"
+#include "dmitigr/os/exceptions.hpp"
 #include "dmitigr/os/proc.hpp"
 #include "dmitigr/os/proc_detach.hpp"
 #include "dmitigr/os/version.hpp"

@@ -8,10 +8,8 @@
 #error windows.hpp is usable only on Microsoft Windows!
 #endif
 
-#ifndef DMITIGR_UTIL_WINDOWS_HPP
-#define DMITIGR_UTIL_WINDOWS_HPP
-
-#include "dmitigr/util/exceptions.hpp"
+#ifndef DMITIGR_OS_WINDOWS_HPP
+#define DMITIGR_OS_WINDOWS_HPP
 
 #include <utility>
 
@@ -28,6 +26,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #include <Windows.h>
 
 namespace dmitigr::os::windows {
@@ -42,7 +43,7 @@ struct Handle_guard final {
   ~Handle_guard()
   {
     if (!close())
-      Sys_exception::report("CloseHandle");
+      std::fprintf(stderr, "%s: error %d\n", "CloseHandle", GetLastError());
   }
 
   /**
@@ -110,7 +111,7 @@ struct Handle_guard final {
   {
     bool result{true};
     if (handle_ != INVALID_HANDLE_VALUE) {
-      result = ::CloseHandle(handle_);
+      result = CloseHandle(handle_);
       if (result)
         handle_ = INVALID_HANDLE_VALUE;
     }
@@ -123,4 +124,4 @@ private:
 
 } // namespace dmitigr::os::windows
 
-#endif  // DMITIGR_UTIL_WINDOWS_HPP
+#endif  // DMITIGR_OS_WINDOWS_HPP

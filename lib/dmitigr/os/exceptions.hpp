@@ -2,15 +2,19 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or util.hpp
 
-#ifndef DMITIGR_UTIL_EXCEPTIONS_HPP
-#define DMITIGR_UTIL_EXCEPTIONS_HPP
+#ifndef DMITIGR_OS_EXCEPTIONS_HPP
+#define DMITIGR_OS_EXCEPTIONS_HPP
 
 #include <cassert>
 #include <cstdio>
 #include <string>
 #include <system_error>
 
-namespace dmitigr {
+#ifdef _WIN32
+#include "dmitigr/os/windows.hpp"
+#endif
+
+namespace dmitigr::os {
 
 /**
  * @brief An exception thrown on system error.
@@ -46,6 +50,6 @@ public:
   }
 };
 
-} // namespace dmitigr
+} // namespace dmitigr::os
 
-#endif  // DMITIGR_UTIL_EXCEPTIONS_HPP
+#endif  // DMITIGR_OS_EXCEPTIONS_HPP

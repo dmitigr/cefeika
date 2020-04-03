@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <string>
 
 #include <Winsock2.h> // includes Ws2def.h
 #endif

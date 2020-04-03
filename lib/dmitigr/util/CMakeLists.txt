@@ -19,7 +19,6 @@ set(dmitigr_util_root_headers
 set(dmitigr_util_headers
   basics.hpp
   debug.hpp
-  exceptions.hpp
   filesystem.hpp
   macros.hpp
   test.hpp

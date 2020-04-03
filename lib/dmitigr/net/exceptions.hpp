@@ -6,7 +6,7 @@
 #define DMITIGR_NET_EXCEPTIONS_HPP
 
 #include "dmitigr/net/dll.hpp"
-#include "dmitigr/util/exceptions.hpp"
+#include "dmitigr/os/exceptions.hpp"
 
 namespace dmitigr::net {
 
