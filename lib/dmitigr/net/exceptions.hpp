@@ -66,7 +66,7 @@ public:
 #ifdef _WIN32
 #define DMITIGR_NET_EXCEPTION dmitigr::net::Wsa_exception
 #else
-#define DMITIGR_NET_EXCEPTION dmitigr::Sys_exception
+#define DMITIGR_NET_EXCEPTION dmitigr::os::Sys_exception
 #endif
 
 } // namespace dmitigr::net
