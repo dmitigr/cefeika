@@ -6,6 +6,16 @@
 // This file is generated automatically. Edit lib.cpp.in instead!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+#ifndef DMITIGR_STR_HEADER_ONLY
+#define DMITIGR_STR_HEADER_ONLY
+#endif
+#ifndef DMITIGR_UTIL_HEADER_ONLY
+#define DMITIGR_UTIL_HEADER_ONLY
+#endif
+#ifndef DMITIGR_URL_HEADER_ONLY
 #define DMITIGR_URL_HEADER_ONLY
+#endif
+#ifndef DMITIGR_URL_BUILDING
 #define DMITIGR_URL_BUILDING
+#endif
 #include "dmitigr/url.hpp"

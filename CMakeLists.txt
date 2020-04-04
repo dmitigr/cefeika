@@ -210,6 +210,19 @@ foreach(lib ${dmitigr_cefeika_libraries})
     endforeach()
 
     # Transunits
+
+    # dmitigr_lib_deps_header_only_defines is used in lib.cpp.in
+    set(dmitigr_lib_deps_header_only_defines "")
+    foreach(dep ${dmitigr_cefeika_${lib}_deps})
+      string(TOUPPER "${dep}" DEP)
+      set(dmitigr_lib_deps_header_only_defines
+        "${dmitigr_lib_deps_header_only_defines}
+#ifndef DMITIGR_${DEP}_HEADER_ONLY
+#define DMITIGR_${DEP}_HEADER_ONLY
+#endif")
+    endforeach()
+    string(STRIP "${dmitigr_lib_deps_header_only_defines}" dmitigr_lib_deps_header_only_defines)
+
     configure_file(lib/dmitigr/lib.cpp.in
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.cpp @ONLY
       NEWLINE_STYLE UNIX)

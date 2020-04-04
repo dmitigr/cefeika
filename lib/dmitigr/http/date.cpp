@@ -2,8 +2,6 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
-#define DMITIGR_DT_HEADER_ONLY
-#include "dmitigr/dt/timestamp.hpp"
 #include "dmitigr/http/date.hpp"
 #include "dmitigr/util/debug.hpp"
 

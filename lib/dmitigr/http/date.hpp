@@ -9,7 +9,7 @@
 #include "dmitigr/http/header.hpp"
 #include "dmitigr/http/types_fwd.hpp"
 
-#include "dmitigr/dt/types_fwd.hpp"
+#include "dmitigr/dt/timestamp.hpp"
 
 #include <memory>
 #include <string>

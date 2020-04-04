@@ -6,6 +6,13 @@
 // This file is generated automatically. Edit lib.cpp.in instead!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+#ifndef DMITIGR_UTIL_HEADER_ONLY
+#define DMITIGR_UTIL_HEADER_ONLY
+#endif
+#ifndef DMITIGR_MP_HEADER_ONLY
 #define DMITIGR_MP_HEADER_ONLY
+#endif
+#ifndef DMITIGR_MP_BUILDING
 #define DMITIGR_MP_BUILDING
+#endif
 #include "dmitigr/mp.hpp"
