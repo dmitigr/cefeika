@@ -18,7 +18,6 @@ set(dmitigr_app_headers
   )
 
 set(dmitigr_app_implementations
-  program_parameters.cpp
   )
 
 # ------------------------------------------------------------------------------

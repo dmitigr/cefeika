@@ -18,7 +18,6 @@ class Program_parameters;
  * @brief The implementation details.
  */
 namespace detail {
-class iProgram_parameters;
 } // namespace detail
 } // namespace app
 } // namespace dmitigr

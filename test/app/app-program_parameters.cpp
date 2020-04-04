@@ -13,15 +13,15 @@ int main(int argc, char* argv[])
   using namespace dmitigr::test;
 
   try {
-    auto po = app::Program_parameters::make(argc, argv);
-    const auto epath = po->executable_path();
+    app::Program_parameters po{argc, argv};
+    const auto epath = po.executable_path();
     ASSERT(!epath.empty());
     std::cout << "Executable path: " << epath << std::endl;
 
-    const auto& cname = po->command_name();
+    const auto& cname = po.command_name();
     std::cout << "Command name: " << cname.value_or("<UNSPECIFIED>") << std::endl;
 
-    const auto& opts = po->options();
+    const auto& opts = po.options();
     std::cout << opts.size() << " options specified";
     if (!opts.empty()) {
       std::cout << ":" << std::endl;
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     } else
       std::cout << "." << std::endl;
 
-    const auto& args = po->arguments();
+    const auto& args = po.arguments();
     std::cout << args.size() << " arguments specified";
     if (!args.empty()) {
       std::cout << ":" << std::endl;
