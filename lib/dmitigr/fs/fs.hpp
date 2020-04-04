@@ -25,7 +25,7 @@
 
 #include "dmitigr/fs/dll.hpp"
 #include "dmitigr/fs/version.hpp"
-#include "dmitigr/util/filesystem.hpp"
+#include "dmitigr/fs/filesystem.hpp"
 
 #include <optional>
 #include <vector>
