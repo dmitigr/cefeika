@@ -28,7 +28,7 @@
 #include "dmitigr/net/exceptions.hpp"
 #include "dmitigr/net/types_fwd.hpp"
 #include "dmitigr/net/version.hpp"
-#include "dmitigr/fs/fs.hpp"
+#include "dmitigr/fs/filesystem.hpp"
 #include "dmitigr/util/basics.hpp"
 
 #include <chrono>
