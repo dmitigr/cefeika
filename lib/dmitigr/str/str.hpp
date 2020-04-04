@@ -55,7 +55,7 @@ namespace dmitigr::str {
 enum class Read_errc { success = 0, stream_error, invalid_input };
 
 /**
- * @brief An exception that may be thrown by `read_*()` functions.
+ * @brief An exception that may be thrown by reader functions.
  */
 class Read_exception final : public std::system_error {
 public:
@@ -193,7 +193,7 @@ DMITIGR_STR_API std::string read_simple_phrase_to_string(std::istream& input);
  */
 template<typename Pred>
 std::vector<std::string> file_to_strings_if(const std::filesystem::path& path,
-  Pred pred, const char delimiter = '\n', const bool is_binary = false)
+  Pred&& pred, const char delimiter = '\n', const bool is_binary = false)
 {
   std::vector<std::string> result;
   std::string line;
@@ -370,7 +370,7 @@ DMITIGR_STR_API std::string_view::size_type position_of_non_space(std::string_vi
  * the position of the character followed `c` as the second element.
  */
 template<typename Pred>
-std::pair<std::string, std::string::size_type> substring_if(const std::string& str, Pred pred,
+std::pair<std::string, std::string::size_type> substring_if(const std::string& str, Pred&& pred,
   std::string::size_type pos, const std::locale& loc = {})
 {
   DMITIGR_ASSERT(pos <= str.size());
@@ -420,7 +420,7 @@ std::pair<std::string, std::string::size_type> unquoted_substring(const std::str
  * @returns The string with stringified elements of the sequence in range `[b, e)`.
  */
 template<class InputIterator, typename Function>
-std::string to_string(const InputIterator b, const InputIterator e, const std::string& sep, Function to_str)
+std::string to_string(const InputIterator b, const InputIterator e, const std::string& sep, Function&& to_str)
 {
   std::string result;
   if (b != e) {
@@ -440,9 +440,9 @@ std::string to_string(const InputIterator b, const InputIterator e, const std::s
  * @returns The string with stringified elements of the `Container`.
  */
 template<class Container, typename Function>
-std::string to_string(const Container& cont, const std::string& sep, Function to_str)
+std::string to_string(const Container& cont, const std::string& sep, Function&& to_str)
 {
-  return to_string(cbegin(cont), cend(cont), sep, to_str);
+  return to_string(cbegin(cont), cend(cont), sep, std::forward<Function>(to_str));
 }
 
 /**
