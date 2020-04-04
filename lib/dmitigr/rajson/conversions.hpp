@@ -5,7 +5,6 @@
 #ifndef DMITIGR_RAJSON_CONVERSIONS_HPP
 #define DMITIGR_RAJSON_CONVERSIONS_HPP
 
-#include "dmitigr/rajson/dll.hpp"
 #include "dmitigr/rajson/fwd.hpp"
 
 #include <rapidjson/document.h>
@@ -39,7 +38,12 @@ std::string to_stringified_json(const rapidjson::GenericValue<Encoding, Allocato
 /**
  * @returns The instance of JSON document constructed by parsing the `input`.
  */
-DMITIGR_RAJSON_API rapidjson::Document to_parsed_json(const std::string_view input);
+inline rapidjson::Document to_parsed_json(const std::string_view input)
+{
+  rapidjson::Document result;
+  result.Parse(input.data(), input.size());
+  return result;
+}
 
 /**
  * @brief The centralized "namespace" for conversion algorithms implementations.
@@ -126,9 +130,5 @@ struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
 };
 
 } // namespace dmitigr::rajson
-
-#ifdef DMITIGR_RAJSON_HEADER_ONLY
-#include "dmitigr/rajson/conversions.cpp"
-#endif
 
 #endif  // DMITIGR_RAJSON_CONVERSIONS_HPP

@@ -19,16 +19,14 @@ set(dmitigr_rajson_headers
   )
 
 set(dmitigr_rajson_implementations
-  conversions.cpp
   )
 
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_rajson_target_link_libraries_public thirdparty_rapidjson dmitigr::util)
 set(dmitigr_rajson_target_link_libraries_interface thirdparty_rapidjson dmitigr::util)
-foreach(t public interface)
+foreach(t interface)
   set(dmitigr_rajson_target_compile_definitions_${t}
     -DRAPIDJSON_HAS_STDSTRING
     -DRAPIDJSON_NO_SIZETYPEDEFINE)
