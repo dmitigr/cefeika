@@ -25,8 +25,8 @@
 
 #include "dmitigr/base/basics.hpp"
 #include "dmitigr/base/debug.hpp"
+#include "dmitigr/base/filesystem.hpp"
 #include "dmitigr/base/macros.hpp"
-#include "dmitigr/base/test.hpp"
 #include "dmitigr/base/version.hpp"
 
 #endif  // DMITIGR_BASE_BASE_HPP

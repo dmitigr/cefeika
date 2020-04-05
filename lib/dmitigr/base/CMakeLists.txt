@@ -15,8 +15,8 @@ dmitigr_set_library_info(base 0 1 "Basics library")
 set(dmitigr_base_headers
   basics.hpp
   debug.hpp
+  filesystem.hpp
   macros.hpp
-  test.hpp
   )
 
 set(dmitigr_base_implementations
