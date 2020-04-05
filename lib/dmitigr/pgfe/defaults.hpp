@@ -11,7 +11,7 @@
 
 #include "dmitigr/pgfe/basics.hpp"
 
-#include <dmitigr/fs/filesystem.hpp>
+#include <dmitigr/util/filesystem.hpp>
 
 #include <chrono>
 #include <cstdint>

@@ -28,12 +28,6 @@ set(dmitigr_fs_implementations
 set(dmitigr_fs_target_link_libraries_public dmitigr::util)
 set(dmitigr_fs_target_link_libraries_interface dmitigr::util)
 
-if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-  dmitigr_append_cppfs(dmitigr_fs_target_link_libraries_public)
-else()
-  dmitigr_append_cppfs(dmitigr_fs_target_link_libraries_interface)
-endif()
-
 # ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------

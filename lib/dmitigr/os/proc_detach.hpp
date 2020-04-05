@@ -7,9 +7,9 @@
 #ifndef DMITIGR_OS_PROC_DETACH_HPP
 #define DMITIGR_OS_PROC_DETACH_HPP
 
-#include "dmitigr/fs/filesystem.hpp"
 #include "dmitigr/os/dll.hpp"
 #include "dmitigr/os/proc.hpp"
+#include "dmitigr/util/filesystem.hpp"
 
 #include <functional>
 
