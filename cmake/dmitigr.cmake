@@ -33,10 +33,7 @@ endfunction()
 
 function(dmitigr_target_compile_options t)
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # FIXME: GDB 7.7 doesn't print info of rvalues' that are function arguments
-    # properly when compiled with -gdwarf-4. So, using -gdwarf-3 instead.
     target_compile_options(${t} PRIVATE
-      -gdwarf-3
       -pedantic
       -Wall
       -Wextra
