@@ -17,24 +17,24 @@
 namespace dmitigr::testo {
 
 template<typename F>
-bool is_logic_throw_works(F f)
+bool is_logic_throw_works(F&& f) noexcept
 {
   try {
     f();
   } catch (const std::logic_error&) {
     return true;
-  }
+  } catch (...) {}
   return false;
 }
 
 template<typename F>
-bool is_runtime_throw_works(F f)
+bool is_runtime_throw_works(F&& f) noexcept
 {
   try {
     f();
   } catch (const std::runtime_error&) {
     return true;
-  }
+  } catch (...) {}
   return false;
 }
 
