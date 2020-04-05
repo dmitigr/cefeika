@@ -25,8 +25,8 @@ set(dmitigr_uuid_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_uuid_target_link_libraries_public dmitigr::rng dmitigr::util)
-set(dmitigr_uuid_target_link_libraries_interface dmitigr::rng dmitigr::util)
+set(dmitigr_uuid_target_link_libraries_public dmitigr::rng)
+set(dmitigr_uuid_target_link_libraries_interface dmitigr::rng)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

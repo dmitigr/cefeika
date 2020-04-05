@@ -25,8 +25,8 @@ set(dmitigr_mp_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_mp_target_link_libraries_public dmitigr::util)
-set(dmitigr_mp_target_link_libraries_interface dmitigr::util)
+set(dmitigr_mp_target_link_libraries_public dmitigr::base)
+set(dmitigr_mp_target_link_libraries_interface dmitigr::base)
 
 #
 # System

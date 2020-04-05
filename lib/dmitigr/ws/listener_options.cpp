@@ -4,8 +4,8 @@
 
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/listener_options.hpp"
-#include "dmitigr/net/net.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
+#include <dmitigr/net/net.hpp>
 
 #include <limits>
 #include <stdexcept>

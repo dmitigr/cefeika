@@ -2,9 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
-#include "dmitigr/jrpc.hpp"
-
-#include "dmitigr/util/test.hpp"
+#include <dmitigr/base/test.hpp>
+#include <dmitigr/jrpc.hpp>
 
 int main(int, char* argv[])
 {

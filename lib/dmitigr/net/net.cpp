@@ -4,9 +4,9 @@
 
 #include "dmitigr/net/net.hpp"
 #ifdef _WIN32
-#include "dmitigr/os/windows.hpp"
+#include <dmitigr/os/windows.hpp>
 #endif
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
 #include <array>

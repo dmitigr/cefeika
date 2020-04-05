@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
 #include "dmitigr/pgfe/basics.hpp"
-#include <dmitigr/util/basics.hpp>
+#include <dmitigr/base/basics.hpp>
 
 #include <cstring>
 

@@ -6,8 +6,8 @@
 // This file is generated automatically. Edit lib.cpp.in instead!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#ifndef DMITIGR_UTIL_HEADER_ONLY
-#define DMITIGR_UTIL_HEADER_ONLY
+#ifndef DMITIGR_BASE_HEADER_ONLY
+#define DMITIGR_BASE_HEADER_ONLY
 #endif
 #ifndef DMITIGR_DT_HEADER_ONLY
 #define DMITIGR_DT_HEADER_ONLY

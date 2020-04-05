@@ -6,11 +6,11 @@
 #define DMITIGR_WEB_V1_HPP
 
 #include "dmitigr/web/dll.hpp"
-#include "dmitigr/util/filesystem.hpp"
-#include "dmitigr/fcgi/fcgi.hpp"
-#include "dmitigr/jrpc/jrpc.hpp"
-#include "dmitigr/mulf/mulf.hpp"
-#include "dmitigr/ttpl/ttpl.hpp"
+#include <dmitigr/base/filesystem.hpp>
+#include <dmitigr/fcgi/fcgi.hpp>
+#include <dmitigr/jrpc/jrpc.hpp>
+#include <dmitigr/mulf/mulf.hpp>
+#include <dmitigr/ttpl/ttpl.hpp>
 
 #include <functional>
 #include <map>

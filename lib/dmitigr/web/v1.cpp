@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see files LICENSE.txt or web.hpp
 
 #include "dmitigr/web/v1.hpp"
-#include "dmitigr/http/http.hpp"
-#include "dmitigr/str/str.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
+#include <dmitigr/http/http.hpp>
+#include <dmitigr/str/str.hpp>
 
 #include <regex>
 

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or base.hpp
 
-#ifndef DMITIGR_UTIL_BASICS_HPP
-#define DMITIGR_UTIL_BASICS_HPP
+#ifndef DMITIGR_BASE_BASICS_HPP
+#define DMITIGR_BASE_BASICS_HPP
 
 #include <type_traits>
 
@@ -157,4 +157,4 @@ operator^=(T& lhs, const T rhs) noexcept
     return dmitigr::operator^=(lhs, rhs);                   \
   }
 
-#endif  // DMITIGR_UTIL_BASICS_HPP
+#endif  // DMITIGR_BASE_BASICS_HPP

@@ -31,8 +31,7 @@ foreach (t public interface)
     dmitigr::http
     dmitigr::jrpc
     dmitigr::mulf
-    dmitigr::ttpl
-    dmitigr::util)
+    dmitigr::ttpl)
 endforeach()
 
 # ------------------------------------------------------------------------------

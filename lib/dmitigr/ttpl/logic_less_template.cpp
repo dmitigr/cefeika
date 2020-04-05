@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or ttpl.hpp
 
 #include "dmitigr/ttpl/logic_less_template.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
 #include <locale>

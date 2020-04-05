@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or fcgi.hpp
 
+#include <dmitigr/base/test.hpp>
 #include <dmitigr/fcgi.hpp>
-#include <dmitigr/util/test.hpp>
 
 #include <atomic>
 #include <iostream>

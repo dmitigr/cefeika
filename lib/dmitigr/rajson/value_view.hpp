@@ -7,7 +7,7 @@
 
 #include "dmitigr/rajson/dll.hpp"
 #include "dmitigr/rajson/conversions.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 #include <optional>
 #include <stdexcept>

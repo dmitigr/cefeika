@@ -11,7 +11,7 @@
 #include <dmitigr/pgfe/error.hpp>
 #include <dmitigr/pgfe/notice.hpp>
 #endif
-#include <dmitigr/util/test.hpp>
+#include <dmitigr/base/test.hpp>
 
 int main(int, char* argv[])
 {

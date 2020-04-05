@@ -26,8 +26,8 @@
 #include "dmitigr/str/dll.hpp"
 #include "dmitigr/str/version.hpp"
 #include "dmitigr/str/types_fwd.hpp"
-#include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/filesystem.hpp"
+#include <dmitigr/base/debug.hpp>
+#include <dmitigr/base/filesystem.hpp>
 
 #include <algorithm>
 #include <cstddef>

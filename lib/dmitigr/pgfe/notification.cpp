@@ -5,7 +5,7 @@
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/notification.hpp"
 #include "dmitigr/pgfe/pq.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <cstring>
 #include <optional>

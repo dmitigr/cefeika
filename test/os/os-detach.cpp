@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or os.hpp
 
+#include <dmitigr/base/test.hpp>
 #include <dmitigr/os/proc_detach.hpp>
-#include <dmitigr/util/test.hpp>
 
 #include <csignal>
 #include <iostream>

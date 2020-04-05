@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
 #include "dmitigr/http/date.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 namespace dmitigr::http::detail {
 

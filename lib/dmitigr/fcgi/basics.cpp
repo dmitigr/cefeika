@@ -4,9 +4,9 @@
 
 #include "dmitigr/fcgi/basics.hpp"
 #include "dmitigr/fcgi/connection.hpp"
+#include <dmitigr/base/debug.hpp>
 #include <dmitigr/math/math.hpp>
 #include <dmitigr/net/descriptor.hpp>
-#include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
 #include <array>

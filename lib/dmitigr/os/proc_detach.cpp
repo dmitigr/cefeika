@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or os.hpp
 
 #include "dmitigr/os/proc_detach.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 #include <cstring>
 #include <iostream>

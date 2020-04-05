@@ -1,11 +1,11 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or base.hpp
 
-#ifndef DMITIGR_UTIL_DEBUG_HPP
-#define DMITIGR_UTIL_DEBUG_HPP
+#ifndef DMITIGR_BASE_DEBUG_HPP
+#define DMITIGR_BASE_DEBUG_HPP
 
-#include "dmitigr/util/macros.hpp"
+#include "dmitigr/base/macros.hpp"
 
 #include <cstdio>
 #include <stdexcept>
@@ -117,4 +117,4 @@ constexpr bool is_debug_enabled = true;
  */
 #define DMITIGR_REQUIRE(...) DMITIGR_EXPAND(DMITIGR_REQUIRE_NAME__(__VA_ARGS__, DMITIGR_REQUIRE3, DMITIGR_REQUIRE2, ARG)(__VA_ARGS__))
 
-#endif  // DMITIGR_UTIL_DEBUG_HPP
+#endif  // DMITIGR_BASE_DEBUG_HPP

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or os.hpp
 
 #include "dmitigr/os/env.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 #include <cstdlib>
 #include <memory>

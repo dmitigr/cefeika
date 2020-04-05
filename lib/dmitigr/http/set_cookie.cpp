@@ -4,9 +4,9 @@
 
 #include "dmitigr/http/set_cookie.hpp"
 #include "dmitigr/http/syntax.hpp"
+#include <dmitigr/base/debug.hpp>
 #include <dmitigr/net/net.hpp>
 #include <dmitigr/str/str.hpp>
-#include <dmitigr/util/debug.hpp>
 
 #include <locale>
 #include <stdexcept>

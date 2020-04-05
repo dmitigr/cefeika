@@ -4,8 +4,8 @@
 
 #include "dmitigr/jrpc/error.hpp"
 #include "dmitigr/jrpc/result.hpp"
-#include "dmitigr/rajson/conversions.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/rajson/conversions.hpp>
+#include <dmitigr/base/debug.hpp>
 
 namespace dmitigr::jrpc {
 

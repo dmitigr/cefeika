@@ -1,17 +1,17 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or base.hpp
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // This file is generated automatically. Edit version.hpp.in instead!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#ifndef DMITIGR_UTIL_VERSION_HPP
-#define DMITIGR_UTIL_VERSION_HPP
+#ifndef DMITIGR_BASE_VERSION_HPP
+#define DMITIGR_BASE_VERSION_HPP
 
 #include <cstdint>
 
-namespace dmitigr::util {
+namespace dmitigr::base {
 
 /**
  * @returns The library version.
@@ -26,6 +26,6 @@ constexpr std::int_fast32_t version() noexcept
   return major*1000 + minor;
 }
 
-} // namespace dmitigr::util
+} // namespace dmitigr::base
 
-#endif  // DMITIGR_UTIL_VERSION_HPP
+#endif  // DMITIGR_BASE_VERSION_HPP

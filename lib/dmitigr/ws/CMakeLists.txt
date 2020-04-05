@@ -34,7 +34,7 @@ set(dmitigr_ws_implementations
 # ------------------------------------------------------------------------------
 
 foreach (t public interface)
-  set(dmitigr_ws_target_link_libraries_${t} dmitigr::net dmitigr::util)
+  set(dmitigr_ws_target_link_libraries_${t} dmitigr::net)
 endforeach()
 set(dmitigr_ws_target_link_libraries_private thirdparty_uwebsockets)
 

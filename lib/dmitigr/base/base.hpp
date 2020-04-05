@@ -20,13 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_BASE_BASE_HPP
+#define DMITIGR_BASE_BASE_HPP
 
-#ifndef DMITIGR_UTIL_HPP
-#define DMITIGR_UTIL_HPP
+#include "dmitigr/base/basics.hpp"
+#include "dmitigr/base/debug.hpp"
+#include "dmitigr/base/macros.hpp"
+#include "dmitigr/base/test.hpp"
+#include "dmitigr/base/version.hpp"
 
-#include "dmitigr/util/util.hpp"
-
-#endif  // DMITIGR_UTIL_HPP
+#endif  // DMITIGR_BASE_BASE_HPP

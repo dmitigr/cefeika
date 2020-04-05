@@ -24,7 +24,7 @@
 #define DMITIGR_MATH_MATH_HPP
 
 #include "dmitigr/math/version.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 namespace dmitigr::math {
 

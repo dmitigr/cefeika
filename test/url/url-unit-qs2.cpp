@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or url.hpp
 
+#include <dmitigr/base/test.hpp>
 #include <dmitigr/str.hpp>
 #include <dmitigr/url.hpp>
-#include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
 {

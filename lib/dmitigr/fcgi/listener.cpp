@@ -7,8 +7,8 @@
 #include "dmitigr/fcgi/listener_options.hpp"
 #include "dmitigr/fcgi/server_connection.hpp"
 #include "dmitigr/fcgi/streams.hpp"
+#include <dmitigr/base/debug.hpp>
 #include <dmitigr/net/net.hpp>
-#include <dmitigr/util/debug.hpp>
 
 #include <array>
 #include <limits>

@@ -6,7 +6,7 @@
 #include "dmitigr/pgfe/problem.hpp"
 #include "dmitigr/pgfe/std_system_error.hpp"
 #include "dmitigr/pgfe/util.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <stdexcept>
 

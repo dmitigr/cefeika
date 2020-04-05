@@ -4,7 +4,7 @@
 
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/sql_vector.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 namespace dmitigr::pgfe::detail {
 

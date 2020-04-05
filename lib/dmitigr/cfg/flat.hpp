@@ -5,9 +5,9 @@
 #ifndef DMITIGR_CFG_FLAT_HPP
 #define DMITIGR_CFG_FLAT_HPP
 
+#include "dmitigr/base/filesystem.hpp"
 #include "dmitigr/cfg/dll.hpp"
 #include "dmitigr/cfg/types_fwd.hpp"
-#include "dmitigr/util/filesystem.hpp"
 
 #include <map>
 #include <memory>

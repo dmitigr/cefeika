@@ -6,30 +6,30 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(util 0 1 "Basic utilities")
+dmitigr_set_library_info(base 0 1 "Basics library")
 
 # ------------------------------------------------------------------------------
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_util_headers
+set(dmitigr_base_headers
   basics.hpp
   debug.hpp
   macros.hpp
   test.hpp
   )
 
-set(dmitigr_util_implementations
+set(dmitigr_base_implementations
   )
 
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
 
-dmitigr_append_cppfs(dmitigr_util_target_link_libraries_interface)
+dmitigr_append_cppfs(dmitigr_base_target_link_libraries_interface)
 
 # ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(util)
+dmitigr_propagate_library_settings(base)

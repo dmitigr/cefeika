@@ -4,7 +4,7 @@
 
 #include <dmitigr/pgfe/exceptions.hpp>
 #include <dmitigr/pgfe/conversions.hpp>
-#include <dmitigr/util/test.hpp>
+#include <dmitigr/base/test.hpp>
 
 #include <limits>
 #include <optional>

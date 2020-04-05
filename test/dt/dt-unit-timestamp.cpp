@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or dt.hpp
 
 #include <dmitigr/dt.hpp>
-#include <dmitigr/util/test.hpp>
+#include <dmitigr/base/test.hpp>
 
 int main(int, char* argv[])
 {

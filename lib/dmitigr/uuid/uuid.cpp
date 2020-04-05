@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see files LICENSE.txt or uuid.hpp
 
 #include "dmitigr/uuid/uuid.hpp"
-#include "dmitigr/rng/rng.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/rng/rng.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
 #include <cstdint>

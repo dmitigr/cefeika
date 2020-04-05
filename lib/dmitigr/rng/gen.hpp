@@ -5,7 +5,7 @@
 #ifndef DMITIGR_RNG_GEN_HPP
 #define DMITIGR_RNG_GEN_HPP
 
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 #include <chrono>
 #include <cstdlib>

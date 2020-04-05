@@ -25,8 +25,8 @@ set(dmitigr_cfg_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_cfg_target_link_libraries_public dmitigr::fs dmitigr::str dmitigr::util)
-set(dmitigr_cfg_target_link_libraries_interface dmitigr::fs dmitigr::str dmitigr::util)
+set(dmitigr_cfg_target_link_libraries_public dmitigr::str)
+set(dmitigr_cfg_target_link_libraries_interface dmitigr::str)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

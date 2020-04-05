@@ -4,8 +4,8 @@
 
 #include "dmitigr/pgfe/connection_options.hpp"
 #include "dmitigr/pgfe/defaults.hpp"
+#include <dmitigr/base/debug.hpp>
 #include <dmitigr/net/net.hpp>
-#include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
 #include <stdexcept>

@@ -28,8 +28,8 @@
 #include "dmitigr/net/exceptions.hpp"
 #include "dmitigr/net/types_fwd.hpp"
 #include "dmitigr/net/version.hpp"
-#include "dmitigr/util/basics.hpp"
-#include "dmitigr/util/filesystem.hpp"
+#include <dmitigr/base/basics.hpp>
+#include <dmitigr/base/filesystem.hpp>
 
 #include <chrono>
 #include <memory>

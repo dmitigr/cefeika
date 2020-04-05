@@ -4,7 +4,7 @@
 
 #include "dmitigr/rng/rng.hpp"
 #include "dmitigr/rng/str.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 namespace dmitigr::rng {
 

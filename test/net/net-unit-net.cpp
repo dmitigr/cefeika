@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or net.hpp
 
+#include <dmitigr/base/test.hpp>
 #include <dmitigr/net.hpp>
-#include <dmitigr/util.hpp>
 
 int main(int, char* argv[])
 {

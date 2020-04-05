@@ -17,7 +17,7 @@
 #include "dmitigr/pgfe/row_info.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/util.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <list>
 #include <optional>

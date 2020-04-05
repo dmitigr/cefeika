@@ -6,7 +6,7 @@
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/parameterizable.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
 #include <list>

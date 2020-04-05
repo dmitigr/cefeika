@@ -23,8 +23,8 @@ set(dmitigr_math_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_math_target_link_libraries_public dmitigr::util)
-set(dmitigr_math_target_link_libraries_interface dmitigr::util)
+set(dmitigr_math_target_link_libraries_public dmitigr::base)
+set(dmitigr_math_target_link_libraries_interface dmitigr::base)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

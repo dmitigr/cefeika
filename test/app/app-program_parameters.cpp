@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or app.hpp
 
 #include <dmitigr/app.hpp>
-#include <dmitigr/util/test.hpp>
+#include <dmitigr/base/test.hpp>
 
 #include <iostream>
 

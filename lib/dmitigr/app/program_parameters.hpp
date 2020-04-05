@@ -5,8 +5,8 @@
 #ifndef DMITIGR_APP_PROGRAM_PARAMETERS_HPP
 #define DMITIGR_APP_PROGRAM_PARAMETERS_HPP
 
-#include "dmitigr/util/debug.hpp"
-#include "dmitigr/util/filesystem.hpp"
+#include "dmitigr/base/debug.hpp"
+#include "dmitigr/base/filesystem.hpp"
 
 #include <map>
 #include <optional>

@@ -4,7 +4,7 @@
 
 #include "dmitigr/http/cookie.hpp"
 #include "dmitigr/http/syntax.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
 #include <utility>

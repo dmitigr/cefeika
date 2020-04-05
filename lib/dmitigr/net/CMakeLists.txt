@@ -28,8 +28,8 @@ set(dmitigr_net_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_net_target_link_libraries_public dmitigr::fs dmitigr::os dmitigr::util)
-set(dmitigr_net_target_link_libraries_interface dmitigr::fs dmitigr::os dmitigr::util)
+set(dmitigr_net_target_link_libraries_public dmitigr::os)
+set(dmitigr_net_target_link_libraries_interface dmitigr::os)
 
 if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   if (WIN32)

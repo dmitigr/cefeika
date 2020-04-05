@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or rajson.hpp
 
-#include <dmitigr/fs.hpp>
+#include <dmitigr/base/test.hpp>
+#include <dmitigr/base/filesystem.hpp>
 #include <dmitigr/rajson.hpp>
 #include <dmitigr/str.hpp>
-#include <dmitigr/util/test.hpp>
 
 #include <iostream>
 

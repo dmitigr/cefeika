@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or fs.hpp
 
 #include "dmitigr/fs/fs.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 namespace dmitigr::fs {
 

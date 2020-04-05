@@ -23,8 +23,8 @@ set(dmitigr_algo_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_algo_target_link_libraries_public dmitigr::util)
-set(dmitigr_algo_target_link_libraries_interface dmitigr::util)
+set(dmitigr_algo_target_link_libraries_public dmitigr::base)
+set(dmitigr_algo_target_link_libraries_interface dmitigr::base)
 
 # ------------------------------------------------------------------------------
 # Variables propagation

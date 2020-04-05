@@ -4,8 +4,8 @@
 
 #include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/error.hpp"
-#include "dmitigr/str/str.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
+#include <dmitigr/str/str.hpp>
 
 namespace dmitigr::jrpc::detail {
 

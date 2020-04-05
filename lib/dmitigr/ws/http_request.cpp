@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/http_request.hpp"
-#include "dmitigr/net/net.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/net/net.hpp>
+#include <dmitigr/base/debug.hpp>
 
 #include <uwebsockets/HttpParser.h>
 

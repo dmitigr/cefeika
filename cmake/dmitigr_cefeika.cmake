@@ -4,7 +4,7 @@
 
 set(dmitigr_cefeika_libraries
   # Abstraction level 1
-  util
+  base
   # Abstraction level 2
   algo
   fs
@@ -35,31 +35,31 @@ set(dmitigr_cefeika_libraries
   )
 
 # Abstraction level 1
-set(dmitigr_cefeika_util_deps)
+set(dmitigr_cefeika_base_deps)
 # Abstraction level 2
-set(dmitigr_cefeika_algo_deps util)
-set(dmitigr_cefeika_fs_deps util)
-set(dmitigr_cefeika_math_deps util)
-set(dmitigr_cefeika_mem_deps util)
-set(dmitigr_cefeika_mp_deps util)
-set(dmitigr_cefeika_rajson_deps util)
-set(dmitigr_cefeika_rng_deps util)
-set(dmitigr_cefeika_str_deps util)
-set(dmitigr_cefeika_app_deps util)
-set(dmitigr_cefeika_dt_deps util)
-set(dmitigr_cefeika_img_deps util)
-set(dmitigr_cefeika_net_deps util)
-set(dmitigr_cefeika_os_deps util)
-set(dmitigr_cefeika_ttpl_deps util)
+set(dmitigr_cefeika_algo_deps base)
+set(dmitigr_cefeika_fs_deps base)
+set(dmitigr_cefeika_math_deps base)
+set(dmitigr_cefeika_mem_deps base)
+set(dmitigr_cefeika_mp_deps base)
+set(dmitigr_cefeika_rajson_deps base)
+set(dmitigr_cefeika_rng_deps base)
+set(dmitigr_cefeika_str_deps base)
+set(dmitigr_cefeika_app_deps base)
+set(dmitigr_cefeika_dt_deps base)
+set(dmitigr_cefeika_img_deps base)
+set(dmitigr_cefeika_net_deps base)
+set(dmitigr_cefeika_os_deps base)
+set(dmitigr_cefeika_ttpl_deps base)
 # Abstraction level 3
-set(dmitigr_cefeika_cfg_deps str util)
-set(dmitigr_cefeika_jrpc_deps rajson str util)
-set(dmitigr_cefeika_mulf_deps str util)
-set(dmitigr_cefeika_url_deps str util)
-set(dmitigr_cefeika_uuid_deps rng util)
-set(dmitigr_cefeika_fcgi_deps net util)
-set(dmitigr_cefeika_http_deps dt str util)
-set(dmitigr_cefeika_pgfe_deps mem net str util)
-set(dmitigr_cefeika_ws_deps net util)
+set(dmitigr_cefeika_cfg_deps str base)
+set(dmitigr_cefeika_jrpc_deps rajson str base)
+set(dmitigr_cefeika_mulf_deps str base)
+set(dmitigr_cefeika_url_deps str base)
+set(dmitigr_cefeika_uuid_deps rng base)
+set(dmitigr_cefeika_fcgi_deps net base)
+set(dmitigr_cefeika_http_deps dt str base)
+set(dmitigr_cefeika_pgfe_deps mem net str base)
+set(dmitigr_cefeika_ws_deps net base)
 # Abstraction level 4
-set(dmitigr_cefeika_web_deps fcgi jrpc mulf pgfe ws ttpl url util)
+set(dmitigr_cefeika_web_deps fcgi jrpc mulf pgfe ws ttpl url base)

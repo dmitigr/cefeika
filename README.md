@@ -4,26 +4,26 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 
   - [algo] - algorithms library
   - [app] - application support library
+  - [base] - basics (every library of Cefeika depends on it)
   - [cfg] - library to work with configuration files
   - [dt] - library to work with date and time
   - [fcgi] - powerful FastCGI implementation (server)
-  - [fs] - filesystem extras
+  - [fs] - filesystem miscellaneous
   - [http] - HTTP library
   - [img] - image processing library
   - [jrpc] - [JSON-RPC 2.0][json-rpc2] implementation
   - [math] - mathematical stuff
-  - [mem] - memory management utilities
+  - [mem] - memory management stuff
   - [mulf] - multipart/form-data library
   - [net] - networking library
   - [os] - OS interaction
   - [pgfe] - powerful client API for [PostgreSQL]
   - [rajson] - [RapidJSON] wrapper
   - [rng] - random number generators
-  - [str] - string extras
+  - [str] - string miscellaneous
   - [mp] - multiprocessing stuff
   - [ttpl] - text templates library
   - [url] - URL processing
-  - [util] - basic utilities
   - [uuid] - UUID processing
   - [web] - Web utilities
   - [ws] - WebSocket library
@@ -270,6 +270,7 @@ For conditions of distribution and use, please see the corresponding license.
 
 [algo]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/algo
 [app]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/app
+[base]: https://github.com/dmitigr/cefeika/tree/master/doc/base
 [cfg]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/cfg
 [dt]: https://github.com/dmitigr/cefeika/tree/master/doc/dt
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
@@ -289,7 +290,6 @@ For conditions of distribution and use, please see the corresponding license.
 [str]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/str
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
-[util]: https://github.com/dmitigr/cefeika/tree/master/doc/util
 [uuid]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/uuid
 [web]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/web
 [ws]: https://github.com/dmitigr/cefeika/tree/master/doc/ws

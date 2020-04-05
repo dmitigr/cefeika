@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or uuid.hpp
 
+#include <dmitigr/base/test.hpp>
 #include <dmitigr/rng.hpp>
 #include <dmitigr/uuid.hpp>
-#include <dmitigr/util/test.hpp>
 
 int main(int, char* argv[])
 {

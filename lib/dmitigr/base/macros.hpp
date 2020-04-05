@@ -1,9 +1,9 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or base.hpp
 
-#ifndef DMITIGR_UTIL_MACROS_HPP
-#define DMITIGR_UTIL_MACROS_HPP
+#ifndef DMITIGR_BASE_MACROS_HPP
+#define DMITIGR_BASE_MACROS_HPP
 
 /**
  * @brief Stringizes the argument `s`.
@@ -20,4 +20,4 @@
  */
 #define DMITIGR_EXPAND(x) x
 
-#endif // DMITIGR_UTIL_MACROS_HPP
+#endif // DMITIGR_BASE_MACROS_HPP

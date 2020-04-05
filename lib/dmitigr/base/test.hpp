@@ -1,11 +1,11 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or util.hpp
+// For conditions of distribution and use, see files LICENSE.txt or base.hpp
 
-#ifndef DMITIGR_UTIL_TEST_HPP
-#define DMITIGR_UTIL_TEST_HPP
+#ifndef DMITIGR_BASE_TEST_HPP
+#define DMITIGR_BASE_TEST_HPP
 
-#include "dmitigr/util/debug.hpp"
+#include "dmitigr/base/debug.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -51,4 +51,4 @@ inline void report_failure(const std::string_view test_name)
 
 } // namespace dmitigr::test
 
-#endif // DMITIGR_UTIL_TEST_HPP
+#endif // DMITIGR_BASE_TEST_HPP

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
 #include "dmitigr/mp/simple_thread_pool.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 #include <condition_variable>
 #include <mutex>

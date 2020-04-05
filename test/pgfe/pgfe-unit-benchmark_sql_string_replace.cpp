@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
+#include <dmitigr/base/test.hpp>
 #include <dmitigr/pgfe/sql_string.hpp>
-#include <dmitigr/util/test.hpp>
 
 int main(int argc, char* argv[])
 {

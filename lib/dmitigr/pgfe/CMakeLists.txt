@@ -327,8 +327,8 @@ set(dmitigr_pgfe_cmake_unpreprocessed
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_pgfe_target_link_libraries_public dmitigr::mem dmitigr::net dmitigr::str dmitigr::util)
-set(dmitigr_pgfe_target_link_libraries_interface dmitigr::mem dmitigr::net dmitigr::str dmitigr::util)
+set(dmitigr_pgfe_target_link_libraries_public dmitigr::mem dmitigr::net dmitigr::str)
+set(dmitigr_pgfe_target_link_libraries_interface dmitigr::mem dmitigr::net dmitigr::str)
 
 #
 # libpq

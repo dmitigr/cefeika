@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
 #include "dmitigr/jrpc/result.hpp"
-#include "dmitigr/util/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
 namespace dmitigr::jrpc::detail {
 
