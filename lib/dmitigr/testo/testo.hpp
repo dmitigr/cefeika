@@ -1,21 +1,20 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or base.hpp
+// For conditions of distribution and use, see files LICENSE.txt or testo.hpp
 
-#ifndef DMITIGR_BASE_TEST_HPP
-#define DMITIGR_BASE_TEST_HPP
+#ifndef DMITIGR_TESTO_TESTO_HPP
+#define DMITIGR_TESTO_TESTO_HPP
 
-#include "dmitigr/base/debug.hpp"
+#include <dmitigr/base/debug.hpp>
 
-#include <cassert>
 #include <iostream>
 #include <stdexcept>
-#include <string>
+#include <string_view>
 
 #define ASSERT(a) DMITIGR_ASSERT(a)
 #define DOUT(...) DMITIGR_DOUT(__VA_ARGS__)
 
-namespace dmitigr::test {
+namespace dmitigr::testo {
 
 template<typename F>
 bool is_logic_throw_works(F f)
@@ -49,6 +48,6 @@ inline void report_failure(const std::string_view test_name)
   std::cerr << "Test \"" << test_name.data() << "\" failed (unknown exception catched)" << std::endl;
 }
 
-} // namespace dmitigr::test
+} // namespace dmitigr::testo
 
-#endif // DMITIGR_BASE_TEST_HPP
+#endif // DMITIGR_TESTO_TESTO_HPP

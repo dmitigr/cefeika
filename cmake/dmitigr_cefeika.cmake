@@ -19,6 +19,7 @@ set(dmitigr_cefeika_libraries
   img
   net
   os
+  testo
   ttpl
   # Abstraction level 3
   cfg
@@ -50,6 +51,7 @@ set(dmitigr_cefeika_dt_deps base)
 set(dmitigr_cefeika_img_deps base)
 set(dmitigr_cefeika_net_deps base)
 set(dmitigr_cefeika_os_deps base)
+set(dmitigr_cefeika_testo_deps base)
 set(dmitigr_cefeika_ttpl_deps base)
 # Abstraction level 3
 set(dmitigr_cefeika_cfg_deps str base)

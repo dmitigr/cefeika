@@ -3,14 +3,14 @@
 // For conditions of distribution and use, see files LICENSE.txt or app.hpp
 
 #include <dmitigr/app.hpp>
-#include <dmitigr/base/test.hpp>
+#include <dmitigr/testo.hpp>
 
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
   namespace app = dmitigr::app;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     app::Program_parameters po{argc, argv};

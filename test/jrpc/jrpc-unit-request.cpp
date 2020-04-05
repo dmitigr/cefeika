@@ -3,12 +3,12 @@
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
 #include <dmitigr/jrpc.hpp>
-#include <dmitigr/base/test.hpp>
+#include <dmitigr/testo.hpp>
 
 int main(int, char* argv[])
 {
   namespace jrpc = dmitigr::jrpc;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     // Parse request.

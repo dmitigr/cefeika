@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or os.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/os/proc_detach.hpp>
+#include <dmitigr/testo.hpp>
 
 #include <csignal>
 #include <iostream>
@@ -14,7 +14,7 @@ inline std::filesystem::path log_file;
 int main(int, char* argv[])
 {
   namespace proc = dmitigr::os::proc;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     const auto dirname = std::filesystem::path{argv[0]}.parent_path();

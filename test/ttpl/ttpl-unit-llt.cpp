@@ -2,13 +2,13 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ttpl.hpp
 
-#include <dmitigr/base/test.hpp>
+#include <dmitigr/testo.hpp>
 #include <dmitigr/ttpl.hpp>
 
 int main(int, char* argv[])
 {
   namespace ttpl = dmitigr::ttpl;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
   using ttpl::Logic_less_template;
 
   try {

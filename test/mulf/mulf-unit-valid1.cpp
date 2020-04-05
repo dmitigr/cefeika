@@ -2,17 +2,17 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or mulf.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/base/filesystem.hpp>
 #include <dmitigr/mulf.hpp>
 #include <dmitigr/str.hpp>
+#include <dmitigr/testo.hpp>
 
 int main(int, char* argv[])
 {
   namespace mulf = dmitigr::mulf;
   namespace str = dmitigr::str;
   using mulf::Form_data;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};

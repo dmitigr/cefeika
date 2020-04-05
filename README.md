@@ -22,6 +22,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [rng] - random number generators
   - [str] - string miscellaneous
   - [mp] - multiprocessing stuff
+  - [testo] - testing stuff
   - [ttpl] - text templates library
   - [url] - URL processing
   - [uuid] - UUID processing
@@ -288,6 +289,7 @@ For conditions of distribution and use, please see the corresponding license.
 [rajson]: https://github.com/dmitigr/cefeika/tree/master/doc/rajson
 [rng]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/rng
 [str]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/str
+[testo]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/testo
 [ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
 [url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
 [uuid]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/uuid

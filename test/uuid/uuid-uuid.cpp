@@ -2,15 +2,15 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or uuid.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/rng.hpp>
+#include <dmitigr/testo.hpp>
 #include <dmitigr/uuid.hpp>
 
 int main(int, char* argv[])
 {
   namespace rng = dmitigr::rng;
   namespace uuid = dmitigr::uuid;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     rng::seed_by_now();

@@ -2,13 +2,13 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or url.hpp
 
-#include <dmitigr/base/test.hpp>
+#include <dmitigr/testo.hpp>
 #include <dmitigr/url.hpp>
 
 int main(int, char* argv[])
 {
   namespace url = dmitigr::url;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     {

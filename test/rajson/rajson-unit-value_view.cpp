@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or rajson.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/base/filesystem.hpp>
 #include <dmitigr/rajson.hpp>
 #include <dmitigr/str.hpp>
+#include <dmitigr/testo.hpp>
 
 #include <iostream>
 
@@ -33,7 +33,7 @@ int main(int, char* argv[])
 {
   namespace rajson = dmitigr::rajson;
   namespace str = dmitigr::str;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};

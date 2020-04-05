@@ -2,15 +2,15 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or http.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/dt.hpp>
 #include <dmitigr/http.hpp>
+#include <dmitigr/testo.hpp>
 
 int main(int, char* argv[])
 {
   namespace dt = dmitigr::dt;
   namespace http = dmitigr::http;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
   using http::Date;
   using dt::Day_of_week;
   using dt::Month;

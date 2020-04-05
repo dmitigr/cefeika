@@ -3,12 +3,12 @@
 // For conditions of distribution and use, see files LICENSE.txt or dt.hpp
 
 #include <dmitigr/dt.hpp>
-#include <dmitigr/base/test.hpp>
+#include <dmitigr/testo.hpp>
 
 int main(int, char* argv[])
 {
   namespace dt = dmitigr::dt;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
   using dt::Timestamp;
   using dt::Month;
   using dt::Day_of_week;

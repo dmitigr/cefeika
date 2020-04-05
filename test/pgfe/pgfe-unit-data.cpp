@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/pgfe/data.hpp>
 #include <dmitigr/pgfe/exceptions.hpp>
+#include <dmitigr/testo.hpp>
 
 #include <cstring>
 #include <string>
@@ -13,7 +13,7 @@
 int main(int, char* argv[])
 {
   namespace pgfe = dmitigr::pgfe;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     // Data::make(const char*)

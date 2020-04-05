@@ -6,10 +6,10 @@
 #define DMITIGR_CEFEIKA_TESTS_PGFE_UNIT_HPP
 
 #include <dmitigr/base/debug.hpp>
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/os/env.hpp>
 #include <dmitigr/pgfe/connection.hpp>
 #include <dmitigr/pgfe/connection_options.hpp>
+#include <dmitigr/testo.hpp>
 
 #include <cstdlib>
 #include <fstream>

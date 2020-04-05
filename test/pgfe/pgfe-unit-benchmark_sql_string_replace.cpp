@@ -2,13 +2,13 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/pgfe/sql_string.hpp>
+#include <dmitigr/testo.hpp>
 
 int main(int argc, char* argv[])
 {
   namespace pgfe = dmitigr::pgfe;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     const unsigned long iteration_count = (argc >= 2) ? std::stoul(argv[1]) : 1;

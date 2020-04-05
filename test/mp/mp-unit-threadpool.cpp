@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or mp.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/mp.hpp>
+#include <dmitigr/testo.hpp>
 
 #include <chrono>
 #include <thread>
@@ -11,7 +11,7 @@
 int main(int, char* argv[])
 {
   namespace mp = dmitigr::mp;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     const auto size = std::thread::hardware_concurrency() * 2;

@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/rng.hpp>
+#include <dmitigr/testo.hpp>
 #include <dmitigr/ws.hpp>
 
 #include <chrono>
@@ -72,7 +72,7 @@ class Listener : public ws::Listener {
 
 int main(int, char* argv[])
 {
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   rng::seed_by_now();
 

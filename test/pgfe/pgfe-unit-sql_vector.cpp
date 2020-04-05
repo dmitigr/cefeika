@@ -16,7 +16,7 @@ int main(int, char* argv[])
 {
   namespace pgfe = dmitigr::pgfe;
   namespace str = dmitigr::str;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     // -------------------------------------------------------------------------

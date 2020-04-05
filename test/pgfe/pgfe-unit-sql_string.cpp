@@ -2,15 +2,15 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include <dmitigr/base/test.hpp>
 #include <dmitigr/pgfe/composite.hpp>
 #include <dmitigr/pgfe/exceptions.hpp>
 #include <dmitigr/pgfe/sql_string.hpp>
+#include <dmitigr/testo.hpp>
 
 int main(int, char* argv[])
 {
   namespace pgfe = dmitigr::pgfe;
-  using namespace dmitigr::test;
+  using namespace dmitigr::testo;
 
   try {
     {
