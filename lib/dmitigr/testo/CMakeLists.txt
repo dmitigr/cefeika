@@ -23,7 +23,6 @@ set(dmitigr_testo_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_testo_target_link_libraries_public dmitigr::base)
 set(dmitigr_testo_target_link_libraries_interface dmitigr::base)
 
 # ------------------------------------------------------------------------------
