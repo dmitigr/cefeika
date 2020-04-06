@@ -22,13 +22,6 @@ set(dmitigr_ttpl_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_ttpl_target_link_libraries_public dmitigr::base)
-set(dmitigr_ttpl_target_link_libraries_interface dmitigr::base)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

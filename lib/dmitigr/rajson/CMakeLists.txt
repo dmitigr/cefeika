@@ -25,7 +25,6 @@ set(dmitigr_rajson_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_rajson_target_link_libraries_interface thirdparty_rapidjson dmitigr::base)
 foreach(t interface)
   set(dmitigr_rajson_target_compile_definitions_${t}
     -DRAPIDJSON_HAS_STDSTRING

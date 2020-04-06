@@ -8,8 +8,7 @@
 #include "dmitigr/http/dll.hpp"
 #include "dmitigr/http/header.hpp"
 #include "dmitigr/http/types_fwd.hpp"
-
-#include "dmitigr/dt/timestamp.hpp"
+#include <dmitigr/dt/timestamp.hpp>
 
 #include <memory>
 #include <string>

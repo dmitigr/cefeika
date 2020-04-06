@@ -37,13 +37,6 @@ set(dmitigr_http_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_http_target_link_libraries_public dmitigr::net dmitigr::dt dmitigr::str)
-set(dmitigr_http_target_link_libraries_interface dmitigr::net dmitigr::dt dmitigr::str)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

@@ -6,12 +6,6 @@
 // This file is generated automatically. Edit lib.cpp.in instead!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#ifndef DMITIGR_RNG_HEADER_ONLY
-#define DMITIGR_RNG_HEADER_ONLY
-#endif
-#ifndef DMITIGR_BASE_HEADER_ONLY
-#define DMITIGR_BASE_HEADER_ONLY
-#endif
 #ifndef DMITIGR_UUID_HEADER_ONLY
 #define DMITIGR_UUID_HEADER_ONLY
 #endif

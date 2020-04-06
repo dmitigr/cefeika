@@ -76,7 +76,7 @@ public:
 
       DMITIGR_ASSERT(attr_type != "secure" && attr_type != "httponly");
       if (attr_type == "expires") {
-        expires_ = dt::detail::iTimestamp::from_rfc7231(str);
+        expires_ = dt::Timestamp::from_rfc7231(str);
       } else if (attr_type == "max-age") {
         std::size_t pos{};
         max_age_ = std::stoi(str, &pos);
@@ -223,6 +223,38 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
+  iSet_cookie(const iSet_cookie& rhs)
+    : name_{rhs.name_}
+    , value_{rhs.value_}
+    , expires_{rhs.expires_->to_timestamp()}
+    , max_age_{rhs.max_age_}
+    , domain_{rhs.domain_}
+    , path_{rhs.path_}
+    , is_secure_{rhs.is_secure_}
+    , is_http_only_{rhs.is_http_only_}
+    , same_site_{rhs.same_site_}
+  {}
+
+  iSet_cookie& operator=(const iSet_cookie& rhs)
+  {
+    iSet_cookie tmp{rhs};
+    swap(tmp);
+    return *this;
+  }
+
+  void swap(iSet_cookie& other)
+  {
+    name_.swap(other.name_);
+    value_.swap(other.value_);
+    expires_.swap(other.expires_);
+    max_age_.swap(other.max_age_);
+    domain_.swap(other.domain_);
+    path_.swap(other.path_);
+    std::swap(is_secure_, other.is_secure_);
+    std::swap(is_http_only_, other.is_http_only_);
+    same_site_.swap(other.same_site_);
+  }
+
   // ---------------------------------------------------------------------------
   // Header overridings
   // ---------------------------------------------------------------------------
@@ -297,33 +329,21 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  const dt::detail::iTimestamp* expires() const override
+  const dt::Timestamp* expires() const override
   {
-    return expires_ ? &*expires_ : nullptr;
+    return expires_.get();
   }
 
   void set_expires(const dt::Timestamp* const ts) override
   {
-    if (ts == nullptr)
-      expires_ = std::nullopt;
-    else if (const auto* t = dynamic_cast<const dt::detail::iTimestamp*>(ts); t)
-      expires_ = *t;
-    else
-      DMITIGR_ASSERT(!true);
+    expires_ = ts ? ts->to_timestamp() : nullptr;
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
   void set_expires(const std::string_view input) override
   {
-    set_expires(dt::detail::iTimestamp::from_rfc7231(input));
-
-    DMITIGR_ASSERT(is_invariant_ok());
-  }
-
-  void set_expires(std::optional<dt::detail::iTimestamp> date)
-  {
-    expires_ = std::move(date);
+    expires_ = dt::Timestamp::from_rfc7231(input);
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -409,7 +429,7 @@ public:
 private:
   std::string name_;
   std::string value_;
-  std::optional<dt::detail::iTimestamp> expires_;
+  std::unique_ptr<dt::Timestamp> expires_;
   std::optional<int> max_age_{};
   std::optional<std::string> domain_;
   std::optional<std::string> path_;

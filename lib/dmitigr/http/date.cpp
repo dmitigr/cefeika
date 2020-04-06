@@ -16,16 +16,33 @@ public:
    * @brief See Date::make();
    */
   explicit iDate(const std::string_view input)
-    : iDate{dt::detail::iTimestamp::from_rfc7231(input)}
+    : iDate{dt::Timestamp::from_rfc7231(input)}
   {}
 
   /**
    * @brief See Date::make();
    */
-  explicit iDate(dt::detail::iTimestamp ts)
+  explicit iDate(std::unique_ptr<dt::Timestamp>&& ts)
     : ts_{std::move(ts)}
   {
+    DMITIGR_REQUIRE(ts_, std::invalid_argument);
     DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  iDate(const iDate& rhs)
+    : ts_{rhs.ts_->to_timestamp()}
+  {}
+
+  iDate& operator=(const iDate& rhs)
+  {
+    iDate tmp{rhs};
+    swap(tmp);
+    return *this;
+  }
+
+  void swap(iDate& other)
+  {
+    ts_.swap(other.ts_);
   }
 
   // ---------------------------------------------------------------------------
@@ -45,7 +62,7 @@ public:
 
   std::string to_string() const override
   {
-    return ts_.to_rfc7231();
+    return ts_->to_rfc7231();
   }
 
   // ---------------------------------------------------------------------------
@@ -57,30 +74,25 @@ public:
     return std::make_unique<iDate>(*this);
   }
 
-  const dt::detail::iTimestamp* timestamp() const override
+  const dt::Timestamp* timestamp() const override
   {
-    return &ts_;
+    return ts_.get();
   }
 
-  dt::detail::iTimestamp* timestamp() override
+  dt::Timestamp* timestamp() override
   {
-    return const_cast<dt::detail::iTimestamp*>(static_cast<const iDate*>(this)->timestamp());
+    return const_cast<dt::Timestamp*>(static_cast<const iDate*>(this)->timestamp());
   }
 
   void set_timestamp(const dt::Timestamp* const ts) override
   {
     DMITIGR_REQUIRE(ts, std::invalid_argument);
-
-    if (const auto* const t = dynamic_cast<const dt::detail::iTimestamp*>(ts))
-      ts_ = *t;
-    else
-      DMITIGR_ASSERT(!true);
-
+    ts_ = ts->to_timestamp();
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
 private:
-  dt::detail::iTimestamp ts_;
+  std::unique_ptr<dt::Timestamp> ts_;
 
   bool is_invariant_ok() const
   {
@@ -94,20 +106,12 @@ namespace dmitigr::http {
 
 DMITIGR_HTTP_INLINE std::unique_ptr<Date> Date::make(const std::string_view input)
 {
-  using detail::iDate;
-  return std::make_unique<iDate>(input);
+  return std::make_unique<detail::iDate>(input);
 }
 
 DMITIGR_HTTP_INLINE std::unique_ptr<Date> Date::make(const dt::Timestamp* const ts)
 {
-  using detail::iDate;
-
-  DMITIGR_REQUIRE(ts, std::invalid_argument);
-
-  if (const auto* const t = dynamic_cast<const dt::detail::iTimestamp*>(ts))
-    return std::make_unique<iDate>(*t);
-
-  DMITIGR_ASSERT_ALWAYS(!true);
+  return std::make_unique<detail::iDate>(ts->to_timestamp());
 }
 
 } // namespace dmitigr::http

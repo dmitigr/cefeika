@@ -22,13 +22,6 @@ set(dmitigr_url_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_url_target_link_libraries_public dmitigr::str)
-set(dmitigr_url_target_link_libraries_interface dmitigr::str)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

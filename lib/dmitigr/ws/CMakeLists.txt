@@ -33,11 +33,7 @@ set(dmitigr_ws_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-foreach (t public interface)
-  set(dmitigr_ws_target_link_libraries_${t} dmitigr::net)
-endforeach()
 set(dmitigr_ws_target_link_libraries_private thirdparty_uwebsockets)
-
 if(WIN32)
   set(dmitigr_ws_target_compile_definitions_private WIN32_LEAN_AND_MEAN)
 endif()

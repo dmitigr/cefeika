@@ -22,19 +22,6 @@ set(dmitigr_web_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-foreach (t public interface)
-  set(dmitigr_web_target_link_libraries_${t}
-    dmitigr::fcgi
-    dmitigr::http
-    dmitigr::jrpc
-    dmitigr::mulf
-    dmitigr::ttpl)
-endforeach()
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

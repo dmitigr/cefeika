@@ -35,13 +35,6 @@ set(dmitigr_jrpc_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_jrpc_target_link_libraries_public dmitigr::rajson dmitigr::str)
-set(dmitigr_jrpc_target_link_libraries_interface dmitigr::rajson dmitigr::str)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

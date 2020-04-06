@@ -327,9 +327,6 @@ set(dmitigr_pgfe_cmake_unpreprocessed
 # Dependencies
 # ------------------------------------------------------------------------------
 
-set(dmitigr_pgfe_target_link_libraries_public dmitigr::mem dmitigr::net dmitigr::str)
-set(dmitigr_pgfe_target_link_libraries_interface dmitigr::mem dmitigr::net dmitigr::str)
-
 #
 # libpq
 #
@@ -354,18 +351,6 @@ else()
   list(APPEND dmitigr_pgfe_target_include_directories_interface "${Pq_INCLUDE_DIRS}")
   list(APPEND dmitigr_pgfe_target_link_libraries_public ${Suggested_Pq_LIBRARIES})
   list(APPEND dmitigr_pgfe_target_link_libraries_interface ${Suggested_Pq_LIBRARIES})
-endif()
-
-#
-# System
-#
-
-dmitigr_append_cppfs(dmitigr_pgfe_target_link_libraries_private)
-dmitigr_append_cppfs(dmitigr_pgfe_target_link_libraries_interface)
-
-if (WIN32)
-  list(APPEND dmitigr_pgfe_target_link_libraries_private Ws2_32.lib)
-  list(APPEND dmitigr_pgfe_target_link_libraries_interface Ws2_32.lib)
 endif()
 
 # ------------------------------------------------------------------------------

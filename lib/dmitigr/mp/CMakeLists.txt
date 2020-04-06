@@ -21,13 +21,6 @@ set(dmitigr_mp_implementations
   simple_thread_pool.cpp
   )
 
-# ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_mp_target_link_libraries_public dmitigr::base)
-set(dmitigr_mp_target_link_libraries_interface dmitigr::base)
-
 #
 # System
 #

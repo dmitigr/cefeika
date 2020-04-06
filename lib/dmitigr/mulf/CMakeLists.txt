@@ -22,13 +22,6 @@ set(dmitigr_mulf_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_mulf_target_link_libraries_public dmitigr::str dmitigr::base)
-set(dmitigr_mulf_target_link_libraries_interface dmitigr::str dmitigr::base)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

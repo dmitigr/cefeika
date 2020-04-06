@@ -33,13 +33,6 @@ set(dmitigr_fcgi_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_fcgi_target_link_libraries_public dmitigr::math dmitigr::net)
-set(dmitigr_fcgi_target_link_libraries_interface dmitigr::math dmitigr::net)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

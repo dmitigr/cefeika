@@ -23,13 +23,6 @@ set(dmitigr_rng_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_rng_target_link_libraries_public dmitigr::base)
-set(dmitigr_rng_target_link_libraries_interface dmitigr::base)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 

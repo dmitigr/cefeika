@@ -21,13 +21,6 @@ set(dmitigr_mem_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-set(dmitigr_mem_target_link_libraries_public dmitigr::base)
-set(dmitigr_mem_target_link_libraries_interface dmitigr::base)
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 
