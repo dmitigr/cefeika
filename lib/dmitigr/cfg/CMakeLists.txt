@@ -18,7 +18,6 @@ set(dmitigr_cfg_headers
   )
 
 set(dmitigr_cfg_implementations
-  flat.cpp
   )
 
 # ------------------------------------------------------------------------------

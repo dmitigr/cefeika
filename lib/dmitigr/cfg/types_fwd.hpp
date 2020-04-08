@@ -18,7 +18,6 @@ class Flat;
  * @brief The implementation detail.
  */
 namespace detail {
-class iFlat;
 } // namespace detail
 } // namespace cfg
 } // namespace dmitigr
