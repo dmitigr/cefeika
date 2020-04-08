@@ -5,31 +5,56 @@
 #ifndef DMITIGR_RNG_STR_HPP
 #define DMITIGR_RNG_STR_HPP
 
-#include "dmitigr/rng/dll.hpp"
+#include <dmitigr/rng/gen.hpp>
 
 #include <string>
 
 namespace dmitigr::rng {
 
 /**
- * @returns The random string of the
- * specified size from characters of `palette`.
+ * @returns The random string.
+ *
+ * @param size The result size.
+ * @param palette The palette of characters the result will consist of.
  */
-DMITIGR_RNG_API std::string random_string(const std::string& palette, std::string::size_type size);
+inline std::string random_string(const std::string& palette,
+  const std::string::size_type size)
+{
+  std::string result;
+  result.resize(size);
+  if (const auto pallete_size = palette.size()) {
+    using Counter = std::remove_const_t<decltype (pallete_size)>;
+    for (Counter i = 0; i < size; ++i)
+      result[i] = palette[rng::cpp_pl_3rd(pallete_size)];
+  }
+  return result;
+}
 
 /**
- * @returns The random string of the
- * specified size from characters in the range [beg,end).
+ * @returns The random string.
+ *
+ * @param size The result size.
+ * @param beg The start of source range.
+ * @param end The past of end of source range.
  *
  * @par Requires
- * `(beg < end)`.
+ * `(beg <= end)`.
  */
-DMITIGR_RNG_API std::string random_string(char beg, char end, std::string::size_type size);
+inline std::string random_string(const char beg, const char end,
+  const std::string::size_type size)
+{
+  DMITIGR_REQUIRE(beg <= end, std::out_of_range);
+  std::string result;
+  if (beg < end) {
+    result.resize(size);
+    const auto length = end - beg;
+    using Counter = std::remove_const_t<decltype (size)>;
+    for (Counter i = 0; i < size; ++i)
+      result[i] = static_cast<char>((rng::cpp_pl_3rd(end) % length) + beg);
+  }
+  return result;
+}
 
 } // namespace dmitigr::rng
-
-#ifdef DMITIGR_RNG_HEADER_ONLY
-#include "dmitigr/rng/str.cpp"
-#endif
 
 #endif  // DMITIGR_RNG_STR_HPP

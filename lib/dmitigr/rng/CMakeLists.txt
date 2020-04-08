@@ -15,11 +15,9 @@ dmitigr_set_library_info(rng 0 1 "Random number generators")
 set(dmitigr_rng_headers
   rng.hpp
   str.hpp
-  types_fwd.hpp
   )
 
 set(dmitigr_rng_implementations
-  str.cpp
   )
 
 # ------------------------------------------------------------------------------
