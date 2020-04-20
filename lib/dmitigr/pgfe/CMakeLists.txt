@@ -12,7 +12,7 @@ dmitigr_set_library_info(pgfe 1 0 "Powerful client API for PostgreSQL")
 # Default connection options
 # ------------------------------------------------------------------------------
 
-if (UNIX)
+if (UNIX AND NOT CMAKE_SYSTEM_NAME MATCHES MSYS|MinGW|Cygwin)
   if(NOT DEFINED DMITIGR_PGFE_CONNECTION_COMMUNICATION_MODE)
     set(DMITIGR_PGFE_CONNECTION_COMMUNICATION_MODE "uds" CACHE
       STRING "The connection communication mode: \"uds\" or \"net\"")

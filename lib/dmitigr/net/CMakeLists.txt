@@ -28,13 +28,17 @@ set(dmitigr_net_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
-if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-  if (WIN32)
-    list(APPEND dmitigr_net_target_link_libraries_public Ws2_32.lib)
+if (WIN32)
+  if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+    set(suffix "public")
+  else()
+    set(suffix "interface")
   endif()
-else()
-  if (WIN32)
-    list(APPEND dmitigr_net_target_link_libraries_interface Ws2_32.lib)
+
+  if (CMAKE_SYSTEM_NAME MATCHES MSYS|MinGW|Cygwin AND CMAKE_CXX_COMPILER_ID MATCHES GNU|Clang)
+    list(APPEND dmitigr_net_target_link_libraries_${suffix} libws2_32.a)
+  else()
+    list(APPEND dmitigr_net_target_link_libraries_${suffix} Ws2_32.lib)
   endif()
 endif()
 
