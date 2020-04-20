@@ -2,8 +2,8 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
-cmake_minimum_required(VERSION 3.13)
-cmake_policy(VERSION 3.13)
+cmake_minimum_required(VERSION 3.17)
+cmake_policy(VERSION 3.17)
 project(dmitigr_cefeika)
 
 if (NOT (UNIX OR WIN32))
