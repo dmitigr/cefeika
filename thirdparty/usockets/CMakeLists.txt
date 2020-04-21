@@ -77,4 +77,4 @@ install(TARGETS ${lib}
   ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
 install(EXPORT dmitigr_${lib}_export
   DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
-  FILE "dmitigr_${lib}_${export_file_suffix}-config.cmake")
+  FILE "dmitigr_${lib}_static-config.cmake")

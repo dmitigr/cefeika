@@ -17,4 +17,4 @@ install(TARGETS ${lib}
   EXPORT dmitigr_${lib}_export)
 install(EXPORT dmitigr_${lib}_export
   DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
-  FILE dmitigr_${lib}_${export_file_suffix}-config.cmake)
+  FILE dmitigr_${lib}_interface-config.cmake)
