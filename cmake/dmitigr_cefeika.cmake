@@ -3,9 +3,8 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 set(dmitigr_cefeika_libraries
-  # Abstraction level 1
   base
-  # Abstraction level 2
+
   algo
   fs
   math
@@ -21,7 +20,7 @@ set(dmitigr_cefeika_libraries
   os
   testo
   ttpl
-  # Abstraction level 3
+
   cfg
   jrpc
   mulf
@@ -31,13 +30,12 @@ set(dmitigr_cefeika_libraries
   http
   pgfe
   ws
-  # Abstraction level 4
+
   web
   )
 
-# Abstraction level 1
 set(dmitigr_cefeika_base_deps)
-# Abstraction level 2
+
 set(dmitigr_cefeika_algo_deps base)
 set(dmitigr_cefeika_fs_deps base)
 set(dmitigr_cefeika_math_deps base)
@@ -53,7 +51,7 @@ set(dmitigr_cefeika_net_deps os base)
 set(dmitigr_cefeika_os_deps base)
 set(dmitigr_cefeika_testo_deps base)
 set(dmitigr_cefeika_ttpl_deps base)
-# Abstraction level 3
+
 set(dmitigr_cefeika_cfg_deps str base)
 set(dmitigr_cefeika_jrpc_deps rajson str base)
 set(dmitigr_cefeika_mulf_deps str base)
@@ -62,6 +60,12 @@ set(dmitigr_cefeika_uuid_deps rng base)
 set(dmitigr_cefeika_fcgi_deps net math base)
 set(dmitigr_cefeika_http_deps dt net str base)
 set(dmitigr_cefeika_pgfe_deps mem net str base)
-set(dmitigr_cefeika_ws_deps net base)
-# Abstraction level 4
+set(dmitigr_cefeika_ws_deps thirdparty_uwebsockets net base)
+
 set(dmitigr_cefeika_web_deps fcgi http jrpc mulf ttpl url base)
+
+# ------------------------------------------------------------------------------
+
+set(dmitigr_cefeika_thirdparty_rapidjson_deps)
+set(dmitigr_cefeika_thirdparty_usockets_deps thirdparty_uv)
+set(dmitigr_cefeika_thirdparty_uwebsockets_deps thirdparty_usockets)
