@@ -28,6 +28,8 @@ set(DMITIGR_CEFEIKA_BUILD_TESTS FALSE CACHE BOOL
   "Build tests?")
 set(DMITIGR_CEFEIKA_WITH_OPENSSL False CACHE BOOL
   "Link to OpenSSL where possible?")
+set(DMITIGR_CEFEIKA_WITH_ZLIB False CACHE BOOL
+  "Link to Zlib where possible?")
 set(DMITIGR_LIBRARIAN_DEBUG FALSE CACHE BOOL
   "Print librarian.cmake debug output?")
 
