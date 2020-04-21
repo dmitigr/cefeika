@@ -6,6 +6,10 @@ enable_language(C)
 set(C_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 
+if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+  find_package(OpenSSL REQUIRED)
+endif()
+
 if(MSVC)
   list(APPEND usockets_cflags /W0)
 elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
@@ -27,6 +31,9 @@ set(usockets_sources
   src/internal/eventing/libuv.h
   src/internal/networking/bsd.h
   )
+if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+  list(APPEND usockets_sources src/crypto/openssl.c)
+endif()
 
 if(WIN32)
   if (CMAKE_SYSTEM_VERSION VERSION_GREATER 10) # Windows 10
@@ -60,7 +67,7 @@ set_target_properties(${lib}
   DEBUG_POSTFIX "d")
 target_compile_definitions(${lib}
   PRIVATE ${usockets_defines}
-  PUBLIC LIBUS_USE_LIBUV LIBUS_NO_SSL)
+  PUBLIC LIBUS_USE_LIBUV)
 target_compile_options(${lib} PRIVATE ${usockets_cflags})
 target_include_directories(${lib}
   PUBLIC
@@ -69,6 +76,12 @@ target_include_directories(${lib}
   PRIVATE
   src)
 target_link_libraries(${lib} thirdparty_uv)
+if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+  target_compile_definitions(${lib} PRIVATE LIBUS_USE_OPENSSL)
+  target_link_libraries(${lib} OpenSSL::SSL OpenSSL::Crypto)
+else()
+  target_compile_definitions(${lib} PRIVATE LIBUS_NO_SSL)
+endif()
 
 install(DIRECTORY "include/"
   DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")

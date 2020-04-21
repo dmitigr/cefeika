@@ -26,6 +26,8 @@ set(DMITIGR_CEFEIKA_HEADER_ONLY FALSE CACHE BOOL
   "Whole header-only?")
 set(DMITIGR_CEFEIKA_BUILD_TESTS FALSE CACHE BOOL
   "Build tests?")
+set(DMITIGR_CEFEIKA_WITH_OPENSSL False CACHE BOOL
+  "Link to OpenSSL where possible?")
 set(DMITIGR_LIBRARIAN_DEBUG FALSE CACHE BOOL
   "Print librarian.cmake debug output?")
 
