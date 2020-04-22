@@ -204,6 +204,9 @@ foreach(lib ${dmitigr_cefeika_libraries})
     NEWLINE_STYLE UNIX)
   list(APPEND dmitigr_${lib}_root_headers "../${lib}.hpp")
 
+  # Headers
+  list(APPEND dmitigr_${lib}_headers ${lib}.hpp)
+
   if(NOT ${dmitigr_${lib}_header_only})
     # Preprocessed headers
     foreach(file dll.hpp)
