@@ -27,8 +27,8 @@ set(dmitigr_rajson_implementations
 
 foreach(t interface)
   set(dmitigr_rajson_target_compile_definitions_${t}
-    -DRAPIDJSON_HAS_STDSTRING
-    -DRAPIDJSON_NO_SIZETYPEDEFINE)
+    RAPIDJSON_HAS_STDSTRING=1
+    RAPIDJSON_NO_SIZETYPEDEFINE)
 endforeach()
 
 # ------------------------------------------------------------------------------
