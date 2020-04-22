@@ -26,7 +26,10 @@ enum class Server_errc {
   invalid_params = -32602,
 
   /** Internal JSON-RPC error. */
-  internal_error = -32603
+  internal_error = -32603,
+
+  /** Generic error. */
+  generic_error = -32000
 };
 
 /**

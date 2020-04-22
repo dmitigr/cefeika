@@ -19,6 +19,8 @@ DMITIGR_JRPC_INLINE const char* to_literal(const Server_errc errc)
     return "invalid_params";
   case Server_errc::internal_error:
     return "internal_error";
+  case Server_errc::generic_error:
+    return "generic_error";
   }
   return nullptr;
 }
