@@ -8,7 +8,7 @@
 namespace dmitigr::jrpc {
 
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
-  rapidjson::Value id, const std::string& message)
+  rapidjson::Value&& id, const std::string& message)
   : system_error{std::move(code), message}
   , rep_{std::make_shared<rapidjson::Document>(rapidjson::kObjectType)}
 {
@@ -16,7 +16,7 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   using V = rapidjson::Value;
   auto& alloc = allocator();
   rep_->AddMember("jsonrpc", "2.0", alloc);
-  rep_->AddMember("id", id, alloc);
+  rep_->AddMember("id", std::move(id), alloc);
   {
     V e{T::kObjectType};
     e.AddMember("code", V{this->code().value()}, alloc);
@@ -24,6 +24,21 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
     rep_->AddMember("error", std::move(e), alloc);
   }
 }
+
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
+  const rapidjson::Value& id, const std::string& message)
+  : Error{code, rapidjson::Value{id, allocator()}, message}
+{}
+
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
+  const std::optional<int> id, const std::string& message)
+  : Error{code, id ? rapidjson::Value{*id} : rapidjson::Value{}, message}
+{}
+
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
+  const std::string_view id, const std::string& message)
+  : Error{code, rapidjson::Value{id.data(), id.size(), allocator()}, message}
+{}
 
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   const std::string& message, std::shared_ptr<rapidjson::Document> rep)

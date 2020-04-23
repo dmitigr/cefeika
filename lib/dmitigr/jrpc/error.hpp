@@ -9,6 +9,7 @@
 #include "dmitigr/jrpc/std_system_error.hpp"
 #include "dmitigr/rajson/conversions.hpp"
 
+#include <optional>
 #include <memory>
 
 namespace dmitigr::jrpc {
@@ -21,7 +22,25 @@ public:
   /**
    * @brief The constructor.
    */
-  DMITIGR_JRPC_API Error(std::error_code code, rapidjson::Value id,
+  DMITIGR_JRPC_API Error(std::error_code code, rapidjson::Value&& id,
+    const std::string& message = {});
+
+  /**
+   * @overload
+   */
+  DMITIGR_JRPC_API Error(std::error_code code, const rapidjson::Value& id,
+    const std::string& message = {});
+
+  /**
+   * @overload
+   */
+  DMITIGR_JRPC_API Error(std::error_code code, std::optional<int> id,
+    const std::string& message = {});
+
+  /**
+   * @overload
+   */
+  DMITIGR_JRPC_API Error(std::error_code code, std::string_view id,
     const std::string& message = {});
 
   /**
