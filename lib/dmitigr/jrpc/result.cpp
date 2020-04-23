@@ -57,7 +57,7 @@ DMITIGR_JRPC_INLINE void Result::set_data(rapidjson::Value value)
 // Private
 // -----------------------------------------------------------------------------
 
-DMITIGR_JRPC_INLINE Result::Result(rapidjson::Value id)
+DMITIGR_JRPC_INLINE Result::Result(rapidjson::Value&& id)
 {
   auto& alloc = allocator();
   rep_.AddMember("jsonrpc", "2.0", alloc);
@@ -67,7 +67,11 @@ DMITIGR_JRPC_INLINE Result::Result(rapidjson::Value id)
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
-DMITIGR_JRPC_INLINE Result::Result(rapidjson::Document rep)
+DMITIGR_JRPC_INLINE Result::Result(const rapidjson::Value& id)
+  : Result{rapidjson::Value{id, allocator()}}
+{}
+
+DMITIGR_JRPC_INLINE Result::Result(rapidjson::Document&& rep)
   : rep_{std::move(rep)}
 {
   DMITIGR_ASSERT(is_invariant_ok());

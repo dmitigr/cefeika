@@ -12,6 +12,7 @@
 
 #include <string>
 #include <string_view>
+#include <system_error>
 
 namespace dmitigr::jrpc {
 
@@ -185,6 +186,26 @@ public:
    * @return The allocator.
    */
   DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator();
+
+  /**
+   * @brief Throws an instance of type Error with specified `code`, ID borrowed
+   * from this instance and specified error `message`.
+   */
+  DMITIGR_JRPC_API [[noreturn]] void throw_error(std::error_code code,
+    const std::string& message = {});
+
+  /**
+   * @returns An instance of type Error with specified `code`, ID borrowed
+   * from this instance and specified error `message`.
+   */
+  DMITIGR_JRPC_API Error make_error(std::error_code code,
+    const std::string& message = {});
+
+  /**
+   * @returns An instance of type Result with ID borrowed
+   * from this instance.
+   */
+  DMITIGR_JRPC_API Result make_result();
 
 private:
   rapidjson::Document rep_{rapidjson::Type::kObjectType};

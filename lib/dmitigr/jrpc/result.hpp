@@ -90,12 +90,14 @@ public:
   }
 
 private:
+  friend Request;
   friend Response;
 
   rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
-  explicit Result(rapidjson::Value id);
-  explicit Result(rapidjson::Document rep);
+  explicit Result(rapidjson::Value&& id);
+  explicit Result(const rapidjson::Value& id);
+  explicit Result(rapidjson::Document&& rep);
 
   rapidjson::Value& data__();
   bool is_invariant_ok() const;

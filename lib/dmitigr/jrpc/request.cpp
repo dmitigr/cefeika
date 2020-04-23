@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
 #include "dmitigr/jrpc/error.hpp"
+#include "dmitigr/jrpc/result.hpp"
 #include <dmitigr/base/debug.hpp>
 #include <dmitigr/str/str.hpp>
 
@@ -161,6 +162,28 @@ DMITIGR_JRPC_INLINE std::string Request::to_string() const
 DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Request::allocator()
 {
   return rep_.GetAllocator();
+}
+
+DMITIGR_JRPC_INLINE void Request::throw_error(const std::error_code code,
+  const std::string& message)
+{
+  DMITIGR_REQUIRE(id(), std::logic_error, "throwing errors for notifications is nonsense");
+  throw Error{code, *id(), message};
+}
+
+DMITIGR_JRPC_INLINE Error Request::make_error(const std::error_code code,
+  const std::string& message)
+{
+  DMITIGR_REQUIRE(id(), std::logic_error, "making errors for notifications is nonsense");
+  return Error{code, *id(), message};
+}
+
+DMITIGR_JRPC_INLINE Result Request::make_result()
+{
+  if (const auto* const ident = id())
+    return Result{*ident};
+  else
+    return Result{};
 }
 
 // -----------------------------------------------------------------------------
