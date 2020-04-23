@@ -90,8 +90,12 @@ private:
   std::shared_ptr<rapidjson::Document> rep_;
 
   Error(std::error_code code, const std::string& message, std::shared_ptr<rapidjson::Document> rep);
+  Error(std::error_code code, const std::string& message = {});
+
   Error(std::error_code code, rapidjson::Value&& id, const std::string& message = {});
   Error(std::error_code code, const rapidjson::Value& id, const std::string& message = {});
+
+  void init__(rapidjson::Value&& id, const std::string& message);
 
   const rapidjson::Value& error() const;
   rapidjson::Value& error();

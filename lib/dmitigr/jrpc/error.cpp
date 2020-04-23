@@ -80,7 +80,7 @@ DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Error::allocator()
 // Private
 // -----------------------------------------------------------------------------
 
-DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
+DMITIGR_JRPC_INLINE Error::Error(std::error_code code,
   const std::string& message, std::shared_ptr<rapidjson::Document> rep)
   : system_error{std::move(code), message}
   , rep_{std::move(rep)}
@@ -88,10 +88,25 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   DMITIGR_ASSERT(rep_ != nullptr);
 }
 
-DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
+DMITIGR_JRPC_INLINE Error::Error(std::error_code code, const std::string& message)
+  : Error{std::move(code), message, std::make_shared<rapidjson::Document>(rapidjson::kObjectType)}
+{}
+
+DMITIGR_JRPC_INLINE Error::Error(std::error_code code,
   rapidjson::Value&& id, const std::string& message)
-  : system_error{std::move(code), message}
-  , rep_{std::make_shared<rapidjson::Document>(rapidjson::kObjectType)}
+  : Error{std::move(code), message}
+{
+  init__(std::move(id), message);
+}
+
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
+  const rapidjson::Value& id, const std::string& message)
+  : Error{std::move(code), message}
+{
+  init__(rapidjson::Value{id, allocator()}, message);
+}
+
+DMITIGR_JRPC_INLINE void Error::init__(rapidjson::Value&& id, const std::string& message)
 {
   using T = rapidjson::Type;
   using V = rapidjson::Value;
@@ -100,15 +115,10 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   rep_->AddMember("id", std::move(id), alloc);
   {
     V e{T::kObjectType};
-    e.AddMember("code", V{this->code().value()}, alloc);
+    e.AddMember("code", V{code().value()}, alloc);
     e.AddMember("message", message, alloc);
     rep_->AddMember("error", std::move(e), alloc);
   }
 }
-
-DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
-  const rapidjson::Value& id, const std::string& message)
-  : Error{code, rapidjson::Value{id, allocator()}, message}
-{}
 
 } // namespace dmitigr jrpc
