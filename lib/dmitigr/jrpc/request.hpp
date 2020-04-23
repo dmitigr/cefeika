@@ -19,48 +19,65 @@ namespace dmitigr::jrpc {
 /**
  * @brief A request.
  */
-class Request {
+class Request final {
 public:
-  /**
-   * @brief The destructor.
-   */
-  virtual ~Request() = default;
-
   /// @name Constructors
   /// @{
 
   /**
-   * @returns A new instance of Request.
+   * @returns A new instance that represents either normal request or notification.
+   *
+   * @param input Stringified JSON that represents a JSON-RPC request.
    */
-  static DMITIGR_JRPC_API std::unique_ptr<Request> make(std::string_view input);
+  static DMITIGR_JRPC_API Request from_json(std::string_view input);
+
+  /**
+   * @brief Constructs an instance that represents a normal request.
+   */
+  DMITIGR_JRPC_API Request(std::optional<int> id, std::string_view method);
 
   /**
    * @overload
    */
-  static DMITIGR_JRPC_API std::unique_ptr<Request> make(std::optional<int> id, std::string_view method);
+  DMITIGR_JRPC_API Request(std::string_view id, std::string_view method);
 
   /**
-   * @overload
+   * @brief Constructs an instance that represents a notification.
    */
-  static DMITIGR_JRPC_API std::unique_ptr<Request> make(std::string_view id, std::string_view method);
+  DMITIGR_JRPC_API Request(std::string_view method);
 
   /**
-   * @returns A new instance of Request that represents notification.
+   * @brief Non copy-constructable.
    */
-  static DMITIGR_JRPC_API std::unique_ptr<Request> make_notification(std::string_view method);
+  Request(const Request&) = delete;
+
+  /**
+   * @brief Non copy-assignable.
+   */
+  Request& operator=(const Request&) = delete;
+
+  /**
+   * @brief Move-constructable.
+   */
+  Request(Request&&) = default;
+
+  /**
+   * @brief Move-assignable.
+   */
+  Request& operator=(Request&&) = default;
 
   /// @}
 
   /**
    * @returns A String specifying the version of the JSON-RPC protocol.
    */
-  virtual std::string_view jsonrpc() const = 0;
+  DMITIGR_JRPC_API std::string_view jsonrpc() const;
 
   /**
    * @returns A request identifier which can be either a String, Number or NULL,
    * or `nullptr` if this instance represents a notification.
    */
-  virtual const rapidjson::Value* id() const = 0;
+  DMITIGR_JRPC_API const rapidjson::Value* id() const;
 
   /**
    * @returns A String containing the name of the method to be invoked.
@@ -69,23 +86,23 @@ public:
    * character (U+002E or ASCII 46) are reserved for rpc-internal methods and
    * extensions.
    */
-  virtual std::string_view method() const = 0;
+  DMITIGR_JRPC_API std::string_view method() const;
 
   /**
    * @returns A Structured value that holds the parameter values to be
    * used during the invocation of the method, or `nullptr` if no parameters.
    */
-  virtual const rapidjson::Value* parameters() const = 0;
+  DMITIGR_JRPC_API const rapidjson::Value* parameters() const;
 
   /**
    * @returns The parameter value, or `nullptr` if no parameter at `position`.
    */
-  virtual const rapidjson::Value* parameter(std::size_t position) const = 0;
+  DMITIGR_JRPC_API const rapidjson::Value* parameter(std::size_t position) const;
 
   /**
    * @returns The parameter value, or `nullptr` if no parameter with name `name`.
    */
-  virtual const rapidjson::Value* parameter(std::string_view name) const = 0;
+  DMITIGR_JRPC_API const rapidjson::Value* parameter(std::string_view name) const;
 
   /**
    * @brief Sets the method parameter of the specified `position` to the
@@ -97,7 +114,7 @@ public:
    * @par Effects
    * `(parameter(position) != nullptr)`.
    */
-  virtual void set_parameter(std::size_t position, rapidjson::Value value) = 0;
+  DMITIGR_JRPC_API void set_parameter(std::size_t position, rapidjson::Value value);
 
   /**
    * @overload
@@ -118,7 +135,7 @@ public:
    * @par Effects
    * `(parameter(name) != nullptr)`.
    */
-  virtual void set_parameter(std::string_view name, rapidjson::Value value) = 0;
+  DMITIGR_JRPC_API void set_parameter(std::string_view name, rapidjson::Value value);
 
   /**
    * @overload
@@ -132,12 +149,12 @@ public:
   /**
    * @returns The parameter count. Returns 0 if `(parameters() == nullptr)`.
    */
-  virtual std::size_t parameter_count() const = 0;
+  DMITIGR_JRPC_API std::size_t parameter_count() const;
 
   /**
    * @returns `(parameters() && parameter_count() > 0)`.
    */
-  virtual bool has_parameters() const = 0;
+  DMITIGR_JRPC_API bool has_parameters() const;
 
   /**
    * @brief Resets parameters and sets theirs notation.
@@ -145,7 +162,7 @@ public:
    * @par Effects
    * `(parameters() && parameter_count() == 0)`.
    */
-  virtual void reset_parameters(Parameters_notation value) = 0;
+  DMITIGR_JRPC_API void reset_parameters(Parameters_notation value);
 
   /**
    * @brief Omits parameters.
@@ -153,22 +170,27 @@ public:
    * @par Effects
    * `(!parameters())`.
    */
-  virtual void omit_parameters() = 0;
+  DMITIGR_JRPC_API void omit_parameters();
 
   /**
    * @returns The result of serialization of this instance to a JSON string.
    */
-  virtual std::string to_string() const = 0;
+  DMITIGR_JRPC_API std::string to_string() const;
 
   /**
    * @return The allocator.
    */
-  virtual rapidjson::Value::AllocatorType& allocator() = 0;
+  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator();
 
 private:
-  friend detail::iRequest;
+  rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
-  Request() = default;
+  Request(const std::string_view input, int);
+  Request(rapidjson::Value id, const std::string_view method);
+
+  bool is_invariant_ok() const;
+  void init__(const std::string_view method);
+  rapidjson::Value* parameters__();
 };
 
 } // namespace dmitigr::jrpc

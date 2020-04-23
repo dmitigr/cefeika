@@ -15,32 +15,72 @@ namespace dmitigr::jrpc {
 /**
  * @brief Represents success of a server method invocation.
  */
-class Result : public Response {
+class Result final : public Response {
 public:
-  /// @name Constructors
-  /// @{
+  /**
+   * @brief The default constructor.
+   */
+  DMITIGR_JRPC_API Result();
 
   /**
    * @returns A new instance of result.
    */
-  static DMITIGR_JRPC_API std::unique_ptr<Result> make(std::optional<int> id);
+  DMITIGR_JRPC_API Result(std::optional<int> id);
 
   /**
    * @overload
    */
-  static DMITIGR_JRPC_API std::unique_ptr<Result> make(std::string_view id);
+  DMITIGR_JRPC_API Result(std::string_view id);
 
-  /// @}
+  /**
+   * @brief Non copy-constructable.
+   */
+  Result(const Result&) = delete;
+
+  /**
+   * @brief Non copy-assignable.
+   */
+  Result& operator=(const Result&) = delete;
+
+  /**
+   * @brief Move-constructable.
+   */
+  Result(Result&&) = default;
+
+  /**
+   * @brief Move-assignable.
+   */
+  Result& operator=(Result&&) = default;
+
+  /**
+   * @see Response::jsonrpc()
+   */
+  DMITIGR_JRPC_API std::string_view jsonrpc() const override;
+
+  /**
+   * @see Response::id()
+   */
+  DMITIGR_JRPC_API const rapidjson::Value& id() const override;
+
+  /**
+   * @see Response::to_string()
+   */
+  DMITIGR_JRPC_API std::string to_string() const override;
+
+  /**
+   * @see Response::allocator()
+   */
+  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() override;
 
   /**
    * @returns The value determined by the method invoked on the server.
    */
-  virtual const rapidjson::Value& data() const = 0;
+  DMITIGR_JRPC_API const rapidjson::Value& data() const;
 
   /**
    * @brief Sets the mandatory information about the success.
    */
-  virtual void set_data(rapidjson::Value value) = 0;
+  DMITIGR_JRPC_API void set_data(rapidjson::Value value);
 
   /**
    * @overload
@@ -52,12 +92,15 @@ public:
   }
 
 private:
-  friend detail::iResult;
   friend Response;
 
-  Result() = default;
+  rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
-  static std::unique_ptr<Result> make(rapidjson::Document rep);
+  explicit Result(rapidjson::Value id);
+  explicit Result(rapidjson::Document rep);
+
+  rapidjson::Value& data__();
+  bool is_invariant_ok() const;
 };
 
 } // namespace dmitigr::jrpc

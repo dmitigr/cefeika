@@ -77,9 +77,9 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
             "caller handler for \"" + std::string{location} +"\" is unset");
           std::string o;
           try {
-            const auto request = jrpc::Request::make(str::read_to_string(fcgi->in()));
-            const auto response = i->second(fcgi, request.get());
-            o = response->to_string();
+            const jrpc::Request request{str::read_to_string(fcgi->in())};
+            const auto result = i->second(fcgi, request);
+            o = result.to_string();
           } catch (const jrpc::Error& e) {
             o = e.to_string();
           }

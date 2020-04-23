@@ -14,7 +14,7 @@ int main(int, char* argv[])
     // Parse result response.
     {
       const auto res = jrpc::Response::make(R"({"jsonrpc": "2.0", "result": 19, "id": 1})");
-      auto* const r = dynamic_cast<jrpc::Result*>(res.get());
+      auto* const r = dynamic_cast<const jrpc::Result*>(res.get());
       ASSERT(r);
       ASSERT(r->jsonrpc() == "2.0");
       ASSERT(r->id().IsInt());
@@ -40,34 +40,31 @@ int main(int, char* argv[])
 
     // Making result with null id.
     {
-      auto res = jrpc::Result::make(std::nullopt);
-      ASSERT(res);
-      ASSERT(res->jsonrpc() == "2.0");
-      ASSERT(res->id().IsNull());
-      ASSERT(res->data().IsNull());
-      res->set_data(123);
-      ASSERT(res->data().IsInt());
-      ASSERT(res->data().GetInt() == 123);
+      jrpc::Result res{std::nullopt};
+      ASSERT(res.jsonrpc() == "2.0");
+      ASSERT(res.id().IsNull());
+      ASSERT(res.data().IsNull());
+      res.set_data(123);
+      ASSERT(res.data().IsInt());
+      ASSERT(res.data().GetInt() == 123);
     }
 
     // Making result with int id.
     {
-      const auto res = jrpc::Result::make(1);
-      ASSERT(res);
-      ASSERT(res->jsonrpc() == "2.0");
-      ASSERT(res->id().IsInt());
-      ASSERT(res->id().GetInt() == 1);
-      ASSERT(res->data().IsNull());
+      jrpc::Result res{1};
+      ASSERT(res.jsonrpc() == "2.0");
+      ASSERT(res.id().IsInt());
+      ASSERT(res.id().GetInt() == 1);
+      ASSERT(res.data().IsNull());
     }
 
     // Making result with string id.
     {
-      const auto res = jrpc::Result::make("id123");
-      ASSERT(res);
-      ASSERT(res->jsonrpc() == "2.0");
-      ASSERT(res->id().IsString());
-      ASSERT(std::strcmp(res->id().GetString(), "id123") == 0);
-      ASSERT(res->data().IsNull());
+      jrpc::Result res{"id123"};
+      ASSERT(res.jsonrpc() == "2.0");
+      ASSERT(res.id().IsString());
+      ASSERT(std::strcmp(res.id().GetString(), "id123") == 0);
+      ASSERT(res.data().IsNull());
     }
 
     // Making error.

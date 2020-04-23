@@ -22,12 +22,6 @@ class Result;
  * @brief The implementation details.
  */
 namespace detail {
-
-class iRequest;
-class iResponse;
-class iError;
-class iResult;
-
 } // namespace detail
 
 } // namespace dmitigr::jrpc

@@ -47,7 +47,7 @@ DMITIGR_JRPC_INLINE std::unique_ptr<Response> Response::make(const std::string_v
     if (ei != e)
       throw std::runtime_error{"dmitigr::jrpc: both \"result\" and \"error\" member found in response"};
     else
-      return Result::make(std::move(rep));
+      return std::unique_ptr<Result>(new Result{std::move(rep)});
   } else if (ei != e) {
     if (ei->value.IsObject()) {
       std::size_t expected_error_member_count = 3;

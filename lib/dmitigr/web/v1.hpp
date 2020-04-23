@@ -20,7 +20,7 @@ namespace dmitigr::web::v1 {
 
 struct Handle_options final {
   using Htmler = std::function<void(fcgi::Server_connection*, ttpl::Logic_less_template*)>;
-  using Caller = std::function<std::unique_ptr<jrpc::Response>(fcgi::Server_connection*, const jrpc::Request*)>;
+  using Caller = std::function<jrpc::Result(fcgi::Server_connection*, const jrpc::Request&)>;
   using Former = std::function<void(fcgi::Server_connection*, const mulf::Form_data*)>;
   using Custom = std::function<void(fcgi::Server_connection*)>;
 

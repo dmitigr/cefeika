@@ -22,7 +22,7 @@ int main()
     // htmlers
     {{"/", [](fcgi::Server_connection*, ttpl::Logic_less_template*) {}}},
     // callers
-    {{"/api", [](fcgi::Server_connection*, const jrpc::Request*) { return nullptr;  }}},
+    {{"/api", [](fcgi::Server_connection*, const jrpc::Request&) { return jrpc::Result{}; }}},
     // formers
     {{"/", [](fcgi::Server_connection*, const mulf::Form_data*){}}},
     // customs
