@@ -7,6 +7,10 @@
 
 namespace dmitigr::jrpc {
 
+DMITIGR_JRPC_API Error::Error()
+  : Error{Server_errc::generic_error, rapidjson::Value{}}
+{}
+
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   const Null, const std::string& message)
   : Error{code, rapidjson::Value{}, message}

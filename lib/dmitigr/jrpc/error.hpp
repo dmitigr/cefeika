@@ -20,6 +20,12 @@ namespace dmitigr::jrpc {
 class Error final : public Response, public std::system_error {
 public:
   /**
+   * @brief Constructs an instance with code of Server_errc::generic_error,
+   * with null ID, and empty message.
+   */
+  DMITIGR_JRPC_API Error();
+
+  /**
    * @brief The constructor.
    */
   DMITIGR_JRPC_API Error(std::error_code code, Null id,
