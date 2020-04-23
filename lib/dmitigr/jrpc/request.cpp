@@ -165,20 +165,20 @@ DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Request::allocator()
 }
 
 DMITIGR_JRPC_INLINE void Request::throw_error(const std::error_code code,
-  const std::string& message)
+  const std::string& message) const
 {
   DMITIGR_REQUIRE(id(), std::logic_error, "throwing errors for notifications is nonsense");
   throw Error{code, *id(), message};
 }
 
 DMITIGR_JRPC_INLINE Error Request::make_error(const std::error_code code,
-  const std::string& message)
+  const std::string& message) const
 {
   DMITIGR_REQUIRE(id(), std::logic_error, "making errors for notifications is nonsense");
   return Error{code, *id(), message};
 }
 
-DMITIGR_JRPC_INLINE Result Request::make_result()
+DMITIGR_JRPC_INLINE Result Request::make_result() const
 {
   if (const auto* const ident = id())
     return Result{*ident};

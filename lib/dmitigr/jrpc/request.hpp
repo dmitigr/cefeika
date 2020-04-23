@@ -192,20 +192,20 @@ public:
    * from this instance and specified error `message`.
    */
   DMITIGR_JRPC_API [[noreturn]] void throw_error(std::error_code code,
-    const std::string& message = {});
+    const std::string& message = {}) const;
 
   /**
    * @returns An instance of type Error with specified `code`, ID borrowed
    * from this instance and specified error `message`.
    */
   DMITIGR_JRPC_API Error make_error(std::error_code code,
-    const std::string& message = {});
+    const std::string& message = {}) const;
 
   /**
    * @returns An instance of type Result with ID borrowed
    * from this instance.
    */
-  DMITIGR_JRPC_API Result make_result();
+  DMITIGR_JRPC_API Result make_result() const;
 
 private:
   rapidjson::Document rep_{rapidjson::Type::kObjectType};
