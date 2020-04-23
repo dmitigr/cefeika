@@ -5,12 +5,11 @@
 #ifndef DMITIGR_JRPC_REQUEST_HPP
 #define DMITIGR_JRPC_REQUEST_HPP
 
+#include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/dll.hpp"
 #include "dmitigr/jrpc/types_fwd.hpp"
 #include "dmitigr/rajson/conversions.hpp"
 
-#include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 
@@ -34,7 +33,12 @@ public:
   /**
    * @brief Constructs an instance that represents a normal request.
    */
-  DMITIGR_JRPC_API Request(std::optional<int> id, std::string_view method);
+  DMITIGR_JRPC_API Request(Null id, std::string_view method);
+
+  /**
+   * @overload
+   */
+  DMITIGR_JRPC_API Request(int id, std::string_view method);
 
   /**
    * @overload

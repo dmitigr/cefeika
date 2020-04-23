@@ -8,8 +8,6 @@
 #include "dmitigr/jrpc/response_dfn.hpp"
 #include "dmitigr/rajson/conversions.hpp"
 
-#include <optional>
-
 namespace dmitigr::jrpc {
 
 /**
@@ -25,7 +23,7 @@ public:
   /**
    * @returns A new instance of result.
    */
-  DMITIGR_JRPC_API Result(std::optional<int> id);
+  DMITIGR_JRPC_API Result(int id);
 
   /**
    * @overload

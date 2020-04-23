@@ -135,7 +135,7 @@ int main(int, char* argv[])
 
     // Making request with Null ID and empty (not omitted) params.
     {
-      jrpc::Request req{std::nullopt, "foo"};
+      jrpc::Request req{jrpc::null, "foo"};
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "foo");
       ASSERT(!req.parameters());

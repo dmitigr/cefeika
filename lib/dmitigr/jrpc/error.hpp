@@ -5,11 +5,11 @@
 #ifndef DMITIGR_JRPC_ERROR_HPP
 #define DMITIGR_JRPC_ERROR_HPP
 
+#include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/response_dfn.hpp"
 #include "dmitigr/jrpc/std_system_error.hpp"
 #include "dmitigr/rajson/conversions.hpp"
 
-#include <optional>
 #include <memory>
 
 namespace dmitigr::jrpc {
@@ -22,19 +22,13 @@ public:
   /**
    * @brief The constructor.
    */
-  DMITIGR_JRPC_API Error(std::error_code code, rapidjson::Value&& id,
+  DMITIGR_JRPC_API Error(std::error_code code, Null id,
     const std::string& message = {});
 
   /**
    * @overload
    */
-  DMITIGR_JRPC_API Error(std::error_code code, const rapidjson::Value& id,
-    const std::string& message = {});
-
-  /**
-   * @overload
-   */
-  DMITIGR_JRPC_API Error(std::error_code code, std::optional<int> id,
+  DMITIGR_JRPC_API Error(std::error_code code, int id,
     const std::string& message = {});
 
   /**
@@ -84,11 +78,15 @@ public:
   DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() override;
 
 private:
+  friend Request;
   friend Response;
 
   std::shared_ptr<rapidjson::Document> rep_;
 
   Error(std::error_code code, const std::string& message, std::shared_ptr<rapidjson::Document> rep);
+  Error(std::error_code code, rapidjson::Value&& id, const std::string& message = {});
+  Error(std::error_code code, const rapidjson::Value& id, const std::string& message = {});
+
   const rapidjson::Value& error() const;
   rapidjson::Value& error();
 

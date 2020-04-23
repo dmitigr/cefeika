@@ -11,8 +11,8 @@ DMITIGR_JRPC_INLINE Result::Result()
   : Result{rapidjson::Value{}}
 {}
 
-DMITIGR_JRPC_INLINE Result::Result(const std::optional<int> id)
-  : Result{id ? rapidjson::Value{*id} : rapidjson::Value{}}
+DMITIGR_JRPC_INLINE Result::Result(const int id)
+  : Result{rapidjson::Value{id}}
 {}
 
 DMITIGR_JRPC_INLINE Result::Result(const std::string_view id)

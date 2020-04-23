@@ -2,7 +2,6 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
 
-#include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/error.hpp"
 #include <dmitigr/base/debug.hpp>
 #include <dmitigr/str/str.hpp>
@@ -14,8 +13,12 @@ DMITIGR_JRPC_INLINE Request Request::from_json(const std::string_view input)
   return Request{input, int{}};
 }
 
-DMITIGR_JRPC_INLINE Request::Request(const std::optional<int> id, const std::string_view method)
-  : Request{id ? rapidjson::Value{*id} : rapidjson::Value{}, method}
+DMITIGR_JRPC_API Request::Request(const Null, std::string_view method)
+  : Request{rapidjson::Value{}, method}
+{}
+
+DMITIGR_JRPC_INLINE Request::Request(const int id, const std::string_view method)
+  : Request{rapidjson::Value{id}, method}
 {}
 
 DMITIGR_JRPC_INLINE Request::Request(const std::string_view id, const std::string_view method)
@@ -168,7 +171,7 @@ Request::Request(const std::string_view input, int)
   : rep_{rajson::to_parsed_json(input)}
 {
   if (rep_.HasParseError())
-    throw Error{Server_errc::parse_error, rapidjson::Value{}};
+    throw Error{Server_errc::parse_error, null};
 
   std::size_t expected_member_count = 4;
   const auto e = rep_.MemberEnd();
@@ -177,7 +180,7 @@ Request::Request(const std::string_view input, int)
   const auto idi = rep_.FindMember("id");
   if (idi != e) {
     if (!idi->value.IsNumber() && !idi->value.IsString() && !idi->value.IsNull())
-      throw Error{Server_errc::invalid_request, rapidjson::Value{}, "invalid type of \"id\" member"};
+      throw Error{Server_errc::invalid_request, null, "invalid type of \"id\" member"};
   } else
     expected_member_count--;
 

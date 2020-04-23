@@ -40,7 +40,7 @@ int main(int, char* argv[])
 
     // Making result with null id.
     {
-      jrpc::Result res{std::nullopt};
+      jrpc::Result res;
       ASSERT(res.jsonrpc() == "2.0");
       ASSERT(res.id().IsNull());
       ASSERT(res.data().IsNull());
@@ -69,7 +69,7 @@ int main(int, char* argv[])
 
     // Making error.
     {
-      jrpc::Error err{jrpc::Server_errc::parse_error, rapidjson::Value{}};
+      jrpc::Error err{jrpc::Server_errc::parse_error, jrpc::null};
       ASSERT(err.jsonrpc() == "2.0");
       ASSERT(err.id().IsNull());
       ASSERT(!err.data());

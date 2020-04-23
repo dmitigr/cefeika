@@ -10,6 +10,16 @@
 namespace dmitigr::jrpc {
 
 /**
+ * @brief Represents null.
+ */
+struct Null final {};
+
+/**
+ * @brief A constant of type `Null` that is used to indicate null state.
+ */
+inline constexpr Null null;
+
+/**
  * @brief Parameters notation.
  */
 enum class Parameters_notation {
