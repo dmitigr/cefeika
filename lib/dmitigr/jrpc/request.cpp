@@ -33,6 +33,23 @@ DMITIGR_JRPC_INLINE Request::Request(const std::string_view method)
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
+DMITIGR_JRPC_INLINE Request::Request(const Request& rhs)
+{
+  rep_.CopyFrom(rhs.rep_, allocator(), true);
+}
+
+DMITIGR_JRPC_INLINE Request& Request::operator=(const Request& rhs)
+{
+  Request tmp{rhs};
+  swap(tmp);
+  return *this;
+}
+
+DMITIGR_JRPC_INLINE void Request::swap(Request& other)
+{
+  rep_.Swap(other.rep_);
+}
+
 DMITIGR_JRPC_INLINE std::string_view Request::jsonrpc() const
 {
   return rajson::to<std::string_view>(rep_.FindMember("jsonrpc")->value);
@@ -159,7 +176,7 @@ DMITIGR_JRPC_INLINE std::string Request::to_string() const
   return rajson::to_stringified_json(rep_);
 }
 
-DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Request::allocator()
+DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Request::allocator() const
 {
   return rep_.GetAllocator();
 }

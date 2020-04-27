@@ -68,7 +68,7 @@ public:
   /**
    * @see Response::allocator()
    */
-  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() override;
+  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() const override;
 
   /**
    * @returns The value determined by the method invoked on the server.
@@ -93,7 +93,7 @@ private:
   friend Request;
   friend Response;
 
-  rapidjson::Document rep_{rapidjson::Type::kObjectType};
+  mutable rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
   explicit Result(rapidjson::Value&& id);
   explicit Result(const rapidjson::Value& id);

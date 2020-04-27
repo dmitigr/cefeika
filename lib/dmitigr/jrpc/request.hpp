@@ -52,14 +52,14 @@ public:
   DMITIGR_JRPC_API Request(std::string_view method);
 
   /**
-   * @brief Non copy-constructable.
+   * @brief Copy-constructable.
    */
-  Request(const Request&) = delete;
+  Request(const Request&);
 
   /**
-   * @brief Non copy-assignable.
+   * @brief Copy-assignable.
    */
-  Request& operator=(const Request&) = delete;
+  Request& operator=(const Request&);
 
   /**
    * @brief Move-constructable.
@@ -72,6 +72,11 @@ public:
   Request& operator=(Request&&) = default;
 
   /// @}
+
+  /**
+   * @brief Exchange the contents of this request with `other`.
+   */
+  void swap(Request& other);
 
   /**
    * @returns A String specifying the version of the JSON-RPC protocol.
@@ -185,7 +190,7 @@ public:
   /**
    * @return The allocator.
    */
-  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator();
+  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() const;
 
   /**
    * @brief Throws an instance of type Error with specified `code`, ID borrowed
@@ -208,7 +213,7 @@ public:
   DMITIGR_JRPC_API Result make_result() const;
 
 private:
-  rapidjson::Document rep_{rapidjson::Type::kObjectType};
+  mutable rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
   Request(const std::string_view input, int);
   Request(rapidjson::Value id, const std::string_view method);

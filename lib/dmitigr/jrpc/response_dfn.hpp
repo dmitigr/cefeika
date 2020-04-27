@@ -55,7 +55,7 @@ public:
   /**
    * @return The allocator.
    */
-  virtual rapidjson::Value::AllocatorType& allocator() = 0;
+  virtual rapidjson::Value::AllocatorType& allocator() const = 0;
 
 private:
   friend Error;

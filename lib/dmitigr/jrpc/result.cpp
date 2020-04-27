@@ -36,7 +36,7 @@ DMITIGR_JRPC_INLINE std::string Result::to_string() const
   return rajson::to_stringified_json(rep_);
 }
 
-DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Result::allocator()
+DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Result::allocator() const
 {
   return rep_.GetAllocator();
 }

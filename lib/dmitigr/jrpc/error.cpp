@@ -71,7 +71,7 @@ DMITIGR_JRPC_INLINE rapidjson::Value& Error::error()
   return const_cast<rapidjson::Value&>(static_cast<const Error*>(this)->error());
 }
 
-DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Error::allocator()
+DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Error::allocator() const
 {
   return rep_->GetAllocator();
 }

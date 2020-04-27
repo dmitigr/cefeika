@@ -81,7 +81,7 @@ public:
   /**
    * @see Response::allocator().
    */
-  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() override;
+  DMITIGR_JRPC_API rapidjson::Value::AllocatorType& allocator() const override;
 
 private:
   friend Request;
