@@ -16,8 +16,15 @@ DMITIGR_JRPC_INLINE Result::Result(const int id)
 {}
 
 DMITIGR_JRPC_INLINE Result::Result(const std::string_view id)
-  : Result{rapidjson::Value{id.data(), id.size(), allocator()}}
-{}
+{
+  Result tmp{rapidjson::Value{id.data(), id.size(), allocator()}};
+  swap(tmp);
+}
+
+DMITIGR_JRPC_INLINE void Result::swap(Result& other)
+{
+  rep_.Swap(other.rep_);
+}
 
 DMITIGR_JRPC_INLINE std::string_view Result::jsonrpc() const
 {
@@ -68,8 +75,10 @@ DMITIGR_JRPC_INLINE Result::Result(rapidjson::Value&& id)
 }
 
 DMITIGR_JRPC_INLINE Result::Result(const rapidjson::Value& id)
-  : Result{rapidjson::Value{id, allocator()}}
-{}
+{
+  Result tmp{rapidjson::Value{id, allocator()}};
+  swap(tmp);
+}
 
 DMITIGR_JRPC_INLINE Result::Result(rapidjson::Document&& rep)
   : rep_{std::move(rep)}

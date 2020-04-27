@@ -51,6 +51,11 @@ public:
   Result& operator=(Result&&) = default;
 
   /**
+   * @brief Exchange the contents of this request with `other`.
+   */
+  DMITIGR_JRPC_API void swap(Result& other);
+
+  /**
    * @see Response::jsonrpc()
    */
   DMITIGR_JRPC_API std::string_view jsonrpc() const override;

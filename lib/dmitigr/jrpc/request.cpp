@@ -14,7 +14,7 @@ DMITIGR_JRPC_INLINE Request Request::from_json(const std::string_view input)
   return Request{input, int{}};
 }
 
-DMITIGR_JRPC_API Request::Request(const Null, std::string_view method)
+DMITIGR_JRPC_INLINE Request::Request(const Null, std::string_view method)
   : Request{rapidjson::Value{}, method}
 {}
 

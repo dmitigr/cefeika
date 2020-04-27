@@ -54,29 +54,29 @@ public:
   /**
    * @brief Copy-constructable.
    */
-  Request(const Request&);
+  DMITIGR_JRPC_API Request(const Request&);
 
   /**
    * @brief Copy-assignable.
    */
-  Request& operator=(const Request&);
+  DMITIGR_JRPC_API Request& operator=(const Request&);
 
   /**
    * @brief Move-constructable.
    */
-  Request(Request&&) = default;
+  DMITIGR_JRPC_API Request(Request&&) = default;
 
   /**
    * @brief Move-assignable.
    */
-  Request& operator=(Request&&) = default;
+  DMITIGR_JRPC_API Request& operator=(Request&&) = default;
 
   /// @}
 
   /**
    * @brief Exchange the contents of this request with `other`.
    */
-  void swap(Request& other);
+  DMITIGR_JRPC_API void swap(Request& other);
 
   /**
    * @returns A String specifying the version of the JSON-RPC protocol.
