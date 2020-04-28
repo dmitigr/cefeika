@@ -273,6 +273,13 @@ Request::Request(rapidjson::Value id, const std::string_view method)
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
+void Request::init__(const std::string_view method)
+{
+  auto& alloc = allocator();
+  rep_.AddMember("jsonrpc", "2.0", alloc);
+  rep_.AddMember("method", rapidjson::Value{method.data(), method.size(), alloc}, alloc);
+}
+
 bool Request::is_invariant_ok() const
 {
   const auto e = rep_.MemberEnd();
@@ -285,13 +292,6 @@ bool Request::is_invariant_ok() const
     (rajson::to<std::string_view>(ji->value) == std::string_view{"2.0", 3}) &&
     (pi == e || pi->value.IsObject() || pi->value.IsArray()) &&
     (ii == e || ii->value.IsInt() || ii->value.IsString() || ii->value.IsNull());
-}
-
-void Request::init__(const std::string_view method)
-{
-  auto& alloc = allocator();
-  rep_.AddMember("jsonrpc", "2.0", alloc);
-  rep_.AddMember("method", rapidjson::Value{method.data(), method.size(), alloc}, alloc);
 }
 
 rapidjson::Value* Request::parameters__()
