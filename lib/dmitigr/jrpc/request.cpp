@@ -15,21 +15,27 @@ DMITIGR_JRPC_INLINE Request Request::from_json(const std::string_view input)
 }
 
 DMITIGR_JRPC_INLINE Request::Request(const Null, std::string_view method)
-  : Request{rapidjson::Value{}, method}
-{}
+{
+  init_request__(rapidjson::Value{}, method);
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Request::Request(const int id, const std::string_view method)
-  : Request{rapidjson::Value{id}, method}
-{}
+{
+  init_request__(rapidjson::Value{id}, method);
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Request::Request(const std::string_view id, const std::string_view method)
-  : Request{rapidjson::Value{id.data(), id.size(), allocator()}, method}
-{}
+{
+  // Attention: calling allocator() assumes constructed rep_!
+  init_request__(rapidjson::Value{id.data(), id.size(), allocator()}, method);
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Request::Request(const std::string_view method)
 {
-  init__(method);
-
+  init_notification__(method);
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
@@ -207,6 +213,25 @@ DMITIGR_JRPC_INLINE Result Request::make_result() const
 // Private
 // -----------------------------------------------------------------------------
 
+bool Request::is_invariant_ok() const
+{
+  const auto e = rep_.MemberEnd();
+  const auto ji = rep_.FindMember("jsonrpc");
+  const auto mi = rep_.FindMember("method");
+  const auto pi = rep_.FindMember("params");
+  const auto ii = rep_.FindMember("id");
+
+  return ji != e && mi != e &&
+    (rajson::to<std::string_view>(ji->value) == std::string_view{"2.0", 3}) &&
+    (pi == e || pi->value.IsObject() || pi->value.IsArray()) &&
+    (ii == e || ii->value.IsInt() || ii->value.IsString() || ii->value.IsNull());
+}
+
+rapidjson::Value* Request::parameters__()
+{
+  return const_cast<rapidjson::Value*>(static_cast<const Request*>(this)->parameters());
+}
+
 Request::Request(const std::string_view input, int)
   : rep_{rajson::to_parsed_json(input)}
 {
@@ -265,38 +290,17 @@ Request::Request(const std::string_view input, int)
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
-Request::Request(rapidjson::Value id, const std::string_view method)
-{
-  init__(method);
-  rep_.AddMember("id", std::move(id), allocator());
-
-  DMITIGR_ASSERT(is_invariant_ok());
-}
-
-void Request::init__(const std::string_view method)
+void Request::init_notification__(const std::string_view method)
 {
   auto& alloc = allocator();
   rep_.AddMember("jsonrpc", "2.0", alloc);
   rep_.AddMember("method", rapidjson::Value{method.data(), method.size(), alloc}, alloc);
 }
 
-bool Request::is_invariant_ok() const
+void Request::init_request__(rapidjson::Value&& id, const std::string_view method)
 {
-  const auto e = rep_.MemberEnd();
-  const auto ji = rep_.FindMember("jsonrpc");
-  const auto mi = rep_.FindMember("method");
-  const auto pi = rep_.FindMember("params");
-  const auto ii = rep_.FindMember("id");
-
-  return ji != e && mi != e &&
-    (rajson::to<std::string_view>(ji->value) == std::string_view{"2.0", 3}) &&
-    (pi == e || pi->value.IsObject() || pi->value.IsArray()) &&
-    (ii == e || ii->value.IsInt() || ii->value.IsString() || ii->value.IsNull());
-}
-
-rapidjson::Value* Request::parameters__()
-{
-  return const_cast<rapidjson::Value*>(static_cast<const Request*>(this)->parameters());
+  init_notification__(method);
+  rep_.AddMember("id", std::move(id), allocator());
 }
 
 } // namespace dmitigr::jrpc

@@ -215,12 +215,13 @@ public:
 private:
   mutable rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
-  Request(const std::string_view input, int);
-  Request(rapidjson::Value id, const std::string_view method);
-
   bool is_invariant_ok() const;
-  void init__(const std::string_view method);
   rapidjson::Value* parameters__();
+
+  Request(const std::string_view input, int); // for from_json
+
+  void init_notification__(const std::string_view method);
+  void init_request__(rapidjson::Value&& id, std::string_view method);
 };
 
 } // namespace dmitigr::jrpc
