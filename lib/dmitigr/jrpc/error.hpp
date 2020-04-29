@@ -44,6 +44,11 @@ public:
     const std::string& message = {});
 
   /**
+   * @brief Exchange the contents of this request with `other`.
+   */
+  DMITIGR_JRPC_API void swap(Error& other);
+
+  /**
    * @see Response::jsonrpc().
    */
   DMITIGR_JRPC_API std::string_view jsonrpc() const override;
@@ -99,7 +104,6 @@ private:
 
   const rapidjson::Value& error() const;
   rapidjson::Value& error();
-
 };
 
 } // namespace dmitigr::jrpc

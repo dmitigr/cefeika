@@ -26,6 +26,11 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   : Error{code, rapidjson::Value{id.data(), id.size(), allocator()}, message}
 {}
 
+DMITIGR_JRPC_INLINE void Error::swap(Error& other)
+{
+  rep_.swap(other.rep_);
+}
+
 DMITIGR_JRPC_INLINE std::string_view Error::jsonrpc() const
 {
   return std::string_view{"2.0", 3};
