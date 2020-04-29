@@ -54,22 +54,22 @@ public:
   /**
    * @brief Copy-constructable.
    */
-  DMITIGR_JRPC_API Request(const Request&);
+  DMITIGR_JRPC_API Request(const Request& rhs);
 
   /**
    * @brief Copy-assignable.
    */
-  DMITIGR_JRPC_API Request& operator=(const Request&);
+  DMITIGR_JRPC_API Request& operator=(const Request& rhs);
 
   /**
    * @brief Move-constructable.
    */
-  DMITIGR_JRPC_API Request(Request&&) = default;
+  DMITIGR_JRPC_API Request(Request&& rhs) = default;
 
   /**
    * @brief Move-assignable.
    */
-  DMITIGR_JRPC_API Request& operator=(Request&&) = default;
+  DMITIGR_JRPC_API Request& operator=(Request&& rhs) = default;
 
   /// @}
 

@@ -85,40 +85,40 @@ DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Error::allocator() const
 // Private
 // -----------------------------------------------------------------------------
 
-DMITIGR_JRPC_INLINE Error::Error(std::error_code code,
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   const std::string& message, std::shared_ptr<rapidjson::Document> rep)
-  : system_error{std::move(code), message}
+  : system_error{code, message}
   , rep_{std::move(rep)}
 {
   DMITIGR_ASSERT(rep_ != nullptr);
 }
 
-DMITIGR_JRPC_INLINE Error::Error(std::error_code code, const std::string& message)
-  : Error{std::move(code), message, std::make_shared<rapidjson::Document>(rapidjson::kObjectType)}
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code, const std::string& message)
+  : Error{code, message, std::make_shared<rapidjson::Document>(rapidjson::kObjectType)}
 {}
 
-DMITIGR_JRPC_INLINE Error::Error(std::error_code code,
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   rapidjson::Value&& id, const std::string& message)
-  : Error{std::move(code), message}
+  : Error{code, message}
 {
   init__(std::move(id), message);
 }
 
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   const rapidjson::Value& id, const std::string& message)
-  : Error{std::move(code), message}
+  : Error{code, message}
 {
   init__(rapidjson::Value{id, allocator()}, message);
 }
 
 DMITIGR_JRPC_INLINE void Error::init__(rapidjson::Value&& id, const std::string& message)
 {
-  using T = rapidjson::Type;
-  using V = rapidjson::Value;
   auto& alloc = allocator();
   rep_->AddMember("jsonrpc", "2.0", alloc);
   rep_->AddMember("id", std::move(id), alloc);
   {
+    using T = rapidjson::Type;
+    using V = rapidjson::Value;
     V e{T::kObjectType};
     e.AddMember("code", V{code().value()}, alloc);
     e.AddMember("message", message, alloc);
