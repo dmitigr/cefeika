@@ -171,7 +171,7 @@ int main(int, char* argv[])
 
     // Making notification.
     {
-      jrpc::Request req("move");
+      jrpc::Request req{"move"};
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "move");
       ASSERT(!req.parameters());
@@ -184,6 +184,16 @@ int main(int, char* argv[])
       ASSERT(req.parameter_count() == 2);
       ASSERT(req.parameter("x") && req.parameter("x")->IsInt() && req.parameter("x")->GetInt() == 10);
       ASSERT(req.parameter("y") && req.parameter("y")->IsInt() && req.parameter("y")->GetInt() == 20);
+    }
+
+    // Copying request
+    {
+      const jrpc::Request req{"copy"};
+      const jrpc::Request req_copy = req;
+      ASSERT(req_copy.jsonrpc() == "2.0");
+      ASSERT(req_copy.method() == "copy");
+      ASSERT(!req_copy.parameters());
+      ASSERT(!req_copy.id());
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
