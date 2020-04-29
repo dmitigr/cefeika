@@ -8,23 +8,40 @@
 namespace dmitigr::jrpc {
 
 DMITIGR_JRPC_API Error::Error()
-  : Error{Server_errc::generic_error, rapidjson::Value{}}
-{}
+  : Error{Server_errc::generic_error, std::string{}}
+{
+  init__(rapidjson::Value{}, std::string{});
+
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   const Null, const std::string& message)
-  : Error{code, rapidjson::Value{}, message}
-{}
+  : Error{code, message}
+{
+  init__(rapidjson::Value{}, message);
+
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   const int id, const std::string& message)
-  : Error{code, rapidjson::Value{id}, message}
-{}
+  : Error{code, message}
+{
+  init__(rapidjson::Value{id}, message);
+
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   const std::string_view id, const std::string& message)
-  : Error{code, rapidjson::Value{id.data(), id.size(), allocator()}, message}
-{}
+  : Error{code, message}
+{
+  // Attention: calling allocator() assumes constructed rep_!
+  init__(rapidjson::Value{id.data(), id.size(), allocator()}, message);
+
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE void Error::swap(Error& other)
 {
@@ -64,6 +81,21 @@ DMITIGR_JRPC_INLINE void Error::set_data(rapidjson::Value value)
     i->value = std::move(value);
 }
 
+DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Error::allocator() const
+{
+  return rep_->GetAllocator();
+}
+
+// -----------------------------------------------------------------------------
+// Private
+// -----------------------------------------------------------------------------
+
+DMITIGR_JRPC_INLINE bool Error::is_invariant_ok() const
+{
+  // FIXME: deep check.
+  return rep_ != nullptr;
+}
+
 DMITIGR_JRPC_INLINE const rapidjson::Value& Error::error() const
 {
   const auto i = rep_->FindMember("error");
@@ -76,32 +108,13 @@ DMITIGR_JRPC_INLINE rapidjson::Value& Error::error()
   return const_cast<rapidjson::Value&>(static_cast<const Error*>(this)->error());
 }
 
-DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Error::allocator() const
-{
-  return rep_->GetAllocator();
-}
-
-// -----------------------------------------------------------------------------
-// Private
-// -----------------------------------------------------------------------------
-
-DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
-  const std::string& message, std::shared_ptr<rapidjson::Document> rep)
-  : system_error{code, message}
-  , rep_{std::move(rep)}
-{
-  DMITIGR_ASSERT(rep_ != nullptr);
-}
-
-DMITIGR_JRPC_INLINE Error::Error(const std::error_code code, const std::string& message)
-  : Error{code, message, std::make_shared<rapidjson::Document>(rapidjson::kObjectType)}
-{}
-
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   rapidjson::Value&& id, const std::string& message)
   : Error{code, message}
 {
   init__(std::move(id), message);
+
+  DMITIGR_ASSERT(is_invariant_ok());
 }
 
 DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
@@ -109,6 +122,23 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   : Error{code, message}
 {
   init__(rapidjson::Value{id, allocator()}, message);
+
+  DMITIGR_ASSERT(is_invariant_ok());
+}
+
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
+  const std::string& message, std::shared_ptr<rapidjson::Document> rep)
+  : system_error{code, message}
+  , rep_{std::move(rep)}
+{
+  DMITIGR_ASSERT(rep != nullptr);
+  // Maybe uninitialized, so invariant *maybe* invalid here!
+}
+
+DMITIGR_JRPC_INLINE Error::Error(const std::error_code code, const std::string& message)
+  : Error{code, message, std::make_shared<rapidjson::Document>(rapidjson::kObjectType)}
+{
+  // Uninitialized, so invariant is invalid here!
 }
 
 DMITIGR_JRPC_INLINE void Error::init__(rapidjson::Value&& id, const std::string& message)
