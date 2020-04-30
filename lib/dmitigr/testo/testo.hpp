@@ -7,6 +7,7 @@
 
 #include <dmitigr/base/debug.hpp>
 
+#include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <string_view>
@@ -46,6 +47,16 @@ inline void report_failure(const std::string_view test_name, const std::exceptio
 inline void report_failure(const std::string_view test_name)
 {
   std::cerr << "Test \"" << test_name.data() << "\" failed (unknown exception catched)" << std::endl;
+}
+
+template<typename D = std::chrono::milliseconds, typename F>
+auto time(F&& f)
+{
+  namespace chrono = std::chrono;
+  const auto start = chrono::high_resolution_clock::now();
+  f();
+  const auto end = chrono::high_resolution_clock::now();
+  return chrono::duration_cast<D>(end - start);
 }
 
 } // namespace dmitigr::testo
