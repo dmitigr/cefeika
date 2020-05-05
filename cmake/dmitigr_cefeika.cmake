@@ -6,26 +6,27 @@ set(dmitigr_cefeika_libraries
   base
 
   algo
+  app
+  dt
   fs
+  img
   math
   mem
   mp
+  os
   rajson
   rng
   str
-  app
-  dt
-  img
-  net
-  os
   testo
   ttpl
 
+  net
   cfg
   jrpc
   mulf
   url
   uuid
+
   fcgi
   http
   pgfe
@@ -37,26 +38,27 @@ set(dmitigr_cefeika_libraries
 set(dmitigr_cefeika_base_deps)
 
 set(dmitigr_cefeika_algo_deps base)
+set(dmitigr_cefeika_app_deps base)
+set(dmitigr_cefeika_dt_deps base)
 set(dmitigr_cefeika_fs_deps base)
+set(dmitigr_cefeika_img_deps base)
 set(dmitigr_cefeika_math_deps base)
 set(dmitigr_cefeika_mem_deps base)
 set(dmitigr_cefeika_mp_deps base)
+set(dmitigr_cefeika_os_deps base)
 set(dmitigr_cefeika_rajson_deps thirdparty_rapidjson base)
 set(dmitigr_cefeika_rng_deps base)
 set(dmitigr_cefeika_str_deps base)
-set(dmitigr_cefeika_app_deps base)
-set(dmitigr_cefeika_dt_deps base)
-set(dmitigr_cefeika_img_deps base)
-set(dmitigr_cefeika_net_deps os base)
-set(dmitigr_cefeika_os_deps base)
 set(dmitigr_cefeika_testo_deps base)
 set(dmitigr_cefeika_ttpl_deps base)
 
 set(dmitigr_cefeika_cfg_deps str base)
 set(dmitigr_cefeika_jrpc_deps rajson str base)
 set(dmitigr_cefeika_mulf_deps str base)
+set(dmitigr_cefeika_net_deps os base)
 set(dmitigr_cefeika_url_deps str base)
 set(dmitigr_cefeika_uuid_deps rng base)
+
 set(dmitigr_cefeika_fcgi_deps net math base)
 set(dmitigr_cefeika_http_deps dt net str base)
 set(dmitigr_cefeika_pgfe_deps mem net str base)
