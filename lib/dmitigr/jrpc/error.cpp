@@ -7,11 +7,10 @@
 
 namespace dmitigr::jrpc {
 
-DMITIGR_JRPC_API Error::Error()
+DMITIGR_JRPC_INLINE Error::Error()
   : Error{Server_errc::generic_error, std::string{}}
 {
   init__(rapidjson::Value{}, std::string{});
-
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
@@ -20,7 +19,6 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   : Error{code, message}
 {
   init__(rapidjson::Value{}, message);
-
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
@@ -29,7 +27,6 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   : Error{code, message}
 {
   init__(rapidjson::Value{id}, message);
-
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
@@ -39,7 +36,6 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
 {
   // Attention: calling allocator() assumes constructed rep_!
   init__(rapidjson::Value{id.data(), id.size(), allocator()}, message);
-
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
@@ -113,7 +109,6 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   : Error{code, message}
 {
   init__(std::move(id), message);
-
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
@@ -122,7 +117,6 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   : Error{code, message}
 {
   init__(rapidjson::Value{id, allocator()}, message);
-
   DMITIGR_ASSERT(is_invariant_ok());
 }
 

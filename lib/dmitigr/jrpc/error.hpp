@@ -98,11 +98,10 @@ private:
   const rapidjson::Value& error() const;
   rapidjson::Value& error();
 
-  Error(std::error_code code, rapidjson::Value&& id, const std::string& message = {});
-  Error(std::error_code code, const rapidjson::Value& id, const std::string& message = {});
-
-  Error(std::error_code code, const std::string& message, std::shared_ptr<rapidjson::Document> rep);
-  Error(std::error_code code, const std::string& message = {});
+  Error(std::error_code code, rapidjson::Value&& id, const std::string& message = {}); // used by Request
+  Error(std::error_code code, const rapidjson::Value& id, const std::string& message = {}); // used by Request
+  Error(std::error_code code, const std::string& message, std::shared_ptr<rapidjson::Document> rep); // used by Response
+  explicit Error(std::error_code code, const std::string& message = {}); // used for pre initialization
   void init__(rapidjson::Value&& id, const std::string& message);
 };
 
