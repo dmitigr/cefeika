@@ -88,8 +88,45 @@ DMITIGR_JRPC_INLINE rapidjson::Value::AllocatorType& Error::allocator() const
 
 DMITIGR_JRPC_INLINE bool Error::is_invariant_ok() const
 {
-  // FIXME: deep check.
-  return rep_ != nullptr;
+  if (!rep_)
+    return false;
+
+  const auto mc = rep_->MemberCount();
+  if (mc != 3)
+    return false;
+
+  const auto e = rep_->MemberEnd();
+
+  const auto ji = rep_->FindMember("jsonrpc");
+  if (ji == e || !(ji->value.IsString() && (rajson::to<std::string_view>(ji->value) == std::string_view{"2.0", 3})))
+    return false;
+
+  const auto ii = rep_->FindMember("id");
+  if (ii == e || !(ii->value.IsInt() || ii->value.IsString() || ii->value.IsNull()))
+    return false;
+
+  const auto ei = rep_->FindMember("error");
+  if (ei == e || !ei->value.IsObject())
+    return false;
+
+  const auto eimc = ei->value.MemberCount();
+  const auto ee = ei->value.MemberEnd();
+  const auto ci = ei->value.FindMember("code");
+  if (ci == ee || !ci->value.IsInt())
+    return false;
+
+  const auto mi = ei->value.FindMember("message");
+  if (mi == ee || !mi->value.IsString())
+    return false;
+
+  const auto di = ei->value.FindMember("data");
+  if (di == ee) {
+    if (eimc != 2)
+      return false;
+  } else if (eimc != 3)
+    return false;
+
+  return true;
 }
 
 DMITIGR_JRPC_INLINE const rapidjson::Value& Error::error() const
@@ -125,7 +162,7 @@ DMITIGR_JRPC_INLINE Error::Error(const std::error_code code,
   : system_error{code, message}
   , rep_{std::move(rep)}
 {
-  DMITIGR_ASSERT(rep != nullptr);
+  DMITIGR_ASSERT(rep_ != nullptr);
   // Maybe uninitialized, so invariant *maybe* invalid here!
 }
 
