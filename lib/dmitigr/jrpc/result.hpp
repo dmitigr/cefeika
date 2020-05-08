@@ -31,24 +31,24 @@ public:
   DMITIGR_JRPC_API Result(std::string_view id);
 
   /**
-   * @brief Non copy-constructable.
+   * @brief Copy-constructable.
    */
-  Result(const Result&) = delete;
+  DMITIGR_JRPC_API Result(const Result& rhs);
 
   /**
-   * @brief Non copy-assignable.
+   * @brief Copy-assignable.
    */
-  Result& operator=(const Result&) = delete;
+  DMITIGR_JRPC_API Result& operator=(const Result& rhs);
 
   /**
    * @brief Move-constructable.
    */
-  Result(Result&&) = default;
+  Result(Result&& rhs) = default;
 
   /**
    * @brief Move-assignable.
    */
-  Result& operator=(Result&&) = default;
+  Result& operator=(Result&& rhs) = default;
 
   /**
    * @brief Exchange the contents of this request with `other`.
@@ -100,12 +100,13 @@ private:
 
   mutable rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
-  explicit Result(rapidjson::Value&& id);
-  explicit Result(const rapidjson::Value& id);
-  explicit Result(rapidjson::Document&& rep);
-
-  rapidjson::Value& data__();
   bool is_invariant_ok() const;
+  rapidjson::Value& data__();
+
+  explicit Result(const rapidjson::Value& id); // used by Request
+  explicit Result(rapidjson::Document&& rep); // used by Response
+
+  void init__(rapidjson::Value&& id);
 };
 
 } // namespace dmitigr::jrpc

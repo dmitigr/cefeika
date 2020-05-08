@@ -8,17 +8,34 @@
 namespace dmitigr::jrpc {
 
 DMITIGR_JRPC_INLINE Result::Result()
-  : Result{rapidjson::Value{}}
-{}
+{
+  init__(rapidjson::Value{});
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Result::Result(const int id)
-  : Result{rapidjson::Value{id}}
-{}
+{
+  init__(rapidjson::Value{id});
+  DMITIGR_ASSERT(is_invariant_ok());
+}
 
 DMITIGR_JRPC_INLINE Result::Result(const std::string_view id)
 {
-  Result tmp{rapidjson::Value{id.data(), id.size(), allocator()}};
+  // Attention: calling allocator() assumes constructed rep_!
+  init__(rapidjson::Value{id.data(), id.size(), allocator()});
+  DMITIGR_ASSERT(is_invariant_ok());
+}
+
+DMITIGR_JRPC_INLINE Result::Result(const Result& rhs)
+{
+  rep_.CopyFrom(rhs.rep_, allocator(), true);
+}
+
+DMITIGR_JRPC_INLINE Result& Result::operator=(const Result& rhs)
+{
+  Result tmp{rhs};
   swap(tmp);
+  return *this;
 }
 
 DMITIGR_JRPC_INLINE void Result::swap(Result& other)
@@ -64,33 +81,6 @@ DMITIGR_JRPC_INLINE void Result::set_data(rapidjson::Value value)
 // Private
 // -----------------------------------------------------------------------------
 
-DMITIGR_JRPC_INLINE Result::Result(rapidjson::Value&& id)
-{
-  auto& alloc = allocator();
-  rep_.AddMember("jsonrpc", "2.0", alloc);
-  rep_.AddMember("result", rapidjson::Value{}, alloc);
-  rep_.AddMember("id", std::move(id), alloc);
-
-  DMITIGR_ASSERT(is_invariant_ok());
-}
-
-DMITIGR_JRPC_INLINE Result::Result(const rapidjson::Value& id)
-{
-  Result tmp{rapidjson::Value{id, allocator()}};
-  swap(tmp);
-}
-
-DMITIGR_JRPC_INLINE Result::Result(rapidjson::Document&& rep)
-  : rep_{std::move(rep)}
-{
-  DMITIGR_ASSERT(is_invariant_ok());
-}
-
-DMITIGR_JRPC_INLINE rapidjson::Value& Result::data__()
-{
-  return const_cast<rapidjson::Value&>(static_cast<const Result*>(this)->data());
-}
-
 DMITIGR_JRPC_INLINE bool Result::is_invariant_ok() const
 {
   const auto mc = rep_.MemberCount();
@@ -102,6 +92,31 @@ DMITIGR_JRPC_INLINE bool Result::is_invariant_ok() const
     (rajson::to<std::string_view>(ji->value) == std::string_view{"2.0", 3}) &&
     (ii->value.IsInt() || ii->value.IsString() || ii->value.IsNull()) &&
     (mc == 3);
+}
+
+DMITIGR_JRPC_INLINE rapidjson::Value& Result::data__()
+{
+  return const_cast<rapidjson::Value&>(static_cast<const Result*>(this)->data());
+}
+
+DMITIGR_JRPC_INLINE Result::Result(const rapidjson::Value& id)
+{
+  init__(rapidjson::Value{id, allocator()});
+  DMITIGR_ASSERT(is_invariant_ok());
+}
+
+DMITIGR_JRPC_INLINE Result::Result(rapidjson::Document&& rep)
+  : rep_{std::move(rep)}
+{
+  DMITIGR_ASSERT(is_invariant_ok());
+}
+
+DMITIGR_JRPC_INLINE void Result::init__(rapidjson::Value&& id)
+{
+  auto& alloc = allocator();
+  rep_.AddMember("jsonrpc", "2.0", alloc);
+  rep_.AddMember("result", rapidjson::Value{}, alloc);
+  rep_.AddMember("id", std::move(id), alloc);
 }
 
 } // namespace dmitigr::jrpc
