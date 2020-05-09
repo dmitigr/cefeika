@@ -79,7 +79,7 @@ DMITIGR_DT_INLINE std::string to_string(const Day_of_week dw)
   DMITIGR_ASSERT_ALWAYS(!true);
 }
 
-DMITIGR_DT_INLINE Month to_month(std::string_view str)
+DMITIGR_DT_INLINE Month to_month(const std::string_view str)
 {
   if (str == "Jan")
     return Month::jan;
