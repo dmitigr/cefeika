@@ -24,6 +24,7 @@
 #define DMITIGR_MP_MP_HPP
 
 #include "dmitigr/mp/simple_thread_pool.hpp"
+#include "dmitigr/mp/types_fwd.hpp"
 #include "dmitigr/mp/version.hpp"
 
 #endif  // DMITIGR_MP_MP_HPP

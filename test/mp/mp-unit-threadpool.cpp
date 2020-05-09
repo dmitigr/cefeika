@@ -15,28 +15,29 @@ int main(int, char* argv[])
 
   try {
     const auto size = std::thread::hardware_concurrency() * 2;
-    const auto pool = mp::Simple_threadpool::make(size);
-    ASSERT(pool->size() == size);
-    ASSERT(pool->queue_size() == 0);
-    ASSERT(pool->is_queue_empty());
-    ASSERT(!pool->is_working());
+    mp::Simple_threadpool pool{size};
+    ASSERT(pool.size() == size);
+    ASSERT(pool.queue_size() == 0);
+    ASSERT(pool.is_queue_empty());
+    ASSERT(!pool.is_working());
 
     for (std::size_t i = 0; i < 16*size; ++i) {
-      pool->submit([]{
+      pool.submit([]
+      {
         std::this_thread::sleep_for(std::chrono::milliseconds{5});
         std::cout << "Hello from thread " << std::this_thread::get_id() << std::endl;
       });
     }
 
-    pool->start();
-    ASSERT(pool->is_working());
+    pool.start();
+    ASSERT(pool.is_working());
     std::this_thread::sleep_for(std::chrono::milliseconds{50});
-    pool->stop();
-    ASSERT(!pool->is_working());
-    std::cout << "Thread pool has " << pool->queue_size() << " uncompleted tasks" << std::endl;
-    pool->clear();
-    ASSERT(pool->queue_size() == 0);
-    ASSERT(pool->is_queue_empty());
+    pool.stop();
+    ASSERT(!pool.is_working());
+    std::cout << "Thread pool has " << pool.queue_size() << " uncompleted tasks" << std::endl;
+    pool.clear();
+    ASSERT(pool.queue_size() == 0);
+    ASSERT(pool.is_queue_empty());
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

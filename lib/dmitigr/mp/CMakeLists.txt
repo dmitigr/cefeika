@@ -18,21 +18,14 @@ set(dmitigr_mp_headers
   )
 
 set(dmitigr_mp_implementations
-  simple_thread_pool.cpp
   )
 
 #
 # System
 #
 
-if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-  if (UNIX)
-    list(APPEND dmitigr_mp_target_link_libraries_public pthread)
-  endif()
-else()
-  if (UNIX)
-    list(APPEND dmitigr_mp_target_link_libraries_interface pthread)
-  endif()
+if (UNIX)
+  list(APPEND dmitigr_mp_target_link_libraries_interface pthread)
 endif()
 
 # ------------------------------------------------------------------------------
