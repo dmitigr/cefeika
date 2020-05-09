@@ -18,7 +18,6 @@ class Uuid;
  * @brief The implementation detail.
  */
 namespace detail {
-class iUuid;
 } // namespace detail
 } // namespace uuid
 } // namespace dmitigr

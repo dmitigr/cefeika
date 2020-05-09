@@ -18,7 +18,6 @@ set(dmitigr_uuid_headers
   )
 
 set(dmitigr_uuid_implementations
-  uuid.cpp
   )
 
 # ------------------------------------------------------------------------------

@@ -14,8 +14,8 @@ int main(int, char* argv[])
 
   try {
     rng::seed_by_now();
-    const auto u = uuid::Uuid::make();
-    const auto s = u->to_string();
+    const auto u = uuid::Uuid::make_v4();
+    const auto s = u.to_string();
     ASSERT(s.size() == 36);
     std::cout << s << std::endl;
   } catch (const std::exception& e) {
