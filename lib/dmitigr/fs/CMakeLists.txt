@@ -14,11 +14,9 @@ dmitigr_set_library_info(fs 0 1 "Filesystem extras")
 
 set(dmitigr_fs_headers
   fs.hpp
-  types_fwd.hpp
   )
 
 set(dmitigr_fs_implementations
-  fs.cpp
   )
 
 # ------------------------------------------------------------------------------
