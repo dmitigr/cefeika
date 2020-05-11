@@ -226,7 +226,7 @@ public:
   iSet_cookie(const iSet_cookie& rhs)
     : name_{rhs.name_}
     , value_{rhs.value_}
-    , expires_{rhs.expires_->to_timestamp()}
+    , expires_{rhs.expires_}
     , max_age_{rhs.max_age_}
     , domain_{rhs.domain_}
     , path_{rhs.path_}
@@ -329,14 +329,14 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  const dt::Timestamp* expires() const override
+  const std::optional<dt::Timestamp>& expires() const override
   {
-    return expires_.get();
+    return expires_;
   }
 
-  void set_expires(const dt::Timestamp* const ts) override
+  void set_expires(std::optional<dt::Timestamp> ts) override
   {
-    expires_ = ts ? ts->to_timestamp() : nullptr;
+    expires_ = std::move(ts);
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -429,7 +429,7 @@ public:
 private:
   std::string name_;
   std::string value_;
-  std::unique_ptr<dt::Timestamp> expires_;
+  std::optional<dt::Timestamp> expires_;
   std::optional<int> max_age_{};
   std::optional<std::string> domain_;
   std::optional<std::string> path_;

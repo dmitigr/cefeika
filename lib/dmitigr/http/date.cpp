@@ -22,27 +22,10 @@ public:
   /**
    * @brief See Date::make();
    */
-  explicit iDate(std::unique_ptr<dt::Timestamp>&& ts)
+  explicit iDate(dt::Timestamp ts)
     : ts_{std::move(ts)}
   {
-    DMITIGR_REQUIRE(ts_, std::invalid_argument);
     DMITIGR_ASSERT(is_invariant_ok());
-  }
-
-  iDate(const iDate& rhs)
-    : ts_{rhs.ts_->to_timestamp()}
-  {}
-
-  iDate& operator=(const iDate& rhs)
-  {
-    iDate tmp{rhs};
-    swap(tmp);
-    return *this;
-  }
-
-  void swap(iDate& other)
-  {
-    ts_.swap(other.ts_);
   }
 
   // ---------------------------------------------------------------------------
@@ -62,7 +45,7 @@ public:
 
   std::string to_string() const override
   {
-    return ts_->to_rfc7231();
+    return ts_.to_rfc7231();
   }
 
   // ---------------------------------------------------------------------------
@@ -74,27 +57,26 @@ public:
     return std::make_unique<iDate>(*this);
   }
 
-  const dt::Timestamp* timestamp() const override
+  const dt::Timestamp& timestamp() const override
   {
-    return ts_.get();
+    return ts_;
   }
 
-  dt::Timestamp* timestamp() override
+  dt::Timestamp& timestamp() override
   {
-    return const_cast<dt::Timestamp*>(static_cast<const iDate*>(this)->timestamp());
+    return const_cast<dt::Timestamp&>(static_cast<const iDate*>(this)->timestamp());
   }
 
-  void set_timestamp(const dt::Timestamp* const ts) override
+  void set_timestamp(dt::Timestamp ts) override
   {
-    DMITIGR_REQUIRE(ts, std::invalid_argument);
-    ts_ = ts->to_timestamp();
+    ts_ = std::move(ts);
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
 private:
-  std::unique_ptr<dt::Timestamp> ts_;
+  dt::Timestamp ts_;
 
-  bool is_invariant_ok() const
+  constexpr bool is_invariant_ok() const
   {
     return true;
   }
@@ -109,9 +91,9 @@ DMITIGR_HTTP_INLINE std::unique_ptr<Date> Date::make(const std::string_view inpu
   return std::make_unique<detail::iDate>(input);
 }
 
-DMITIGR_HTTP_INLINE std::unique_ptr<Date> Date::make(const dt::Timestamp* const ts)
+DMITIGR_HTTP_INLINE std::unique_ptr<Date> Date::make(const dt::Timestamp& ts)
 {
-  return std::make_unique<detail::iDate>(ts->to_timestamp());
+  return std::make_unique<detail::iDate>(ts);
 }
 
 } // namespace dmitigr::http

@@ -49,7 +49,7 @@ public:
    * @par Requires
    * `(ts != nullptr)`.
    */
-  static DMITIGR_HTTP_API std::unique_ptr<Date> make(const dt::Timestamp* ts);
+  static DMITIGR_HTTP_API std::unique_ptr<Date> make(const dt::Timestamp& ts);
 
   /**
    * @returns The copy of this instance.
@@ -61,12 +61,12 @@ public:
   /**
    * @returns The timestamp.
    */
-  virtual const dt::Timestamp* timestamp() const = 0;
+  virtual const dt::Timestamp& timestamp() const = 0;
 
   /**
    * @overload
    */
-  virtual dt::Timestamp* timestamp() = 0;
+  virtual dt::Timestamp& timestamp() = 0;
 
   /**
    * @brief Sets the timestamp.
@@ -77,7 +77,7 @@ public:
    * @par Requires
    * `(ts != nullptr)`.
    */
-  virtual void set_timestamp(const dt::Timestamp* ts) = 0;
+  virtual void set_timestamp(dt::Timestamp ts) = 0;
 
 private:
   friend detail::iDate;

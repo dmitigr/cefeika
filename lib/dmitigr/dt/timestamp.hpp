@@ -9,27 +9,20 @@
 #include "dmitigr/dt/dll.hpp"
 #include "dmitigr/dt/types_fwd.hpp"
 
-#include <memory>
-
 namespace dmitigr::dt {
 
 /**
  * @brief A timestamp.
  */
-class Timestamp {
+class Timestamp final {
 public:
-  /**
-   * @brief The destructor.
-   */
-  virtual ~Timestamp() = default;
-
   /// @name Constructors
   /// @{
 
   /**
    * @brief Constructs the timestamp "1583/01/01 00:00:00".
    */
-  static DMITIGR_DT_API std::unique_ptr<Timestamp> make();
+  Timestamp() = default;
 
   /**
    * @brief Constructs the timestamp by parsing the `input` which is compliant
@@ -43,44 +36,39 @@ public:
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
    */
-  static DMITIGR_DT_API std::unique_ptr<Timestamp> from_rfc7231(std::string_view input);
-
-  /**
-   * @returns The copy of this instance.
-   */
-  virtual std::unique_ptr<Timestamp> to_timestamp() const = 0;
+  static DMITIGR_DT_API Timestamp from_rfc7231(std::string_view input);
 
   /// @}
 
   /**
    * @returns The year.
    */
-  virtual int year() const = 0;
+  DMITIGR_DT_API int year() const;
 
   /**
    * @returns The month.
    */
-  virtual Month month() const = 0;
+  DMITIGR_DT_API Month month() const;
 
   /**
    * @returns The day.
    */
-  virtual int day() const = 0;
+  DMITIGR_DT_API int day() const;
 
   /**
    * @returns The day of week.
    */
-  virtual Day_of_week day_of_week() const = 0;
+  DMITIGR_DT_API Day_of_week day_of_week() const;
 
   /**
    * @returns The day of year. (Starts at 1.)
    */
-  virtual int day_of_year() const = 0;
+  DMITIGR_DT_API int day_of_year() const;
 
   /**
    * @returns The day of epoch (from 1583 Jan 1). (Starts at 1.)
    */
-  virtual int day_of_epoch() const = 0;
+  DMITIGR_DT_API int day_of_epoch() const;
 
   /**
    * @brief Sets the date.
@@ -91,7 +79,7 @@ public:
    * @par Requires
    * `is_date_acceptable(year, month, day)`.
    */
-  virtual void set_date(int year, Month month, int day) = 0;
+  DMITIGR_DT_API void set_date(int year, Month month, int day);
 
   /**
    * @overload
@@ -102,12 +90,12 @@ public:
    * @par Requires
    * `(day_of_epoch > 0)`.
    */
-  virtual void set_date(int day_of_epoch) = 0;
+  DMITIGR_DT_API void set_date(int day_of_epoch);
 
   /**
    * @returns The hour.
    */
-  virtual int hour() const = 0;
+  DMITIGR_DT_API int hour() const;
 
   /**
    * @brief Sets the hour.
@@ -118,12 +106,12 @@ public:
    * @par Requires
    * `(0 <= hour && hour <= 59)`.
    */
-  virtual void set_hour(int hour) = 0;
+  DMITIGR_DT_API void set_hour(int hour);
 
   /**
    * @returns The minute.
    */
-  virtual int minute() const = 0;
+  DMITIGR_DT_API int minute() const;
 
   /**
    * @brief Sets the minute.
@@ -134,12 +122,12 @@ public:
    * @par Requires
    * `(0 <= minute && minute <= 59)`.
    */
-  virtual void set_minute(int minute) = 0;
+  DMITIGR_DT_API void set_minute(int minute);
 
   /**
    * @returns The second.
    */
-  virtual int second() const = 0;
+  DMITIGR_DT_API int second() const;
 
   /**
    * @brief Sets the second.
@@ -150,7 +138,7 @@ public:
    * @par Requires
    * `(0 <= second && second <= 59)`.
    */
-  virtual void set_second(int second) = 0;
+  DMITIGR_DT_API void set_second(int second);
 
   /**
    * @brief Sets the time.
@@ -161,7 +149,7 @@ public:
    * @par Requires
    * `(0 <= hour && hour <= 59) && (0 <= minute && minute <= 59) && (0 <= second && second <= 59)`.
    */
-  virtual void set_time(int hour, int minute, int second) = 0;
+  DMITIGR_DT_API void set_time(int hour, int minute, int second);
 
   /// @name Conversions
   /// @{
@@ -170,29 +158,30 @@ public:
    * @returns The result of conversion of this instance to the instance of type
    * `std::string` according to RFC7231.
    */
-  virtual std::string to_rfc7231() const = 0;
+  DMITIGR_DT_API std::string to_rfc7231() const;
 
   /// @}
 
-  /// @name Operators
-  /// @{
-
-  /**
-   * @returns `true` if this instance is less than `rhs`, or `false` otherwise.
-   */
-  virtual bool is_less(const Timestamp* rhs) const = 0;
-
-  /**
-   * @returns `true` if this instance is equal to `rhs`, or `false` otherwise.
-   */
-  virtual bool is_equal(const Timestamp* rhs) const = 0;
-
-  /// @}
 private:
-  friend detail::iTimestamp;
+  int day_{1};
+  Month month_{Month::jan};
+  int year_{1583};
+  int hour_{0};
+  int minute_{0};
+  int second_{0};
 
-  Timestamp() = default;
+  bool is_invariant_ok() const;
 };
+
+/**
+ * @returns `true` if this instance is less than `rhs`, or `false` otherwise.
+ */
+DMITIGR_DT_API bool operator<(const Timestamp& lhs, const Timestamp& rhs);
+
+/**
+ * @returns `true` if this instance is equal to `rhs`, or `false` otherwise.
+ */
+DMITIGR_DT_API bool operator==(const Timestamp& lhs, const Timestamp& rhs);
 
 } // namespace dmitigr::dt
 

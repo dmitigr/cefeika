@@ -49,8 +49,7 @@ int main(int, char* argv[])
       auto sc = Set_cookie::make("name=value; Expires=Thu, 28 Feb 2019 23:59:59 GMT");
       ASSERT(sc->name() == "name");
       ASSERT(sc->value() == "value");
-      const auto* const ts = sc->expires();
-      ASSERT(ts);
+      const auto& ts = sc->expires();
       ASSERT(ts->day_of_week() == Day_of_week::thu);
       ASSERT(ts->day() == 28);
       ASSERT(ts->month() == Month::feb);
@@ -131,8 +130,7 @@ int main(int, char* argv[])
       ASSERT(sc->name() == "name");
       ASSERT(sc->value() == "value");
       //
-      const auto* const ts = sc->expires();
-      ASSERT(ts);
+      const auto& ts = sc->expires();
       ASSERT(ts->day_of_week() == Day_of_week::thu);
       ASSERT(ts->day() == 28);
       ASSERT(ts->month() == Month::feb);

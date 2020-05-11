@@ -114,7 +114,7 @@ public:
    *
    * @see set_expires().
    */
-  virtual const dt::Timestamp* expires() const = 0;
+  virtual const std::optional<dt::Timestamp>& expires() const = 0;
 
   /**
    * @brief Sets the "Expires" attribute of cookie.
@@ -122,7 +122,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void set_expires(const dt::Timestamp* const ts) = 0;
+  virtual void set_expires(std::optional<dt::Timestamp> ts) = 0;
 
   /**
    * @overload
