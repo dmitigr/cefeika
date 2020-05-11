@@ -8,8 +8,8 @@
 #include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
-#include <locale>
 #include <list>
+#include <locale>
 #include <optional>
 #include <string>
 #include <vector>
