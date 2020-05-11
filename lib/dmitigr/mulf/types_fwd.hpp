@@ -17,8 +17,6 @@ class Form_data_entry;
  * @brief The implementation details.
  */
 namespace detail {
-class iForm_data;
-class iForm_data_entry;
 } // namespace detail
 
 } // namespace dmitigr::mulf

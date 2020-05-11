@@ -102,8 +102,8 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
             DMITIGR_REQUIRE(i->second, std::logic_error,
               "former handler for \"" + std::string{location} +"\" is unset");
             const auto boundary = sm.str(1);
-            const auto form = mulf::Form_data::make(str::read_to_string(fcgi->in()), boundary);
-            return i->second(fcgi, form.get());
+            const mulf::Form_data form{str::read_to_string(fcgi->in()), boundary};
+            return i->second(fcgi, form);
           }
         }
       }

@@ -20,23 +20,26 @@ int main(int, char* argv[])
     const auto form_data = str::file_to_string(this_exe_dir_name / "mulf-form-data-valid1.txt");
 
     const std::string boundary{"AaB03x"};
-    auto data = Form_data::make(form_data, boundary);
-    ASSERT(data->entry_count() == 2);
+    const Form_data data{form_data, boundary};
+    ASSERT(data.entry_count() == 2);
 
-    const auto* entry = data->entry(0);
-    ASSERT(entry);
-    ASSERT(entry->name() == "field1");
-    ASSERT(!entry->filename());
-    ASSERT(entry->content_type() == "text/plain");
-    ASSERT(entry->charset() == "UTF-8");
-    ASSERT(entry->content() == "Field1 data.");
-    entry = data->entry(1);
-    ASSERT(entry);
-    ASSERT(entry->name() == "field2");
-    ASSERT(entry->filename() == "text.txt");
-    ASSERT(entry->content_type() == "text/plain");
-    ASSERT(entry->charset() == "utf-8");
-    ASSERT(entry->content() == "Field2 data.");
+    {
+      const auto& e = data.entry(0);
+      ASSERT(e.name() == "field1");
+      ASSERT(!e.filename());
+      ASSERT(e.content_type() == "text/plain");
+      ASSERT(e.charset() == "UTF-8");
+      ASSERT(e.content() == "Field1 data.");
+    }
+
+    {
+      const auto& e = data.entry(1);
+      ASSERT(e.name() == "field2");
+      ASSERT(e.filename() == "text.txt");
+      ASSERT(e.content_type() == "text/plain");
+      ASSERT(e.charset() == "utf-8");
+      ASSERT(e.content() == "Field2 data.");
+    }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

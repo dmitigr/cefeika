@@ -18,7 +18,6 @@ set(dmitigr_mulf_headers
   )
 
 set(dmitigr_mulf_implementations
-  form_data.cpp
   )
 
 # ------------------------------------------------------------------------------
