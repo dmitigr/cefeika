@@ -224,6 +224,14 @@ public:
   }
 
   /**
+   * @returns The vector of parameters.
+   */
+  const std::vector<Parameter>& parameters() const noexcept
+  {
+    return parameters_;
+  }
+
+  /**
    * @returns The number of parameters.
    */
   std::size_t parameter_count() const
