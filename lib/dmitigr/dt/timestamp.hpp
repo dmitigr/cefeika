@@ -402,6 +402,19 @@ inline bool operator<(const Timestamp& lhs, const Timestamp& rhs)
 }
 
 /**
+ * @returns `true` if this instance is less than or equal to `rhs`, or `false` otherwise.
+ */
+inline bool operator<=(const Timestamp& lhs, const Timestamp& rhs)
+{
+  return lhs.year() <= rhs.year() ||
+    static_cast<int>(lhs.month()) <= static_cast<int>(rhs.month()) ||
+    lhs.day() <= rhs.day() ||
+    lhs.hour() <= rhs.hour() ||
+    lhs.minute() <= rhs.minute() ||
+    lhs.second() <= rhs.second();
+}
+
+/**
  * @returns `true` if this instance is equal to `rhs`, or `false` otherwise.
  */
 inline bool operator==(const Timestamp& lhs, const Timestamp& rhs)
@@ -412,6 +425,40 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs)
     lhs.hour() == rhs.hour() &&
     lhs.minute() == rhs.minute() &&
     lhs.second() == rhs.second();
+}
+
+/**
+ * @returns `true` if this instance is not equal to `rhs`, or `false` otherwise.
+ */
+inline bool operator!=(const Timestamp& lhs, const Timestamp& rhs)
+{
+  return !(lhs == rhs);
+}
+
+/**
+ * @returns `true` if this instance is greater than `rhs`, or `false` otherwise.
+ */
+inline bool operator>(const Timestamp& lhs, const Timestamp& rhs)
+{
+  return lhs.year() > rhs.year() ||
+    static_cast<int>(lhs.month()) > static_cast<int>(rhs.month()) ||
+    lhs.day() > rhs.day() ||
+    lhs.hour() > rhs.hour() ||
+    lhs.minute() > rhs.minute() ||
+    lhs.second() > rhs.second();
+}
+
+/**
+ * @returns `true` if this instance is greater than or equal to `rhs`, or `false` otherwise.
+ */
+inline bool operator>=(const Timestamp& lhs, const Timestamp& rhs)
+{
+  return lhs.year() >= rhs.year() ||
+    static_cast<int>(lhs.month()) >= static_cast<int>(rhs.month()) ||
+    lhs.day() >= rhs.day() ||
+    lhs.hour() >= rhs.hour() ||
+    lhs.minute() >= rhs.minute() ||
+    lhs.second() >= rhs.second();
 }
 
 } // namespace dmitigr::dt
