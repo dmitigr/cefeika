@@ -19,8 +19,6 @@ set(dmitigr_dt_headers
   )
 
 set(dmitigr_dt_implementations
-  basics.cpp
-  timestamp.cpp
   )
 
 # ------------------------------------------------------------------------------

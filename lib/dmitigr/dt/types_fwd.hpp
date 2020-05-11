@@ -19,9 +19,6 @@ class Timestamp;
  * @brief The implementation details.
  */
 namespace detail {
-
-class iTimestamp;
-
 } // namespace detail
 
 } // namespace dmitigr::dt
