@@ -373,9 +373,9 @@ private:
   int day_{1};
   Month month_{Month::jan};
   int year_{1583};
-  int hour_{0};
-  int minute_{0};
-  int second_{0};
+  int hour_{};
+  int minute_{};
+  int second_{};
 
   bool is_invariant_ok() const noexcept
   {
