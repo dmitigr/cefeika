@@ -7,28 +7,29 @@
 #include <dmitigr/http/http.hpp>
 #include <dmitigr/str/str.hpp>
 
+#include <optional>
 #include <regex>
 
 namespace dmitigr::web::v1 {
 
 namespace {
 
-DMITIGR_WEB_INLINE std::unique_ptr<ttpl::Logic_less_template>
+DMITIGR_WEB_INLINE std::optional<ttpl::Logic_less_template>
 make_ttpl_deep(const std::filesystem::path& path, const std::filesystem::path& tplroot)
 {
   if (std::filesystem::exists(path)) {
-    auto result = ttpl::Logic_less_template::make(str::file_to_string(path));
-    for (std::size_t i = 0, pcount = result->parameter_count(); i < pcount;) {
-      const auto& pname = result->parameter(i)->name();
+    ttpl::Logic_less_template result{str::file_to_string(path)};
+    for (std::size_t i = 0, pcount = result.parameter_count(); i < pcount;) {
+      const auto& pname = result.parameter(i).name();
       if (auto t = make_ttpl_deep(tplroot / pname, tplroot)) {
-        result->replace_parameter(pname, t.get());
-        pcount = result->parameter_count(); // parameters might change after replace
+        result.replace_parameter(pname, *t);
+        pcount = result.parameter_count(); // parameters might change after replace
       } else
         ++i;
     }
     return result;
   } else
-    return nullptr;
+    return std::nullopt;
 }
 
 } // namespace
@@ -57,11 +58,12 @@ DMITIGR_WEB_INLINE void handle(fcgi::Server_connection* const fcgi, const Handle
       if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
         const std::filesystem::path locpath{location};
         const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
-        if (const auto tpl = make_ttpl_deep(tplfile, opts.tplroot)) {
+        if (auto tpl = make_ttpl_deep(tplfile, opts.tplroot)) {
           DMITIGR_REQUIRE(i->second, std::logic_error,
             "htmler handler for \"" + std::string{location} +"\" is unset");
-          i->second(fcgi, tpl.get());
-          const auto o = tpl->to_output();
+          auto& t = *tpl;
+          i->second(fcgi, t);
+          const auto o = t.to_output();
           fcgi->out() << "Content-Type: text/html" << fcgi::crlfcrlf;
           fcgi->out().write(o.data(), o.size());
         } else {

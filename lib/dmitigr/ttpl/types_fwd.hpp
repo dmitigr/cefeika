@@ -17,10 +17,6 @@ class Logic_less_template_parameter;
  * @brief The implementation details.
  */
 namespace detail {
-
-class iLogic_less_template;
-class iLogic_less_template_parameter;
-
 } // namespace detail
 
 } // namespace dmitigr::ttpl

@@ -20,7 +20,7 @@ int main()
     // index
     "index.html",
     // htmlers
-    {{"/", [](fcgi::Server_connection*, ttpl::Logic_less_template*) {}}},
+    {{"/", [](fcgi::Server_connection*, ttpl::Logic_less_template&) {}}},
     // callers
     {{"/api", [](fcgi::Server_connection*, const jrpc::Request&) { return jrpc::Result{}; }}},
     // formers

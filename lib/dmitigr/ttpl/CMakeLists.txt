@@ -18,7 +18,6 @@ set(dmitigr_ttpl_headers
   )
 
 set(dmitigr_ttpl_implementations
-  logic_less_template.cpp
   )
 
 # ------------------------------------------------------------------------------
