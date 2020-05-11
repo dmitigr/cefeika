@@ -5,24 +5,43 @@
 #ifndef DMITIGR_URL_QUERY_STRING_HPP
 #define DMITIGR_URL_QUERY_STRING_HPP
 
-#include "dmitigr/url/dll.hpp"
 #include "dmitigr/url/types_fwd.hpp"
+#include <dmitigr/base/debug.hpp>
+#include <dmitigr/str/str.hpp>
 
-#include <memory>
+#include <algorithm>
+#include <limits>
+#include <locale>
 #include <optional>
+#include <stdexcept>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace dmitigr::url {
 
 /**
  * @brief An URL query string parameter.
  */
-class Query_string_parameter {
+class Query_string_parameter final {
 public:
+  /**
+   * @brief The constructor.
+   */
+  explicit Query_string_parameter(std::string name, std::optional<std::string> value = {})
+    : name_{std::move(name)}
+    , value_{std::move(value)}
+  {
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
   /**
    * @returns The parameter name.
    */
-  virtual const std::string& name() const = 0;
+  const std::string& name() const noexcept
+  {
+    return name_;
+  }
 
   /**
    * @brief Sets the name of the parameter.
@@ -30,12 +49,18 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void set_name(std::string name) = 0;
+  void set_name(std::string name)
+  {
+    name_ = std::move(name);
+  }
 
   /**
    * @returns The parameter value.
    */
-  virtual const std::optional<std::string>& value() const = 0;
+  const std::optional<std::string>& value() const noexcept
+  {
+    return value_;
+  }
 
   /**
    * @brief Sets the value of the parameter.
@@ -43,12 +68,23 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void set_value(std::optional<std::string> value) = 0;
+  void set_value(std::optional<std::string> value)
+  {
+    value_ = std::move(value);
+  }
 
 private:
-  friend detail::iQuery_string_parameter;
+  friend Query_string;
 
-  Query_string_parameter() = default;
+  std::string name_;
+  std::optional<std::string> value_;
+
+  Query_string_parameter() = default; // constructs the invalid object!
+
+  bool is_invariant_ok() const
+  {
+    return !name_.empty();
+  }
 };
 
 /**
@@ -57,20 +93,12 @@ private:
  * @remarks Since several parameters can be named equally, `offset` can be
  * specified as the starting lookup index in the corresponding methods.
  */
-class Query_string {
+class Query_string final {
 public:
   /**
    * @brief The alias of Query_string_parameter.
    */
   using Parameter = Query_string_parameter;
-
-  /**
-   * @brief The destructor.
-   */
-  virtual ~Query_string() = default;
-
-  /// @name Constructors
-  /// @{
 
   /**
    * @brief Constructs the object by parsing the query string `input`.
@@ -89,20 +117,126 @@ public:
    *
    * @param input - unparsed (possibly percent-encoded) query string
    */
-  static DMITIGR_URL_API std::unique_ptr<Query_string> make(std::string_view input);
+  explicit Query_string(const std::string_view input = {})
+  {
+    if (input.empty()) {
+      DMITIGR_ASSERT(is_invariant_ok());
+      return;
+    }
 
-  /// @}
+    enum { param, param_hex, value, value_hex } state = param;
+    constexpr char sep{'&'};
+    constexpr char eq{'='};
+    std::string hex;
+
+    static const auto is_hexademical_character = [](char c)
+    {
+      static const char allowed[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+      static const std::locale l{"C"};
+      c = std::tolower(c, l);
+      return std::any_of(std::cbegin(allowed), std::cend(allowed), [c](const char ch) { return ch == c; });
+    };
+
+    const auto append_invalid_parameter = [&]()
+    {
+      parameters_.emplace_back(Parameter{});
+    };
+
+    DMITIGR_ASSERT(!input.empty());
+    append_invalid_parameter();
+    std::string* extracted = &parameters_.back().name_; // extracting the name first
+    for (const auto c : input) {
+      switch (state) {
+      case param:
+        if (c == eq) {
+          if (extracted->empty())
+            throw std::runtime_error{"dmitigr::url: parameter name is empty"};
+
+          parameters_.back().value_ = std::string{}; // the value is empty but not null now
+          extracted = &parameters_.back().value_.value(); // extracting the value now
+          state = value;
+          continue; // skip eq
+        }
+        [[fallthrough]];
+
+      case value /* or param */:
+        if (c == sep) {
+          append_invalid_parameter();
+          extracted = &parameters_.back().name_; // extracting the name now
+          state = param;
+          continue; // skip sep
+        } else if (is_simple_character(c) || c == '~') {
+          *extracted += c; // store as is
+        } else if (c == '+') {
+          *extracted += ' ';
+        } else if (c == '%') {
+          DMITIGR_ASSERT(state == param || state == value);
+          state = (state == param) ? param_hex : value_hex;
+          continue; // skip %
+        } else
+          throw std::runtime_error{"dmitigr::url: unallowed character"};
+        break;
+
+      case param_hex:
+        [[fallthrough]];
+
+      case value_hex /* or param_hex */:
+        if (is_hexademical_character(c)) {
+          DMITIGR_ASSERT(hex.size() < 2);
+          hex += c;
+          if (hex.size() == 2) {
+            // Note: hex == "20" - space, hex == "2B" - +.
+            std::size_t pos{};
+            const int code = std::stoi(hex, &pos, 16);
+            DMITIGR_ASSERT(pos == hex.size());
+            DMITIGR_ASSERT(code <= std::numeric_limits<unsigned char>::max());
+            *extracted += char(code);
+            hex.clear();
+            DMITIGR_ASSERT(state == param_hex || state == value_hex);
+            state = (state == param_hex) ? param : value;
+          }
+        } else
+          throw std::runtime_error{"dmitigr::url: invalid code octet of percent-encoded query string"};
+        break;
+      }
+    }
+
+    if (parameters_.back().name().empty())
+      throw std::runtime_error{"dmitigr::url: parameter name is empty"};
+
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  /**
+   * @returns The vector of parameters.
+   */
+  const std::vector<Parameter>& parameters() const noexcept
+  {
+    return parameters_;
+  }
 
   /**
    * @returns The number of parameters.
    */
-  virtual std::size_t parameter_count() const = 0;
+  std::size_t parameter_count() const
+  {
+    return parameters_.size();
+  }
 
   /**
    * @returns The parameter index if `has_parameter(name, offset)`, or
    * `std::nullopt` otherwise.
    */
-  virtual std::optional<std::size_t> parameter_index(std::string_view name, std::size_t offset = 0) const = 0;
+  std::optional<std::size_t> parameter_index(const std::string_view name, const std::size_t offset = 0) const
+  {
+    if (offset < parameter_count()) {
+      const auto b = cbegin(parameters_);
+      const auto e = cend(parameters_);
+      const auto i = std::find_if(b + offset, e, [&](const auto& p) { return p.name() == name; });
+      return (i != e) ? std::make_optional(i - b) : std::nullopt;
+    } else
+      return std::nullopt;
+  }
 
   /**
    * @returns The parameter index.
@@ -110,7 +244,13 @@ public:
    * @par Requires
    * `has_parameter(name, offset)`.
    */
-  virtual std::size_t parameter_index_throw(std::string_view name, std::size_t offset = 0) const = 0;
+  std::size_t parameter_index_throw(const std::string_view name, const std::size_t offset) const
+  {
+    const auto result = parameter_index(name, offset);
+    DMITIGR_REQUIRE(result, std::out_of_range,
+      "the instance of dmitigr::url::Query_string has no parameter \"" + std::string{name} + "\"");
+    return *result;
+  }
 
   /**
    * @returns The parameter.
@@ -118,12 +258,21 @@ public:
    * @par Requires
    * `(index < parameter_count())`.
    */
-  virtual const Parameter* parameter(std::size_t index) const = 0;
+  const Parameter& parameter(const std::size_t index) const
+  {
+    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range,
+      "invalid parameter index (" + std::to_string(index) + ")"
+      " of the dmitigr::url::Query_string instance");
+    return parameters_[index];
+  }
 
   /**
    * @overload
    */
-  virtual Parameter* parameter(std::size_t index) = 0;
+  Parameter& parameter(const std::size_t index)
+  {
+    return const_cast<Parameter&>(static_cast<const Query_string*>(this)->parameter(index));
+  }
 
   /**
    * @overload
@@ -131,23 +280,36 @@ public:
    * @par Requires
    * `has_parameter(name, offset)`.
    */
-  virtual const Parameter* parameter(std::string_view name, std::size_t offset = 0) const = 0;
+  const Parameter& parameter(const std::string_view name, const std::size_t offset) const
+  {
+    const auto index = parameter_index_throw(name, offset);
+    return parameters_[index];
+  }
 
   /**
    * @overload
    */
-  virtual Parameter* parameter(std::string_view name, std::size_t offset = 0) = 0;
+  Parameter& parameter(const std::string_view name, const std::size_t offset = 0)
+  {
+    return const_cast<Parameter&>(static_cast<const Query_string*>(this)->parameter(name, offset));
+  }
 
   /**
    * @returns `true` if the parameter named by `name` is presents, or
    * `false` otherwise.
    */
-  virtual bool has_parameter(std::string_view name, std::size_t offset = 0) const = 0;
+  bool has_parameter(const std::string_view name, const std::size_t offset = 0) const
+  {
+    return static_cast<bool>(parameter_index(name, offset));
+  }
 
   /**
    * @returns `(parameter_count() > 0)`.
    */
-  virtual bool has_parameters() const = 0;
+  bool has_parameters() const
+  {
+    return !parameters_.empty();
+  }
 
   /**
    * @brief Appends the parameter to this query string.
@@ -158,7 +320,12 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void append_parameter(std::string name, std::optional<std::string> value) = 0;
+  void append_parameter(std::string name, std::optional<std::string> value)
+  {
+    parameters_.emplace_back(std::move(name), std::move(value));
+
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
 
   /**
    * @brief Removes parameter from this query string.
@@ -169,7 +336,14 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void remove_parameter(std::size_t index) = 0;
+  void remove_parameter(const std::size_t index)
+  {
+    DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range);
+
+    parameters_.erase(cbegin(parameters_) + index);
+
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
 
   /**
    * @overload
@@ -177,7 +351,13 @@ public:
    * @par Effects
    * `!has_parameter(name, offset)`.
    */
-  virtual void remove_parameter(std::string_view name, std::size_t offset = 0) = 0;
+  void remove_parameter(const std::string_view name, const std::size_t offset = 0)
+  {
+    if (const auto index = parameter_index(name, offset))
+      parameters_.erase(cbegin(parameters_) + *index);
+
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
 
   /// @name Conversions
   /// @{
@@ -185,20 +365,74 @@ public:
   /**
    * @returns The result of conversion of this instance to the instance of type `std::string`.
    */
-  virtual std::string to_string() const = 0;
+  std::string to_string() const
+  {
+    std::string result;
+
+    static const auto encoded_string = [](std::string_view str)
+    {
+      std::string result;
+      for (const auto c : str) {
+        // Note: tilde ('~') is permitted in query string by
+        // RFC3986, but must be percent-encoded in HTML forms.
+        if (is_simple_character(c) || c == '~')
+          result += c;
+        else if (c == ' ')
+          result += "%20";
+        else if (c == '+')
+          result += "%2B";
+        else
+          result.append("%").append(str::to_string(static_cast<unsigned char>(c), static_cast<unsigned char>(16)));
+      }
+      return result;
+    };
+
+    for (const auto& p : parameters_) {
+      result += encoded_string(p.name());
+
+      if (const auto& value = p.value(); value) {
+        result += '=';
+        result += encoded_string(*value);
+      }
+
+      result += '&';
+    }
+    if (!result.empty())
+      result.pop_back();
+
+    return result;
+  }
 
   /// @}
 
 private:
-  friend detail::iQuery_string;
+  std::vector<Parameter> parameters_;
 
-  Query_string() = default;
+  bool is_invariant_ok() const
+  {
+    const bool parameters_ok = [&]()
+    {
+      return std::all_of(cbegin(parameters_), cend(parameters_), [](const auto& p) {
+        return p.is_invariant_ok();
+      });
+    }();
+
+    return parameters_ok;
+  }
+
+  /**
+   * @returns `true` if the specified character `c` is a "simple" character
+   * according to https://url.spec.whatwg.org/#urlencoded-serializing, or
+   * `false` otherwise.
+   */
+  static bool is_simple_character(const char c)
+  {
+    static const char allowed[] = {'*', '-', '.', '_'};
+    static const std::locale l{"C"};
+    return std::isalnum(c, l) || std::any_of(std::cbegin(allowed), std::cend(allowed), [c](const char ch) { return ch == c; });
+  };
 };
 
 } // namespace dmitigr::url
-
-#ifdef DMITIGR_URL_HEADER_ONLY
-#include "dmitigr/url/query_string.cpp"
-#endif
 
 #endif  // DMITIGR_URL_QUERY_STRING_HPP

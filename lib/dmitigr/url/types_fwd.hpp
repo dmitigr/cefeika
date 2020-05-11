@@ -17,10 +17,6 @@ class Query_string_parameter;
  * @brief The implementation details.
  */
 namespace detail {
-
-class iQuery_string;
-class iQuery_string_parameter;
-
 } // namespace detail
 
 } // namespace dmitigr::url

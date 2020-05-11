@@ -18,7 +18,6 @@ set(dmitigr_url_headers
   )
 
 set(dmitigr_url_implementations
-  query_string.cpp
   )
 
 # ------------------------------------------------------------------------------
