@@ -26,7 +26,6 @@ class Set_cookie;
  * @brief The implementation details.
  */
 namespace detail {
-class iSet_cookie;
 } // namespace detail
 
 } // namespace dmitigr::http
