@@ -5,29 +5,11 @@
 #ifndef DMITIGR_HTTP_SYNTAX_HPP
 #define DMITIGR_HTTP_SYNTAX_HPP
 
-#include "dmitigr/http/dll.hpp"
-
 #include <algorithm>
 #include <locale>
 #include <string>
 
 namespace dmitigr::http {
-
-/**
- * @ingroup headers
- *
- * @returns `true` if the specified `name` is a valid cookie name, or
- * `false` otherwise.
- */
-DMITIGR_HTTP_API bool is_valid_cookie_name(std::string_view name);
-
-/**
- * @ingroup headers
- *
- * @returns `true` if the specified `value` is a valid cookie value, or
- * `false` otherwise.
- */
-DMITIGR_HTTP_API bool is_valid_cookie_value(std::string_view value);
 
 namespace detail {
 
@@ -75,10 +57,29 @@ inline bool is_valid_cookie_octet(const char c)
 
 } // namespace detail
 
-} // namespace dmitigr::http
+/**
+ * @ingroup headers
+ *
+ * @returns `true` if the specified `name` is a valid cookie name, or
+ * `false` otherwise.
+ */
+inline bool is_valid_cookie_name(const std::string_view name)
+{
+  return !name.empty() &&
+    std::all_of(cbegin(name), cend(name), [](const char ch) { return detail::rfc6265::is_valid_token_character(ch); });
+}
 
-#ifdef DMITIGR_HTTP_HEADER_ONLY
-#include "dmitigr/http/syntax.cpp"
-#endif
+/**
+ * @ingroup headers
+ *
+ * @returns `true` if the specified `value` is a valid cookie value, or
+ * `false` otherwise.
+ */
+inline bool is_valid_cookie_value(const std::string_view value)
+{
+  return std::all_of(cbegin(value), cend(value), [](const char ch) { return detail::rfc6265::is_valid_cookie_octet(ch); });
+}
+
+} // namespace dmitigr::http
 
 #endif  // DMITIGR_HTTP_SYNTAX_HPP

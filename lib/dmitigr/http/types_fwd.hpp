@@ -26,9 +26,6 @@ class Set_cookie;
  * @brief The implementation details.
  */
 namespace detail {
-class iCookie_entry;
-class iCookie;
-class iDate;
 class iSet_cookie;
 } // namespace detail
 

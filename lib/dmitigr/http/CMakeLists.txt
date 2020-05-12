@@ -26,14 +26,6 @@ set(dmitigr_http_headers
   )
 
 set(dmitigr_http_implementations
-  basics.cpp
-  cookie.cpp
-  date.cpp
-  exceptions.cpp
-  errc.cpp
-  set_cookie.cpp
-  std_system_error.cpp
-  syntax.cpp
   )
 
 # ------------------------------------------------------------------------------

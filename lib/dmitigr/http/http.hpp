@@ -28,9 +28,11 @@
 #include "dmitigr/http/date.hpp"
 #include "dmitigr/http/errc.hpp"
 #include "dmitigr/http/exceptions.hpp"
+#include "dmitigr/http/header.hpp"
 #include "dmitigr/http/set_cookie.hpp"
 #include "dmitigr/http/std_system_error.hpp"
 #include "dmitigr/http/syntax.hpp"
+#include "dmitigr/http/types_fwd.hpp"
 #include "dmitigr/http/version.hpp"
 
 #endif  // DMITIGR_HTTP_HTTP_HPP

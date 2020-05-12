@@ -12,23 +12,23 @@ namespace dmitigr::http {
 /**
  * @brief The base class of exceptions thrown on a server side.
  */
-class Server_exception : public std::system_error {
+class Server_exception final : public std::system_error {
 private:
   /**
    * @brief The constructor.
    */
-  Server_exception(std::error_code ec);
+  Server_exception(const std::error_code ec)
+    : system_error{ec}
+  {}
 
   /**
    * @overload
    */
-  Server_exception(std::error_code ec, const std::string& what);
+  Server_exception(const std::error_code ec, const std::string& what)
+    : system_error{ec, what}
+  {}
 };
 
 } // namespace dmitigr::http
-
-#ifdef DMITIGR_HTTP_HEADER_ONLY
-#include "dmitigr/http/exceptions.cpp"
-#endif
 
 #endif  // DMITIGR_HTTP_EXCEPTIONS_HPP

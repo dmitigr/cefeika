@@ -18,9 +18,9 @@ int main(int, char* argv[])
 
   try {
     {
-      const auto d = Date::make("Sat, 06 Apr 2019 17:01:02 GMT");
-      ASSERT(d->field_name() == "Date");
-      const auto& ts = d->timestamp();
+      const Date d{"Sat, 06 Apr 2019 17:01:02 GMT"};
+      ASSERT(d.field_name() == "Date");
+      const auto& ts = d.timestamp();
       ASSERT(ts.day_of_week() == Day_of_week::sat);
       ASSERT(ts.day() == 6);
       ASSERT(ts.month() == Month::apr);
@@ -29,8 +29,8 @@ int main(int, char* argv[])
       ASSERT(ts.minute() == 1);
       ASSERT(ts.second() == 2);
       //
-      const auto d_copy = d->to_date();
-      ASSERT(d->timestamp() == d_copy->timestamp());
+      const auto d_copy = d;
+      ASSERT(d.timestamp() == d_copy.timestamp());
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);

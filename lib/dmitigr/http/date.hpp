@@ -5,13 +5,11 @@
 #ifndef DMITIGR_HTTP_DATE_HPP
 #define DMITIGR_HTTP_DATE_HPP
 
-#include "dmitigr/http/dll.hpp"
 #include "dmitigr/http/header.hpp"
-#include "dmitigr/http/types_fwd.hpp"
+#include <dmitigr/base/debug.hpp>
 #include <dmitigr/dt/timestamp.hpp>
 
-#include <memory>
-#include <string>
+#include <string_view>
 
 namespace dmitigr::http {
 
@@ -20,16 +18,8 @@ namespace dmitigr::http {
  *
  * @brief A HTTP Date header.
  */
-class Date : public Header {
+class Date final : public Header {
 public:
-  /**
-   * @brief The destructor.
-   */
-  virtual ~Date() = default;
-
-  /// @name Constructors
-  /// @{
-
   /**
    * @brief Constructs the object by parsing the `input`.
    *
@@ -41,7 +31,9 @@ public:
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
    */
-  static DMITIGR_HTTP_API std::unique_ptr<Date> make(std::string_view input);
+  explicit Date(const std::string_view input)
+    : Date{dt::Timestamp::from_rfc7231(input)}
+  {}
 
   /**
    * @overload
@@ -49,24 +41,46 @@ public:
    * @par Requires
    * `(ts != nullptr)`.
    */
-  static DMITIGR_HTTP_API std::unique_ptr<Date> make(const dt::Timestamp& ts);
+  explicit Date(dt::Timestamp ts)
+    : ts_{std::move(ts)}
+  {
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
 
-  /**
-   * @returns The copy of this instance.
-   */
-  virtual std::unique_ptr<Date> to_date() const = 0;
+  /// @see Header::to_header().
+  std::unique_ptr<Header> to_header() const override
+  {
+    return std::make_unique<Date>(*this);
+  }
 
-  /// @}
+  /// @see Header::field_name().
+  const std::string& field_name() const override
+  {
+    static const std::string result{"Date"};
+    return result;
+  }
+
+  /// @see Header::to_string().
+  std::string to_string() const override
+  {
+    return ts_.to_rfc7231();
+  }
 
   /**
    * @returns The timestamp.
    */
-  virtual const dt::Timestamp& timestamp() const = 0;
+  const dt::Timestamp& timestamp() const noexcept
+  {
+    return ts_;
+  }
 
   /**
    * @overload
    */
-  virtual dt::Timestamp& timestamp() = 0;
+  dt::Timestamp& timestamp() noexcept
+  {
+    return const_cast<dt::Timestamp&>(static_cast<const Date*>(this)->timestamp());
+  }
 
   /**
    * @brief Sets the timestamp.
@@ -77,18 +91,21 @@ public:
    * @par Requires
    * `(ts != nullptr)`.
    */
-  virtual void set_timestamp(dt::Timestamp ts) = 0;
+  void set_timestamp(dt::Timestamp ts)
+  {
+    ts_ = std::move(ts);
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
 
 private:
-  friend detail::iDate;
+  dt::Timestamp ts_;
 
-  Date() = default;
+  constexpr bool is_invariant_ok() const noexcept
+  {
+    return true;
+  }
 };
 
 } // namespace dmitigr::http
-
-#ifdef DMITIGR_HTTP_HEADER_ONLY
-#include "dmitigr/http/date.cpp"
-#endif
 
 #endif  // DMITIGR_HTTP_DATE_HPP

@@ -5,9 +5,9 @@
 #ifndef DMITIGR_HTTP_BASICS_HPP
 #define DMITIGR_HTTP_BASICS_HPP
 
-#include "dmitigr/http/dll.hpp"
+#include <dmitigr/base/debug.hpp>
 
-#include <string>
+#include <string_view>
 
 namespace dmitigr::http {
 
@@ -25,19 +25,30 @@ enum class Same_site { strict, lax };
  *
  * @remarks The value of `str` is case-sensitive.
  */
-DMITIGR_HTTP_API Same_site to_same_site(std::string_view str);
+inline Same_site to_same_site(const std::string_view str)
+{
+  if (str == "Strict")
+    return Same_site::strict;
+  else if (str == "Lax")
+    return Same_site::lax;
+  else
+    DMITIGR_THROW_REQUIREMENT_VIOLATED(str == "Strict" || str == "Lax", std::invalid_argument);
+}
 
 /**
  * @ingroup headers
  *
  * @returns The result of conversion of `ss` to the instance of type `std::string`.
  */
-DMITIGR_HTTP_API std::string to_string(Same_site ss);
+inline std::string to_string(const Same_site ss)
+{
+  switch (ss) {
+  case Same_site::strict: return "Strict";
+  case Same_site::lax: return "Lax";
+  }
+  DMITIGR_ASSERT_ALWAYS(!true);
+}
 
 } // namespace dmitigr::http
-
-#ifdef DMITIGR_HTTP_HEADER_ONLY
-#include "dmitigr/http/basics.cpp"
-#endif
 
 #endif  // DMITIGR_HTTP_BASICS_HPP
