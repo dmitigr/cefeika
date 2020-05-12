@@ -19,26 +19,30 @@
 #include <optional>
 #include <regex>
 #include <string_view>
+#include <vector>
 
 namespace dmitigr::web::v1 {
 
 namespace detail {
 
-/**
- * @brief Creates the logic less template recursively.
- *
- * @param tplfile Path to the text template file
- * @param tplroot Path to the directory with text template files which can be
- * referenced from `tplfile` and/or from each others.
- */
+/// @see make_expanded_llt(const std::filesystem::path&, const std::filesystem::path&).
 inline std::optional<ttpl::Logic_less_template>
-make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::path& tplroot)
+make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::path& tplroot,
+  std::vector<std::filesystem::path>& referenced)
 {
+  const auto e = cend(referenced);
+  if (std::find(cbegin(referenced), e, tplfile) != e) {
+    auto graph = str::to_string(referenced, " -> ", [](const auto& e) { return e.string(); });
+    graph.append(" -> ").append(tplfile.string());
+    throw std::logic_error{"reference cyclicity detected: " + graph};
+  } else
+    referenced.push_back(tplfile);
+
   if (std::filesystem::exists(tplfile)) {
     ttpl::Logic_less_template result{str::file_to_string(tplfile)};
     for (std::size_t i = 0, pcount = result.parameter_count(); i < pcount;) {
       const auto& pname = result.parameter(i).name();
-      if (auto t = make_expanded_llt(tplroot / pname, tplroot)) {
+      if (auto t = make_expanded_llt(tplroot / pname, tplroot, referenced)) {
         result.replace_parameter(pname, *t);
         pcount = result.parameter_count(); // parameters might change after replace
       } else
@@ -72,6 +76,20 @@ struct Handle_options final {
 };
 
 /**
+ * @brief Creates the logic less template recursively.
+ *
+ * @param tplfile Path to the text template file
+ * @param tplroot Path to the directory with text template files which can be
+ * referenced (included) from `tplfile` and/or from each others.
+ */
+inline std::optional<ttpl::Logic_less_template>
+make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::path& tplroot)
+{
+  std::vector<std::filesystem::path> referenced;
+  return detail::make_expanded_llt(tplfile, tplroot, referenced);
+}
+
+/**
  * @brief Handles the accepted FastCGI connection.
  *
  * @param fcgi Connection to handle
@@ -101,7 +119,7 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
       if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
         const std::filesystem::path locpath{location};
         const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
-        if (auto tpl = detail::make_expanded_llt(tplfile, opts.tplroot)) {
+        if (auto tpl = make_expanded_llt(tplfile, opts.tplroot)) {
           DMITIGR_REQUIRE(i->second, std::logic_error,
             "htmler handler for \"" + std::string{location} +"\" is unset");
           auto& t = *tpl;
