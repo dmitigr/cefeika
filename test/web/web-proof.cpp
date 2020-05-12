@@ -11,7 +11,7 @@ int main()
   namespace ttpl = dmitigr::ttpl;
   namespace jrpc = dmitigr::jrpc;
   namespace mulf = dmitigr::mulf;
-
+  using re = std::regex;
   web::Handle_options ho = {
     // docroot
     "/",
@@ -20,13 +20,13 @@ int main()
     // index
     "index.html",
     // htmlers
-    {{"/", [](fcgi::Server_connection*, ttpl::Logic_less_template&) {}}},
+    {{re{"/"}, [](fcgi::Server_connection*, ttpl::Logic_less_template&, const std::smatch&) {}}},
     // callers
-    {{"/api", [](fcgi::Server_connection*, const jrpc::Request&) { return jrpc::Result{}; }}},
+    {{re{"/api"}, [](fcgi::Server_connection*, const jrpc::Request&, const std::smatch&) { return jrpc::Result{}; }}},
     // formers
-    {{"/", [](fcgi::Server_connection*, const mulf::Form_data&){}}},
+    {{re{"/"}, [](fcgi::Server_connection*, const mulf::Form_data&, const std::smatch&){}}},
     // customs
-    {{"/", [](fcgi::Server_connection*){}}},
+    {{re{"/"}, [](fcgi::Server_connection*, const std::smatch&){}}},
     // fallback
     [](fcgi::Server_connection*){}
   };
