@@ -81,7 +81,8 @@ public:
    * surrounded with doubled opening and closing curly brackets and *exactly one*
    * space on both sides, or otherwise, it will be treated as the regular text
    * and will be outputted as is. The name of parameter can only consist of
-   * alphanumerics, the underscore character ("_") and the hyphen character ("-").
+   * alphanumerics, the underscore character ("_"), the hyphen character ("-"),
+   * and the slash character ("/").
    *
    * Examples of valid input:
    *
@@ -107,7 +108,7 @@ public:
     static const auto is_valid_parameter_name_character = [](const char c)
     {
       static const std::locale l{"C"};
-      return std::isalnum(c, l) || (c == '_') || (c == '-');
+      return std::isalnum(c, l) || (c == '_') || (c == '-') || (c == '/');
     };
 
     std::string extracted_text;
