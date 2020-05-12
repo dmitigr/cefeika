@@ -237,16 +237,6 @@ in uppercase, must be defined before including a library header, for example:
 // ...
 ```
 
-It's highly recommended to use the helper header `cefeika_header_only.hpp`
-in which `DMITIGR_FOO_HEADER_ONLY` macros are properly defined, for example:
-
-```cpp
-#include <dmitigr/cefeika_header_only.hpp>
-#include <dmitigr/fcgi.hpp>
-#include <dmitigr/pgfe.hpp>
-// ...
-```
-
 Please note, that external dependencies  must be linked manually in this case!
 
 ## Licenses and copyrights
