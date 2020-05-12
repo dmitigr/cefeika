@@ -18,7 +18,6 @@ set(dmitigr_web_headers
   )
 
 set(dmitigr_web_implementations
-  v1.cpp
   )
 
 # ------------------------------------------------------------------------------
