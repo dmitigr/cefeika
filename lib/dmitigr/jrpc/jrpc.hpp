@@ -25,11 +25,10 @@
 
 #include "dmitigr/jrpc/basics.hpp"
 #include "dmitigr/jrpc/errc.hpp"
-#include "dmitigr/jrpc/error.hpp"
 #include "dmitigr/jrpc/request.hpp"
 #include "dmitigr/jrpc/response.hpp"
-#include "dmitigr/jrpc/result.hpp"
 #include "dmitigr/jrpc/std_system_error.hpp"
+#include "dmitigr/jrpc/types_fwd.hpp"
 #include "dmitigr/jrpc/version.hpp"
 
 #endif  // DMITIGR_JRPC_JRPC_HPP

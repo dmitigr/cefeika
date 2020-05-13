@@ -5,7 +5,6 @@
 #ifndef DMITIGR_HTTP_STD_SYSTEM_ERROR_HPP
 #define DMITIGR_HTTP_STD_SYSTEM_ERROR_HPP
 
-#include "dmitigr/http/dll.hpp"
 #include "dmitigr/http/errc.hpp"
 
 #include <system_error>

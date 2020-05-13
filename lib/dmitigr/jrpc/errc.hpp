@@ -5,8 +5,6 @@
 #ifndef DMITIGR_JRPC_ERRC_HPP
 #define DMITIGR_JRPC_ERRC_HPP
 
-#include "dmitigr/jrpc/dll.hpp"
-
 namespace dmitigr::jrpc {
 
 /**
@@ -36,12 +34,25 @@ enum class Server_errc {
  * @returns The literal representation of the `errc`, or `nullptr`
  * if `errc` does not corresponds to any value defined by Server_errc.
  */
-DMITIGR_JRPC_API const char* to_literal(Server_errc errc);
+constexpr const char* to_literal(const Server_errc errc)
+{
+  switch (errc) {
+  case Server_errc::parse_error:
+    return "parse_error";
+  case Server_errc::invalid_request:
+    return "invalid_request";
+  case Server_errc::method_not_found:
+    return "method_not_found";
+  case Server_errc::invalid_params:
+    return "invalid_params";
+  case Server_errc::internal_error:
+    return "internal_error";
+  case Server_errc::generic_error:
+    return "generic_error";
+  }
+  return nullptr;
+}
 
 } // namespace dmitigr::jrpc
-
-#ifdef DMITIGR_JRPC_HEADER_ONLY
-#include "dmitigr/jrpc/errc.cpp"
-#endif
 
 #endif  // DMITIGR_JRPC_ERRC_HPP

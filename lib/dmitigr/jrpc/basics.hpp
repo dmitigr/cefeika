@@ -5,8 +5,6 @@
 #ifndef DMITIGR_JRPC_BASICS_HPP
 #define DMITIGR_JRPC_BASICS_HPP
 
-#include "dmitigr/jrpc/dll.hpp"
-
 namespace dmitigr::jrpc {
 
 /**
@@ -34,12 +32,17 @@ enum class Parameters_notation {
  * @returns The literal representation of the `value`, or `nullptr`
  * if `value` does not corresponds to any value defined by Parameters_notation.
  */
-DMITIGR_JRPC_API const char* to_literal(Parameters_notation value);
+constexpr const char* to_literal(const Parameters_notation value)
+{
+  switch (value) {
+  case Parameters_notation::positional:
+    return "positional";
+  case Parameters_notation::named:
+    return "named";
+  }
+  return nullptr;
+}
 
 } // namespace dmitigr::jrpc
-
-#ifdef DMITIGR_JRPC_HEADER_ONLY
-#include "dmitigr/jrpc/basics.cpp"
-#endif
 
 #endif  // DMITIGR_JRPC_BASICS_HPP
