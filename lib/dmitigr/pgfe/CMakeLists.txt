@@ -296,7 +296,6 @@ set(dmitigr_pgfe_headers
   )
 
 set(dmitigr_pgfe_implementations
-  basics.cpp
   completion.cpp
   composite.cpp
   compositional.cpp
