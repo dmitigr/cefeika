@@ -26,11 +26,9 @@
 #include "dmitigr/os/env.hpp"
 #include "dmitigr/os/exceptions.hpp"
 #include "dmitigr/os/proc.hpp"
-#include "dmitigr/os/version.hpp"
-#ifdef _WIN32
-#include "dmitigr/os/windows.hpp"
-#else
+#ifndef _WIN32
 #include "dmitigr/os/proc_detach.hpp"
 #endif
+#include "dmitigr/os/version.hpp"
 
 #endif  // DMITIGR_OS_OS_HPP

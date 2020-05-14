@@ -20,15 +20,12 @@ set(dmitigr_os_headers
   )
 
 set(dmitigr_os_implementations
-  env.cpp
-  proc.cpp
   )
 
 if (WIN32)
   list(APPEND dmitigr_os_headers windows.hpp)
 else()
   list(APPEND dmitigr_os_headers proc_detach.hpp)
-  list(APPEND dmitigr_os_implementations proc_detach.cpp)
 endif()
 
 # ------------------------------------------------------------------------------
