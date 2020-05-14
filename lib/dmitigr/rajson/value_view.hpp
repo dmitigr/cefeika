@@ -5,7 +5,6 @@
 #ifndef DMITIGR_RAJSON_VALUE_VIEW_HPP
 #define DMITIGR_RAJSON_VALUE_VIEW_HPP
 
-#include "dmitigr/rajson/dll.hpp"
 #include "dmitigr/rajson/conversions.hpp"
 #include <dmitigr/base/debug.hpp>
 

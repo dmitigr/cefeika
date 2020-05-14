@@ -2,7 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or os.hpp
 
-#ifndef _WIN32 // Currently, not usable on Windows.
+#ifdef _WIN32
+#error proc_detach.hpp is not usable on Microsoft Windows!
+#endif
 
 #ifndef DMITIGR_OS_PROC_DETACH_HPP
 #define DMITIGR_OS_PROC_DETACH_HPP
@@ -35,5 +37,3 @@ DMITIGR_OS_API void detach(std::function<void()> start,
 #endif
 
 #endif  // DMITIGR_OS_PROC_DETACH_HPP
-
-#endif  // _WIN32
