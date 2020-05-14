@@ -258,7 +258,7 @@ public:
 
     const auto* const eid = options_.endpoint_id();
 
-    const auto tcp_create_bind = [&]()
+    const auto tcp_create_bind = [&]
     {
       socket_ = net::Socket_guard{::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)};
       if (!net::is_socket_valid(socket_))
@@ -300,7 +300,7 @@ public:
 #ifdef _WIN32
     tcp_create_bind();
 #else
-    const auto uds_create_bind = [&]()
+    const auto uds_create_bind = [&]
     {
       socket_ = net::Socket_guard{::socket(AF_UNIX, SOCK_STREAM, IPPROTO_TCP)};
       if (!net::is_socket_valid(socket_))
@@ -515,16 +515,12 @@ private:
   Listener_options options_;
   std::string pipe_path_;
 
-  // ---------------------------------------------------------------------------
-
   bool is_invariant_ok() const
   {
     const bool options_ok = bool(options_);
     const bool endpoint_ok = (options_ok && (options_.endpoint_id()->wnp_server_name() == "."));
     return options_ok && endpoint_ok;
   }
-
-  // ---------------------------------------------------------------------------
 
   /**
    * @returns A handle of new Windows Named Pipe.
