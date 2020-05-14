@@ -119,12 +119,9 @@ public:
    * @brief See Listener::make().
    */
   explicit iListener(const Listener_options* const options)
-  {
-    auto* const iopts = dynamic_cast<const iListener_options*>(options);
-    DMITIGR_ASSERT(iopts);
-    listener_ = net::Listener::make(iopts->options_.get());
-    listener_options_ = iListener_options{iopts->options_->to_listener_options()};
-  }
+    : listener_{net::Listener::make(static_cast<const iListener_options*>(options)->options_)}
+    , listener_options_{static_cast<const iListener_options*>(options)->options_}
+  {}
 
   const Listener_options* options() const override
   {
