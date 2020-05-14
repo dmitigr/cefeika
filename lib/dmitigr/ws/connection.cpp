@@ -57,8 +57,8 @@ public:
   std::string remote_ip_address() const override
   {
     DMITIGR_ASSERT(ws_);
-    const auto ip = net::Ip_address::make_from_binary(ws_->getRemoteAddress());
-    return ip->to_string();
+    const auto ip = net::Ip_address::from_binary(ws_->getRemoteAddress());
+    return ip.to_string();
   }
 
   std::size_t buffered_amount() const override

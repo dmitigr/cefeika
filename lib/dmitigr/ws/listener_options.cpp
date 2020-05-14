@@ -5,7 +5,7 @@
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/listener_options.hpp"
 #include <dmitigr/base/debug.hpp>
-#include <dmitigr/net/net.hpp>
+#include <dmitigr/net/listener.hpp>
 
 #include <limits>
 #include <stdexcept>
@@ -28,7 +28,7 @@ inline void validate(const bool condition, const std::string& option_name)
 class iListener_options final {
 public:
   iListener_options(const iListener_options& rhs)
-    : net_options_{rhs.net_options_->to_listener_options()}
+    : net_options_{rhs.net_options_}
     , idle_timeout_{rhs.idle_timeout_}
     , max_payload_size_{rhs.max_payload_size_}
   {
@@ -47,14 +47,14 @@ public:
   iListener_options& operator=(iListener_options&& rhs) = default;
 
   iListener_options(std::string address, const int port, const int backlog)
-    : net_options_{net::Listener_options::make(std::move(address), port, backlog)}
+    : net_options_{std::move(address), port, backlog}
   {
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const net::Endpoint_id* endpoint_id() const
   {
-    return net_options_->endpoint_id();
+    return net_options_.endpoint_id();
   }
 
   void set_idle_timeout(std::optional<std::chrono::milliseconds> value)
@@ -84,7 +84,7 @@ public:
 
   void swap(iListener_options& other)
   {
-    net_options_.swap(other.net_options_);
+    std::swap(net_options_, other.net_options_);
     idle_timeout_.swap(other.idle_timeout_);
     std::swap(max_payload_size_, other.max_payload_size_);
   }
@@ -93,13 +93,13 @@ private:
   friend iListener;
   friend Listener_options;
 
-  std::unique_ptr<net::Listener_options> net_options_;
+  net::Listener_options net_options_;
   std::optional<std::chrono::milliseconds> idle_timeout_;
   std::size_t max_payload_size_{static_cast<std::size_t>(std::numeric_limits<int>::max())};
 
   bool is_invariant_ok() const
   {
-    return net_options_ && (net_options_->endpoint_id()->communication_mode() == net::Communication_mode::net) &&
+    return (net_options_.endpoint_id()->communication_mode() == net::Communication_mode::net) &&
       (!idle_timeout_ || idle_timeout_->count() >= 0) &&
       (max_payload_size_ <= std::numeric_limits<int>::max());
   }

@@ -25,8 +25,8 @@ public:
 
   std::string remote_ip_address() const override
   {
-    const auto ip = net::Ip_address::make_from_binary(remote_ip_address_binary_);
-    return ip->to_string();
+    const auto ip = net::Ip_address::from_binary(remote_ip_address_binary_);
+    return ip.to_string();
   }
 
   std::string_view method() const override
