@@ -32,10 +32,6 @@ class Wsa_error_category;
  */
 namespace detail {
 
-class iIp_address;
-class iEndpoint_id;
-class iListener_options;
-
 class iDescriptor;
 class socket_Descriptor;
 class pipe_Descriptor;
