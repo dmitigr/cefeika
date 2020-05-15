@@ -88,7 +88,7 @@ public:
   /**
    * @returns The endpoint identifier.
    */
-  virtual const net::Endpoint* endpoint() const = 0;
+  virtual const net::Endpoint& endpoint() const = 0;
 
   /**
    * @returns The value of backlog if the communication mode of the endpoint is

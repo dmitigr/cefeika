@@ -54,7 +54,7 @@ public:
     return std::make_unique<iListener_options>(options_);
   }
 
-  const net::Endpoint* endpoint() const override
+  const net::Endpoint& endpoint() const override
   {
     return options_.endpoint();
   }

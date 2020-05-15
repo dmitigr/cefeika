@@ -94,9 +94,9 @@ public:
   /**
    * @returns The endpoint identifier.
    */
-  const Endpoint* endpoint() const noexcept
+  const Endpoint& endpoint() const noexcept
   {
-    return &endpoint_;
+    return endpoint_;
   }
 
   /**
@@ -232,7 +232,7 @@ public:
   explicit socket_Listener(Listener_options options)
     : options_{std::move(options)}
   {
-    const auto cm = options_.endpoint()->communication_mode();
+    const auto cm = options_.endpoint().communication_mode();
 #ifdef _WIN32
     DMITIGR_ASSERT(cm == Communication_mode::net);
 #else
@@ -256,7 +256,7 @@ public:
   {
     DMITIGR_REQUIRE(!is_listening(), std::logic_error);
 
-    const auto* const eid = options_.endpoint();
+    const auto& eid = options_.endpoint();
 
     const auto tcp_create_bind = [&]
     {
@@ -273,14 +273,14 @@ public:
       if (::setsockopt(socket_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&optval), optlen) != 0)
         throw DMITIGR_NET_EXCEPTION{"setsockopt"};
 
-      const net::Ip_address ip{*eid->net_address()};
+      const net::Ip_address ip{*eid.net_address()};
       if (ip.family() == Ip_version::v4) {
         ::sockaddr_in addr{};
         constexpr auto addr_size = sizeof (addr);
         std::memset(&addr, 0, addr_size);
         addr.sin_family = AF_INET;
         addr.sin_addr = *static_cast<const ::in_addr*>(ip.binary());
-        addr.sin_port = htons(static_cast<unsigned short>(*eid->net_port()));
+        addr.sin_port = htons(static_cast<unsigned short>(*eid.net_port()));
         if (::bind(socket_, reinterpret_cast<::sockaddr*>(&addr), static_cast<int>(addr_size)) != 0)
           throw DMITIGR_NET_EXCEPTION{"bind"};
       } else if (ip.family() == Ip_version::v6) {
@@ -289,7 +289,7 @@ public:
         std::memset(&addr, 0, addr_size);
         addr.sin6_family = AF_INET6;
         addr.sin6_addr = *static_cast<const ::in6_addr*>(ip.binary());
-        addr.sin6_port = htons(static_cast<unsigned short>(*eid->net_port()));
+        addr.sin6_port = htons(static_cast<unsigned short>(*eid.net_port()));
         addr.sin6_flowinfo = htonl(0);
         addr.sin6_scope_id = htonl(0);
         if (::bind(socket_, reinterpret_cast<::sockaddr*>(&addr), static_cast<int>(addr_size)) != 0)
@@ -309,7 +309,7 @@ public:
       ::sockaddr_un addr{};
       constexpr auto addr_size = sizeof (addr);
       addr.sun_family = AF_UNIX;
-      const std::filesystem::path& path = eid->uds_path().value();
+      const std::filesystem::path& path = eid.uds_path().value();
       if (path.native().size() > sizeof (::sockaddr_un::sun_path) - 1)
         throw std::runtime_error{"UDS path is too long"};
       else
@@ -319,7 +319,7 @@ public:
         throw DMITIGR_NET_EXCEPTION{"bind"};
     };
 
-    if (const auto cm = eid->communication_mode(); cm == Communication_mode::net)
+    if (const auto cm = eid.communication_mode(); cm == Communication_mode::net)
       tcp_create_bind();
     else
       uds_create_bind();
@@ -388,10 +388,10 @@ private:
 
   void net_deinitialize()
   {
-    const auto* const eid = options_.endpoint();
-    const auto cm = eid->communication_mode();
+    const auto& eid = options_.endpoint();
+    const auto cm = eid.communication_mode();
     if (cm == Communication_mode::uds)
-      ::unlink(eid->uds_path()->c_str());
+      ::unlink(eid.uds_path()->c_str());
   }
 #endif
 };

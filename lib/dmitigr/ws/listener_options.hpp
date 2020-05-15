@@ -71,7 +71,7 @@ public:
   /**
    * @returns The endpoint identifier.
    */
-  DMITIGR_WS_API const net::Endpoint* endpoint() const;
+  DMITIGR_WS_API const net::Endpoint& endpoint() const;
 
   /**
    * @brief Sets the timeout of the idle connections.
