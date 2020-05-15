@@ -13,7 +13,7 @@ if (DMITIGR_CEFEIKA_WITH_ZLIB)
   find_package(ZLIB REQUIRED)
   target_link_libraries(${lib} INTERFACE ZLIB::ZLIB)
 else()
-  target_compile_definitions(${lib} INTERFACE UWS_NO_ZLIB)
+  target_compile_definitions(${lib} INTERFACE UWS_NO_ZLIB UWS_HTTPRESPONSE_NO_WRITEMARK)
 endif()
 
 install(DIRECTORY "include/"
