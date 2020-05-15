@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/http_request.hpp"
-#include <dmitigr/net/net.hpp>
 #include <dmitigr/base/debug.hpp>
 
 #include <uwebsockets/HttpParser.h>
@@ -17,16 +16,14 @@ class iHttp_request final : public Http_request {
 public:
   explicit iHttp_request(uWS::HttpRequest* const rep, const std::string_view remote_ip_address_binary)
     : rep_{rep}
-    , remote_ip_address_binary_{remote_ip_address_binary}
+    , ip_{net::Ip_address::from_binary(remote_ip_address_binary)}
   {
     DMITIGR_ASSERT(rep_);
-    DMITIGR_ASSERT(!remote_ip_address_binary_.empty());
   }
 
-  std::string remote_ip_address() const override
+  const net::Ip_address& remote_ip_address() const override
   {
-    const auto ip = net::Ip_address::from_binary(remote_ip_address_binary_);
-    return ip.to_string();
+    return ip_;
   }
 
   std::string_view method() const override
@@ -44,14 +41,14 @@ public:
     return rep_->getQuery();
   }
 
-  std::string_view header(std::string_view name) const override
+  std::string_view header(const std::string_view name) const override
   {
     return rep_->getHeader(name);
   }
 
 private:
   uWS::HttpRequest* rep_{};
-  std::string_view remote_ip_address_binary_;
+  net::Ip_address ip_;
 };
 
 } // namespace dmitigr::ws::detail

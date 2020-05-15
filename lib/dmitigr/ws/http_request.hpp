@@ -6,6 +6,7 @@
 #define DMITIGR_WS_HTTP_REQUEST_HPP
 
 #include "dmitigr/ws/types_fwd.hpp"
+#include "dmitigr/net/address.hpp"
 
 #include <string>
 #include <string_view>
@@ -25,7 +26,7 @@ public:
   /**
    * @returns The textual representation of the remote IP address.
    */
-  virtual std::string remote_ip_address() const = 0;
+  virtual const net::Ip_address& remote_ip_address() const = 0;
 
   /**
    * @returns The HTTP request method.
