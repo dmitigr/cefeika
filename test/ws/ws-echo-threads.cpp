@@ -12,7 +12,7 @@ namespace ws = dmitigr::ws;
 
 // The implementation of the thread per message approach.
 // (Using a thread pool approach instead is trivial.)
-class Connection : public ws::Connection {
+class Connection final : public ws::Connection {
   void handle_message(const std::string_view data, const ws::Data_format format) override
   {
     std::thread{[ws = shared_from_this(), data, format]
@@ -31,9 +31,11 @@ class Connection : public ws::Connection {
       });
     }}.detach();
   }
+
+  void handle_close(int, std::string_view) override {};
 };
 
-class Listener : public ws::Listener {
+class Listener final : public ws::Listener {
   using ws::Listener::Listener;
   std::shared_ptr<ws::Connection> make_connection(const ws::Http_request*) const override
   {

@@ -7,14 +7,16 @@
 
 namespace ws = dmitigr::ws;
 
-class Connection : public ws::Connection {
+class Connection final : public ws::Connection {
   void handle_message(const std::string_view data, const ws::Data_format format) override
   {
     send(data, format); // respond by using non-blocking IO
   }
+
+  void handle_close(int, std::string_view) override {};
 };
 
-class Listener : public ws::Listener {
+class Listener final : public ws::Listener {
   using ws::Listener::Listener;
   std::shared_ptr<ws::Connection> make_connection(const ws::Http_request*) const override
   {

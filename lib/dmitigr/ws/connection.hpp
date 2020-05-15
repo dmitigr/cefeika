@@ -135,7 +135,7 @@ private:
    * function call. Hence, the implementation must use `is_connected()` before
    * using the API which requires `(is_connected() == true)` as a precondition.
    */
-  virtual DMITIGR_WS_API void handle_close(int code, std::string_view reason);
+  virtual void handle_close(int code, std::string_view reason) = 0;
 
 private:
   friend detail::iListener;

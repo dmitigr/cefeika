@@ -163,9 +163,6 @@ DMITIGR_WS_INLINE void Connection::abort()
   DMITIGR_ASSERT(!rep_);
 }
 
-DMITIGR_WS_INLINE void Connection::handle_close(int, std::string_view)
-{}
-
 } // namespace dmitigr::ws
 
 #ifdef __GNUG__
