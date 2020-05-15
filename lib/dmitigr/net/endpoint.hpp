@@ -37,20 +37,20 @@ enum class Communication_mode {
  *   - Unix Domain Sockets (UDS);
  *   - network services with the address and the port.
  */
-class Endpoint_id final {
+class Endpoint final {
 public:
 #ifdef _WIN32
   /**
    * @brief The constructor.
    */
-  explicit Endpoint_id(std::string pipe_name)
-    : Endpoint_id{".", std::move(pipe_name)}
+  explicit Endpoint(std::string pipe_name)
+    : Endpoint{".", std::move(pipe_name)}
   {}
 
   /**
    * @overload
    */
-  Endpoint_id(std::string server_name, std::string pipe_name)
+  Endpoint(std::string server_name, std::string pipe_name)
     : wnp_pipe_name_{std::move(pipe_name)}
     , wnp_server_name_{std::move(server_name)}
   {
@@ -60,7 +60,7 @@ public:
   /**
    * @overload
    */
-  explicit Endpoint_id(std::filesystem::path path)
+  explicit Endpoint(std::filesystem::path path)
     : uds_path_{std::move(path)}
   {
     DMITIGR_ASSERT(is_invariant_ok());
@@ -70,7 +70,7 @@ public:
   /**
    * @overload
    */
-  Endpoint_id(std::string address, const int port)
+  Endpoint(std::string address, const int port)
     : net_address_{std::move(address)}
     , net_port_{port}
   {

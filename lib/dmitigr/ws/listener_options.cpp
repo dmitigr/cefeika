@@ -52,9 +52,9 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  const net::Endpoint_id* endpoint_id() const
+  const net::Endpoint* endpoint() const
   {
-    return net_options_.endpoint_id();
+    return net_options_.endpoint();
   }
 
   void set_idle_timeout(std::optional<std::chrono::milliseconds> value)
@@ -99,7 +99,7 @@ private:
 
   bool is_invariant_ok() const
   {
-    return (net_options_.endpoint_id()->communication_mode() == net::Communication_mode::net) &&
+    return (net_options_.endpoint()->communication_mode() == net::Communication_mode::net) &&
       (!idle_timeout_ || idle_timeout_->count() >= 0) &&
       (max_payload_size_ <= std::numeric_limits<int>::max());
   }
@@ -139,9 +139,9 @@ DMITIGR_WS_INLINE std::unique_ptr<Listener_options> Listener_options::to_listene
   return std::make_unique<Listener_options>(*this);
 }
 
-DMITIGR_WS_INLINE const net::Endpoint_id* Listener_options::endpoint_id() const
+DMITIGR_WS_INLINE const net::Endpoint* Listener_options::endpoint() const
 {
-  return rep_->endpoint_id();
+  return rep_->endpoint();
 }
 
 DMITIGR_WS_INLINE Listener_options& Listener_options::set_idle_timeout(std::optional<std::chrono::milliseconds> value)

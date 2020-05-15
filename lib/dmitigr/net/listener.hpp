@@ -39,10 +39,10 @@ public:
    * @param pipe_name - the pipe name.
    *
    * @par Effects
-   * `(endpoint_id()->communication_mode() == Communication_mode::wnp)`.
+   * `(endpoint()->communication_mode() == Communication_mode::wnp)`.
    */
   explicit Listener_options(std::string pipe_name)
-    : endpoint_id_{std::move(pipe_name)}
+    : endpoint_{std::move(pipe_name)}
   {
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -58,10 +58,10 @@ public:
    * `(backlog > 0)`.
    *
    * @par Effects
-   * `(endpoint_id()->communication_mode() == Communication_mode::uds)`.
+   * `(endpoint()->communication_mode() == Communication_mode::uds)`.
    */
   Listener_options(std::filesystem::path path, const int backlog)
-    : endpoint_id_{std::move(path)}
+    : endpoint_{std::move(path)}
     , backlog_{backlog}
   {
     DMITIGR_REQUIRE(backlog > 0, std::out_of_range);
@@ -81,10 +81,10 @@ public:
    * `(port > 0 && backlog > 0)`.
    *
    * @par Effects
-   * `(endpoint_id()->communication_mode() == Communication_mode::net)`.
+   * `(endpoint()->communication_mode() == Communication_mode::net)`.
    */
   Listener_options(std::string address, const int port, const int backlog)
-    : endpoint_id_{std::move(address), port}
+    : endpoint_{std::move(address), port}
     , backlog_{backlog}
   {
     DMITIGR_REQUIRE(port > 0 && backlog > 0, std::out_of_range);
@@ -94,9 +94,9 @@ public:
   /**
    * @returns The endpoint identifier.
    */
-  const Endpoint_id* endpoint_id() const noexcept
+  const Endpoint* endpoint() const noexcept
   {
-    return &endpoint_id_;
+    return &endpoint_;
   }
 
   /**
@@ -109,13 +109,13 @@ public:
   }
 
 private:
-  Endpoint_id endpoint_id_;
+  Endpoint endpoint_;
   std::optional<int> backlog_;
 
   bool is_invariant_ok() const
   {
 #ifdef _WIN32
-    const bool backlog_ok = ((endpoint_id_.communication_mode() != Communication_mode::wnp && backlog_) || !backlog_);
+    const bool backlog_ok = ((endpoint_.communication_mode() != Communication_mode::wnp && backlog_) || !backlog_);
 #else
     const bool backlog_ok = bool(backlog_);
 #endif
@@ -232,7 +232,7 @@ public:
   explicit socket_Listener(Listener_options options)
     : options_{std::move(options)}
   {
-    const auto cm = options_.endpoint_id()->communication_mode();
+    const auto cm = options_.endpoint()->communication_mode();
 #ifdef _WIN32
     DMITIGR_ASSERT(cm == Communication_mode::net);
 #else
@@ -256,7 +256,7 @@ public:
   {
     DMITIGR_REQUIRE(!is_listening(), std::logic_error);
 
-    const auto* const eid = options_.endpoint_id();
+    const auto* const eid = options_.endpoint();
 
     const auto tcp_create_bind = [&]
     {
@@ -388,7 +388,7 @@ private:
 
   void net_deinitialize()
   {
-    const auto* const eid = options_.endpoint_id();
+    const auto* const eid = options_.endpoint();
     const auto cm = eid->communication_mode();
     if (cm == Communication_mode::uds)
       ::unlink(eid->uds_path()->c_str());
@@ -415,9 +415,9 @@ public:
     : options_{std::move(options)}
     , pipe_path_{"\\\\.\\pipe\\"}
   {
-    DMITIGR_REQUIRE((options_.endpoint_id()->communication_mode() == Communication_mode::wnp), std::invalid_argument);
+    DMITIGR_REQUIRE((options_.endpoint()->communication_mode() == Communication_mode::wnp), std::invalid_argument);
 
-    pipe_path_.append(options_.endpoint_id()->wnp_server_name());
+    pipe_path_.append(options_.endpoint()->wnp_server_name());
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -518,7 +518,7 @@ private:
   bool is_invariant_ok() const
   {
     const bool options_ok = bool(options_);
-    const bool endpoint_ok = (options_ok && (options_.endpoint_id()->wnp_server_name() == "."));
+    const bool endpoint_ok = (options_ok && (options_.endpoint()->wnp_server_name() == "."));
     return options_ok && endpoint_ok;
   }
 
@@ -553,7 +553,7 @@ inline std::unique_ptr<Listener> Listener::make(Listener_options options)
   using detail::socket_Listener;
 
 #ifdef _WIN32
-  const auto cm = options->endpoint_id()->communication_mode();
+  const auto cm = options->endpoint()->communication_mode();
   if (cm == Communication_mode::wnp)
     return std::make_unique<pipe_Listener>(std::move(options));
   else

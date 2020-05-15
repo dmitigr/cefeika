@@ -148,8 +148,8 @@ public:
       return result;
     }; // behaviour
 
-    const auto host = options().endpoint_id()->net_address().value();
-    const auto port = options().endpoint_id()->net_port().value();
+    const auto host = options().endpoint()->net_address().value();
+    const auto port = options().endpoint()->net_port().value();
     loop_ = uWS::Loop::get();
     App{}.template ws<Ws_data>("/*", behavior())
       .listen(host, port,

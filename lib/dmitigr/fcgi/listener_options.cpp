@@ -54,9 +54,9 @@ public:
     return std::make_unique<iListener_options>(options_);
   }
 
-  const net::Endpoint_id* endpoint_id() const override
+  const net::Endpoint* endpoint() const override
   {
-    return options_.endpoint_id();
+    return options_.endpoint();
   }
 
   std::optional<int> backlog() const override
