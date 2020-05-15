@@ -22,7 +22,6 @@ set(dmitigr_ws_headers
   )
 
 set(dmitigr_ws_implementations
-  basics.cpp
   connection.cpp
   http_request.cpp
   listener.cpp

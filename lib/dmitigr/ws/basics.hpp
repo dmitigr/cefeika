@@ -24,12 +24,17 @@ enum class Data_format {
  * @returns The literal representation of the `value`, or `nullptr`
  * if `value` does not corresponds to any value defined by enum.
  */
-DMITIGR_WS_API const char* to_literal(Data_format value);
+constexpr const char* to_literal(const Data_format value)
+{
+  switch (value) {
+  case Data_format::text:
+    return "text";
+  case Data_format::binary:
+    return "binary";
+  }
+  return nullptr;
+}
 
 } // namespace dmitigr::ws
-
-#ifdef DMITIGR_WS_HEADER_ONLY
-#include "dmitigr/ws/basics.cpp"
-#endif
 
 #endif  // DMITIGR_WS_BASICS_HPP
