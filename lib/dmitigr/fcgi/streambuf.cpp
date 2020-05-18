@@ -136,17 +136,18 @@ public:
 
 protected:
 
-  // std::streambuf overridinds:
+  // std::streambuf overridings:
 
   server_Streambuf* setbuf(char_type* const buffer, const std::streamsize size) override
   {
-    DMITIGR_REQUIRE(buffer && (64 <= size && size <= 65536) && (size % 8) == 0, std::invalid_argument);
+    DMITIGR_REQUIRE(buffer && (size > 16), std::invalid_argument);
 
     if ((eback() != nullptr && eback() != buffer_) || (pbase() != nullptr && pbase() != buffer_))
       throw std::runtime_error{"dmitigr::fcgi: cannot set buffer (there are pending data)"};
 
+    constexpr std::streamsize alignment = 8;
     buffer_ = buffer;
-    buffer_size_ = size;
+    buffer_size_ = size - (alignment - math::padding(size, alignment)) % alignment;
 
     if (is_reader()) {
       setg(buffer_, buffer_, buffer_);
