@@ -24,10 +24,10 @@ public:
   static constexpr std::size_t in_buffer_size  = 16384;
 
   /** The size of the buffer of Stream_type::out. */
-  static constexpr std::size_t out_buffer_size = 16384;
+  static constexpr std::size_t out_buffer_size = 65528;
 
   /** The size of the buffer of Stream_type::err. */
-  static constexpr std::size_t err_buffer_size =  1024;
+  static constexpr std::size_t err_buffer_size = 65528;
 
   /**
    * @brief The destructor.
@@ -46,7 +46,11 @@ public:
       // const bool keep_conn = keep_connection() && !err().fail() && !out().fail() && !in().fail();
       // -----------------------------------------------------------------------
 
-    } catch (...) {}
+    } catch (const std::exception& e) {
+      DMITIGR_DOUT_ALWAYS("dmitigr::fcgi: %s\n", e.what());
+    } catch (...) {
+      DMITIGR_DOUT_ALWAYS("dmitigr::fcgi: failure\n");
+    }
   }
 
   /**

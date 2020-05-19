@@ -12,7 +12,7 @@ int main()
   namespace rng = dmitigr::rng;
 
   rng::seed_by_now();
-  std::streamsize rndstr_size{100500};
+  std::streamsize str_size{100500};
   try {
     const auto port = 9000;
     const auto backlog = 64;
@@ -21,10 +21,9 @@ int main()
     while (true) {
       if (const auto conn = server->accept()) {
         conn->out() << "Content-Type: text/plain" << fcgi::crlfcrlf;
-        const std::string rndstr = rng::random_string("abcdefg", rndstr_size);
-        conn->out() << rndstr << "\n";
-        conn->out() << rndstr_size;
-        rndstr_size += rng::cpp_pl_3rd(rndstr_size, rndstr_size + 1024);
+        const std::string str = rng::random_string("abc", str_size);
+        conn->out() << str << "\n" << str_size;
+        str_size += rng::cpp_pl_3rd(str_size);
       }
     }
   } catch (const std::exception& e) {
