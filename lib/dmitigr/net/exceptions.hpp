@@ -5,10 +5,10 @@
 #ifndef DMITIGR_NET_EXCEPTIONS_HPP
 #define DMITIGR_NET_EXCEPTIONS_HPP
 
-#include "dmitigr/os/exceptions.hpp"
+#include <dmitigr/os/exceptions.hpp>
 
 #ifdef _WIN32
-#include "dmitigr/os/windows.hpp"
+#include <dmitigr/os/windows.hpp>
 
 #include <Winsock2.h> // includes Ws2def.h
 #endif
@@ -24,7 +24,7 @@ public:
   /**
    * @returns The literal `dmitigr_wsa_error`.
    */
-  const char* name() const noexcept
+  const char* name() const noexcept override
   {
     return "dmitigr_wsa_error";
   }
@@ -35,7 +35,7 @@ public:
    * @remarks The caller should not rely on the
    * return value since it is a subject to change.
    */
-  std::string message(const int ev) const
+  std::string message(const int ev) const override
   {
     std::string result(name());
     result += ' ';

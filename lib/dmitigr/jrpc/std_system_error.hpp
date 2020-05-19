@@ -7,6 +7,7 @@
 
 #include "dmitigr/jrpc/errc.hpp"
 
+#include <string>
 #include <system_error>
 
 namespace dmitigr::jrpc {

@@ -15,6 +15,8 @@
 #include <variant>
 
 #ifdef _WIN32
+#include <dmitigr/os/windows.hpp>
+
 #include <Winsock2.h> // includes Ws2def.h
 #include <In6addr.h>  // must follows after Winsock2.h
 #include <Ws2tcpip.h> // inet_pton(), inet_ntop()

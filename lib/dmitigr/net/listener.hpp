@@ -415,9 +415,9 @@ public:
     : options_{std::move(options)}
     , pipe_path_{"\\\\.\\pipe\\"}
   {
-    DMITIGR_REQUIRE((options_.endpoint()->communication_mode() == Communication_mode::wnp), std::invalid_argument);
+    DMITIGR_REQUIRE((options_.endpoint().communication_mode() == Communication_mode::wnp), std::invalid_argument);
 
-    pipe_path_.append(options_.endpoint()->wnp_server_name());
+    pipe_path_.append(options_.endpoint().wnp_server_name().value());
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -517,9 +517,8 @@ private:
 
   bool is_invariant_ok() const
   {
-    const bool options_ok = bool(options_);
-    const bool endpoint_ok = (options_ok && (options_.endpoint()->wnp_server_name() == "."));
-    return options_ok && endpoint_ok;
+    const bool endpoint_ok = (options_.endpoint().wnp_server_name() == ".");
+    return endpoint_ok;
   }
 
   /**
@@ -553,7 +552,7 @@ inline std::unique_ptr<Listener> Listener::make(Listener_options options)
   using detail::socket_Listener;
 
 #ifdef _WIN32
-  const auto cm = options->endpoint()->communication_mode();
+  const auto cm = options.endpoint().communication_mode();
   if (cm == Communication_mode::wnp)
     return std::make_unique<pipe_Listener>(std::move(options));
   else
