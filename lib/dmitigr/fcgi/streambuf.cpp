@@ -18,7 +18,7 @@
  * By defining DMITIGR_FCGI_DEBUG some convenient stuff for debugging
  * will be available, for example, server_Streambuf::print().
  */
-#define DMITIGR_FCGI_DEBUG
+//#define DMITIGR_FCGI_DEBUG
 #ifdef DMITIGR_FCGI_DEBUG
 #include <iostream>
 #endif
