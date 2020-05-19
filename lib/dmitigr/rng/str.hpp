@@ -25,7 +25,7 @@ inline std::string random_string(const std::string& palette,
   if (const auto pallete_size = palette.size()) {
     using Counter = std::remove_const_t<decltype (pallete_size)>;
     for (Counter i = 0; i < size; ++i)
-      result[i] = palette[rng::cpp_pl_3rd(pallete_size)];
+      result[i] = palette[rng::cpp_pl_3rd(pallete_size - 1)];
   }
   return result;
 }
