@@ -131,7 +131,7 @@ public:
     DMITIGR_REQUIRE(buf, std::invalid_argument);
     DMITIGR_REQUIRE(len <= max_write_size(), std::invalid_argument);
 
-    constexpr int flags{};
+    constexpr int flags{MSG_NOSIGNAL};
     const int result = ::send(socket_, buf, static_cast<int>(len), flags);
     if (net::is_socket_error(result))
       throw DMITIGR_NET_EXCEPTION{"send"};
