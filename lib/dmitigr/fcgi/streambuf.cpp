@@ -14,6 +14,15 @@
 #include <limits>
 #include <ostream>
 
+/*
+ * By defining DMITIGR_FCGI_DEBUG some convenient stuff for debugging
+ * will be available, for example, server_Streambuf::print().
+ */
+#define DMITIGR_FCGI_DEBUG
+#ifdef DMITIGR_FCGI_DEBUG
+#include <iostream>
+#endif
+
 namespace dmitigr::fcgi::detail {
 
 /**
@@ -115,7 +124,7 @@ public:
    */
   bool is_closed() const
   {
-    return is_reader() ? !gptr() : !pptr();
+    return is_reader() ? !eback() : !pbase();
   }
 
   /**
@@ -583,6 +592,17 @@ private:
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
+
+#ifdef DMITIGR_FCGI_DEBUG
+  template<typename ... Types>
+  void print(Types&& ... msgs) const
+  {
+    if (type_ == Stream_type::out) {
+      ((std::cerr << std::forward<Types>(msgs) << " "), ...);
+      std::cerr << std::endl;
+    }
+  }
+#endif
 };
 
 } // namespace dmitigr::fcgi::detail

@@ -9,7 +9,6 @@
 int main()
 {
   namespace fcgi = dmitigr::fcgi;
-  namespace math = dmitigr::math;
   namespace rng = dmitigr::rng;
 
   rng::seed_by_now();
