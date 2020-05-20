@@ -13,6 +13,7 @@ namespace dmitigr::ws {
 enum class Data_format;
 
 class Connection;
+class Http_io;
 class Http_request;
 class Listener;
 class Listener_options;
@@ -25,6 +26,9 @@ class iConnection;
 template<bool> class Conn;
 
 class iHttp_request;
+
+class iHttp_io;
+template<bool> class iHttp_io_templ;
 
 class iListener;
 template<bool> class Lstnr;

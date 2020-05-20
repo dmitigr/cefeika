@@ -74,6 +74,7 @@ private:
    */
   virtual std::shared_ptr<Connection> make_connection(const Http_request* handshake) const = 0;
 
+  virtual void handle_request(const ws::Http_request* req, ws::Http_io* res) const = 0;
 private:
   friend detail::iListener;
   template<bool> friend class detail::Lstnr;

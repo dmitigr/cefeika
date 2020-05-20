@@ -8,7 +8,7 @@
 #include "dmitigr/ws/dll.hpp"
 #include "dmitigr/ws/types_fwd.hpp"
 
-#include "dmitigr/net/types_fwd.hpp"
+#include <dmitigr/net/types_fwd.hpp>
 
 #include <chrono>
 #include <memory>
@@ -72,6 +72,10 @@ public:
    * @returns The endpoint identifier.
    */
   DMITIGR_WS_API const net::Endpoint& endpoint() const;
+
+  DMITIGR_WS_API Listener_options& set_http_enabled(bool value);
+
+  DMITIGR_WS_API bool is_http_enabled() const;
 
   /**
    * @brief Sets the timeout of the idle connections.

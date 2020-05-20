@@ -27,25 +27,6 @@ inline void validate(const bool condition, const std::string& option_name)
  */
 class iListener_options final {
 public:
-  iListener_options(const iListener_options& rhs)
-    : net_options_{rhs.net_options_}
-    , idle_timeout_{rhs.idle_timeout_}
-    , max_payload_size_{rhs.max_payload_size_}
-  {
-    DMITIGR_ASSERT(is_invariant_ok());
-  }
-
-  iListener_options& operator=(const iListener_options& rhs)
-  {
-    iListener_options rhs_copy{rhs};
-    swap(rhs_copy);
-    DMITIGR_ASSERT(is_invariant_ok());
-    return *this;
-  }
-
-  iListener_options(iListener_options&& rhs) = default;
-  iListener_options& operator=(iListener_options&& rhs) = default;
-
   iListener_options(std::string address, const int port, const int backlog)
     : net_options_{std::move(address), port, backlog}
   {
@@ -55,6 +36,16 @@ public:
   const net::Endpoint& endpoint() const
   {
     return net_options_.endpoint();
+  }
+
+  void set_http_enabled(const bool value)
+  {
+    is_http_enabled_ = value;
+  }
+
+  bool is_http_enabled() const
+  {
+    return is_http_enabled_;
   }
 
   void set_idle_timeout(std::optional<std::chrono::milliseconds> value)
@@ -82,18 +73,12 @@ public:
     return max_payload_size_;
   }
 
-  void swap(iListener_options& other)
-  {
-    std::swap(net_options_, other.net_options_);
-    idle_timeout_.swap(other.idle_timeout_);
-    std::swap(max_payload_size_, other.max_payload_size_);
-  }
-
 private:
   friend iListener;
   friend Listener_options;
 
   net::Listener_options net_options_;
+  bool is_http_enabled_{};
   std::optional<std::chrono::milliseconds> idle_timeout_;
   std::size_t max_payload_size_{static_cast<std::size_t>(std::numeric_limits<int>::max())};
 
@@ -144,6 +129,17 @@ DMITIGR_WS_INLINE const net::Endpoint& Listener_options::endpoint() const
   return rep_->endpoint();
 }
 
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_http_enabled(const bool value)
+{
+  rep_->set_http_enabled(value);
+  return *this;
+}
+
+DMITIGR_WS_INLINE bool Listener_options::is_http_enabled() const
+{
+  return rep_->is_http_enabled();
+}
+
 DMITIGR_WS_INLINE Listener_options& Listener_options::set_idle_timeout(std::optional<std::chrono::milliseconds> value)
 {
   rep_->set_idle_timeout(std::move(value));
@@ -166,7 +162,7 @@ DMITIGR_WS_INLINE std::size_t Listener_options::max_payload_size() const
   return rep_->max_payload_size();
 }
 
-DMITIGR_WS_API void Listener_options::swap(Listener_options& other)
+DMITIGR_WS_INLINE void Listener_options::swap(Listener_options& other)
 {
   rep_.swap(other.rep_);
 }

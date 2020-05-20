@@ -25,6 +25,7 @@
 
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/connection.hpp"
+#include "dmitigr/ws/http_io.hpp"
 #include "dmitigr/ws/http_request.hpp"
 #include "dmitigr/ws/listener.hpp"
 #include "dmitigr/ws/listener_options.hpp"

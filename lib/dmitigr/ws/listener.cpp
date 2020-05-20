@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/connection.hpp"
+#include "dmitigr/ws/http_io.hpp"
 #include "dmitigr/ws/http_request.hpp"
 #include "dmitigr/ws/listener.hpp"
 #include "dmitigr/ws/listener_options.hpp"
@@ -63,7 +64,7 @@ public:
 
     using App = uWS::TemplatedApp<IsSsl>;
 
-    const auto behavior = [this]
+    const auto ws_behavior = [this]
     {
       typename App::WebSocketBehavior result;
 
@@ -146,20 +147,31 @@ public:
       };
 
       return result;
-    }; // behaviour
+    }; // ws_behaviour
 
     const auto host = options().endpoint().net_address().value();
     const auto port = options().endpoint().net_port().value();
     loop_ = uWS::Loop::get();
-    App{}.template ws<Ws_data>("/*", behavior())
-      .listen(host, port,
-        [this](auto* const listening_socket)
-        {
-          if (listening_socket)
-            listening_socket_ = listening_socket;
-          else
-            throw std::runtime_error{"WebSocket listener is failed to start"};
-        }).run();
+
+    App app;
+    app.template ws<Ws_data>("/*", ws_behavior());
+    if (options().is_http_enabled()) {
+      app.any("/*", [this](auto* const res, auto* const req)
+      {
+        res->onAborted([]{}); // avoiding process termination by uWS
+        const iHttp_request request{req, res->getRemoteAddress()};
+        iHttp_io_templ<IsSsl> io{res};
+        listener_->handle_request(&request, &io);
+      });
+    }
+    app.listen(host, port, [this](auto* const listening_socket)
+    {
+      if (listening_socket)
+        listening_socket_ = listening_socket;
+      else
+        throw std::runtime_error{"WebSocket listener is failed to start"};
+    });
+    app.run();
   }
 
   void close() override
