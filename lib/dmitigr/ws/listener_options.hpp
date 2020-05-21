@@ -73,8 +73,14 @@ public:
    */
   DMITIGR_WS_API const net::Endpoint& endpoint() const;
 
+  /**
+   * @brief Enables the HTTP functionality.
+   */
   DMITIGR_WS_API Listener_options& set_http_enabled(bool value);
 
+  /**
+   * @returns `true` if the HTTP functionality is enabled, or `false` otherwise.
+   */
   DMITIGR_WS_API bool is_http_enabled() const;
 
   /**

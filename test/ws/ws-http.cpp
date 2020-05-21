@@ -4,6 +4,7 @@
 
 #include <dmitigr/ws.hpp>
 
+#include <cstdint>
 #include <iostream>
 
 namespace ws = dmitigr::ws;
@@ -24,32 +25,41 @@ class Listener final : public ws::Listener {
     return std::make_shared<Connection>();
   }
 
-  void handle_request(const ws::Http_request* const req, ws::Http_io* const io) const override
+  void handle_request(const ws::Http_request* const req, std::shared_ptr<ws::Http_io> io) const override
   {
-    io->set_receive_handler([](auto data, bool is_completed)
+    (void)req;
+
+    io->set_request_handler([total_size = std::intmax_t{}](auto data, bool is_last) mutable
     {
-      std::cout << "Received data = " << data << std::endl;
-      if (is_completed)
-        std::cout << "Receiving complete!" << std::endl;
+      total_size += data.size();
+      std::cout << "Received portion of data, size =  " << data.size() << std::endl;
+      if (is_last)
+        std::cout << "Received the last portion of data! Total data size = " << total_size << std::endl;
     });
 
-    // io->set_ready_to_send_handler([](std::intmax_t completion_offset)
-    // {
-    //   std::cout << ""
-    // });
+    io->set_abort_handler([]
+    {
+      std::cout << "Invoked abort handler" << std::endl;
+    });
 
     io->send_status(200, "OK");
     io->send_header("Content-Type", "text/plain");
-    // io->complete("Handled HTTP response!");
-    // const bool done = io->is_completed();
-    // if (done)
-    //   std::cout << "Handled HTTP response from " << req->remote_ip_address().to_string() << std::endl;
+    io->send_header("Content-Disposition", "filename=ws-http-test-data.txt");
+    const auto data = std::make_shared<std::string>(32'000'000, 'a');
+    io->respond(*data, [io, data](const int pos) -> bool
+    {
+      std::cout << "Ready to send handler invoked. Current data position = " << pos << std::endl;
+      std::string_view dv{data->data() + pos, data->size() - pos};
+      const auto [ok, done] = io->send_response(dv, data->size());
+      (void)done;
+      return ok;
+    });
   }
 };
 
 int main()
 {
-  ws::Listener_options lo{"127.0.0.1", 9001};
+  ws::Listener_options lo{"0.0.0.0", 9001};
   lo.set_http_enabled(true)
     .set_idle_timeout(std::chrono::seconds{120})
     .set_max_payload_size(16 * 1024);

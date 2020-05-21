@@ -67,14 +67,22 @@ public:
 
 private:
   /**
-   * @returns The new connection instance, or `nullptr` to reject the connection.
-   *
    * @brief This function to be called on every accepted connection
    * in order to create an instance of class derived from Connection.
+   *
+   * @returns The new connection instance, or `nullptr` to reject the connection.
    */
   virtual std::shared_ptr<Connection> make_connection(const Http_request* handshake) const = 0;
 
-  virtual void handle_request(const ws::Http_request* req, ws::Http_io* res) const = 0;
+  /**
+   * @brief This function to be called on every HTTP request if HTTP
+   * functionality is enabled in Listener_options.
+   *
+   * @see Listener_options.
+   */
+  virtual void handle_request(const ws::Http_request* req,
+    std::shared_ptr<ws::Http_io> res) const;
+
 private:
   friend detail::iListener;
   template<bool> friend class detail::Lstnr;

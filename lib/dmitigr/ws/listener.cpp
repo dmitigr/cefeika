@@ -158,10 +158,16 @@ public:
     if (options().is_http_enabled()) {
       app.any("/*", [this](auto* const res, auto* const req)
       {
-        res->onAborted([]{}); // avoiding process termination by uWS
         const iHttp_request request{req, res->getRemoteAddress()};
-        iHttp_io_templ<IsSsl> io{res};
-        listener_->handle_request(&request, &io);
+        const auto io = std::make_shared<iHttp_io_templ<IsSsl>>(res);
+        listener_->handle_request(&request, io);
+        if (!io->is_response_handler_set() || !io->is_abort_handler_set()) {
+          io->rep_ = nullptr;
+          DMITIGR_ASSERT(!io->is_valid());
+        }
+        if (!io->is_abort_handler_set())
+          throw std::runtime_error{"The overriding of "
+              "Listener::handle_request() didn't set the abort handler"};
       });
     }
     app.listen(host, port, [this](auto* const listening_socket)
@@ -233,6 +239,11 @@ DMITIGR_WS_INLINE void Listener::listen()
 DMITIGR_WS_INLINE void Listener::close()
 {
   rep_->close();
+}
+
+DMITIGR_WS_INLINE void Listener::handle_request(const ws::Http_request*,
+  std::shared_ptr<ws::Http_io>) const
+{
 }
 
 } // namespace dmitigr::ws

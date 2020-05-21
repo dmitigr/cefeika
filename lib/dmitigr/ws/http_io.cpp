@@ -22,16 +22,22 @@ class iHttp_io : public Http_io {
  */
 template<bool IsSsl>
 class iHttp_io_templ final : public iHttp_io {
-  template<bool> friend class Lstnr;
-
+public:
   explicit iHttp_io_templ(uWS::HttpResponse<IsSsl>* const rep)
     : rep_{rep}
   {
     DMITIGR_ASSERT(rep_);
   }
 
+  bool is_valid() const override
+  {
+    return static_cast<bool>(rep_);
+  }
+
   void send_status(const int code, const std::string_view phrase) override
   {
+    DMITIGR_REQUIRE(is_valid(), std::logic_error);
+
     auto status = std::to_string(code);
     status.append(" ").append(phrase);
     rep_->writeStatus(status);
@@ -39,54 +45,96 @@ class iHttp_io_templ final : public iHttp_io {
 
   void send_header(const std::string_view name, const std::string_view value) override
   {
+    DMITIGR_REQUIRE(is_valid(), std::logic_error);
+
     rep_->writeHeader(name, value);
   }
 
-  bool send_chunk(const std::string_view data) override
+  bool respond(const std::string_view data, Response_handler handler) override
   {
-    return rep_->write(data);
+    DMITIGR_REQUIRE(is_valid() && !is_response_handler_set(), std::logic_error);
+
+    if (handler) {
+      rep_->onWritable([this, handler = std::move(handler)](const int position)
+      {
+        DMITIGR_ASSERT(rep_);
+        const auto ok = handler(position);
+        if (ok) {
+          rep_ = nullptr;
+          DMITIGR_ASSERT(!is_valid());
+        }
+        return ok;
+      });
+      is_response_handler_set_ = true;
+      const auto [ok, done] = send_response(data, data.size());
+      (void)ok;
+      return done;
+    } else {
+      rep_->end(data);
+      rep_ = nullptr;
+      DMITIGR_ASSERT(!is_valid());
+      return true;
+    }
   }
 
-  void complete(const std::string_view data) override
+  std::pair<bool, bool> send_response(const std::string_view data, const int total_size) override
   {
-    rep_->end(data);
+    DMITIGR_REQUIRE(is_valid() && is_response_handler_set(), std::logic_error);
+    DMITIGR_REQUIRE((total_size >= 0) &&
+      (data.size() <= static_cast<decltype(data.size())>(total_size)), std::invalid_argument);
+
+    return rep_->tryEnd(data, total_size);
   }
 
-  std::pair<bool, bool> try_complete(std::string_view data, std::intmax_t total_size) override
+  bool is_response_handler_set() const override
   {
-    return rep_->tryEnd(data, static_cast<int>(total_size));
-  }
-
-  std::intmax_t completion_offset() override
-  {
-    return rep_->getWriteOffset();
-  }
-
-  bool is_completed() const override
-  {
-    return rep_->hasResponded();
+    return is_response_handler_set_;
   }
 
   void abort() override
   {
+    DMITIGR_REQUIRE(is_valid(), std::logic_error);
+
     rep_->close();
   }
 
-  void set_receive_handler(std::function<void(std::string_view, bool)> handler) override
+  void set_abort_handler(Abort_handler handler) override
   {
+    DMITIGR_REQUIRE(is_valid() && !is_abort_handler_set(), std::logic_error);
+
+    rep_->onAborted([this, handler = std::move(handler)]
+    {
+      handler();
+      rep_ = nullptr;
+      DMITIGR_ASSERT(!is_valid());
+    });
+    is_abort_handler_set_ = true;
+  }
+
+  bool is_abort_handler_set() const override
+  {
+    return is_abort_handler_set_;
+  }
+
+  void set_request_handler(Request_handler handler) override
+  {
+    DMITIGR_REQUIRE(is_valid() && !is_request_handler_set(), std::logic_error);
+
     rep_->onData(std::move(handler));
+    is_request_handler_set_ = true;
   }
 
-  void set_ready_to_send_handler(std::function<bool(std::intmax_t)> handler) override
+  bool is_request_handler_set() const override
   {
-    rep_->onWritable(std::move(handler));
+    return is_request_handler_set_;
   }
 
-  void set_abort_handler(std::function<void()> handler) override
-  {
-    rep_->onAborted(std::move(handler));
-  }
+private:
+  template<bool> friend class detail::Lstnr;
 
+  bool is_abort_handler_set_{};
+  bool is_response_handler_set_{};
+  bool is_request_handler_set_{};
   uWS::HttpResponse<IsSsl>* rep_{};
 };
 
