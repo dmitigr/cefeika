@@ -29,6 +29,7 @@
 #include "dmitigr/ws/http_request.hpp"
 #include "dmitigr/ws/listener.hpp"
 #include "dmitigr/ws/listener_options.hpp"
+#include "dmitigr/ws/timer.hpp"
 #include "dmitigr/ws/types_fwd.hpp"
 #include "dmitigr/ws/version.hpp"
 

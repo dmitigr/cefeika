@@ -3,9 +3,21 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include <dmitigr/ws.hpp>
+
+#include <atomic>
 #include <chrono>
+#include <csignal>
+
+#include <iostream>
 
 namespace ws = dmitigr::ws;
+
+std::atomic_bool is_running;
+
+void handle_signal(const int)
+{
+  is_running = false;
+}
 
 class Connection final : public ws::Connection {
   void handle_message(const std::string_view data, const ws::Data_format format) override
@@ -26,8 +38,20 @@ class Listener final : public ws::Listener {
 
 int main()
 {
+  using namespace std::chrono;
+  std::signal(SIGINT,  &handle_signal);
+  std::signal(SIGTERM, &handle_signal);
   ws::Listener_options lo{"127.0.0.1", 9001};
   lo.set_idle_timeout(std::chrono::seconds{10})
     .set_max_payload_size(16 * 1024);
-  Listener{lo}.listen();
+  Listener l{lo};
+  l.add_timer("closer").set_handler([&l]{
+    std::cout << "Handle of timer closer invoked, is_running = " << is_running << std::endl;
+    if (!is_running) {
+      l.remove_timer("closer");
+      l.close();
+    }
+  }).start(milliseconds{1000}, seconds{3});
+  is_running = true;
+  l.listen();
 }

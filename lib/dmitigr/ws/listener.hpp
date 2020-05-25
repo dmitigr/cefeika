@@ -10,6 +10,8 @@
 #include "dmitigr/ws/types_fwd.hpp"
 
 #include <memory>
+#include <string>
+#include <string_view>
 
 namespace dmitigr::ws {
 
@@ -64,6 +66,67 @@ public:
    * @brief Stops listening.
    */
   DMITIGR_WS_API void close();
+
+  /// @name Timers
+  /// @{
+
+  /**
+   * @returns The number of timers.
+   */
+  DMITIGR_WS_API std::size_t timer_count() const;
+
+  /**
+   * @returns The timer index if it has been added, or `std::nullopt` otherwise.
+   */
+  DMITIGR_WS_API std::optional<std::size_t> timer_index(std::string_view name) const;
+
+  /**
+   * @returns The timer index if it has been added.
+   *
+   * @throws std::out_of_range.
+   */
+  DMITIGR_WS_API std::size_t timer_index_throw(std::string_view name) const;
+
+  /**
+   * @brief Creates the timer associated with the specified `name`.
+   *
+   * @returns The reference to the created timer.
+   */
+  DMITIGR_WS_API Timer& add_timer(std::string name);
+
+  /**
+   * @brief Removes the timer associated with the specified `name`, or do
+   * nothing if no such a timer presents.
+   */
+  DMITIGR_WS_API void remove_timer(std::string_view name);
+
+  /**
+   * @returns The timer associated with the specified `name`, or `nullptr` if
+   * no such a timer presents.
+   */
+  DMITIGR_WS_API Timer* timer(std::string_view name) const;
+
+  /**
+   * @returns The timer by position.
+   *
+   * @par Requires
+   * `(pos < timer_count())`.
+   *
+   * @throws std::out_of_range.
+   */
+  DMITIGR_WS_API Timer& timer(std::size_t pos) const;
+
+  /**
+   * @returns The name of timer at position `pos`.
+   *
+   * @par Requires
+   * `(pos < timer_count())`.
+   *
+   * @throws std::out_of_range.
+   */
+  DMITIGR_WS_API const std::string& timer_name(std::size_t pos) const;
+
+  /// @}
 
 private:
   /**

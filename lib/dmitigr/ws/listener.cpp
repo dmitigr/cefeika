@@ -7,11 +7,14 @@
 #include "dmitigr/ws/http_request.hpp"
 #include "dmitigr/ws/listener.hpp"
 #include "dmitigr/ws/listener_options.hpp"
+#include "dmitigr/ws/timer.hpp"
 #include <dmitigr/base/debug.hpp>
 
 #include <uwebsockets/App.h>
 
 #include <limits>
+#include <vector>
+#include <utility>
 
 //#define DMITIGR_WS_DEBUG
 
@@ -33,6 +36,15 @@ public:
   virtual bool is_listening() const = 0;
   virtual void listen() = 0;
   virtual void close() = 0;
+
+  virtual std::size_t timer_count() const = 0;
+  virtual std::optional<std::size_t> timer_index(std::string_view name) const = 0;
+  virtual std::size_t timer_index_throw(std::string_view name) const = 0;
+  virtual iTimer& add_timer(std::string name) = 0;
+  virtual void remove_timer(std::string_view name) = 0;
+  virtual iTimer* timer(std::string_view name) const = 0;
+  virtual iTimer& timer(std::size_t pos) const = 0;
+  virtual const std::string& timer_name(std::size_t pos) const = 0;
 };
 
 /**
@@ -43,9 +55,10 @@ class Lstnr final : public iListener {
 public:
   explicit Lstnr(Listener* const listener, const Options& options)
     : listener_{listener}
+    , loop_{uWS::Loop::get()}
   {
     options_ = options.to_listener_options();
-    DMITIGR_ASSERT(listener_ && options_);
+    DMITIGR_ASSERT(listener_ && loop_ && options_);
   }
 
   const Options& options() const override
@@ -55,7 +68,7 @@ public:
 
   bool is_listening() const override
   {
-    return loop_;
+    return listening_socket_;
   }
 
   void listen() override
@@ -151,7 +164,6 @@ public:
 
     const auto host = options().endpoint().net_address().value();
     const auto port = options().endpoint().net_port().value();
-    loop_ = uWS::Loop::get();
 
     App app;
     app.template ws<Ws_data>("/*", ws_behavior());
@@ -182,15 +194,66 @@ public:
 
   void close() override
   {
-    if (loop_) {
+    if (is_listening()) {
       DMITIGR_ASSERT(listening_socket_);
       loop_->defer([this]
       {
         us_listen_socket_close(IsSsl, listening_socket_);
         listening_socket_ = nullptr;
       });
-      loop_ = nullptr;
     }
+  }
+
+  std::size_t timer_count() const override
+  {
+    return timers_.size();
+  }
+
+  std::optional<std::size_t> timer_index(const std::string_view name) const override
+  {
+    const auto b = cbegin(timers_);
+    const auto e = cend(timers_);
+    const auto i = std::find_if(b, e, [&name](const auto& p) { return p.first == name; });
+    return (i != e) ? std::make_optional(i - b) : std::nullopt;
+  }
+
+  std::size_t timer_index_throw(const std::string_view name) const override
+  {
+    const auto result = timer_index(name);
+    DMITIGR_REQUIRE(result, std::out_of_range,
+      "dmitigr::ws::Listener: no timer \"" + std::string{name} + "\"");
+    return *result;
+  }
+
+  iTimer& add_timer(std::string name) override
+  {
+    DMITIGR_ASSERT(loop_);
+    DMITIGR_REQUIRE(!timer(name), std::logic_error);
+    return timers_.emplace_back(std::move(name), reinterpret_cast<us_loop_t*>(loop_)).second;
+  }
+
+  void remove_timer(const std::string_view name) override
+  {
+    if (const auto i = timer_index(name))
+      timers_.erase(cbegin(timers_) + *i);
+  }
+
+  iTimer* timer(const std::string_view name) const override
+  {
+    const auto i = timer_index(name);
+    return i ? &(timers_[*i].second) : nullptr;
+  }
+
+  iTimer& timer(const std::size_t pos) const override
+  {
+    DMITIGR_REQUIRE(pos < timer_count(), std::out_of_range);
+    return timers_[pos].second;
+  }
+
+  const std::string& timer_name(const std::size_t pos) const override
+  {
+    DMITIGR_REQUIRE(pos < timer_count(), std::out_of_range);
+    return timers_[pos].first;
   }
 
 private:
@@ -200,9 +263,10 @@ private:
   };
 
   Listener* listener_;
+  uWS::Loop* loop_;
   std::unique_ptr<Listener_options> options_;
   us_listen_socket_t* listening_socket_{};
-  uWS::Loop* loop_{};
+  mutable std::vector<std::pair<std::string, iTimer>> timers_;
 };
 
 using Non_ssl_listener = Lstnr<false>;
@@ -239,6 +303,46 @@ DMITIGR_WS_INLINE void Listener::listen()
 DMITIGR_WS_INLINE void Listener::close()
 {
   rep_->close();
+}
+
+DMITIGR_WS_INLINE std::size_t Listener::timer_count() const
+{
+  return rep_->timer_count();
+}
+
+DMITIGR_WS_INLINE std::optional<std::size_t> Listener::timer_index(const std::string_view name) const
+{
+  return rep_->timer_index(name);
+}
+
+DMITIGR_WS_INLINE std::size_t Listener::timer_index_throw(const std::string_view name) const
+{
+  return rep_->timer_index_throw(name);
+}
+
+DMITIGR_WS_INLINE Timer& Listener::add_timer(std::string name)
+{
+  return rep_->add_timer(std::move(name));
+}
+
+DMITIGR_WS_INLINE void Listener::remove_timer(const std::string_view name)
+{
+  rep_->remove_timer(name);
+}
+
+DMITIGR_WS_INLINE Timer* Listener::timer(const std::string_view name) const
+{
+  return rep_->timer(name);
+}
+
+DMITIGR_WS_INLINE Timer& Listener::timer(const std::size_t pos) const
+{
+  return rep_->timer(pos);
+}
+
+DMITIGR_WS_INLINE const std::string& Listener::timer_name(const std::size_t pos) const
+{
+  return rep_->timer_name(pos);
 }
 
 DMITIGR_WS_INLINE void Listener::handle_request(const ws::Http_request*,

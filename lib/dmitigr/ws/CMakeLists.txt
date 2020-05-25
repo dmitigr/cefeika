@@ -15,17 +15,21 @@ dmitigr_set_library_info(ws 0 1 "WebSocket library")
 set(dmitigr_ws_headers
   basics.hpp
   connection.hpp
+  http_io.hpp
   http_request.hpp
   listener.hpp
   listener_options.hpp
+  timer.hpp
   types_fwd.hpp
   )
 
 set(dmitigr_ws_implementations
   connection.cpp
+  http_io.cpp
   http_request.cpp
   listener.cpp
   listener_options.cpp
+  timer.cpp
   )
 
 # ------------------------------------------------------------------------------

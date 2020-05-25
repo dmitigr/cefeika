@@ -17,6 +17,7 @@ class Http_io;
 class Http_request;
 class Listener;
 class Listener_options;
+class Timer;
 
 /**
  * @brief The implementation details.
@@ -34,6 +35,8 @@ class iListener;
 template<bool> class Lstnr;
 
 class iListener_options;
+
+class iTimer;
 } // namespace detail
 
 } // namespace dmitigr::ws
