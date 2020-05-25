@@ -38,16 +38,6 @@ public:
     return net_options_.endpoint();
   }
 
-  void set_http_enabled(const bool value)
-  {
-    is_http_enabled_ = value;
-  }
-
-  bool is_http_enabled() const
-  {
-    return is_http_enabled_;
-  }
-
   void set_idle_timeout(std::optional<std::chrono::milliseconds> value)
   {
     if (value)
@@ -73,20 +63,132 @@ public:
     return max_payload_size_;
   }
 
+  void set_http_enabled(const bool value)
+  {
+    is_http_enabled_ = value;
+  }
+
+  bool is_http_enabled() const
+  {
+    return is_http_enabled_;
+  }
+
+  void set_ssl_enabled(const bool value)
+  {
+#ifndef DMITIGR_CEFEIKA_WITH_OPENSSL
+    if (value)
+      throw std::logic_error{"dmitigr::ws must be compiled with "
+        "DMITIGR_CEFEIKA_WITH_OPENSSL in order to enable SSL"};
+#endif
+    is_ssl_enabled_ = value;
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  bool is_ssl_enabled() const
+  {
+    return is_ssl_enabled_;
+  }
+
+  void set_ssl_pem_file_password(std::optional<std::string> value)
+  {
+    DMITIGR_REQUIRE(is_ssl_enabled(), std::logic_error);
+    if (value)
+      validate(!value->empty(), "SSL PEM file password");
+    ssl_pem_file_password_ = std::move(value);
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  const std::optional<std::string>& ssl_pem_file_password() const
+  {
+    return ssl_pem_file_password_;
+  }
+
+  void set_ssl_certificate_file(std::optional<std::filesystem::path> value)
+  {
+    DMITIGR_REQUIRE(is_ssl_enabled(), std::logic_error);
+    if (value)
+      validate(!value->empty(), "SSL certificate file");
+    ssl_certificate_file_ = std::move(value);
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  const std::optional<std::filesystem::path>& ssl_certificate_file() const
+  {
+    return ssl_certificate_file_;
+  }
+
+  void set_ssl_private_key_file(std::optional<std::filesystem::path> value)
+  {
+    DMITIGR_REQUIRE(is_ssl_enabled(), std::logic_error);
+    if (value)
+      validate(!value->empty(), "SSL private key file");
+    ssl_private_key_file_ = std::move(value);
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  const std::optional<std::filesystem::path>& ssl_private_key_file() const
+  {
+    return ssl_private_key_file_;
+  }
+
+  void set_ssl_certificate_authority_file(std::optional<std::filesystem::path> value)
+  {
+    DMITIGR_REQUIRE(is_ssl_enabled(), std::logic_error);
+    if (value)
+      validate(!value->empty(), "SSL certificate authority file");
+    ssl_certificate_authority_file_ = std::move(value);
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  const std::optional<std::filesystem::path>& ssl_certificate_authority_file() const
+  {
+    return ssl_certificate_authority_file_;
+  }
+
+  void set_ssl_dh_parameters_file(std::optional<std::filesystem::path> value)
+  {
+    DMITIGR_REQUIRE(is_ssl_enabled(), std::logic_error);
+    if (value)
+      validate(!value->empty(), "SSL Diffie-Hellman parameters file");
+    ssl_dh_parameters_file_ = std::move(value);
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  const std::optional<std::filesystem::path>& ssl_dh_parameters_file() const
+  {
+    return ssl_dh_parameters_file_;
+  }
+
 private:
   friend iListener;
   friend Listener_options;
 
   net::Listener_options net_options_;
-  bool is_http_enabled_{};
   std::optional<std::chrono::milliseconds> idle_timeout_;
   std::size_t max_payload_size_{static_cast<std::size_t>(std::numeric_limits<int>::max())};
 
+  bool is_http_enabled_{};
+
+  bool is_ssl_enabled_{};
+  std::optional<std::string> ssl_pem_file_password_;
+  std::optional<std::filesystem::path> ssl_certificate_file_;
+  std::optional<std::filesystem::path> ssl_private_key_file_;
+  std::optional<std::filesystem::path> ssl_certificate_authority_file_;
+  std::optional<std::filesystem::path> ssl_dh_parameters_file_;
+
   bool is_invariant_ok() const
   {
-    return (net_options_.endpoint().communication_mode() == net::Communication_mode::net) &&
-      (!idle_timeout_ || idle_timeout_->count() >= 0) &&
-      (max_payload_size_ <= std::numeric_limits<int>::max());
+    const bool net_ok = (net_options_.endpoint().communication_mode() == net::Communication_mode::net);
+    const bool idle_timeout_ok = (!idle_timeout_ || idle_timeout_->count() >= 0);
+    const bool max_payload_size_ok = (max_payload_size_ <= std::numeric_limits<int>::max());
+    const bool ssl_ok =
+      (!ssl_pem_file_password_ || !ssl_pem_file_password_->empty()) &&
+      (!ssl_certificate_file_ || !ssl_certificate_file_->empty()) &&
+      (!ssl_private_key_file_ || !ssl_private_key_file_->empty()) &&
+      (!ssl_certificate_authority_file_ || !ssl_certificate_authority_file_->empty()) &&
+      (!ssl_dh_parameters_file_ || !ssl_dh_parameters_file_->empty());
+
+    return net_ok && idle_timeout_ok && max_payload_size_ok && ssl_ok;
   }
 };
 
@@ -160,6 +262,72 @@ DMITIGR_WS_INLINE Listener_options& Listener_options::set_max_payload_size(std::
 DMITIGR_WS_INLINE std::size_t Listener_options::max_payload_size() const
 {
   return rep_->max_payload_size();
+}
+
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_ssl_enabled(const bool value)
+{
+  rep_->set_ssl_enabled(value);
+  return *this;
+}
+
+DMITIGR_WS_INLINE bool Listener_options::is_ssl_enabled() const
+{
+  return rep_->is_ssl_enabled();
+}
+
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_ssl_pem_file_password(std::optional<std::string> value)
+{
+  rep_->set_ssl_pem_file_password(std::move(value));
+  return *this;
+}
+
+DMITIGR_WS_INLINE const std::optional<std::string>& Listener_options::ssl_pem_file_password() const
+{
+  return rep_->ssl_pem_file_password();
+}
+
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_ssl_certificate_file(std::optional<std::filesystem::path> value)
+{
+  rep_->set_ssl_certificate_file(std::move(value));
+  return *this;
+}
+
+DMITIGR_WS_INLINE const std::optional<std::filesystem::path>& Listener_options::ssl_certificate_file() const
+{
+  return rep_->ssl_certificate_file();
+}
+
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_ssl_private_key_file(std::optional<std::filesystem::path> value)
+{
+  rep_->set_ssl_private_key_file(std::move(value));
+  return *this;
+}
+
+DMITIGR_WS_INLINE const std::optional<std::filesystem::path>& Listener_options::ssl_private_key_file() const
+{
+  return rep_->ssl_private_key_file();
+}
+
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_ssl_certificate_authority_file(std::optional<std::filesystem::path> value)
+{
+  rep_->set_ssl_certificate_authority_file(std::move(value));
+  return *this;
+}
+
+DMITIGR_WS_INLINE const std::optional<std::filesystem::path>& Listener_options::ssl_certificate_authority_file() const
+{
+  return rep_->ssl_certificate_authority_file();
+}
+
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_ssl_dh_parameters_file(std::optional<std::filesystem::path> value)
+{
+  rep_->set_ssl_dh_parameters_file(std::move(value));
+  return *this;
+}
+
+DMITIGR_WS_INLINE const std::optional<std::filesystem::path>& Listener_options::ssl_dh_parameters_file() const
+{
+  return rep_->ssl_dh_parameters_file();
 }
 
 DMITIGR_WS_INLINE void Listener_options::swap(Listener_options& other)

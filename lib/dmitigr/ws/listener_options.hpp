@@ -8,6 +8,7 @@
 #include "dmitigr/ws/dll.hpp"
 #include "dmitigr/ws/types_fwd.hpp"
 
+#include <dmitigr/base/filesystem.hpp>
 #include <dmitigr/net/types_fwd.hpp>
 
 #include <chrono>
@@ -118,6 +119,118 @@ public:
    * @see set_max_payload_size().
    */
   DMITIGR_WS_API std::size_t max_payload_size() const;
+
+  /// @name SSL options
+  /// @{
+
+  /**
+   * @brief Sets the SSL mode enabled if `(value == true)`, or disabled otherwise.
+   *
+   * @par Requires
+   * The library must be compiled with DMITIGR_CEFEIKA_WITH_OPENSSL.
+   *
+   * @see is_ssl_enabled().
+   */
+  DMITIGR_WS_API Listener_options& set_ssl_enabled(bool value);
+
+  /**
+   * @returns The current value of the option.
+   *
+   * @see set_ssl_enabled().
+   */
+  DMITIGR_WS_API bool is_ssl_enabled() const;
+
+  /**
+   * @brief Sets the password for encrypted PEM file.
+   *
+   * @par Requires
+   * `(!value || !value->empty())`.
+   *
+   * @see ssl_pem_file_password().
+   */
+  DMITIGR_WS_API Listener_options& set_ssl_pem_file_password(std::optional<std::string> value);
+
+  /**
+   * @returns The current value of the option.
+   *
+   * @see set_ssl_pem_file_password().
+   */
+  DMITIGR_WS_API const std::optional<std::string>& ssl_pem_file_password() const;
+
+  /**
+   * @brief Sets the name of the file containing a SSL client certificate.
+   *
+   * @par Requires
+   * `(is_ssl_enabled() && (!value || !value->empty()))`.
+   *
+   * @see ssl_certificate_file().
+   */
+  DMITIGR_WS_API Listener_options& set_ssl_certificate_file(std::optional<std::filesystem::path> value);
+
+  /**
+   * @returns The current value of the option.
+   *
+   * @see set_ssl_certificate_file().
+   */
+  DMITIGR_WS_API const std::optional<std::filesystem::path>& ssl_certificate_file() const;
+
+  /**
+   * @brief Sets the name of the file containing a SSL client private key.
+   *
+   * @par Requires
+   * `(is_ssl_enabled() && (!value || !value->empty()))`.
+   *
+   * @see ssl_private_key_file().
+   */
+  DMITIGR_WS_API Listener_options& set_ssl_private_key_file(std::optional<std::filesystem::path> value);
+
+  /**
+   * @returns The current value of the option.
+   *
+   * @see set_ssl_private_key_file().
+   */
+  DMITIGR_WS_API const std::optional<std::filesystem::path>& ssl_private_key_file() const;
+
+  /**
+   * @brief Sets the name of the file containing a SSL client certificate
+   * authority (CA).
+   *
+   * If this option is set, a verification that the WebSocket server
+   * certificate is issued by a trusted certificate authority (CA) will
+   * be performed.
+   *
+   * @par Requires
+   * `(is_ssl_enabled() && (!value || !value->empty()))`.
+   *
+   * @see ssl_certificate_authority_file().
+   */
+  DMITIGR_WS_API Listener_options& set_ssl_certificate_authority_file(std::optional<std::filesystem::path> value);
+
+  /**
+   * @returns The current value of the option.
+   *
+   * @see set_ssl_certificate_authority_file().
+   */
+  DMITIGR_WS_API const std::optional<std::filesystem::path>& ssl_certificate_authority_file() const;
+
+  /**
+   * @brief Sets the name of the file containing Diffie-Hellman parameters.
+   *
+   * @par Requires
+   * `(is_ssl_enabled() && (!value || !value->empty()))`.
+   *
+   * @see ssl_dh_parameters_file().
+   */
+  DMITIGR_WS_API Listener_options& set_ssl_dh_parameters_file(std::optional<std::filesystem::path> value);
+
+  /**
+   * @returns The current value of the option.
+   *
+   * @see set_ssl_dh_parameters_file().
+   */
+  DMITIGR_WS_API const std::optional<std::filesystem::path>& ssl_dh_parameters_file() const;
+
+  /// @}
 
   /**
    * @brief Swaps `*this` with `other`.

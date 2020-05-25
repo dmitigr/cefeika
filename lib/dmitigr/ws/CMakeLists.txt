@@ -36,13 +36,18 @@ set(dmitigr_ws_implementations
 # Dependencies
 # ------------------------------------------------------------------------------
 
+if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
+  set(suffix "public")
+else()
+  set(suffix "interface")
+endif()
+
 if(WIN32)
-  if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-    set(suffix "public")
-  else()
-    set(suffix "interface")
-  endif()
   set(dmitigr_ws_target_compile_definitions_${suffix} WIN32_LEAN_AND_MEAN)
+endif()
+
+if(DMITIGR_CEFEIKA_WITH_OPENSSL)
+  set(dmitigr_ws_target_compile_definitions_private DMITIGR_CEFEIKA_WITH_OPENSSL)
 endif()
 
 # ------------------------------------------------------------------------------

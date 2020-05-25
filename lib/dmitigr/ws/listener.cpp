@@ -165,7 +165,25 @@ public:
     const auto host = options().endpoint().net_address().value();
     const auto port = options().endpoint().net_port().value();
 
-    App app;
+    App app = [this]
+    {
+      us_socket_context_options_t socket_options{};
+      if (options().is_ssl_enabled()) {
+        DMITIGR_ASSERT(IsSsl);
+        if (const auto value = options().ssl_private_key_file())
+          socket_options.key_file_name = value->c_str();
+        if (const auto value = options().ssl_certificate_file())
+          socket_options.cert_file_name = value->c_str();
+        if (const auto value = options().ssl_pem_file_password())
+          socket_options.passphrase = value->c_str();
+        if (const auto value = options().ssl_dh_parameters_file())
+          socket_options.dh_params_file_name = value->c_str();
+        if (const auto value = options().ssl_certificate_authority_file())
+          socket_options.ca_file_name = value->c_str();
+        socket_options.ssl_prefer_low_memory_usage = 0;
+      }
+      return App{socket_options};
+    }();
     app.template ws<Ws_data>("/*", ws_behavior());
     if (options().is_http_enabled()) {
       app.any("/*", [this](auto* const res, auto* const req)
@@ -270,7 +288,9 @@ private:
 };
 
 using Non_ssl_listener = Lstnr<false>;
+#ifdef DMITIGR_CEFEIKA_WITH_OPENSSL
 using Ssl_listener = Lstnr<true>;
+#endif
 
 } // namespace dmitigr::ws::detail
 
@@ -280,8 +300,14 @@ DMITIGR_WS_INLINE Listener::~Listener() = default;
 DMITIGR_WS_INLINE Listener::Listener() = default;
 
 DMITIGR_WS_INLINE Listener::Listener(const Options& options)
-  : rep_{std::make_unique<detail::Non_ssl_listener>(this, options)}
 {
+#ifdef DMITIGR_CEFEIKA_WITH_OPENSSL
+  if (options.is_ssl_enabled())
+    rep_ = std::make_unique<detail::Ssl_listener>(this, options);
+  else
+#endif
+    rep_ = std::make_unique<detail::Non_ssl_listener>(this, options);
+
   DMITIGR_ASSERT(rep_);
 }
 
