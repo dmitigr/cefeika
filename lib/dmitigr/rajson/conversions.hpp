@@ -23,7 +23,7 @@ namespace dmitigr::rajson {
  * @returns The result of conversion of `value` to a JSON string.
  */
 template<class Encoding, class Allocator>
-std::string to_stringified_json(const rapidjson::GenericValue<Encoding, Allocator>& value)
+std::string to_stringified(const rapidjson::GenericValue<Encoding, Allocator>& value)
 {
   /*
    * Note: The template parameter of rapidjson::Writer specified explicitly for GCC 7.
@@ -38,7 +38,7 @@ std::string to_stringified_json(const rapidjson::GenericValue<Encoding, Allocato
 /**
  * @returns The instance of JSON document constructed by parsing the `input`.
  */
-inline rapidjson::Document to_parsed_json(const std::string_view input)
+inline rapidjson::Document to_document(const std::string_view input)
 {
   rapidjson::Document result;
   result.Parse(input.data(), input.size());

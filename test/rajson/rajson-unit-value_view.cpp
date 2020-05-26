@@ -39,7 +39,7 @@ int main(int, char* argv[])
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
     const auto input = str::file_to_string(this_exe_dir_name / "rajson-unit-value_view.json");
-    auto document = rajson::to_parsed_json(input);
+    auto document = rajson::to_document(input);
 
     {
       const auto& constant_document = document;
@@ -69,7 +69,7 @@ int main(int, char* argv[])
       json.mandatory("host").value() = "localhost.local";
     }
 
-    std::cout << rajson::to_stringified_json(document) << std::endl;
+    std::cout << rajson::to_stringified(document) << std::endl;
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

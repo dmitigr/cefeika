@@ -148,7 +148,7 @@ public:
    */
   std::string to_string() const override
   {
-    return rajson::to_stringified_json(*rep_);
+    return rajson::to_stringified(*rep_);
   }
 
   /**
@@ -394,7 +394,7 @@ public:
    */
   std::string to_string() const override
   {
-    return rajson::to_stringified_json(rep_);
+    return rajson::to_stringified(rep_);
   }
 
   /**
@@ -483,7 +483,7 @@ private:
 
 inline std::unique_ptr<Response> Response::make(const std::string_view input)
 {
-  rapidjson::Document rep{rajson::to_parsed_json(input)};
+  rapidjson::Document rep{rajson::to_document(input)};
   if (rep.HasParseError())
     throw std::runtime_error{"dmitigr::jrpc: response parse error"};
 

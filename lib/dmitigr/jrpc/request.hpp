@@ -309,7 +309,7 @@ public:
    */
   std::string to_string() const
   {
-    return rajson::to_stringified_json(rep_);
+    return rajson::to_stringified(rep_);
   }
 
   /**
@@ -376,7 +376,7 @@ private:
 
   // for from_json
   Request(const std::string_view input, int)
-    : rep_{rajson::to_parsed_json(input)}
+    : rep_{rajson::to_document(input)}
   {
     if (rep_.HasParseError())
       throw Error{Server_errc::parse_error, null};
