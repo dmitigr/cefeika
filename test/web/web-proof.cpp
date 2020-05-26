@@ -25,8 +25,6 @@ int main()
     {{"/api", [](fcgi::Server_connection*, const jrpc::Request&) { return jrpc::Result{}; }}},
     // formers
     {{"/", [](fcgi::Server_connection*, const mulf::Form_data&){}}},
-    // customs
-    {{"/", [](fcgi::Server_connection*){}}},
     // fallback
     [](fcgi::Server_connection*){}
   };

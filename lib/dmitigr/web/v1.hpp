@@ -71,7 +71,6 @@ struct Handle_options final {
   std::map<std::string_view, Htmler> htmlers;
   std::map<std::string_view, Caller> callers;
   std::map<std::string_view, Former> formers;
-  std::map<std::string_view, Custom> customs;
   Custom fallback;
 };
 
@@ -101,18 +100,6 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
 
   const auto location = fcgi->parameter("SCRIPT_NAME")->value();
   const auto method = fcgi->parameter("REQUEST_METHOD")->value();
-
-  const auto call_custom_or_fallback = [fcgi, location, &opts]
-  {
-    if (const auto i = opts.customs.find(location); i != opts.customs.cend()) {
-      DMITIGR_REQUIRE(i->second, std::logic_error,
-        "custom handler for \"" + std::string{location} +"\" is unset");
-      i->second(fcgi);
-    } else if (opts.fallback)
-      opts.fallback(fcgi);
-    else
-      fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
-  };
 
   try {
     if (method == "GET") {
@@ -169,14 +156,16 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
         }
       }
     }
+
+    if (opts.fallback)
+      opts.fallback(fcgi);
+    else
+      fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
   } catch (const http::Server_exception& e) {
     DMITIGR_REQUIRE(!fcgi->out().tellp(), std::logic_error,
       "http::Server_exception thrown but some data is already sent");
     fcgi->out() << "Status: " << e.code().value() << fcgi::crlfcrlf;
-    return;
   }
-
-  call_custom_or_fallback();
 }
 
 } // namespace dmitigr::web::v1
