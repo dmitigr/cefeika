@@ -101,30 +101,32 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
   const auto location = fcgi->parameter("SCRIPT_NAME")->value();
   const auto method = fcgi->parameter("REQUEST_METHOD")->value();
 
+  const auto hins = [location](std::string htype)
+  {
+    return htype.append(" for \"").append(location).append("\" is not specified");
+  };
+
   try {
     if (method == "GET") {
       if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
         const std::filesystem::path locpath{location};
         const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
         if (auto tpl = make_expanded_llt(tplfile, opts.tplroot)) {
-          DMITIGR_REQUIRE(i->second, std::logic_error,
-            "htmler handler for \"" + std::string{location} +"\" is unset");
+          DMITIGR_REQUIRE(i->second, std::logic_error, hins("htmler"));
           auto& t = *tpl;
           i->second(fcgi, t);
           const auto o = t.to_output();
           fcgi->out() << "Content-Type: text/html" << fcgi::crlfcrlf;
           fcgi->out().write(o.data(), o.size());
-        } else {
+        } else
           fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
-        }
         return;
       }
     } else if (method == "POST") {
       const std::string content_type{fcgi->parameter("CONTENT_TYPE")->value()};
       if (content_type == "application/json") {
         if (const auto i = opts.callers.find(location); i != opts.callers.cend()) {
-          DMITIGR_REQUIRE(i->second, std::logic_error,
-            "caller handler for \"" + std::string{location} +"\" is unset");
+          DMITIGR_REQUIRE(i->second, std::logic_error, hins("caller"));
           std::string o;
           try {
             const jrpc::Request request{str::read_to_string(fcgi->in())};
@@ -147,8 +149,7 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
         if (std::regex_search(content_type, sm, mpfdre)) {
           DMITIGR_ASSERT(sm.size() >= 2);
           if (const auto i = opts.formers.find(location); i != opts.formers.cend()) {
-            DMITIGR_REQUIRE(i->second, std::logic_error,
-              "former handler for \"" + std::string{location} +"\" is unset");
+            DMITIGR_REQUIRE(i->second, std::logic_error, hins("former"));
             const auto boundary = sm.str(1);
             const mulf::Form_data form{str::read_to_string(fcgi->in()), boundary};
             return i->second(fcgi, form);
