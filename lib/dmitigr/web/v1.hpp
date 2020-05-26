@@ -19,9 +19,7 @@
 #include <optional>
 #include <regex>
 #include <string_view>
-#include <type_traits>
 #include <vector>
-#include <utility>
 
 namespace dmitigr::web::v1 {
 
@@ -62,22 +60,20 @@ make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::p
  * handle(fcgi::Server_connection*, const Handle_options&).
  */
 struct Handle_options final {
-  using Htmler = std::function<void(fcgi::Server_connection*, ttpl::Logic_less_template&, const std::smatch&)>;
-  using Caller = std::function<jrpc::Result(fcgi::Server_connection*, const jrpc::Request&, const std::smatch&)>;
-  using Former = std::function<void(fcgi::Server_connection*, const mulf::Form_data&, const std::smatch&)>;
-  using Custom = std::function<void(fcgi::Server_connection*, const std::smatch&)>;
-  using Fallback = std::function<void(fcgi::Server_connection*)>;
+  using Htmler = std::function<void(fcgi::Server_connection*, ttpl::Logic_less_template&)>;
+  using Caller = std::function<jrpc::Result(fcgi::Server_connection*, const jrpc::Request&)>;
+  using Former = std::function<void(fcgi::Server_connection*, const mulf::Form_data&)>;
+  using Custom = std::function<void(fcgi::Server_connection*)>;
 
   std::filesystem::path docroot;
   std::filesystem::path tplroot;
   std::string index;
-  std::vector<std::pair<std::regex, Htmler>> htmlers;
-  std::vector<std::pair<std::regex, Caller>> callers;
-  std::vector<std::pair<std::regex, Former>> formers;
-  std::vector<std::pair<std::regex, Custom>> customs;
-  Fallback fallback;
+  std::map<std::string_view, Htmler> htmlers;
+  std::map<std::string_view, Caller> callers;
+  std::map<std::string_view, Former> formers;
+  std::map<std::string_view, Custom> customs;
+  Custom fallback;
 };
-
 
 /**
  * @brief Creates the logic less template recursively.
@@ -103,29 +99,16 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
 {
   DMITIGR_REQUIRE(fcgi, std::invalid_argument);
 
-  const std::string location{fcgi->parameter("SCRIPT_NAME")->value()};
+  const auto location = fcgi->parameter("SCRIPT_NAME")->value();
   const auto method = fcgi->parameter("REQUEST_METHOD")->value();
-
-  static const auto match = [](const std::string& location, const auto& routing_table) ->
-    std::pair<std::smatch, typename std::decay_t<decltype(routing_table)>::const_iterator>
-  {
-    const auto b = cbegin(routing_table);
-    const auto e = cend(routing_table);
-    for (auto i = b; i != e; ++i) {
-      std::smatch sm;
-      if (std::regex_match(location, sm, i->first)) {
-        DMITIGR_REQUIRE(i->second, std::logic_error, "handler for \"" + location +"\" is not specified");
-        return {std::move(sm), i};
-      }
-    }
-    return {std::smatch{}, e};
-  };
 
   const auto call_custom_or_fallback = [fcgi, location, &opts]
   {
-    if (const auto [location_match, i] = match(location, opts.customs); location_match.ready())
-      i->second(fcgi, location_match);
-    else if (opts.fallback)
+    if (const auto i = opts.customs.find(location); i != opts.customs.cend()) {
+      DMITIGR_REQUIRE(i->second, std::logic_error,
+        "custom handler for \"" + std::string{location} +"\" is unset");
+      i->second(fcgi);
+    } else if (opts.fallback)
       opts.fallback(fcgi);
     else
       fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
@@ -133,12 +116,14 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
 
   try {
     if (method == "GET") {
-      if (const auto [location_match, i] = match(location, opts.htmlers); location_match.ready()) {
+      if (const auto i = opts.htmlers.find(location); i != opts.htmlers.cend()) {
         const std::filesystem::path locpath{location};
         const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
         if (auto tpl = make_expanded_llt(tplfile, opts.tplroot)) {
+          DMITIGR_REQUIRE(i->second, std::logic_error,
+            "htmler handler for \"" + std::string{location} +"\" is unset");
           auto& t = *tpl;
-          i->second(fcgi, t, location_match);
+          i->second(fcgi, t);
           const auto o = t.to_output();
           fcgi->out() << "Content-Type: text/html" << fcgi::crlfcrlf;
           fcgi->out().write(o.data(), o.size());
@@ -150,11 +135,13 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
     } else if (method == "POST") {
       const std::string content_type{fcgi->parameter("CONTENT_TYPE")->value()};
       if (content_type == "application/json") {
-        if (const auto [location_match, i] = match(location, opts.callers); location_match.ready()) {
+        if (const auto i = opts.callers.find(location); i != opts.callers.cend()) {
+          DMITIGR_REQUIRE(i->second, std::logic_error,
+            "caller handler for \"" + std::string{location} +"\" is unset");
           std::string o;
           try {
             const jrpc::Request request{str::read_to_string(fcgi->in())};
-            const auto result = i->second(fcgi, request, location_match);
+            const auto result = i->second(fcgi, request);
             o = result.to_string();
           } catch (const jrpc::Error& e) {
             o = e.to_string();
@@ -169,13 +156,15 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
         static const std::regex mpfdre{
           R"(multipart/form-data;\s*boundary="?([-'()+,./:=?\w\s]{1,69}[-'()+,./:=?\w]{1}))" "\"?",
           std::regex::icase | std::regex::optimize};
-        std::smatch boundary_match;
-        if (std::regex_search(content_type, boundary_match, mpfdre)) {
-          DMITIGR_ASSERT(boundary_match.size() >= 2);
-          if (const auto [location_match, i] = match(location, opts.formers); location_match.ready()) {
-            const auto boundary = boundary_match.str(1);
+        std::smatch sm;
+        if (std::regex_search(content_type, sm, mpfdre)) {
+          DMITIGR_ASSERT(sm.size() >= 2);
+          if (const auto i = opts.formers.find(location); i != opts.formers.cend()) {
+            DMITIGR_REQUIRE(i->second, std::logic_error,
+              "former handler for \"" + std::string{location} +"\" is unset");
+            const auto boundary = sm.str(1);
             const mulf::Form_data form{str::read_to_string(fcgi->in()), boundary};
-            return i->second(fcgi, form, location_match);
+            return i->second(fcgi, form);
           }
         }
       }
