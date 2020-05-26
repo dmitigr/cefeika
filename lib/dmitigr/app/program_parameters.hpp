@@ -8,6 +8,7 @@
 #include "dmitigr/base/debug.hpp"
 #include "dmitigr/base/filesystem.hpp"
 
+#include <algorithm>
 #include <map>
 #include <optional>
 #include <string>
@@ -143,16 +144,49 @@ public:
     return (i != cend(options_)) ? &(i->second) : nullptr;
   }
 
+  /**
+   * @returns An option argument, or `std::nullopt` if option is not present.
+   *
+   * @throw std::runtime_error if argument for this option is not present.
+   */
+  const std::optional<std::string>& option_with_argument(const std::string& name) const
+  {
+    if (const auto* const o = option(name)) {
+      if (*o)
+        return *o;
+      else
+        throw std::runtime_error{"argument for option --" + name + " is not present"};
+    } else
+      return null_;
+  }
+
+  /**
+   * @returns Iterator to the first found option that is not presents in `options`.
+   */
+  Option_map::const_iterator option_other_than(const std::vector<std::string>& options) const
+  {
+    const auto boptions = cbegin(options);
+    const auto eoptions = cend(options);
+    const auto e = cend(options_);
+    for (auto i = cbegin(options_); i != e; ++i) {
+      if (const auto ioptions = std::find(boptions, eoptions, i->first); ioptions == eoptions)
+        return i;
+    }
+    return e;
+  }
+
 private:
   std::filesystem::path executable_path_;
   std::optional<std::string> command_name_;
   Option_map options_;
   Argument_vector arguments_;
+  static const std::optional<std::string> null_;
 
   bool is_invariant_ok() const
   {
     return !executable_path_.empty();
   }
+
 };
 
 } // namespace dmitigr::app
