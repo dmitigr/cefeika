@@ -39,26 +39,37 @@ int main(int, char* argv[])
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
     const auto input = str::file_to_string(this_exe_dir_name / "rajson-unit-value_view.json");
-    const auto document = rajson::to_parsed_json(input);
-    rajson::Value_view json{document};
-    const auto host = json.mandatory<std::string>("host");
-    ASSERT(host == "localhost");
-    const auto port = json.mandatory<int>("port");
-    ASSERT(port == 9001);
-    const auto db = json.mandatory<Db_params>("db");
-    ASSERT(db.hostname == "localhost");
-    ASSERT(db.port == 5432);
-    ASSERT(db.database == "postgres");
-    //
+    auto document = rajson::to_parsed_json(input);
+
     {
-      const auto dbv = json.mandatory("db");
-      const auto hostname = dbv.mandatory<std::string>("hostname");
-      const auto portnum = dbv.mandatory<int>("port");
-      const auto database = dbv.mandatory<std::string>("database");
-      ASSERT(hostname == "localhost");
-      ASSERT(portnum == 5432);
-      ASSERT(database == "postgres");
+      const auto& constant_document = document;
+      rajson::Value_view json{constant_document};
+      const auto host = json.mandatory<std::string>("host");
+      ASSERT(host == "localhost");
+      const auto port = json.mandatory<int>("port");
+      ASSERT(port == 9001);
+      const auto db = json.mandatory<Db_params>("db");
+      ASSERT(db.hostname == "localhost");
+      ASSERT(db.port == 5432);
+      ASSERT(db.database == "postgres");
+      //
+      {
+        const auto dbv = json.mandatory("db");
+        const auto hostname = dbv.mandatory<std::string>("hostname");
+        const auto portnum = dbv.mandatory<int>("port");
+        const auto database = dbv.mandatory<std::string>("database");
+        ASSERT(hostname == "localhost");
+        ASSERT(portnum == 5432);
+        ASSERT(database == "postgres");
+      }
     }
+
+    {
+      rajson::Value_view json{document};
+      json.mandatory("host").value() = "localhost.local";
+    }
+
+    std::cout << rajson::to_stringified_json(document) << std::endl;
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

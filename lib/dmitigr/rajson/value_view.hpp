@@ -12,50 +12,49 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 namespace dmitigr::rajson {
 
 /**
  * @brief A value view.
  */
-template<class Encoding, class Allocator>
+template<class GenericValue>
 class Value_view final {
 public:
-  /**
-   * @brief The constructor.
-   */
-  Value_view(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  /// @brief An alias of underlying type.
+  using Underlying_type = GenericValue;
+
+  /// @brief The constructor.
+  Value_view(GenericValue& value)
     : value_{value}
   {}
 
-  /**
-   * @returns The JSON value.
-   */
-  auto& value() const
+  /// @returns The JSON value.
+  const auto& value() const
+  {
+    return value_;
+  }
+
+  /// @overload
+  auto& value()
   {
     return value_;
   }
 
   /**
-   * @returns The iterator that points to the past of the last member.
-   */
-  auto end() const
-  {
-    return value_.MemberEnd();
-  }
-
-  /**
-   * @returns The iterator that points to the member named by `name`, or `end()`
-   * if no such a member presents.
+   * @returns The iterator that points to the member named by `name`, or
+   * `value().MemberEnd()` if no such a member presents.
    */
   auto optional_iterator(const std::string_view name) const
   {
-    DMITIGR_REQUIRE(!name.empty(), std::invalid_argument);
-    const auto& v = value();
-    if (const auto m = v.FindMember(rapidjson::StringRef(name.data(), name.size())), e = end(); m != e)
-      return m;
-    else
-      return e;
+    return optional_iterator__(value_, name);
+  }
+
+  /// @overload
+  auto optional_iterator(const std::string_view name)
+  {
+    return optional_iterator__(value_, name);
   }
 
   /**
@@ -65,11 +64,13 @@ public:
    */
   auto mandatory_iterator(const std::string_view name) const
   {
-    if (auto result = optional_iterator(name); result != end())
-      return result;
-    else
-      throw std::runtime_error{std::string{"dmitigr::rajson::Value_view: member \""}
-        .append(name).append("\"").append(" doesn't present")};
+    return mandatory_iterator__(*this, name);
+  }
+
+  /// @overload
+  auto mandatory_iterator(const std::string_view name)
+  {
+    return mandatory_iterator__(*this, name);
   }
 
   /**
@@ -79,10 +80,14 @@ public:
   template<typename R>
   std::optional<R> optional(const std::string_view name) const
   {
-    if (const auto i = optional_iterator(name); i != end())
-      return rajson::to<R>(i->value);
-    else
-      return std::nullopt;
+    return optional__(*this, name);
+  }
+
+  /// @overload
+  template<typename R>
+  std::optional<R> optional(const std::string_view name)
+  {
+    return optional__(*this, name);
   }
 
   /**
@@ -92,7 +97,13 @@ public:
    */
   auto mandatory(const std::string_view name) const
   {
-    return Value_view{mandatory_iterator(name)->value};
+    return mandatory__(*this, name);
+  }
+
+  /// @overload
+  auto mandatory(const std::string_view name)
+  {
+    return mandatory__(*this, name);
   }
 
   /**
@@ -108,7 +119,48 @@ public:
   }
 
 private:
-  const rapidjson::GenericValue<Encoding, Allocator>& value_;
+  Underlying_type& value_;
+
+  template<class Value>
+  static auto optional_iterator__(Value& value, const std::string_view name)
+  {
+    DMITIGR_REQUIRE(!name.empty(), std::invalid_argument);
+    if (const auto m = value.FindMember(rapidjson::StringRef(name.data(), name.size())),
+                   e = value.MemberEnd(); m != e)
+      return m;
+    else
+      return e;
+  }
+
+  template<class ValueView>
+  static auto mandatory_iterator__(ValueView& view, const std::string_view name)
+  {
+    if (auto result = view.optional_iterator(name); result != view.value_.MemberEnd())
+      return result;
+    else
+      throw std::runtime_error{std::string{"dmitigr::rajson::Value_view: member \""}
+        .append(name).append("\"").append(" doesn't present")};
+  }
+
+  template<class ValueView, typename R>
+  static std::optional<R> optional__(ValueView& view, const std::string_view name)
+  {
+    if (const auto i = view.optional_iterator(name); i != view.value_.MemberEnd())
+      return rajson::to<R>(i->value);
+    else
+      return std::nullopt;
+  }
+
+  template<class ValueView>
+  static auto mandatory__(ValueView& view, const std::string_view name)
+  {
+    using Value = decltype(view.mandatory_iterator(name)->value);
+    using Result = std::conditional_t<
+      std::is_const_v<typename std::remove_reference_t<decltype(view.value_)>>,
+      Value_view<std::add_const_t<Value>>,
+      Value_view<Value>>;
+    return Result{view.mandatory_iterator(name)->value};
+  }
 };
 
 } // namespace dmitigr::rajson
