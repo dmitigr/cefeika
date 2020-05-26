@@ -131,15 +131,16 @@ public:
   }
 
   /**
-   * @returns `true` if option with `name` is presents, or `false` otherwise.
+   * @returns An option argument, or `nullptr` if option is not present.
    *
    * @par Require
    * `!name.empty()`.
    */
-  bool has_option(const std::string& name) const
+  const std::optional<std::string>* option(const std::string& name) const
   {
     DMITIGR_REQUIRE(!name.empty(), std::invalid_argument);
-    return options_.find(name) != cend(options_);
+    const auto i = options_.find(name);
+    return (i != cend(options_)) ? &(i->second) : nullptr;
   }
 
 private:
