@@ -42,7 +42,12 @@ public:
   using Argument_vector = std::vector<std::string>;
 
   /**
-   * @returns The new instance.
+   * @brief The default constructor
+   */
+  Program_parameters() = default;
+
+  /**
+   * @brief The constructor.
    *
    * @par Requires
    * `(argc > 0 && argv && argv[0])`.
@@ -96,7 +101,34 @@ public:
     for (; argi < argc; ++argi)
       arguments_.emplace_back(argv[argi]);
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    DMITIGR_ASSERT(is_valid());
+  }
+
+  /**
+   * @brief The constructor.
+   *
+   * @par Requires
+   * `(!executable_path.empty())`.
+   */
+  explicit Program_parameters(std::filesystem::path executable_path,
+    std::optional<std::string> command_name = {},
+    Option_map options = {}, Argument_vector arguments = {})
+    : executable_path_{std::move(executable_path)}
+    , command_name_{std::move(command_name)}
+    , options_{std::move(options)}
+    , arguments_{std::move(arguments)}
+  {
+    DMITIGR_REQUIRE(!executable_path_.empty(), std::invalid_argument);
+    DMITIGR_ASSERT(is_valid());
+  }
+
+  /**
+   * @returns `false` if this instance is default constructed, or
+   * `true` otherwise.
+   */
+  bool is_valid() const
+  {
+    return !executable_path_.empty();
   }
 
   /**
@@ -185,11 +217,6 @@ private:
   {
     static const std::optional<std::string> result;
     return result;
-  }
-
-  bool is_invariant_ok() const
-  {
-    return !executable_path_.empty();
   }
 };
 
