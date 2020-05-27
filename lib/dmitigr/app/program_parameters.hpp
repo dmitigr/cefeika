@@ -157,7 +157,7 @@ public:
       else
         throw std::runtime_error{"argument for option --" + name + " is not present"};
     } else
-      return null_;
+      return null();
   }
 
   /**
@@ -180,13 +180,17 @@ private:
   std::optional<std::string> command_name_;
   Option_map options_;
   Argument_vector arguments_;
-  static const std::optional<std::string> null_;
+
+  static const std::optional<std::string>& null()
+  {
+    static const std::optional<std::string> result;
+    return result;
+  }
 
   bool is_invariant_ok() const
   {
     return !executable_path_.empty();
   }
-
 };
 
 } // namespace dmitigr::app
