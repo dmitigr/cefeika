@@ -72,7 +72,6 @@ target_compile_options(${lib} PRIVATE ${usockets_cflags})
 target_include_directories(${lib}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
   $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>
   PRIVATE
   src)
@@ -85,8 +84,6 @@ else()
 endif()
 
 install(DIRECTORY "include/"
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
-install(DIRECTORY "src/internal"
   DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
 install(TARGETS ${lib}
   EXPORT dmitigr_${lib}_export

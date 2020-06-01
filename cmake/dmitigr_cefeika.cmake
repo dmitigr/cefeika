@@ -69,5 +69,6 @@ set(dmitigr_cefeika_web_deps fcgi http jrpc mulf ttpl url base)
 # ------------------------------------------------------------------------------
 
 set(dmitigr_cefeika_thirdparty_rapidjson_deps)
+set(dmitigr_cefeika_thirdparty_thirdparty_uv_deps)
 set(dmitigr_cefeika_thirdparty_usockets_deps thirdparty_uv)
 set(dmitigr_cefeika_thirdparty_uwebsockets_deps thirdparty_usockets)
