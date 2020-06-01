@@ -60,7 +60,7 @@ class Connection : public ws::Connection {
 class Listener : public ws::Listener {
   using ws::Listener::Listener;
 
-  std::shared_ptr<ws::Connection> make_connection(const ws::Http_request* const handshake) const override
+  std::shared_ptr<ws::Connection> make_connection(const ws::Http_request* const handshake) override
   {
     std::clog << "The connection to " << handshake->remote_ip_address().to_string() << " is about to be opened" << std::endl;
     const bool is_should_be_created = rng::cpp_pl_3rd(1);
