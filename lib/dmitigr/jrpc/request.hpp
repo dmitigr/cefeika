@@ -334,7 +334,7 @@ public:
    * @returns An instance of type Error with specified `code`, ID borrowed
    * from this instance and specified error `message`.
    */
-  Error make_error(const std::error_code code, const std::string& message) const
+  Error make_error(const std::error_code code, const std::string& message = {}) const
   {
     DMITIGR_REQUIRE(id(), std::logic_error, "making errors for notifications is nonsense");
     return Error{code, *id(), message};
