@@ -135,7 +135,7 @@ private:
    *
    * @returns The new connection instance, or `nullptr` to reject the connection.
    */
-  virtual std::shared_ptr<Connection> make_connection(const Http_request* handshake) = 0;
+  virtual std::shared_ptr<Connection> make_connection(const Http_request& handshake) = 0;
 
   /**
    * @brief This function to be called on every HTTP request if HTTP
@@ -143,7 +143,7 @@ private:
    *
    * @see Listener_options.
    */
-  virtual void handle_request(const ws::Http_request* req, std::shared_ptr<ws::Http_io> res);
+  virtual void handle_request(const ws::Http_request& req, std::shared_ptr<ws::Http_io> res);
 
 private:
   friend detail::iListener;

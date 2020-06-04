@@ -104,7 +104,7 @@ public:
         auto* const data = static_cast<Ws_data*>(ws->getUserData());
         DMITIGR_ASSERT(data);
         const detail::iHttp_request handshake{req, ws->getRemoteAddress()};
-        data->conn = listener_->make_connection(&handshake);
+        data->conn = listener_->make_connection(handshake);
         if (data->conn)
           data->conn->rep_ = std::make_unique<detail::Conn<IsSsl>>(ws);
         else
@@ -190,7 +190,7 @@ public:
       {
         const iHttp_request request{req, res->getRemoteAddress()};
         const auto io = std::make_shared<iHttp_io_templ<IsSsl>>(res);
-        listener_->handle_request(&request, io);
+        listener_->handle_request(request, io);
         if (!io->is_response_handler_set() || !io->is_abort_handler_set()) {
           io->rep_ = nullptr;
           DMITIGR_ASSERT(!io->is_valid());
@@ -371,7 +371,7 @@ DMITIGR_WS_INLINE const std::string& Listener::timer_name(const std::size_t pos)
   return rep_->timer_name(pos);
 }
 
-DMITIGR_WS_INLINE void Listener::handle_request(const ws::Http_request*,
+DMITIGR_WS_INLINE void Listener::handle_request(const ws::Http_request&,
   std::shared_ptr<ws::Http_io>)
 {
 }

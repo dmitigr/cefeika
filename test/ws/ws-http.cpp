@@ -20,15 +20,13 @@ class Connection final : public ws::Connection {
 
 class Listener final : public ws::Listener {
   using ws::Listener::Listener;
-  std::shared_ptr<ws::Connection> make_connection(const ws::Http_request*) override
+  std::shared_ptr<ws::Connection> make_connection(const ws::Http_request&) override
   {
     return std::make_shared<Connection>();
   }
 
-  void handle_request(const ws::Http_request* const req, std::shared_ptr<ws::Http_io> io) override
+  void handle_request(const ws::Http_request&, std::shared_ptr<ws::Http_io> io) override
   {
-    (void)req;
-
     io->set_request_handler([total_size = std::intmax_t{}](auto data, bool is_last) mutable
     {
       total_size += data.size();
