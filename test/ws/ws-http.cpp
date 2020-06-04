@@ -25,7 +25,7 @@ class Listener final : public ws::Listener {
     return std::make_shared<Connection>();
   }
 
-  void handle_request(const ws::Http_request* const req, std::shared_ptr<ws::Http_io> io) const override
+  void handle_request(const ws::Http_request* const req, std::shared_ptr<ws::Http_io> io) override
   {
     (void)req;
 

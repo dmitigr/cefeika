@@ -143,8 +143,7 @@ private:
    *
    * @see Listener_options.
    */
-  virtual void handle_request(const ws::Http_request* req,
-    std::shared_ptr<ws::Http_io> res) const;
+  virtual void handle_request(const ws::Http_request* req, std::shared_ptr<ws::Http_io> res);
 
 private:
   friend detail::iListener;
