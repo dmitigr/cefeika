@@ -352,6 +352,19 @@ public:
       return Result{};
   }
 
+  /**
+   * @overload
+   *
+   * @param value A value to set as the result data.
+   */
+  template<typename T>
+  Result make_result(T&& value) const
+  {
+    auto result = make_result();
+    result.set_data(std::forward<T>(value));
+    return result;
+  }
+
 private:
   mutable rapidjson::Document rep_{rapidjson::Type::kObjectType};
 
