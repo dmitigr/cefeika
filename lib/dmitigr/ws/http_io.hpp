@@ -113,7 +113,7 @@ public:
    * @brief Attempts to send a portion of the response.
    *
    * @param data A data part to send
-   * @param total_size A total size of data to send
+   * @param total_size A total size of data to send. `0` implies `data.size()`.
    *
    * @returns A pair of two booleans:
    *   -# indicates success of send operation. If `false` then there is no
@@ -124,7 +124,7 @@ public:
    *
    * @par Requires
    * `(is_valid() && is_response_handler_set() &&
-   *   (total_size >= 0) && (data.size() <= total_size))`.
+   *   ((total_size == 0) || (data.size() <= total_size)))`.
    *
    * @remarks This method should called from a respond handler. The respond
    * handler should return a first boolean of the value returned by this
