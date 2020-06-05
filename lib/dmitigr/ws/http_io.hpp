@@ -132,6 +132,14 @@ public:
   virtual bool send_chunk(std::string_view data) = 0;
 
   /**
+   * @brief Sends the `data` (if any) and finishes the IO.
+   *
+   * @par Effects
+   * `(!is_valid)`.
+   */
+  virtual void end(std::string_view data = {}) = 0;
+
+  /**
    * @brief Sets the response handler.
    *
    * @par Requires

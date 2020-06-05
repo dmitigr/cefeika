@@ -57,9 +57,7 @@ public:
       std::invalid_argument);
 
     if (!is_response_handler_set_) {
-      rep_->end(data);
-      rep_ = nullptr;
-      DMITIGR_ASSERT(!is_valid());
+      end(data);
       return {true, true};
     } else
       return rep_->tryEnd(data, total_size);
@@ -68,6 +66,16 @@ public:
   bool send_chunk(const std::string_view data) override
   {
     return rep_->write(data);
+  }
+
+  void end(const std::string_view data) override
+  {
+    DMITIGR_REQUIRE(is_valid(), std::logic_error);
+
+    rep_->end(data);
+    rep_ = nullptr;
+
+    DMITIGR_ASSERT(!is_valid());
   }
 
   void set_response_handler(Response_handler handler) override
