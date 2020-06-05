@@ -44,7 +44,7 @@ class Listener final : public ws::Listener {
     io->send_header("Content-Type", "text/plain");
     io->send_header("Content-Disposition", "filename=ws-http-test-data.txt");
     const auto data = std::make_shared<std::string>(32'000'000, 'a');
-    io->respond(*data, [io, data](const int pos) -> bool
+    io->set_response_handler([io, data](const int pos) -> bool
     {
       std::cout << "Ready to send handler invoked. Current data position = " << pos << std::endl;
       std::string_view dv{data->data() + pos, data->size() - pos};
@@ -52,6 +52,7 @@ class Listener final : public ws::Listener {
       (void)done;
       return ok;
     });
+    io->send_response(*data);
   }
 };
 

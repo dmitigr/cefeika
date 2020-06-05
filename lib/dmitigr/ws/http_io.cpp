@@ -50,45 +50,42 @@ public:
     rep_->writeHeader(name, value);
   }
 
-  bool respond(const std::string_view data, Response_handler handler) override
-  {
-    DMITIGR_REQUIRE(is_valid() && !is_response_handler_set(), std::logic_error);
-
-    if (handler) {
-      rep_->onWritable([this, handler = std::move(handler)](const int position)
-      {
-        DMITIGR_ASSERT(rep_);
-        const auto ok = handler(position);
-        if (ok) {
-          rep_ = nullptr;
-          DMITIGR_ASSERT(!is_valid());
-        }
-        return ok;
-      });
-      is_response_handler_set_ = true;
-      const auto [ok, done] = send_response(data, data.size());
-      (void)ok;
-      return done;
-    } else {
-      rep_->end(data);
-      rep_ = nullptr;
-      DMITIGR_ASSERT(!is_valid());
-      return true;
-    }
-  }
-
   std::pair<bool, bool> send_response(const std::string_view data, const int total_size) override
   {
     DMITIGR_REQUIRE(is_valid() && is_response_handler_set(), std::logic_error);
     DMITIGR_REQUIRE((total_size == 0) || (data.size() <= static_cast<decltype(data.size())>(total_size)),
       std::invalid_argument);
 
-    return rep_->tryEnd(data, total_size);
+    if (!is_response_handler_set_) {
+      rep_->end(data);
+      rep_ = nullptr;
+      DMITIGR_ASSERT(!is_valid());
+      return {true, true};
+    } else
+      return rep_->tryEnd(data, total_size);
   }
 
   bool send_chunk(const std::string_view data) override
   {
     return rep_->write(data);
+  }
+
+  void set_response_handler(Response_handler handler) override
+  {
+    DMITIGR_REQUIRE(is_valid() && !is_response_handler_set(), std::logic_error);
+    DMITIGR_REQUIRE(handler, std::invalid_argument);
+
+    rep_->onWritable([this, handler = std::move(handler)](const int position)
+    {
+      DMITIGR_ASSERT(rep_);
+      const auto ok = handler(position);
+      if (ok) {
+        rep_ = nullptr;
+        DMITIGR_ASSERT(!is_valid());
+      }
+      return ok;
+    });
+    is_response_handler_set_ = true;
   }
 
   bool is_response_handler_set() const override
@@ -106,6 +103,7 @@ public:
   void set_abort_handler(Abort_handler handler) override
   {
     DMITIGR_REQUIRE(is_valid() && !is_abort_handler_set(), std::logic_error);
+    DMITIGR_REQUIRE(handler, std::invalid_argument);
 
     rep_->onAborted([this, handler = std::move(handler)]
     {
@@ -124,6 +122,7 @@ public:
   void set_request_handler(Request_handler handler) override
   {
     DMITIGR_REQUIRE(is_valid() && !is_request_handler_set(), std::logic_error);
+    DMITIGR_REQUIRE(handler, std::invalid_argument);
 
     rep_->onData(std::move(handler));
     is_request_handler_set_ = true;

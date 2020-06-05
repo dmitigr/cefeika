@@ -42,7 +42,7 @@ public:
   using Request_handler = std::function<void(std::string_view data, bool is_last)>;
 
   /*
-   * @brief An alias of a function to handle sending of a response.
+   * @brief An alias of a function to handle sending of a response piecewise.
    *
    * The parameter `position` denotes a starting position of data to be used
    * for a next call of send_response().
@@ -88,49 +88,34 @@ public:
   virtual void send_header(std::string_view name, std::string_view value) = 0;
 
   /**
-   * @brief Initiates the sending of a response.
+   * @brief Attempts to send (a portion) of the response.
+   *
+   * If no handler set by set_response_handler() then the entire data will be
+   * send upon a call which may not be suitable for a large data!
    *
    * @param data A data to send
-   * @param handler A handler for responding in a piecewise fashion. If
-   * no handler specified then the entire data will be send upon a call.
-   *
-   * @returns `true` if all the data was sent upon this call, or `false`
-   * otherwise.
-   *
-   * @par Requires
-   * `(is_valid() && !is_response_handler_set())`.
-   *
-   * @par Effects
-   * If `handler` is not specified, then (is_valid() == false) after calling
-   * this method. If `handler` is specified, then (is_valid() == false) after
-   * the specified `handler` returns `true`.
-   *
-   * @remarks For a large data handler should be used.
-   */
-  virtual bool respond(std::string_view data, Response_handler handler = {}) = 0;
-
-  /**
-   * @brief Attempts to send a portion of the response.
-   *
-   * @param data A data part to send
    * @param total_size A total size of data to send. `0` implies `data.size()`.
    *
    * @returns A pair of two booleans:
    *   -# indicates success of send operation. If `false` then there is no
    *   readiness to send more data at the moment.
    *   -# indicates whether the `total_size` of bytes were sent in summary
-   *   after this call. If `false` then the handler which was set by respond()
-   *   method will be called at the moment of readiness to send more data.
+   *   after this call. If `false` then the handler which was set by
+   *   set_response_handler() method will be called at the moment of readiness
+   *   to send more data.
    *
    * @par Requires
    * `(is_valid() && is_response_handler_set() &&
    *   ((total_size == 0) || (data.size() <= total_size)))`.
    *
-   * @remarks This method should called from a respond handler. The respond
-   * handler should return a first boolean of the value returned by this
-   * method.
+   * @par Effects
+   * If the response handler is not set, then `(is_valid() == false)` after
+   * calling this method. Otherwise `(is_valid() == false)` after the response
+   * handler returns `true`.
+   *
+   * @see set_response_handler().
    */
-  virtual std::pair<bool, bool> send_response(std::string_view data, int total_size) = 0;
+  virtual std::pair<bool, bool> send_response(std::string_view data, int total_size = 0) = 0;
 
   /**
    * @brief Sends the response in chunking fashion
@@ -148,9 +133,19 @@ public:
   virtual bool send_chunk(std::string_view data) = 0;
 
   /**
+   * @brief Sets the response handler.
+   *
+   * @par Requires
+   * `(is_valid() && !is_response_handler_set() && handler)`.
+   *
+   * @see Response_handler, send_response().
+   */
+  virtual void set_response_handler(Response_handler handler) = 0;
+
+  /**
    * @returns `true` if the respond handler was set, or `false` otherwise.
    *
-   * @see respond(std::string_view, Response_handler).
+   * @see set_response_handler().
    */
   virtual bool is_response_handler_set() const = 0;
 
@@ -168,7 +163,7 @@ public:
    * @brief Sets the abort handler.
    *
    * @par Requires
-   * `(is_valid() && !is_abort_handler_set())`.
+   * `(is_valid() && !is_abort_handler_set()) && handler`.
    *
    * @see Abort_handler.
    */
@@ -177,7 +172,7 @@ public:
   /**
    * @returns `true` if the abort handler was set, or `false` otherwise.
    *
-   * @see Abort_handler.
+   * @see set_abort_handler().
    */
   virtual bool is_abort_handler_set() const = 0;
 
@@ -185,7 +180,7 @@ public:
    * @brief Sets the request handler.
    *
    * @par Requires
-   * `(is_valid() && !is_request_handler_set())`.
+   * `(is_valid() && !is_request_handler_set() && handler)`.
    *
    * @see Request_handler.
    */
@@ -194,7 +189,7 @@ public:
   /**
    * @returns `true` if the request handler was set, or `false` otherwise.
    *
-   * @see Request_handler.
+   * @see set_request_handler().
    */
   virtual bool is_request_handler_set() const = 0;
 
