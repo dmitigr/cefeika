@@ -86,6 +86,11 @@ public:
     return rep_->tryEnd(data, total_size);
   }
 
+  bool send_chunk(const std::string_view data) override
+  {
+    return rep_->write(data);
+  }
+
   bool is_response_handler_set() const override
   {
     return is_response_handler_set_;
