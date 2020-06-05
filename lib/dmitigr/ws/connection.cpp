@@ -12,6 +12,7 @@
 
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/connection.hpp"
+#include "dmitigr/ws/util.hpp"
 #include <dmitigr/base/debug.hpp>
 #include <dmitigr/net/net.hpp>
 
@@ -26,6 +27,7 @@ class iConnection {
 public:
   virtual ~iConnection() = default;
   virtual std::string remote_ip_address() const = 0;
+  virtual std::string local_ip_address() const = 0;
   virtual std::size_t buffered_amount() const = 0;
   virtual void send(std::string_view data, Data_format format) = 0;
   virtual void close(int code, std::string_view reason) = 0;
@@ -58,6 +60,13 @@ public:
   {
     DMITIGR_ASSERT(ws_);
     const auto ip = net::Ip_address::from_binary(ws_->getRemoteAddress());
+    return ip.to_string();
+  }
+
+  std::string local_ip_address() const override
+  {
+    DMITIGR_ASSERT(ws_);
+    const auto ip = net::Ip_address::from_binary(detail::local_address(is_ssl(), reinterpret_cast<us_socket_t*>(ws_)));
     return ip.to_string();
   }
 
@@ -135,6 +144,12 @@ DMITIGR_WS_INLINE std::string Connection::remote_ip_address() const
 {
   DMITIGR_REQUIRE(rep_, std::logic_error);
   return rep_->remote_ip_address();
+}
+
+DMITIGR_WS_INLINE std::string Connection::local_ip_address() const
+{
+  DMITIGR_REQUIRE(rep_, std::logic_error);
+  return rep_->local_ip_address();
 }
 
 DMITIGR_WS_INLINE std::size_t Connection::buffered_amount() const

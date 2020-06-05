@@ -69,6 +69,19 @@ public:
   DMITIGR_WS_API std::string remote_ip_address() const;
 
   /**
+   * @returns The textual representation of the local IP address.
+   *
+   * @par Requires
+   * `is_connected()`.
+   *
+   * @remarks The behaviour is undefined if called not on the thread of the
+   * associated event loop!
+   *
+   * @see event_loop_call_soon().
+   */
+  DMITIGR_WS_API std::string local_ip_address() const;
+
+  /**
    * @returns The number of bytes of queued data.
    *
    * @par Requires

@@ -103,10 +103,11 @@ public:
 #endif
         auto* const data = static_cast<Ws_data*>(ws->getUserData());
         DMITIGR_ASSERT(data);
-        const detail::iHttp_request handshake{req, ws->getRemoteAddress()};
+        const iHttp_request handshake{req, ws->getRemoteAddress(),
+          local_address(IsSsl, reinterpret_cast<us_socket_t*>(ws))};
         data->conn = listener_->make_connection(handshake);
         if (data->conn)
-          data->conn->rep_ = std::make_unique<detail::Conn<IsSsl>>(ws);
+          data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws);
         else
           ws->end(1011, "internal error");
       };
@@ -188,7 +189,8 @@ public:
     if (options().is_http_enabled()) {
       app.any("/*", [this](auto* const res, auto* const req)
       {
-        const iHttp_request request{req, res->getRemoteAddress()};
+        const iHttp_request request{req, res->getRemoteAddress(),
+          local_address(IsSsl, reinterpret_cast<us_socket_t*>(res))};
         const auto io = std::make_shared<iHttp_io_templ<IsSsl>>(res);
         listener_->handle_request(request, io);
         if (!io->is_response_handler_set() || !io->is_abort_handler_set()) {

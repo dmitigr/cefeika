@@ -21,6 +21,7 @@ set(dmitigr_ws_headers
   listener_options.hpp
   timer.hpp
   types_fwd.hpp
+  util.hpp
   )
 
 set(dmitigr_ws_implementations

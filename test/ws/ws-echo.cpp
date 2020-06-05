@@ -41,7 +41,7 @@ int main()
   using namespace std::chrono;
   std::signal(SIGINT,  &handle_signal);
   std::signal(SIGTERM, &handle_signal);
-  ws::Listener_options lo{"127.0.0.1", 9001};
+  ws::Listener_options lo{"0.0.0.0", 9001};
   lo.set_idle_timeout(std::chrono::seconds{10})
     .set_max_payload_size(16 * 1024);
   Listener l{lo};

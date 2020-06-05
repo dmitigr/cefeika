@@ -14,16 +14,24 @@ namespace dmitigr::ws::detail {
  */
 class iHttp_request final : public Http_request {
 public:
-  explicit iHttp_request(uWS::HttpRequest* const rep, const std::string_view remote_ip_address_binary)
+  explicit iHttp_request(uWS::HttpRequest* const rep,
+    const std::string_view remote_ip_address_binary,
+    const std::string_view local_ip_address_binary)
     : rep_{rep}
-    , ip_{net::Ip_address::from_binary(remote_ip_address_binary)}
+    , remote_ip_{net::Ip_address::from_binary(remote_ip_address_binary)}
+    , local_ip_{net::Ip_address::from_binary(local_ip_address_binary)}
   {
     DMITIGR_ASSERT(rep_);
   }
 
   const net::Ip_address& remote_ip_address() const override
   {
-    return ip_;
+    return remote_ip_;
+  }
+
+  const net::Ip_address& local_ip_address() const override
+  {
+    return local_ip_;
   }
 
   std::string_view method() const override
@@ -48,7 +56,8 @@ public:
 
 private:
   uWS::HttpRequest* rep_{};
-  net::Ip_address ip_;
+  net::Ip_address remote_ip_;
+  net::Ip_address local_ip_;
 };
 
 } // namespace dmitigr::ws::detail
