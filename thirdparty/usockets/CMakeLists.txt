@@ -25,6 +25,7 @@ set(usockets_sources
   src/context.c
   src/loop.c
   src/socket.c
+  src/socket_dmitigr.c
   src/eventing/libuv.c
   src/internal/internal.h
   src/internal/loop_data.h
