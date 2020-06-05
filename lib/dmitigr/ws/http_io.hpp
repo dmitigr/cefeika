@@ -45,7 +45,7 @@ public:
    * @brief An alias of a function to handle sending of a response piecewise.
    *
    * The parameter `position` denotes a starting position of data to be used
-   * for a next call of send_response().
+   * for a next call of send_data().
    *
    * The function must returns `true` if send operation was successful, or
    * `false` otherwise.
@@ -114,7 +114,7 @@ public:
    *
    * @see set_response_handler().
    */
-  virtual std::pair<bool, bool> send_response(std::string_view data, int total_size = 0) = 0;
+  virtual std::pair<bool, bool> send_data(std::string_view data, int total_size = 0) = 0;
 
   /**
    * @brief Sends the response in chunking fashion
@@ -137,7 +137,7 @@ public:
    * @par Requires
    * `(is_valid() && !is_response_handler_set() && handler)`.
    *
-   * @see Response_handler, send_response().
+   * @see Response_handler, send_data().
    */
   virtual void set_response_handler(Response_handler handler) = 0;
 

@@ -48,11 +48,11 @@ class Listener final : public ws::Listener {
     {
       std::cout << "Ready to send handler invoked. Current data position = " << pos << std::endl;
       std::string_view dv{data->data() + pos, data->size() - pos};
-      const auto [ok, done] = io->send_response(dv, data->size());
+      const auto [ok, done] = io->send_data(dv, data->size());
       (void)done;
       return ok;
     });
-    io->send_response(*data);
+    io->send_data(*data);
   }
 };
 
