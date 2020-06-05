@@ -52,7 +52,7 @@ public:
 
   std::pair<bool, bool> send_response(const std::string_view data, const int total_size) override
   {
-    DMITIGR_REQUIRE(is_valid() && is_response_handler_set(), std::logic_error);
+    DMITIGR_REQUIRE(is_valid(), std::logic_error);
     DMITIGR_REQUIRE((total_size == 0) || (data.size() <= static_cast<decltype(data.size())>(total_size)),
       std::invalid_argument);
 

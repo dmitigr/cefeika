@@ -105,8 +105,7 @@ public:
    *   to send more data.
    *
    * @par Requires
-   * `(is_valid() && is_response_handler_set() &&
-   *   ((total_size == 0) || (data.size() <= total_size)))`.
+   * `(is_valid() && ((total_size == 0) || (data.size() <= total_size)))`.
    *
    * @par Effects
    * If the response handler is not set, then `(is_valid() == false)` after
