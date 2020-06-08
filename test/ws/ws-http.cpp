@@ -20,7 +20,7 @@ class Connection final : public ws::Connection {
 
 class Listener final : public ws::Listener {
   using ws::Listener::Listener;
-  std::shared_ptr<ws::Connection> make_connection(const ws::Http_request&) override
+  std::shared_ptr<ws::Connection> make_connection() override
   {
     return std::make_shared<Connection>();
   }

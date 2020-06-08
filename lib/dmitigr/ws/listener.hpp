@@ -135,7 +135,7 @@ private:
    *
    * @returns The new connection instance, or `nullptr` to reject the connection.
    */
-  virtual std::shared_ptr<Connection> make_connection(const Http_request& handshake) = 0;
+  virtual std::shared_ptr<Connection> make_connection() = 0;
 
   /**
    * @brief This function to be called on every HTTP request if HTTP

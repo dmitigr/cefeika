@@ -96,16 +96,14 @@ public:
       result.idleTimeout = idle_timeout.count(); // eternity
       result.maxBackpressure = std::numeric_limits<decltype(result.maxPayloadLength)>::max();
 
-      result.open = [this](auto* const ws, auto* const req)
+      result.open = [this](auto* const ws)
       {
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .open emitted" << std::endl;
 #endif
         auto* const data = static_cast<Ws_data*>(ws->getUserData());
         DMITIGR_ASSERT(data);
-        const iHttp_request handshake{req, ws->getRemoteAddress(),
-          local_address(IsSsl, reinterpret_cast<us_socket_t*>(ws))};
-        data->conn = listener_->make_connection(handshake);
+        data->conn = listener_->make_connection();
         if (data->conn)
           data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws);
         else
