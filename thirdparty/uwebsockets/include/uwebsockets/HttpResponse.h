@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +24,11 @@
 #include "HttpResponseData.h"
 #include "HttpContextData.h"
 #include "Utilities.h"
+
+#include "WebSocketExtensions.h"
+#include "WebSocketHandshake.h"
+#include "WebSocket.h"
+#include "WebSocketContextData.h"
 
 #include "f2/function2.hpp"
 
@@ -78,7 +83,8 @@ private:
     /* Called only once per request */
     void writeMark() {
 #ifndef UWS_HTTPRESPONSE_NO_WRITEMARK
-        writeHeader("uWebSockets", "v0.17");
+        /* We only expose major version */
+        writeHeader("uWebSockets", "18");
 #endif
     }
 
@@ -160,16 +166,129 @@ private:
         }
     }
 
-    /* This call is identical to end, but will never write content-length and is thus suitable for upgrades */
-    void upgrade() {
-        internalEnd({nullptr, 0}, 0, false, false);
+public:
+    /* If we have proxy support; returns the proxed source address as reported by the proxy. */
+#ifdef UWS_WITH_PROXY
+    std::string_view getProxiedRemoteAddress() {
+        return getHttpResponseData()->proxyParser.getSourceAddress();
     }
 
-public:
+    std::string_view getProxiedRemoteAddressAsText() {
+        return Super::addressAsText(getProxiedRemoteAddress());
+    }
+#endif
+
+    /* Manually upgrade to WebSocket. Typically called in upgrade handler. Immediately calls open handler.
+     * NOTE: Will invalidate 'this' as socket might change location in memory. Throw away aftert use. */
+    template <typename UserData>
+    void upgrade(UserData &&userData, std::string_view secWebSocketKey, std::string_view secWebSocketProtocol,
+            std::string_view secWebSocketExtensions,
+            struct us_socket_context_t *webSocketContext) {
+
+        /* Extract needed parameters from WebSocketContextData */
+        WebSocketContextData<SSL> *webSocketContextData = (WebSocketContextData<SSL> *) us_socket_context_ext(SSL, webSocketContext);
+
+        /* Note: OpenSSL can be used here to speed this up somewhat */
+        char secWebSocketAccept[29] = {};
+        WebSocketHandshake::generate(secWebSocketKey.data(), secWebSocketAccept);
+
+        writeStatus("101 Switching Protocols")
+            ->writeHeader("Upgrade", "websocket")
+            ->writeHeader("Connection", "Upgrade")
+            ->writeHeader("Sec-WebSocket-Accept", secWebSocketAccept);
+
+        /* Select first subprotocol if present */
+        if (secWebSocketProtocol.length()) {
+            writeHeader("Sec-WebSocket-Protocol", secWebSocketProtocol.substr(0, secWebSocketProtocol.find(',')));
+        }
+
+        /* Negotiate compression, we may use a smaller compression window than we negotiate */
+        bool perMessageDeflate = false;
+        /* We are always allowed to share compressor, if perMessageDeflate */
+        int compressOptions = webSocketContextData->compression & SHARED_COMPRESSOR;
+        if (webSocketContextData->compression != DISABLED) {
+            if (secWebSocketExtensions.length()) {
+                /* We never support client context takeover (the client cannot compress with a sliding window). */
+                int wantedOptions = PERMESSAGE_DEFLATE | CLIENT_NO_CONTEXT_TAKEOVER;
+
+                /* Shared compressor is the default */
+                if (webSocketContextData->compression == SHARED_COMPRESSOR) {
+                    /* Disable per-socket compressor */
+                    wantedOptions |= SERVER_NO_CONTEXT_TAKEOVER;
+                }
+
+                /* isServer = true */
+                ExtensionsNegotiator<true> extensionsNegotiator(wantedOptions);
+                extensionsNegotiator.readOffer(secWebSocketExtensions);
+
+                /* Todo: remove these mid string copies */
+                std::string offer = extensionsNegotiator.generateOffer();
+                if (offer.length()) {
+                    writeHeader("Sec-WebSocket-Extensions", offer);
+                }
+
+                /* Did we negotiate permessage-deflate? */
+                if (extensionsNegotiator.getNegotiatedOptions() & PERMESSAGE_DEFLATE) {
+                    perMessageDeflate = true;
+                }
+
+                /* Is the server allowed to compress with a sliding window? */
+                if (!(extensionsNegotiator.getNegotiatedOptions() & SERVER_NO_CONTEXT_TAKEOVER)) {
+                    compressOptions = webSocketContextData->compression;
+                }
+            }
+        }
+
+        internalEnd({nullptr, 0}, 0, false, false);
+
+        /* Grab the httpContext from res */
+        HttpContext<SSL> *httpContext = (HttpContext<SSL> *) us_socket_context(SSL, (struct us_socket_t *) this);
+
+        /* Move any backpressure out of HttpResponse */
+        std::string backpressure(std::move(((AsyncSocketData<SSL> *) getHttpResponseData())->buffer));
+
+        /* Destroy HttpResponseData */
+        getHttpResponseData()->~HttpResponseData();
+
+        /* Before we adopt and potentially change socket, check if we are corked */
+        bool wasCorked = Super::isCorked();
+
+        /* Adopting a socket invalidates it, do not rely on it directly to carry any data */
+        WebSocket<SSL, true> *webSocket = (WebSocket<SSL, true> *) us_socket_context_adopt_socket(SSL,
+                    (us_socket_context_t *) webSocketContext, (us_socket_t *) this, sizeof(WebSocketData) + sizeof(UserData));
+
+        /* For whatever reason we were corked, update cork to the new socket */
+        if (wasCorked) {
+            webSocket->AsyncSocket<SSL>::cork();
+        }
+
+        /* Initialize websocket with any moved backpressure intact */
+        webSocket->init(perMessageDeflate, compressOptions, std::move(backpressure));
+
+        /* We should only mark this if inside the parser; if upgrading "async" we cannot set this */
+        HttpContextData<SSL> *httpContextData = httpContext->getSocketContextData();
+        if (httpContextData->isParsingHttp) {
+            /* We need to tell the Http parser that we changed socket */
+            httpContextData->upgradedWebSocket = webSocket;
+        }
+
+        /* Arm idleTimeout */
+        us_socket_timeout(SSL, (us_socket_t *) webSocket, webSocketContextData->idleTimeout);
+
+        /* Move construct the UserData right before calling open handler */
+        new (webSocket->getUserData()) UserData(std::move(userData));
+
+        /* Emit open event and start the timeout */
+        if (webSocketContextData->openHandler) {
+            webSocketContextData->openHandler(webSocket);
+        }
+    }
+
     /* Immediately terminate this Http response */
     using Super::close;
 
     using Super::getRemoteAddress;
+    using Super::getRemoteAddressAsText;
 
     /* Note: Headers are not checked in regards to timeout.
      * We only check when you actively push data or end the request */

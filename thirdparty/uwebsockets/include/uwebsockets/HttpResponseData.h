@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@
 
 #include "HttpParser.h"
 #include "AsyncSocketData.h"
+#include "ProxyParser.h"
 
 #include "f2/function2.hpp"
 
@@ -50,6 +51,10 @@ private:
 
     /* Current state (content-length sent, status sent, write called, etc */
     int state = 0;
+
+#ifdef UWS_WITH_PROXY
+    ProxyParser proxyParser;
+#endif
 };
 
 }

@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,7 @@
 #include "f2/function2.hpp"
 
 #include "BloomFilter.h"
+#include "ProxyParser.h"
 
 namespace uWS {
 
@@ -177,8 +178,28 @@ private:
 
     // the only caller of getHeaders
     template <int CONSUME_MINIMALLY>
-    std::pair<int, void *> fenceAndConsumePostPadded(char *data, int length, void *user, HttpRequest *req, fu2::unique_function<void *(void *, HttpRequest *)> &requestHandler, fu2::unique_function<void *(void *, std::string_view, bool)> &dataHandler) {
+    std::pair<int, void *> fenceAndConsumePostPadded(char *data, int length, void *user, void *reserved, HttpRequest *req, fu2::unique_function<void *(void *, HttpRequest *)> &requestHandler, fu2::unique_function<void *(void *, std::string_view, bool)> &dataHandler) {
+
+        /* How much data we CONSUMED (to throw away) */
         int consumedTotal = 0;
+
+#ifdef UWS_WITH_PROXY
+        /* ProxyParser is passed as reserved parameter */
+        ProxyParser *pp = (ProxyParser *) reserved;
+
+        /* Parse PROXY protocol */
+        auto [done, offset] = pp->parse({data, (unsigned int) length});
+        if (!done) {
+            return {0, user};
+        } else {
+            /* We have consumed this data so skip it */
+            data += offset;
+            length -= offset;
+            consumedTotal += offset;
+        }
+#endif
+
+        /* Fence one byte past end of our buffer (buffer has post padded margins) */
         data[length] = '\r';
 
         for (int consumed; length && (consumed = getHeaders(data, data + length, req->headers, &req->bf)); ) {
@@ -235,13 +256,7 @@ private:
     }
 
 public:
-
-    /* We do this to prolong the validity of parsed headers by keeping only the fallback buffer alive */
-    std::string &&salvageFallbackBuffer() {
-        return std::move(fallback);
-    }
-
-    void *consumePostPadded(char *data, int length, void *user, fu2::unique_function<void *(void *, HttpRequest *)> &&requestHandler, fu2::unique_function<void *(void *, std::string_view, bool)> &&dataHandler, fu2::unique_function<void *(void *)> &&errorHandler) {
+    void *consumePostPadded(char *data, int length, void *user, void *reserved, fu2::unique_function<void *(void *, HttpRequest *)> &&requestHandler, fu2::unique_function<void *(void *, std::string_view, bool)> &&dataHandler, fu2::unique_function<void *(void *)> &&errorHandler) {
 
         HttpRequest req;
 
@@ -276,7 +291,7 @@ public:
             fallback.append(data, maxCopyDistance);
 
             // break here on break
-            std::pair<int, void *> consumed = fenceAndConsumePostPadded<true>(fallback.data(), (int) fallback.length(), user, &req, requestHandler, dataHandler);
+            std::pair<int, void *> consumed = fenceAndConsumePostPadded<true>(fallback.data(), (int) fallback.length(), user, reserved, &req, requestHandler, dataHandler);
             if (consumed.second != user) {
                 return consumed.second;
             }
@@ -318,7 +333,7 @@ public:
             }
         }
 
-        std::pair<int, void *> consumed = fenceAndConsumePostPadded<false>(data, length, user, &req, requestHandler, dataHandler);
+        std::pair<int, void *> consumed = fenceAndConsumePostPadded<false>(data, length, user, reserved, &req, requestHandler, dataHandler);
         if (consumed.second != user) {
             return consumed.second;
         }

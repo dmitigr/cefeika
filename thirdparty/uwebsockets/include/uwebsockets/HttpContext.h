@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,7 @@ template<bool> struct HttpResponse;
 template <bool SSL>
 struct HttpContext {
     template<bool> friend struct TemplatedApp;
+    template<bool> friend struct HttpResponse;
 private:
     HttpContext() = delete;
 
@@ -119,11 +120,19 @@ private:
             /* Cork this socket */
             ((AsyncSocket<SSL> *) s)->cork();
 
+            /* Mark that we are inside the parser now */
+            httpContextData->isParsingHttp = true;
+
             // clients need to know the cursor after http parse, not servers!
             // how far did we read then? we need to know to continue with websocket parsing data? or?
 
+            void *proxyParser = nullptr;
+#ifdef UWS_WITH_PROXY
+            proxyParser = &httpResponseData->proxyParser;
+#endif
+
             /* The return value is entirely up to us to interpret. The HttpParser only care for whether the returned value is DIFFERENT or not from passed user */
-            void *returnedSocket = httpResponseData->consumePostPadded(data, length, s, [httpContextData](void *s, uWS::HttpRequest *httpRequest) -> void * {
+            void *returnedSocket = httpResponseData->consumePostPadded(data, length, s, proxyParser, [httpContextData](void *s, uWS::HttpRequest *httpRequest) -> void * {
                 /* For every request we reset the timeout and hang until user makes action */
                 /* Warning: if we are in shutdown state, resetting the timer is a security issue! */
                 us_socket_timeout(SSL, (us_socket_t *) s, 0);
@@ -205,7 +214,7 @@ private:
                     if (us_socket_is_shut_down(SSL, (us_socket_t *) user)) {
                         return nullptr;
                     }
-                    
+
                     /* If we were given the last data chunk, reset data handler to ensure following
                      * requests on the same socket won't trigger any previously registered behavior */
                     if (fin) {
@@ -218,6 +227,9 @@ private:
                 us_socket_close(SSL, (us_socket_t *) user);
                 return nullptr;
             });
+
+            /* Mark that we are no longer parsing Http */
+            httpContextData->isParsingHttp = false;
 
             /* We need to uncork in all cases, except for nullptr (closed socket, or upgraded socket) */
             if (returnedSocket != nullptr) {
@@ -308,13 +320,6 @@ private:
         });
 
         return this;
-    }
-
-    /* Used by App in its WebSocket handler */
-    void upgradeToWebSocket(void *newSocket) {
-        HttpContextData<SSL> *httpContextData = getSocketContextData();
-
-        httpContextData->upgradedWebSocket = newSocket;
     }
 
 public:

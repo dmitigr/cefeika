@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,7 @@ public:
     struct State {
         unsigned int wantsHead : 1;
         unsigned int spillLength : 4;
-        int opStack : 2; // -1, 0, 1
+        signed int opStack : 2; // -1, 0, 1
         unsigned int lastFin : 1;
 
         // 15 bytes

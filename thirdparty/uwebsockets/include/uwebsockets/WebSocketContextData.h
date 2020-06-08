@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@
 
 #include "WebSocketProtocol.h"
 #include "TopicTree.h"
+#include "WebSocketData.h"
 
 namespace uWS {
 
@@ -33,6 +34,7 @@ template <bool, bool> struct WebSocket;
 template <bool SSL>
 struct WebSocketContextData {
     /* The callbacks for this context */
+    fu2::unique_function<void(uWS::WebSocket<SSL, true> *)> openHandler = nullptr;
     fu2::unique_function<void(WebSocket<SSL, true> *, std::string_view, uWS::OpCode)> messageHandler = nullptr;
     fu2::unique_function<void(WebSocket<SSL, true> *)> drainHandler = nullptr;
     fu2::unique_function<void(WebSocket<SSL, true> *, int, std::string_view)> closeHandler = nullptr;
@@ -43,6 +45,9 @@ struct WebSocketContextData {
     /* Settings for this context */
     size_t maxPayloadLength = 0;
     int idleTimeout = 0;
+
+    /* We do need these for async upgrade */
+    int compression;
 
     /* There needs to be a maxBackpressure which will force close everything over that limit */
     size_t maxBackpressure = 0;
@@ -56,21 +61,33 @@ struct WebSocketContextData {
         Loop::get()->removePreHandler(this);
     }
 
-    WebSocketContextData() : topicTree([this](Subscriber *s, std::string_view data) -> int {
+    WebSocketContextData() : topicTree([this](Subscriber *s, std::pair<std::string_view, std::string_view> data) -> int {
         /* We rely on writing to regular asyncSockets */
         auto *asyncSocket = (AsyncSocket<SSL> *) s->user;
 
-        auto [written, failed] = asyncSocket->write(data.data(), (int) data.length());
-        if (!failed) {
-            asyncSocket->timeout(this->idleTimeout);
-        } else {
-            /* Note: this assumes we are not corked, as corking will swallow things and fail later on */
+        /* Check if we now have too much backpressure (todo: don't buffer up before check) */
+        if (!maxBackpressure || (unsigned int) asyncSocket->getBufferedAmount() < maxBackpressure) {
+            /* Pick uncompressed data track */
+            std::string_view selectedData = data.first;
 
-            /* Check if we now have too much backpressure (todo: don't buffer up before check) */
-            if ((unsigned int) asyncSocket->getBufferedAmount() > maxBackpressure) {
-                asyncSocket->close();
+            /* Are we using compression? Fine, pick the compressed data track */
+            WebSocketData *webSocketData = (WebSocketData *) asyncSocket->getAsyncSocketData();
+            if (webSocketData->compressionStatus != WebSocketData::CompressionStatus::DISABLED) {
+                selectedData = data.second;
             }
+
+            /* Note: this assumes we are not corked, as corking will swallow things and fail later on */
+            auto [written, failed] = asyncSocket->write(selectedData.data(), (int) selectedData.length());
+            if (!failed) {
+                asyncSocket->timeout(this->idleTimeout);
+            }
+
+            /* Failing here must not immediately close the socket, as that could result in stack overflow,
+             * iterator invalidation and other TopicTree::drain bugs. We may shutdown the reading side of the socket,
+             * causing next iteration to error-close the socket from that context instead, if we want to */
         }
+
+        /* If we have too much backpressure, simply skip sending from here */
 
         /* Reserved, unused */
         return 0;
@@ -93,7 +110,27 @@ struct WebSocketContextData {
         char *dst = (char *) malloc(protocol::messageFrameSize(message.size()));
         size_t dst_length = protocol::formatMessage<true>(dst, message.data(), message.length(), opCode, message.length(), false);
 
-        topicTree.publish(topic, std::string_view(dst, dst_length));
+        if (compress) {
+            /* Loop data holds shared compressor */
+            LoopData *loopData = (LoopData *) us_loop_ext((us_loop_t *) Loop::get());
+
+            /* Compress it */
+            std::string_view compressedMessage = loopData->deflationStream->deflate(loopData->zlibContext, message, true);
+
+            /* Frame it */
+            char *dst_compressed = (char *) malloc(protocol::messageFrameSize(compressedMessage.size()));
+            size_t dst_compressed_length = protocol::formatMessage<true>(dst_compressed, compressedMessage.data(), compressedMessage.length(), opCode, compressedMessage.length(), true);
+
+            /* Always publish the shortest one in any case */
+            topicTree.publish(topic, {std::string_view(dst, dst_length), dst_compressed_length >= dst_length ? std::string_view(dst, dst_length) : std::string_view(dst_compressed, dst_compressed_length)});
+
+            /* We don't care for allocation here */
+            ::free(dst_compressed);
+        } else {
+            /* If not compressing, put same message on both tracks */
+            topicTree.publish(topic, {std::string_view(dst, dst_length), std::string_view(dst, dst_length)});
+        }
+
         ::free(dst);
     }
 };

@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@ namespace uWS {
 template <bool SSL, bool isServer>
 struct WebSocket : AsyncSocket<SSL> {
     template <bool> friend struct TemplatedApp;
+    template <bool> friend struct HttpResponse;
 private:
     typedef AsyncSocket<SSL> Super;
 
@@ -49,6 +50,7 @@ public:
     /* See AsyncSocket */
     using Super::getBufferedAmount;
     using Super::getRemoteAddress;
+    using Super::getRemoteAddressAsText;
 
     /* Simple, immediate close of the socket. Emits close event */
     using Super::close;
