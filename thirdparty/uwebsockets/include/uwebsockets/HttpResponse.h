@@ -2,6 +2,10 @@
  * Authored by Alex Hultman, 2018-2020.
  * Intellectual property of third-party.
 
+ *
+ * Modified by Dmitry Igrishin, 2020.
+ *
+
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +44,7 @@ namespace uWS {
 static const char *HTTP_200_OK = "200 OK";
 
 /* The general timeout for HTTP sockets */
-static const int HTTP_TIMEOUT_S = 10;
+static const int HTTP_TIMEOUT_S = 120;
 
 template <bool SSL>
 struct HttpResponse : public AsyncSocket<SSL> {
