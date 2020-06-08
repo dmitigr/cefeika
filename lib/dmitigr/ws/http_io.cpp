@@ -63,11 +63,6 @@ public:
       return rep_->tryEnd(data, total_size);
   }
 
-  bool send_chunk(const std::string_view data) override
-  {
-    return rep_->write(data);
-  }
-
   void end(const std::string_view data) override
   {
     DMITIGR_REQUIRE(is_valid(), std::logic_error);

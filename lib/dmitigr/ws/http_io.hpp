@@ -117,21 +117,6 @@ public:
   virtual std::pair<bool, bool> send_data(std::string_view data, int total_size = 0) = 0;
 
   /**
-   * @brief Sends the response in chunking fashion
-   *
-   * The status line will be set to `200 OK`, and the header `Transfer-Encoding`
-   * will be set to `chunked`.
-   *
-   * @returns `true` on success, or `false` on failure. If the returned value
-   * is `true` then this function can be called again in order to send more
-   * data. Otherwise, the underlying connection socket will be closed after
-   * a several seconds of timeout.
-   *
-   * @remarks If call of this function returns
-   */
-  virtual bool send_chunk(std::string_view data) = 0;
-
-  /**
    * @brief Sends the `data` (if any) and finishes the IO.
    *
    * @par Effects
