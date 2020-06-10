@@ -24,11 +24,13 @@
 #define DMITIGR_HTTP_HTTP_HPP
 
 #include "dmitigr/http/basics.hpp"
+#include "dmitigr/http/connection.hpp"
 #include "dmitigr/http/cookie.hpp"
 #include "dmitigr/http/date.hpp"
 #include "dmitigr/http/errc.hpp"
 #include "dmitigr/http/exceptions.hpp"
 #include "dmitigr/http/header.hpp"
+#include "dmitigr/http/server.hpp"
 #include "dmitigr/http/set_cookie.hpp"
 #include "dmitigr/http/std_system_error.hpp"
 #include "dmitigr/http/syntax.hpp"

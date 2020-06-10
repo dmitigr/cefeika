@@ -63,6 +63,11 @@ public:
    * @throws `std::runtime_error` on failure.
    */
   virtual void close() = 0;
+
+  /**
+   * @returns Native handle (i.e. socket or named pipe).
+   */
+  virtual std::intptr_t native_handle() = 0;
 };
 
 namespace detail {
@@ -152,6 +157,11 @@ public:
 
     if (socket_.close() != 0)
       throw os::Sys_exception{"closesocket"};
+  }
+
+  std::intptr_t native_handle() noexcept override
+  {
+    return socket_;
   }
 
 private:
@@ -251,6 +261,11 @@ public:
       if (!pipe_.close())
         throw os::Sys_exception{"CloseHandle"};
     }
+  }
+
+  std::intptr_t native_handle() noexcept override
+  {
+    return static_cast<std::intptr_t>(pipe_);
   }
 
 private:

@@ -14,11 +14,13 @@ dmitigr_set_library_info(http 0 1 "HTTP library")
 
 set(dmitigr_http_headers
   basics.hpp
+  connection.hpp
   cookie.hpp
   date.hpp
   exceptions.hpp
   errc.hpp
   header.hpp
+  server.hpp
   set_cookie.hpp
   std_system_error.hpp
   syntax.hpp

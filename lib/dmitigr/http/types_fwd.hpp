@@ -22,6 +22,11 @@ class Cookie;
 class Date;
 class Set_cookie;
 
+class Connection;
+class Listener_options;
+class Listener;
+class Server_connection;
+
 /**
  * @brief The implementation details.
  */
