@@ -5,6 +5,7 @@
 #ifndef DMITIGR_NET_LISTENER_HPP
 #define DMITIGR_NET_LISTENER_HPP
 
+#include "dmitigr/net/address.hpp"
 #include "dmitigr/net/descriptor.hpp"
 #include "dmitigr/net/endpoint.hpp"
 #include "dmitigr/net/socket.hpp"
