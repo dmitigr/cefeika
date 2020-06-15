@@ -18,42 +18,40 @@ int main(int, char* argv[])
       auto conn = l.accept();
       conn->receive_head();
       if (!conn->is_head_received()) {
-        std::cerr << "bad request" << std::endl;
+        conn->send_start(http::Server_errc::bad_request);
         continue;
       }
 
-      std::cout << "method = " << conn->method() << std::endl;
-      std::cout << "path = " << conn->path() << std::endl;
-      std::cout << "version = " << conn->version() << std::endl;
+      const auto content_length = conn->content_length();
+      std::string body;
+      if (*content_length >= 1048576) {
+        conn->send_start(http::Server_errc::payload_too_large);
+        continue;
+      } else
+        body = conn->receive_body_to_string();
 
-      for (const auto& rh : conn->headers())
-        std::cout << rh.name() << "<-->" << rh.value() << std::endl;
-
-      unsigned content_length{};
-      if (const auto cl = conn->header("content-length"); !cl.empty())
-        content_length = std::stoi(std::string{cl});
-
-      std::cerr << "content-length = " << content_length << std::endl;
+      std::string response{"Start line:\n"};
+      response.append("method = ").append(conn->method()).append("\n");
+      response.append("path = ").append(conn->path()).append("\n");
+      response.append("version = ").append(conn->version()).append("\n\n");
+      response.append("Headers:\n");
+      for (const auto& rh : conn->headers()) {
+        response += rh.name();
+        response += "<-->";
+        response += rh.value();
+        response += "\n";
+      }
+      if (!body.empty()) {
+        response.append("Body:\n");
+        response.append(body);
+      }
 
       conn->send_start(http::Server_succ::ok);
       conn->send_header("Server", "dmitigr");
-      if (content_length > 0) {
-        std::string body;
-        unsigned offset{};
-        constexpr unsigned buf_size = 4096;
-        body.resize(buf_size);
-        while (const auto n = conn->receive_body(body.data() + offset, buf_size)) {
-          if (n < buf_size) {
-            body.resize(body.size() - buf_size + n);
-            break;
-          }
-          offset += buf_size;
-          body.resize(body.size() + buf_size);
-        }
-        conn->send_header("Content-Type", "text/plain");
-        conn->send_header("Content-Length", std::to_string(body.size()));
-        conn->send_body(body);
-      }
+      conn->send_header("Content-Type", "text/plain");
+      //conn->send_header("Content-Disposition", "attachment; filename=a.txt");
+      conn->send_header("Content-Length", std::to_string(response.size()));
+      conn->send_body(response);
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);

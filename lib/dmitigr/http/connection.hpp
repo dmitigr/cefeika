@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <cstring>
 #include <locale>
 #include <optional>
@@ -333,6 +334,17 @@ public:
   }
 
   /**
+   * @returns The value of "Content-Length" HTTP header if presents, or
+   * `std::nullopt` otherwise.
+   */
+  std::optional<std::intmax_t> content_length() const
+  {
+    std::optional<std::intmax_t> result{};
+    const std::string cl{header("content-length")};
+    return !cl.empty() ? std::stoll(cl) : std::make_optional<std::intmax_t>();
+  }
+
+  /**
    * @returns The size of body received.
    *
    * @par Requires
@@ -369,6 +381,17 @@ public:
       is_body_received_ = true;
     DMITIGR_ASSERT(is_invariant_ok());
     return head_body_size + result;
+  }
+
+  /// Convenient method to receive an entire body to string.
+  std::string receive_body_to_string()
+  {
+    if (const auto cl = content_length()) {
+      std::string result(*cl, 0);
+      receive_body(result.data(), result.size());
+      return result;
+    } else
+      return std::string{};
   }
 
   /// @returns `true` if body received, or `false` otherwise.
