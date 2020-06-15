@@ -265,7 +265,7 @@ public:
 
   std::intptr_t native_handle() noexcept override
   {
-    return static_cast<std::intptr_t>(pipe_);
+    return reinterpret_cast<std::intptr_t>(pipe_.handle());
   }
 
 private:

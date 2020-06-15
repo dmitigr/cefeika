@@ -93,7 +93,9 @@ public:
 
       result.compression = uWS::DISABLED;
       result.maxPayloadLength = static_cast<Uws_payload_size>(max_payload_size);
-      result.idleTimeout = idle_timeout.count(); // eternity
+      using Timeout = decltype(result.idleTimeout);
+      constexpr auto max_idle_timeout = std::numeric_limits<Timeout>::max();
+      result.idleTimeout = std::min(max_idle_timeout, static_cast<Timeout>(idle_timeout.count()));
       result.maxBackpressure = std::numeric_limits<decltype(result.maxPayloadLength)>::max();
 
       result.open = [this](auto* const ws)
@@ -164,21 +166,34 @@ public:
     const auto host = options().endpoint().net_address().value();
     const auto port = options().endpoint().net_port().value();
 
-    App app = [this]
+    // This is for Windows where std::filesystem::path::c_str() returns const wchar_t*.
+    std::string ssl_private_key_file,
+      ssl_certificate_file,
+      ssl_dh_parameters_file,
+      ssl_certificate_authority_file;
+    App app = [this, &ssl_private_key_file, &ssl_certificate_file, &ssl_dh_parameters_file, &ssl_certificate_authority_file]
     {
       us_socket_context_options_t socket_options{};
       if (options().is_ssl_enabled()) {
         DMITIGR_ASSERT(IsSsl);
-        if (const auto value = options().ssl_private_key_file())
-          socket_options.key_file_name = value->c_str();
-        if (const auto value = options().ssl_certificate_file())
-          socket_options.cert_file_name = value->c_str();
-        if (const auto value = options().ssl_pem_file_password())
+        if (const auto& value = options().ssl_private_key_file()) {
+          ssl_private_key_file = value->string();
+          socket_options.key_file_name = ssl_private_key_file.c_str();
+        }
+        if (const auto& value = options().ssl_certificate_file()) {
+          ssl_certificate_file = value->string();
+          socket_options.cert_file_name = ssl_certificate_file.c_str();
+        }
+        if (const auto& value = options().ssl_pem_file_password())
           socket_options.passphrase = value->c_str();
-        if (const auto value = options().ssl_dh_parameters_file())
-          socket_options.dh_params_file_name = value->c_str();
-        if (const auto value = options().ssl_certificate_authority_file())
-          socket_options.ca_file_name = value->c_str();
+        if (const auto& value = options().ssl_dh_parameters_file()) {
+          ssl_dh_parameters_file = value->string();
+          socket_options.dh_params_file_name = ssl_dh_parameters_file.c_str();
+        }
+        if (const auto& value = options().ssl_certificate_authority_file()) {
+          ssl_certificate_authority_file = value->string();
+          socket_options.ca_file_name = ssl_certificate_authority_file.c_str();
+        }
         socket_options.ssl_prefer_low_memory_usage = 0;
       }
       return App{socket_options};
