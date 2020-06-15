@@ -282,6 +282,8 @@ public:
 
     if (hpos < head_size_)
       head_body_offset_ = hpos;
+    else
+      is_body_received_ = true;
 
     is_head_received_ = true;
 

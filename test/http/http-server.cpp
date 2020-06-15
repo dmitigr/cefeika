@@ -29,34 +29,31 @@ int main(int, char* argv[])
       for (const auto& rh : conn->headers())
         std::cout << rh.name() << "<-->" << rh.value() << std::endl;
 
-      unsigned len{};
+      unsigned content_length{};
       if (const auto cl = conn->header("content-length"); !cl.empty())
-        len = std::stoi(std::string{cl});
+        content_length = std::stoi(std::string{cl});
 
-      std::cerr << "content-length = " << len << std::endl;
-
-      unsigned offset{};
-      std::string body;
-      body.resize(4096);
-      while (const auto n = conn->receive_body(body.data() + offset, 4096)) {
-        if (n < 4096) {
-          body.resize(body.size() - 4096 + n);
-          break;
-        }
-        offset += 4096;
-        body.resize(body.size() + 4096);
-      }
-
-      std::cout << "body:" << std::endl
-                << body << std::endl;
+      std::cerr << "content-length = " << content_length << std::endl;
 
       conn->send_start(http::Server_succ::ok);
       conn->send_header("Server", "dmitigr");
-      // conn.send_header("Content-Type", "text/plain");
-      // conn.send_header("Content-Length", std::to_string(body.size()));
-      // conn.send_body(body);
-
-      //std::cerr << body << std::endl;
+      if (content_length > 0) {
+        std::string body;
+        unsigned offset{};
+        constexpr unsigned buf_size = 4096;
+        body.resize(buf_size);
+        while (const auto n = conn->receive_body(body.data() + offset, buf_size)) {
+          if (n < buf_size) {
+            body.resize(body.size() - buf_size + n);
+            break;
+          }
+          offset += buf_size;
+          body.resize(body.size() + buf_size);
+        }
+        conn->send_header("Content-Type", "text/plain");
+        conn->send_header("Content-Length", std::to_string(body.size()));
+        conn->send_body(body);
+      }
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
