@@ -7,6 +7,7 @@
 
 #include <dmitigr/base/debug.hpp>
 
+#include <optional>
 #include <string_view>
 
 namespace dmitigr::http {
@@ -47,6 +48,59 @@ inline std::string to_string(const Same_site ss)
   case Same_site::lax: return "Lax";
   }
   DMITIGR_ASSERT_ALWAYS(!true);
+}
+
+// -----------------------------------------------------------------------------
+
+/// A HTTP request method.
+enum class Method {
+  get,
+  head,
+  post,
+  put,
+  del,
+  connect,
+  options,
+  trace
+};
+
+/**
+ * @returns The literal representation of the `method`, or `nullptr`
+ * if `method` does not corresponds to any value defined by Method.
+ */
+constexpr const char* to_literal(const Method method)
+{
+  switch (method) {
+  case Method::get: return "GET";
+  case Method::head: return "HEAD";
+  case Method::post: return "POST";
+  case Method::put: return "PUT";
+  case Method::del: return "DELETE";
+  case Method::connect: return "CONNECT";
+  case Method::options: return "OPTIONS";
+  case Method::trace: return "TRACE";
+  }
+  return nullptr;
+}
+
+/**
+ * @ingroup headers
+ *
+ * @returns The result of conversion of `str` to the value of type Method.
+ *
+ * @remarks The value of `str` is case-sensitive.
+ */
+inline std::optional<Method> to_method(const std::string_view str)
+{
+  if (str == "GET") return Method::get;
+  else if (str == "HEAD") return Method::head;
+  else if (str == "POST") return Method::post;
+  else if (str == "PUT") return Method::put;
+  else if (str == "DELETE") return Method::del;
+  else if (str == "CONNECT") return Method::connect;
+  else if (str == "OPTIONS") return Method::options;
+  else if (str == "TRACE") return Method::trace;
+  else return std::nullopt;
 }
 
 } // namespace dmitigr::http

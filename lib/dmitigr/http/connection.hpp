@@ -5,6 +5,7 @@
 #ifndef DMITIGR_HTTP_CONNECTION_HPP
 #define DMITIGR_HTTP_CONNECTION_HPP
 
+#include "dmitigr/http/basics.hpp"
 #include "dmitigr/http/types_fwd.hpp"
 #include <dmitigr/net/descriptor.hpp>
 
@@ -142,13 +143,6 @@ public:
 
     // Parsing start line.
 
-    static const auto is_valid_method = [](const std::string_view method)
-    {
-      static const auto valids = {"GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE"};
-      return std::any_of(std::cbegin(valids), std::cend(valids),
-        [method](const std::string_view m) { return method == m; });
-    };
-
     head_size_ = recv__(head_.data(), head_.size());
     head_body_offset_ = head_size_;
     if (head_size_ < min_head_size)
@@ -159,7 +153,7 @@ public:
     // method
     for (; hpos < 7 && head_[hpos] != ' '; hpos++);
 
-    if (is_valid_method({head_.data(), hpos}))
+    if (const auto m = to_method({head_.data(), hpos}))
       method_size_ = hpos;
     else
       return;
