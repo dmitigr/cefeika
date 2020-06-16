@@ -41,7 +41,7 @@ public:
 
     const char* const literal = to_literal(code);
     DMITIGR_REQUIRE(literal, std::invalid_argument);
-    std::string line{"HTTP/1.1 "};
+    std::string line{"HTTP/1.0 "};
     line.append(std::to_string(static_cast<int>(code))).append(" ");
     line.append(literal).append("\r\n");
     send_start__(line);
