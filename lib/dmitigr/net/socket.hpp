@@ -103,6 +103,33 @@ inline bool is_socket_error(const int function_result)
 #endif
 }
 
+/**
+ * @brief Sets the receiving or sending timeouts until reporting an error.
+ *
+ * @throws std::system_error on failure.
+ */
+inline void set_timeout(const Socket_native socket,
+  const std::chrono::milliseconds rcv_timeout,
+  const std::chrono::milliseconds snd_timeout)
+{
+  namespace chrono = std::chrono;
+#ifdef _WIN32
+  const auto rcv_to = rcv_timeout.count();
+  const auto snd_to = snd_timeout.count();
+  const auto rrcv = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, rcv_to, sizeof(DWORD));
+  const auto rsnd = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, snd_to, sizeof(DWORD));
+#else
+  timeval rcv_tv{chrono::duration_cast<chrono::seconds>(rcv_timeout).count(), 0};
+  timeval snd_tv{chrono::duration_cast<chrono::seconds>(snd_timeout).count(), 0};
+  char* const rcv_to = reinterpret_cast<char*>(&rcv_tv);
+  char* const snd_to = reinterpret_cast<char*>(&snd_tv);
+  const auto rrcv = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, rcv_to, sizeof(rcv_tv));
+  const auto rsnd = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, snd_to, sizeof(snd_tv));
+#endif
+  if (net::is_socket_error(rrcv) || net::is_socket_error(rsnd))
+    throw os::Sys_exception{"setsockopt"};
+}
+
 // =============================================================================
 
 #ifdef _WIN32

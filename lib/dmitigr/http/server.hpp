@@ -154,22 +154,6 @@ inline Listener Listener_options::make_listener() const
 std::unique_ptr<Server_connection> Listener::accept()
 {
   auto io = listener_->accept();
-
-  // Setting up timeouts.
-  auto s = static_cast<net::Socket_native>(io->native_handle());
-  constexpr auto timeout = 10 * 1000;
-#ifdef _WIN32
-  const auto rrcv = setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, timeout, sizeof(DWORD));
-  const auto rsnd = setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, timeout, sizeof(DWORD));
-#else
-  timeval timeout_{timeout / 1000, 0};
-  char* const to = reinterpret_cast<char*>(&timeout_);
-  const auto rrcv = setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, to, sizeof(timeval));
-  const auto rsnd = setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, to, sizeof(timeval));
-#endif
-  if (net::is_socket_error(rrcv) || net::is_socket_error(rsnd))
-    throw os::Sys_exception{"setsockopt"};
-
   return std::unique_ptr<Server_connection>{new Server_connection{std::move(io)}};
 }
 
