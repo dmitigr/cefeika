@@ -274,28 +274,9 @@ public:
       if (::setsockopt(socket_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&optval), optlen) != 0)
         throw DMITIGR_NET_EXCEPTION{"setsockopt"};
 
-      const net::Ip_address ip{*eid.net_address()};
-      if (ip.family() == Ip_version::v4) {
-        ::sockaddr_in addr{};
-        constexpr auto addr_size = sizeof (addr);
-        std::memset(&addr, 0, addr_size);
-        addr.sin_family = AF_INET;
-        addr.sin_addr = *static_cast<const ::in_addr*>(ip.binary());
-        addr.sin_port = htons(static_cast<unsigned short>(*eid.net_port()));
-        if (::bind(socket_, reinterpret_cast<::sockaddr*>(&addr), static_cast<int>(addr_size)) != 0)
-          throw DMITIGR_NET_EXCEPTION{"bind"};
-      } else if (ip.family() == Ip_version::v6) {
-        ::sockaddr_in6 addr{};
-        constexpr auto addr_size = sizeof (addr);
-        std::memset(&addr, 0, addr_size);
-        addr.sin6_family = AF_INET6;
-        addr.sin6_addr = *static_cast<const ::in6_addr*>(ip.binary());
-        addr.sin6_port = htons(static_cast<unsigned short>(*eid.net_port()));
-        addr.sin6_flowinfo = htonl(0);
-        addr.sin6_scope_id = htonl(0);
-        if (::bind(socket_, reinterpret_cast<::sockaddr*>(&addr), static_cast<int>(addr_size)) != 0)
-          throw DMITIGR_NET_EXCEPTION{"bind"};
-      }
+      const net::Socket_address sa{*eid.net_address(), *eid.net_port()};
+      if (::bind(socket_, sa.addr(), static_cast<int>(sa.size())) != 0)
+        throw DMITIGR_NET_EXCEPTION{"bind"};
     };
 
 #ifdef _WIN32
