@@ -7,7 +7,9 @@
 
 int main(int, char* argv[])
 {
+  namespace chrono = std::chrono;
   namespace http = dmitigr::http;
+  namespace net = dmitigr::net;
   using namespace dmitigr::testo;
 
   try {
@@ -16,6 +18,8 @@ int main(int, char* argv[])
     l.listen();
     while (true) {
       auto conn = l.accept();
+      constexpr chrono::seconds timeout{10};
+      net::set_timeout(static_cast<net::Socket_native>(conn->native_handle()), timeout, timeout);
       conn->receive_head();
       if (!conn->is_head_received()) {
         conn->send_start(http::Server_errc::bad_request);

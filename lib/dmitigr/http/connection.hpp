@@ -421,6 +421,12 @@ public:
     return !static_cast<bool>(io_);
   }
 
+  /// @returns The underlying IO descriptor. (Use with care.)
+  auto native_handle() const
+  {
+    return io_->native_handle();
+  }
+
 protected:
   explicit Connection(std::unique_ptr<net::Descriptor>&& io)
     : io_{std::move(io)}
