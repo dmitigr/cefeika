@@ -127,7 +127,7 @@ inline void set_timeout(const Socket_native socket,
   const auto rsnd = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, snd_to, sizeof(snd_tv));
 #endif
   if (net::is_socket_error(rrcv) || net::is_socket_error(rsnd))
-    throw os::Sys_exception{"setsockopt"};
+    throw DMITIGR_NET_EXCEPTION{"setsockopt"};
 }
 
 // =============================================================================
