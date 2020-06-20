@@ -259,7 +259,7 @@ public:
    */
   const sockaddr* addr() const
   {
-    return reinterpret_cast<const sockaddr*>(binary());
+    return static_cast<const sockaddr*>(binary());
   }
 
   /// @returns The size of underlying binary data.
