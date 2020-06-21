@@ -259,9 +259,7 @@ public:
 
     const auto tcp_create_bind = [&]
     {
-      socket_ = net::Socket_guard{::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)};
-      if (!net::is_socket_valid(socket_))
-        throw DMITIGR_NET_EXCEPTION{"socket"};
+      socket_ = make_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
       const int optval = 1;
 #ifdef _WIN32
@@ -272,9 +270,7 @@ public:
       if (::setsockopt(socket_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&optval), optlen) != 0)
         throw DMITIGR_NET_EXCEPTION{"setsockopt"};
 
-      const net::Socket_address sa{*eid.net_address(), *eid.net_port()};
-      if (::bind(socket_, sa.addr(), static_cast<int>(sa.size())) != 0)
-        throw DMITIGR_NET_EXCEPTION{"bind"};
+      bind_socket(socket_, {*eid.net_address(), *eid.net_port()});
     };
 
 #ifdef _WIN32
@@ -282,13 +278,8 @@ public:
 #else
     const auto uds_create_bind = [&]
     {
-      socket_ = net::Socket_guard{::socket(AF_UNIX, SOCK_STREAM, IPPROTO_TCP)};
-      if (!net::is_socket_valid(socket_))
-        throw DMITIGR_NET_EXCEPTION{"socket"};
-
-      const net::Socket_address sa{eid.uds_path().value()};
-      if (::bind(socket_, sa.addr(), static_cast<int>(sa.size())) != 0)
-        throw DMITIGR_NET_EXCEPTION{"bind"};
+      socket_ = make_socket(AF_UNIX, SOCK_STREAM, IPPROTO_TCP);
+      bind_socket(socket_, {eid.uds_path().value()});
     };
 
     if (const auto cm = eid.communication_mode(); cm == Communication_mode::net)

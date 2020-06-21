@@ -5,6 +5,7 @@
 #ifndef DMITIGR_NET_SOCKET_HPP
 #define DMITIGR_NET_SOCKET_HPP
 
+#include "dmitigr/net/address.hpp"
 #include "dmitigr/net/exceptions.hpp"
 #include <dmitigr/base/basics.hpp>
 
@@ -258,6 +259,30 @@ public:
 private:
   Socket_native socket_{invalid_socket};
 };
+
+/// @returns Newly created socket.
+inline Socket_guard make_socket(const int domain, const int type, const int protocol)
+{
+  net::Socket_guard result{::socket(domain, type, protocol)};
+  if (net::is_socket_valid(result))
+    return result;
+  else
+    throw DMITIGR_NET_EXCEPTION{"socket"};
+}
+
+/// Binds `socket` to `addr`.
+inline void bind_socket(const Socket_native socket, const net::Socket_address addr)
+{
+  if (::bind(socket, addr.addr(), static_cast<int>(addr.size())) != 0)
+    throw DMITIGR_NET_EXCEPTION{"bind"};
+}
+
+/// Connects `sockets` to remote `addr`.
+inline void connect_socket(const Socket_native socket, const net::Socket_address addr)
+{
+  if (::connect(socket, addr.addr(), addr.size()) != 0)
+    throw DMITIGR_NET_EXCEPTION{"connect"};
+}
 
 /**
  * @brief Performs the polling of the `socket`.
