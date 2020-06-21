@@ -15,7 +15,7 @@ int main(int, char* argv[])
     ASSERT(net::Ip_address::is_valid(v4_addr_str));
 
     net::Ip_address ip{v4_addr_str};
-    ASSERT(ip.family() == net::Ip_version::v4);
+    ASSERT(ip.family() == net::Protocol_family::ipv4);
     ASSERT(ip.binary());
     ASSERT(ip.to_string() == v4_addr_str);
 
@@ -24,7 +24,7 @@ int main(int, char* argv[])
 
     const std::string v6_addr_str{"fe80::1:2:3:4"};
     ip = net::Ip_address{v6_addr_str};
-    ASSERT(ip.family() == net::Ip_version::v6);
+    ASSERT(ip.family() == net::Protocol_family::ipv6);
     ASSERT(ip.binary());
     ASSERT(ip.to_string() == v6_addr_str);
   } catch (const std::exception& e) {

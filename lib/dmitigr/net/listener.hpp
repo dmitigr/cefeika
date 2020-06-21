@@ -21,8 +21,6 @@
 
 #ifdef _WIN32
 #include <dmitigr/os/windows.hpp>
-#else
-#include <sys/un.h>
 #endif
 
 namespace dmitigr::net {
@@ -288,16 +286,8 @@ public:
       if (!net::is_socket_valid(socket_))
         throw DMITIGR_NET_EXCEPTION{"socket"};
 
-      ::sockaddr_un addr{};
-      constexpr auto addr_size = sizeof (addr);
-      addr.sun_family = AF_UNIX;
-      const std::filesystem::path& path = eid.uds_path().value();
-      if (path.native().size() > sizeof (::sockaddr_un::sun_path) - 1)
-        throw std::runtime_error{"UDS path is too long"};
-      else
-        std::strncpy(addr.sun_path, path.native().c_str(), sizeof (::sockaddr_un::sun_path));
-
-      if (::bind(socket_, reinterpret_cast<::sockaddr*>(&addr), static_cast<int>(addr_size)) != 0)
+      const net::Socket_address sa{eid.uds_path().value()};
+      if (::bind(socket_, sa.addr(), static_cast<int>(sa.size())) != 0)
         throw DMITIGR_NET_EXCEPTION{"bind"};
     };
 

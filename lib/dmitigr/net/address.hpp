@@ -6,6 +6,7 @@
 #define DMITIGR_NET_ADDRESS_HPP
 
 #include <dmitigr/base/debug.hpp>
+#include <dmitigr/base/filesystem.hpp>
 
 #include <algorithm>
 #include <cstring>
@@ -22,19 +23,23 @@
 #include <Ws2tcpip.h> // inet_pton(), inet_ntop()
 #else
 #include <arpa/inet.h>
+#include <sys/un.h>
 #endif
 
 namespace dmitigr::net {
 
 /**
- * @brief An Internet Protocol (IP) version.
+ * @brief A protocol family.
  */
-enum class Ip_version {
-  /** The IP version 4. */
-  v4 = 4,
+enum class Protocol_family {
+  /** Local communication. */
+  local = 1,
 
-  /** The IP version 6. */
-  v6 = 6
+  /** The IP version 4 Internet protocols. */
+  ipv4 = 4,
+
+  /** The IP version 6 Internet protocols. */
+  ipv6 = 6
 };
 
 /**
@@ -99,15 +104,15 @@ public:
   /**
    * @returns The family of the IP address.
    */
-  Ip_version family() const
+  Protocol_family family() const
   {
     return std::visit([](const auto& addr) {
       using T = std::decay_t<decltype (addr)>;
       static_assert(std::is_same_v<T, ::in_addr> || std::is_same_v<T, ::in6_addr>);
       if constexpr (std::is_same_v<T, ::in_addr>) {
-        return Ip_version::v4;
+        return Protocol_family::ipv4;
       } else {
-        return Ip_version::v6;
+        return Protocol_family::ipv6;
       }
     }, binary_);
   }
@@ -131,7 +136,7 @@ public:
   {
     const auto family_native = [this]
     {
-      return (family() == Ip_version::v4) ? AF_INET : AF_INET6;
+      return (family() == Protocol_family::ipv4) ? AF_INET : AF_INET6;
     };
 
     const auto fam = family_native();
@@ -203,11 +208,11 @@ private:
 class Socket_address final {
 public:
   /**
-   * @brief The constructor.
+   * @brief Constructs TCP socket address.
    */
   Socket_address(const Ip_address& ip, const int port)
   {
-    if (ip.family() == Ip_version::v4) {
+    if (ip.family() == Protocol_family::ipv4) {
       ::sockaddr_in addr{};
       constexpr auto addr_size = sizeof (addr);
       std::memset(&addr, 0, addr_size);
@@ -215,7 +220,7 @@ public:
       addr.sin_addr = *static_cast<const ::in_addr*>(ip.binary());
       addr.sin_port = htons(static_cast<unsigned short>(port));
       binary_ = addr;
-    } else if (ip.family() == Ip_version::v6) {
+    } else if (ip.family() == Protocol_family::ipv6) {
       ::sockaddr_in6 addr{};
       constexpr auto addr_size = sizeof (addr);
       std::memset(&addr, 0, addr_size);
@@ -229,16 +234,34 @@ public:
   }
 
   /**
+   * @brief Constructs UDS address.
+   */
+  Socket_address(const std::filesystem::path& path)
+  {
+    ::sockaddr_un addr{};
+    addr.sun_family = AF_UNIX;
+    if (path.native().size() <= sizeof (::sockaddr_un::sun_path) - 1)
+      std::strncpy(addr.sun_path, path.native().c_str(), sizeof (::sockaddr_un::sun_path));
+    else
+      throw std::runtime_error{"UDS path too long"};
+    binary_ = addr;
+  }
+
+  /**
    * @returns The family of the socket address.
    */
-  Ip_version family() const
+  Protocol_family family() const
   {
     return std::visit([](const auto& addr) {
       using T = std::decay_t<decltype (addr)>;
-      if constexpr (std::is_same_v<T, sockaddr_in>) {
-        return Ip_version::v4;
+      static_assert(std::is_same_v<T, ::sockaddr_un> ||
+        std::is_same_v<T, ::sockaddr_in> || std::is_same_v<T, ::sockaddr_in6>);
+      if constexpr (std::is_same_v<T, ::sockaddr_un>) {
+        return Protocol_family::local;
+      } else if constexpr (std::is_same_v<T, ::sockaddr_in>) {
+        return Protocol_family::ipv4;
       } else {
-        return Ip_version::v6;
+        return Protocol_family::ipv6;
       }
     }, binary_);
   }
@@ -271,7 +294,7 @@ public:
   }
 
 private:
-  std::variant<::sockaddr_in, ::sockaddr_in6> binary_;
+  std::variant<::sockaddr_in, ::sockaddr_in6, ::sockaddr_un> binary_;
 };
 
 } // namespace dmitigr::net
