@@ -48,6 +48,27 @@ public:
     send_start__(line);
   }
 
+  /// @returns The method extracted from start line.
+  std::string_view method() const
+  {
+    const char* const offset = head_.data();
+    return {offset, method_size_};
+  }
+
+  /// @returns The path extracted from start line.
+  std::string_view path() const
+  {
+    const char* const offset = head_.data() + method_size_ + 1;
+    return {offset, path_size_};
+  }
+
+  /// @returns The HTTP version extracted from start line.
+  std::string_view version() const override
+  {
+    const char* const offset = head_.data() + method_size_ + 1 + path_size_ + 1;
+    return {offset, version_size_};
+  }
+
 private:
   friend Listener;
   using Connection::Connection;

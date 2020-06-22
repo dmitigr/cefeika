@@ -26,24 +26,27 @@ int main(int, char* argv[])
         continue;
       }
 
-      const auto content_length = conn->content_length();
       std::string body;
-      if (*content_length >= 1048576) {
-        conn->send_start(http::Server_errc::payload_too_large);
-        continue;
-      } else
-        body = conn->receive_body_to_string();
+      if (const auto content_length = conn->content_length()) {
+        if (*content_length >= 1048576) {
+          conn->send_start(http::Server_errc::payload_too_large);
+          continue;
+        } else
+          body = conn->receive_body_to_string();
+      }
 
       std::string response{"Start line:\n"};
       response.append("method = ").append(conn->method()).append("\n");
       response.append("path = ").append(conn->path()).append("\n");
       response.append("version = ").append(conn->version()).append("\n\n");
-      response.append("Headers:\n");
-      for (const auto& rh : conn->headers()) {
-        response += rh.name();
-        response += "<-->";
-        response += rh.value();
-        response += "\n";
+      if (!conn->headers().empty()) {
+        response.append("Headers:\n");
+        for (const auto& rh : conn->headers()) {
+          response += rh.name();
+          response += "<-->";
+          response += rh.value();
+          response += "\n";
+        }
       }
       if (!body.empty()) {
         response.append("Body:\n");
@@ -56,6 +59,7 @@ int main(int, char* argv[])
       //conn->send_header("Content-Disposition", "attachment; filename=a.txt");
       conn->send_header("Content-Length", std::to_string(response.size()));
       conn->send_body(response);
+      //conn->send_end();
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);

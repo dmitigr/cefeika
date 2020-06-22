@@ -122,7 +122,7 @@ public:
   void send_end()
   {
     auto s = static_cast<net::Socket_native>(io_->native_handle());
-    ::shutdown(s, net::sd_send);
+    net::shutdown_socket(s, net::sd_send);
     is_end_sent_ = true;
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -141,146 +141,219 @@ public:
   {
     DMITIGR_REQUIRE((is_server() && !is_head_received()) || (!is_server() && is_end_sent()), std::logic_error);
 
-    // Parsing start line.
+    unsigned hpos{};
 
-    head_size_ = recv__(head_.data(), head_.size());
-    head_body_offset_ = head_size_;
-    if (head_size_ < min_head_size)
-      return;
-
-    unsigned hpos = 0;
-
-    // method
-    for (; hpos < 7 && head_[hpos] != ' '; hpos++);
-
-    if (const auto m = to_method({head_.data(), hpos}))
-      method_size_ = hpos;
-    else
-      return;
-
-    // path
-    DMITIGR_ASSERT(head_[hpos] == ' ');
-    for (hpos++; hpos < head_size_ && head_[hpos] != ' '; hpos++);
-
-    if (hpos < head_size_ && head_[hpos] == ' ')
-      path_size_ = hpos - 1 - method_size_;
-    else
-      return;
-
-    // http version
-    DMITIGR_ASSERT(head_[hpos] == ' ');
-    for (hpos++; hpos < head_size_ && head_[hpos] != '\r'; hpos++);
-
-    if (hpos + 1 < head_size_ && head_[hpos] == '\r' && head_[hpos + 1] == '\n') {
-      version_size_ = hpos - 1 - path_size_ - 1 - method_size_;
-      hpos += 2; // skip CRLF
-    } else
-      return;
-
-    // Parsing headers.
-
-    static const auto is_hws_character = [](const char c)
+    const auto recv_head = [this, &hpos]() -> unsigned
     {
-      return c == ' ' || c == '\t';
-    };
-    static const auto is_valid_name_character = [](const char c)
-    {
-      // According to https://tools.ietf.org/html/rfc7230#section-3.2.6
-      static const char allowed[] = { '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~' };
-      static const std::locale l{"C"};
-      return std::isalnum(c, l) || std::any_of(std::cbegin(allowed), std::cend(allowed),
-        [c](const char ch) { return ch == c; });
-    };
-    static const auto is_valid_value_character = [](const char c)
-    {
-      // According to https://tools.ietf.org/html/rfc7230
-      static const std::locale l{"C"};
-      return std::isprint(c, l);
+      if (hpos < head_size_)
+        return head_size_ - hpos;
+      else if (const unsigned n = recv__(head_.data() + head_size_, head_.size() - head_size_)) {
+        head_size_ += n;
+        head_body_offset_ = head_size_;
+        return n;
+      } else
+        return 0;
     };
 
-    enum { name = 1, before_value, value, cr, crlfcr, crlfcrlf } state = name;
-    unsigned name_offset = hpos;
+    const auto parse_start_line = [this, &hpos, recv_head]() -> int
+    {
+      if (!recv_head() || head_size_ < min_head_size)
+        return -1;
+
+      if (is_server()) {
+        // method
+        for (; hpos < 7 && hpos < head_size_ && head_[hpos] != ' '; hpos++);
+
+        if (hpos >= head_size_)
+          return 1;
+        else if (const auto m = to_method({head_.data(), hpos}))
+          method_size_ = hpos;
+        else
+          return -1;
+
+        // path
+        DMITIGR_ASSERT(head_[hpos] == ' ');
+        for (hpos++; hpos < head_size_ && head_[hpos] != ' '; hpos++);
+
+        if (hpos >= head_size_)
+          return 1;
+        else if (head_[hpos] == ' ')
+          path_size_ = hpos - 1 - method_size_;
+        else
+          return -1;
+
+        // http version
+        DMITIGR_ASSERT(head_[hpos] == ' ');
+        for (hpos++; hpos < head_size_ && head_[hpos] != '\r'; hpos++);
+
+        if (hpos + 1 >= head_size_)
+          return 1;
+        else if (head_[hpos] == '\r' && head_[hpos + 1] == '\n') {
+          version_size_ = hpos - 1 - path_size_ - 1 - method_size_;
+          hpos += 2; // skip CRLF
+        } else
+          return -1;
+      } else {
+        // http version
+        for (; hpos < 8 && hpos < head_size_ && head_[hpos] != ' '; hpos++);
+
+        if (hpos >= head_size_)
+          return 1;
+        else if (const std::string_view ver{head_.data(), hpos}; ver == "HTTP/1.0" || ver == "HTTP/1.1")
+          version_size_ = ver.size();
+        else
+          return -1;
+
+        // http status code
+        DMITIGR_ASSERT(head_[hpos] == ' ');
+        for (hpos++; hpos < head_size_ && head_[hpos] != ' '; hpos++);
+
+        if (hpos >= head_size_)
+          return 1;
+        else if (head_[hpos] == ' ')
+          code_size_ = hpos - 1 - version_size_;
+        else
+          return -1;
+
+        // http status phrase
+        DMITIGR_ASSERT(head_[hpos] == ' ');
+        for (hpos++; hpos < head_size_ && head_[hpos] != '\r'; hpos++);
+
+        if (hpos + 1 >= head_size_)
+          return 1;
+        else if (head_[hpos] == '\r' && head_[hpos + 1] == '\n') {
+          phrase_size_ = hpos - 1 - code_size_ - 1 - version_size_;
+          hpos += 2; // skip CRLF
+        } else
+          return -1;
+      }
+
+      return 0;
+    };
+
+    unsigned headers_received{};
+    unsigned name_offset{};
     unsigned name_size{};
     unsigned hws_size{};
     unsigned value_size{};
+    enum { name = 1, before_value, value, cr, crlfcr, crlfcrlf } state{name};
+    const auto parse_headers = [this, &hpos, &headers_received, &name_offset,
+      &name_size, &hws_size, &value_size, &state, recv_head]() -> int
+    {
+      static const auto is_hws_character = [](const char c)
+      {
+        return c == ' ' || c == '\t';
+      };
+      static const auto is_valid_name_character = [](const char c)
+      {
+        // According to https://tools.ietf.org/html/rfc7230#section-3.2.6
+        static const char allowed[] = { '!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', '^', '_', '`', '|', '~' };
+        static const std::locale l{"C"};
+        return std::isalnum(c, l) || std::any_of(std::cbegin(allowed), std::cend(allowed),
+          [c](const char ch) { return ch == c; });
+      };
+      static const auto is_valid_value_character = [](const char c)
+      {
+        // According to https://tools.ietf.org/html/rfc7230
+        static const std::locale l{"C"};
+        return std::isprint(c, l);
+      };
 
-    if (hpos < head_size_) {
-      headers_.pairs().reserve(16);
-      static const std::locale l{"C"};
-      for (; hpos < head_size_ && state != crlfcrlf; hpos++) {
-        const char c = head_[hpos];
-        //std::cerr << "char = " << c << " state = " << (int)state << std::endl;
-        switch (state) {
-        case name:
-          if (c == ':') {
-            state = before_value;
-            continue; // skip :
-          } else if (is_valid_name_character(c)) {
-            head_[hpos] = std::tolower(c, l);
-            name_size++;
-            break; // ok
-          } else if (c == '\r') {
-            state = crlfcr;
-            continue;
-          } else
-            return; // bad input
+      if (const auto n = recv_head())
+        headers_received += n;
+      else if (!headers_received)
+        return 0; // no headers sent
 
-        case before_value:
-          if (is_hws_character(c)) {
-            hws_size++;
-            continue; // skip HWS
-          } else if (c == '\r' || c == '\n')
-            return; // headers without values are not allowed
-          else {
-            state = value;
+      if (hpos < head_size_) {
+        headers_.pairs().reserve(16);
+        static const std::locale l{"C"};
+        for (; hpos < head_size_ && state != crlfcrlf; hpos++) {
+          const char c = head_[hpos];
+          //std::cerr << "char = " << c << " state = " << (int)state << std::endl;
+          switch (state) {
+          case name:
+            if (c == ':') {
+              state = before_value;
+              continue; // skip :
+            } else if (is_valid_name_character(c)) {
+              head_[hpos] = std::tolower(c, l);
+              name_size++;
+              break; // ok
+            } else if (c == '\r') {
+              state = crlfcr;
+              continue;
+            } else
+              return -1; // bad input
+
+          case before_value:
+            if (is_hws_character(c)) {
+              hws_size++;
+              continue; // skip HWS
+            } else if (c == '\r' || c == '\n')
+              return -1; // headers without values are not allowed
+            else {
+              state = value;
+            }
+            [[fallthrough]];
+
+          case value:
+            if (c == '\r') {
+              const unsigned value_offset = name_offset + name_size + 1 + hws_size;
+              headers_.add(name_offset, name_size, value_offset, value_size, head_);
+              name_size = value_size = hws_size = 0;
+              state = cr;
+              continue; // skip CR
+            } else if (is_valid_value_character(c)) {
+              value_size++;
+              break; // ok
+            } else
+              return -1; // bad input
+
+          case cr:
+            if (c == '\n') {
+              name_offset = hpos + 1;
+              state = name;
+              continue; // skip LF
+            } else
+              return -1; // expected CRLF not found
+
+          case crlfcr:
+            if (c == '\n') {
+              state = crlfcrlf; // done
+              continue; // skip LF
+            } else
+              return -1; // expected CRLFCRLF not found
+
+          case crlfcrlf:;
           }
-          [[fallthrough]];
 
-        case value:
-          if (c == '\r') {
-            const unsigned value_offset = name_offset + name_size + 1 + hws_size;
-            headers_.add(name_offset, name_size, value_offset, value_size, head_);
-            name_size = value_size = hws_size = 0;
-            state = cr;
-            continue; // skip CR
-          } else if (is_valid_value_character(c)) {
-            value_size++;
-            break; // ok
-          } else
-            return; // bad input
-
-        case cr:
-          if (c == '\n') {
-            name_offset = hpos + 1;
-            state = name;
-            continue; // skip LF
-          } else
-            return; // expected CRLF not found
-
-        case crlfcr:
-          if (c == '\n') {
-            state = crlfcrlf; // done
-            continue; // skip LF
-          } else
-            return; // expected CRLFCRLF not found
-
-        case crlfcrlf:;
+          if (name_size > 64 || value_size > 128)
+            return -1; // name/value too long
         }
 
-        if (name_size > 64 || value_size > 128)
-          return; // name/value too long
+        if (state == crlfcrlf)
+          return 0;
+        else if (hpos >= head_size_)
+          return 1;
       }
 
-      if (state != crlfcrlf)
-        return;
-    }
+      return -1;
+    };
+
+    while (const int r = parse_start_line())
+      if (r < 0) return;
+
+    name_offset = hpos; // both captured by parse_headers()
+    while (const int r = parse_headers())
+      if (r < 0) return;
+
+    is_head_received_ = true;
 
     if (hpos < head_size_)
       head_body_offset_ = hpos;
-    else
-      is_body_received_ = true;
 
-    is_head_received_ = true;
+    if (const auto cl = content_length(); !cl)
+      is_body_received_ = true;
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -291,26 +364,8 @@ public:
     return is_head_received_;
   }
 
-  /// @returns The method extracted from start line.
-  std::string_view method() const
-  {
-    const char* const offset = head_.data();
-    return {offset, method_size_};
-  }
-
-  /// @returns The path extracted from start line.
-  std::string_view path() const
-  {
-    const char* const offset = head_.data() + method_size_ + 1;
-    return {offset, path_size_};
-  }
-
   /// @returns The HTTP version extracted from start line.
-  std::string_view version() const
-  {
-    const char* const offset = head_.data() + method_size_ + 1 + path_size_ + 1;
-    return {offset, version_size_};
-  }
+  virtual std::string_view version() const = 0;
 
   /// @returns The value of given HTTP header.
   std::string_view header(const std::string_view name) const
@@ -335,7 +390,10 @@ public:
   {
     std::optional<std::intmax_t> result{};
     const std::string cl{header("content-length")};
-    return !cl.empty() ? std::stoll(cl) : std::make_optional<std::intmax_t>();
+    if (!cl.empty())
+      return std::stoll(cl);
+    else
+      return std::nullopt;
   }
 
   /**
@@ -428,9 +486,17 @@ public:
   }
 
 protected:
+  Connection() = default;
+
   explicit Connection(std::unique_ptr<net::Descriptor>&& io)
     : io_{std::move(io)}
   {
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  void init(std::unique_ptr<net::Descriptor>&& io)
+  {
+    io_ = std::move(io);
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
@@ -507,15 +573,21 @@ private:
     std::vector<Raw_header_view> pairs_;
   };
 
+protected:
   std::array<char, max_head_size> head_;
+private:
   bool is_start_sent_{};
   bool is_body_sent_{};
   bool is_end_sent_{};
   bool is_head_received_{};
   bool is_body_received_{};
+protected:
   unsigned method_size_{};
   unsigned path_size_{};
   unsigned version_size_{};
+  unsigned code_size_{};
+  unsigned phrase_size_{};
+private:
   unsigned head_size_{};
   unsigned head_body_offset_{};
   std::unique_ptr<net::Descriptor> io_;
@@ -524,11 +596,14 @@ private:
   virtual bool is_invariant_ok() const
   {
     const bool body_sent_ok = !is_body_sent_ || is_start_sent_;
-    const bool end_sent_ok = !is_end_sent_ || (is_body_sent_ && is_start_sent_);
+    const bool end_sent_ok = !is_end_sent_ || is_start_sent_;
     const bool body_received_ok = !is_body_received_ || is_head_received_;
-    const bool start_line_ok = !is_head_received_ || (method_size_ > 0 && path_size_ > 0 && version_size_ > 0);
+    const bool start_line_ok = !is_head_received_ ||
+      (is_server() && method_size_ > 0 && path_size_ > 0 && version_size_ > 0) ||
+      (!is_server() && version_size_ > 0 && code_size_ > 0 && phrase_size_ > 0);
     const bool head_ok = (head_body_offset_ <= head_size_) && (head_size_ <= head_.size());
     const bool io_ok = static_cast<bool>(io_);
+    //std::cerr << body_sent_ok << end_sent_ok << body_received_ok << start_line_ok << head_ok << io_ok << std::endl;
     return body_sent_ok && end_sent_ok && body_received_ok && start_line_ok && head_ok && io_ok;
   }
 };
