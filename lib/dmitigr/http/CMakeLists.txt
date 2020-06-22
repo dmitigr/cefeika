@@ -14,6 +14,7 @@ dmitigr_set_library_info(http 0 1 "HTTP library")
 
 set(dmitigr_http_headers
   basics.hpp
+  client.hpp
   connection.hpp
   cookie.hpp
   date.hpp

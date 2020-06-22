@@ -24,6 +24,7 @@
 #define DMITIGR_HTTP_HTTP_HPP
 
 #include "dmitigr/http/basics.hpp"
+#include "dmitigr/http/client.hpp"
 #include "dmitigr/http/connection.hpp"
 #include "dmitigr/http/cookie.hpp"
 #include "dmitigr/http/date.hpp"
