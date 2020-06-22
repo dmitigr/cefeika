@@ -33,14 +33,20 @@ namespace dmitigr::net {
  */
 enum class Protocol_family {
   /** Local communication. */
-  local = 1,
+  local = AF_UNIX,
 
   /** The IP version 4 Internet protocols. */
-  ipv4 = 4,
+  ipv4 = AF_INET,
 
   /** The IP version 6 Internet protocols. */
-  ipv6 = 6
+  ipv6 = AF_INET6
 };
+
+/// @returns Native version of `value`.
+inline int to_native(const Protocol_family value)
+{
+  return static_cast<int>(value);
+}
 
 /**
  * @brief An IP address.
@@ -134,12 +140,7 @@ public:
    */
   std::string to_string() const
   {
-    const auto family_native = [this]
-    {
-      return (family() == Protocol_family::ipv4) ? AF_INET : AF_INET6;
-    };
-
-    const auto fam = family_native();
+    const auto fam = to_native(family());
     const std::string::size_type result_max_size = (fam == AF_INET) ? 16 : 46;
     std::string result(result_max_size, '\0');
     inet_ntop__(fam, binary(), result.data(), result.size());
@@ -294,7 +295,7 @@ public:
   }
 
 private:
-  std::variant<::sockaddr_in, ::sockaddr_in6, ::sockaddr_un> binary_;
+  std::variant<::sockaddr_un, ::sockaddr_in, ::sockaddr_in6> binary_;
 };
 
 } // namespace dmitigr::net

@@ -270,15 +270,27 @@ inline Socket_guard make_socket(const int domain, const int type, const int prot
     throw DMITIGR_NET_EXCEPTION{"socket"};
 }
 
+/// @overload
+inline Socket_guard make_socket(const Protocol_family family, const int type, const int protocol)
+{
+  return make_socket(to_native(family), type, protocol);
+}
+
+/// @returns Newly created TCP socket.
+inline Socket_guard make_tcp_socket(const Protocol_family family)
+{
+  return make_socket(family, SOCK_STREAM, IPPROTO_TCP);
+}
+
 /// Binds `socket` to `addr`.
-inline void bind_socket(const Socket_native socket, const net::Socket_address addr)
+inline void bind_socket(const Socket_native socket, const Socket_address& addr)
 {
   if (::bind(socket, addr.addr(), static_cast<int>(addr.size())) != 0)
     throw DMITIGR_NET_EXCEPTION{"bind"};
 }
 
 /// Connects `sockets` to remote `addr`.
-inline void connect_socket(const Socket_native socket, const net::Socket_address addr)
+inline void connect_socket(const Socket_native socket, const Socket_address& addr)
 {
   if (::connect(socket, addr.addr(), addr.size()) != 0)
     throw DMITIGR_NET_EXCEPTION{"connect"};
