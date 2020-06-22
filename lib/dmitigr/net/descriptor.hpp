@@ -100,7 +100,7 @@ public:
   {
     if (net::is_socket_valid(socket_)) {
       try {
-        shutdown__();
+        close();
       } catch (const std::exception& e) {
         std::fprintf(stderr, "%s\n", e.what());
       } catch (...) {
@@ -151,7 +151,7 @@ public:
   void close() override
   {
     if (!is_shutted_down_) {
-      shutdown__();
+      graceful_shutdown();
       is_shutted_down_ = true;
     }
 
@@ -169,16 +169,19 @@ private:
   net::Socket_guard socket_;
 
   /**
-   * @brief Shutting down the socket.
+   * @brief Gracefully shutting down the socket.
    *
    * Shutting down the send side and receiving the data from the client
    * till the timeout or end to prevent sending a TCP RST to the client.
    */
-  void shutdown__()
+  void graceful_shutdown()
   {
-    if (::shutdown(socket_, net::sd_send) != 0)
-      throw DMITIGR_NET_EXCEPTION{"shutdown"};
-
+    if (const auto r = ::shutdown(socket_, net::sd_send)) {
+      if (errno == ENOTCONN)
+        return;
+      else
+        throw DMITIGR_NET_EXCEPTION{"shutdown"};
+    }
     while (true) {
       using Sr = net::Socket_readiness;
       const auto mask = net::poll(socket_, Sr::read_ready, std::chrono::seconds{1});

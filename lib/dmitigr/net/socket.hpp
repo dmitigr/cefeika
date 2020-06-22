@@ -296,6 +296,13 @@ inline void connect_socket(const Socket_native socket, const Socket_address& add
     throw DMITIGR_NET_EXCEPTION{"connect"};
 }
 
+/// Shutdowns the `socket`.
+inline void shutdown_socket(const Socket_native socket, const int how)
+{
+  if (auto e = ::shutdown(socket, how); e != 0)
+    throw DMITIGR_NET_EXCEPTION{"shutdown"};
+}
+
 /**
  * @brief Performs the polling of the `socket`.
  *
