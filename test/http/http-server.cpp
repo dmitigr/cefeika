@@ -12,26 +12,27 @@ int main(int, char* argv[])
   namespace net = dmitigr::net;
   using namespace dmitigr::testo;
 
-  try {
-    const http::Listener_options lo{"127.0.0.1", 8888, 128};
-    auto l = lo.make_listener();
-    l.listen();
-    while (true) {
+  const http::Listener_options lo{"127.0.0.1", 8888, 128};
+  auto l = lo.make_listener();
+  l.listen();
+  while (true) {
+    try {
       auto conn = l.accept();
-      constexpr chrono::seconds timeout{10};
-      net::set_timeout(static_cast<net::Socket_native>(conn->native_handle()), timeout, timeout);
+      const auto nh = conn->native_handle();
+      constexpr chrono::seconds head_timeout{3};
+      net::set_timeout(static_cast<net::Socket_native>(nh), head_timeout, head_timeout);
       conn->receive_head();
       if (!conn->is_head_received()) {
         conn->send_start(http::Server_errc::bad_request);
         continue;
-      }
-
-      std::string body;
-      if (conn->content_length() >= 1048576) {
+      } else if (conn->content_length() >= 1048576) {
         conn->send_start(http::Server_errc::payload_too_large);
         continue;
-      } else
-        body = conn->receive_body_to_string();
+      }
+
+      constexpr chrono::seconds body_timeout{10};
+      net::set_timeout(static_cast<net::Socket_native>(nh), body_timeout, body_timeout);
+      const auto body = conn->receive_body_to_string();
 
       std::string response{"Start line:\n"};
       response.append("method = ").append(conn->method()).append("\n");
@@ -59,13 +60,16 @@ int main(int, char* argv[])
       ASSERT(conn->unsent_body_length() == response.size());
       conn->send_body(response);
       ASSERT(!conn->unsent_body_length());
+    } catch (const std::system_error& e) {
+      if (e.code() != std::errc::resource_unavailable_try_again &&
+        e.code()   != std::errc::broken_pipe &&
+        e.code()   != std::errc::connection_reset)
+        std::cerr << "System error: " << e.code() << " " << strerror(e.code().value()) << std::endl;
+    } catch (const std::exception& e) {
+      report_failure(argv[0], e);
+    } catch (...) {
+      report_failure(argv[0]);
     }
-  } catch (const std::exception& e) {
-    report_failure(argv[0], e);
-    return 1;
-  } catch (...) {
-    report_failure(argv[0]);
-    return 2;
   }
 
   return 0;

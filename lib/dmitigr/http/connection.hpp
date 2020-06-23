@@ -31,7 +31,10 @@ constexpr unsigned min_head_size = 3 + 1 + 1 + 1 + 8 + 2; // GET / HTTP/1.1
 /// Denotes the maximum head (start line + headers) size.
 constexpr unsigned max_head_size = 8192;
 
+/// Denotes the maximum header name size.
 constexpr unsigned max_header_name_size = 64;
+
+/// Denotes the maximum header value size.
 constexpr unsigned max_header_value_size = 128;
 
 static_assert(min_head_size <= max_head_size);
@@ -158,13 +161,13 @@ public:
 
   /**
    * @par Requires
-   * `(!is_closed() && !is_head_received() && ((is_server() && !is_start_sent()) || (!is_server() && !unsent_body_length())))`
+   * `(!is_closed() && !is_head_received() && ((is_server() && !is_start_sent()) || (!is_server() && is_headers_sent() && !unsent_body_length())))`
    */
   void receive_head()
   {
     DMITIGR_REQUIRE(!is_closed() && !is_head_received() &&
       ((is_server() && !is_start_sent()) ||
-       (!is_server() && !unsent_body_length())), std::logic_error);
+       (!is_server() && is_headers_sent() && !unsent_body_length())), std::logic_error);
 
     unsigned hpos{};
 
@@ -453,7 +456,7 @@ public:
     return head_body_size + result;
   }
 
-  /// Convenient method to receive an entire body to string.
+  /// Convenient method to receive an entire (unreceived) body to string.
   std::string receive_body_to_string()
   {
     if (unreceived_body_length_) {
@@ -541,9 +544,7 @@ protected:
 
   void send_start__(const std::string_view line)
   {
-    DMITIGR_REQUIRE(!is_closed() && !is_start_sent() &&
-      ((is_server() && is_head_received()) ||
-       (!is_server() && !is_head_received())) , std::logic_error);
+    DMITIGR_REQUIRE(!is_closed() && !is_start_sent(), std::logic_error);
     send__(line, "dmitigr::http: unable to send start line");
     is_start_sent_ = true;
   }
