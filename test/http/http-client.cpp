@@ -5,7 +5,7 @@
 #include <dmitigr/http.hpp>
 #include <dmitigr/testo.hpp>
 
-int main(int, char* argv[])
+int main(int argc, char* argv[])
 {
   namespace chrono = std::chrono;
   namespace http = dmitigr::http;
@@ -13,7 +13,14 @@ int main(int, char* argv[])
   using namespace dmitigr::testo;
 
   try {
-    auto conn = http::Client_connection::make({"127.0.0.1", 8888});
+    if (argc < 3) {
+      std::cerr << "usage: http-client address port" << std::endl;
+      return 1;
+    }
+    const std::string address{argv[1]};
+    const int port = std::stoi(std::string{argv[2]});
+
+    auto conn = http::Client_connection::make({address, port});
     ASSERT(!conn->is_server());
     conn->connect();
     conn->send_start(http::Method::get, "/");
