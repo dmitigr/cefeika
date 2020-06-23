@@ -25,15 +25,10 @@ public:
     return true;
   }
 
-  /**
-   * @par Requires
-   * `(is_head_received() && is_body_received())`.
-   */
+  /// Sends start line.
   template<class StatusCode>
   void send_start(const StatusCode code)
   {
-    DMITIGR_REQUIRE(is_head_received() && is_body_received(), std::logic_error);
-
     static_assert(std::is_same_v<StatusCode, Server_infoc> ||
       std::is_same_v<StatusCode, Server_succ> ||
       std::is_same_v<StatusCode, Server_redirc> ||

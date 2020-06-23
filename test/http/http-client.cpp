@@ -17,18 +17,17 @@ int main(int, char* argv[])
     ASSERT(!conn->is_server());
     conn->connect();
     conn->send_start(http::Method::get, "/");
-    conn->send_end();
+    conn->send_header("User-Agent", "dmitigr::http");
+    conn->send_last_header("Accept", "*/*");
     conn->receive_head();
     if (!conn->is_head_received())
       throw std::runtime_error{"could not receive head"};
 
     std::string body;
-    if (const auto content_length = conn->content_length()) {
-      if (*content_length >= 1048576)
-        throw std::runtime_error{"payload too large"};
-      else
-        body = conn->receive_body_to_string();
-    }
+    if (conn->content_length() >= 1048576)
+      throw std::runtime_error{"payload too large"};
+    else
+      body = conn->receive_body_to_string();
 
     std::string response{"Start line:\n"};
     response.append("version = ").append(conn->version()).append("\n");

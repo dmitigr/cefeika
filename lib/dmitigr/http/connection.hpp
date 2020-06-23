@@ -8,12 +8,14 @@
 #include "dmitigr/http/basics.hpp"
 #include "dmitigr/http/types_fwd.hpp"
 #include <dmitigr/net/descriptor.hpp>
+#include <dmitigr/str/transformators.hpp>
 
 //#include <iostream>
 
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <locale>
 #include <optional>
@@ -28,6 +30,9 @@ constexpr unsigned min_head_size = 3 + 1 + 1 + 1 + 8 + 2; // GET / HTTP/1.1
 
 /// Denotes the maximum head (start line + headers) size.
 constexpr unsigned max_head_size = 8192;
+
+constexpr unsigned max_header_name_size = 64;
+constexpr unsigned max_header_value_size = 128;
 
 static_assert(min_head_size <= max_head_size);
 
@@ -87,59 +92,79 @@ public:
 
   /**
    * @par Requires
-   * `(!is_closed() && is_start_sent() && !is_body_sent())`.
+   * `(!is_closed() && is_start_sent() && !is_headers_sent())`.
    */
-  void send_header(const std::string_view name, const std::string_view value)
+  void send_header(const std::string_view name, const std::string_view value, const bool is_last = false)
   {
-    DMITIGR_REQUIRE(!is_closed() && is_start_sent() && !is_body_sent(), std::logic_error);
-    std::string whole{name};
-    whole.append(": ").append(value).append("\r\n");
+    DMITIGR_REQUIRE(!is_closed() && is_start_sent() && !is_headers_sent(), std::logic_error);
+    std::string whole;
+    whole.reserve(name.size() + 2 + value.size() + 2 + (is_last ? 2 : 0));
+    if (name.size() == 14) { // for Content-Length only
+      whole = name;
+      static const std::locale l{"C"};
+      str::lowercase(whole, l);
+      if (whole == "content-length") {
+        whole = value;
+        errno = 0;
+        const auto cl = std::strtoll(whole.data(), nullptr, 10);
+        if (errno || cl < 0)
+          throw std::runtime_error{"bad value of Content-Length header"};
+        else
+          unsent_body_length_ = cl;
+      }
+      whole.clear();
+    }
+    whole.append(name).append(": ").append(value).append("\r\n");
+    if (is_last)
+      whole.append("\r\n");
     send__(whole, "dmitigr::http: unable to send header");
+    is_headers_sent_ = is_last;
     DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  /// Alternative of `send_header(name, value, true)`.
+  void send_last_header(const std::string_view name, const std::string_view value)
+  {
+    send_header(name, value, true);
+  }
+
+  /// @returns `true` if headers are sent, or `false` otherwise.
+  bool is_headers_sent() const
+  {
+    return is_headers_sent_;
+  }
+
+  /**
+   * @returns The amount of bytes wasn't send yet. This value can be set initially by
+   * sending "Content-Length" header to the remote side.
+   */
+  std::intmax_t unsent_body_length() const
+  {
+    return unsent_body_length_;
   }
 
   /**
    * @par Requires
-   * `(!is_closed() && is_start_sent() && (is_server() || !is_end_sent()))`.
+   * `(!is_closed() && is_headers_sent() && data.size() <= unsent_body_length())`.
    */
   void send_body(const std::string_view data)
   {
-    DMITIGR_REQUIRE(!is_closed() && is_start_sent() && (is_server() || !is_end_sent()), std::logic_error);
-    if (!is_body_sent_)
-      send__("\r\n", "dmitigr::http: unable to send body");
+    DMITIGR_REQUIRE(!is_closed() && is_headers_sent() &&
+      data.size() <= static_cast<std::uintmax_t>(unsent_body_length()), std::logic_error);
     send__(data, "dmitigr::http: unable to send body");
-    is_body_sent_ = true;
+    unsent_body_length_ -= data.size();
     DMITIGR_ASSERT(is_invariant_ok());
-  }
-
-  /// @returns `true` if body (or its part) sent, or `false` otherwise.
-  bool is_body_sent() const
-  {
-    return is_body_sent_;
-  }
-
-  /// Shutdowns the send part of socket.
-  void send_end()
-  {
-    auto s = static_cast<net::Socket_native>(io_->native_handle());
-    net::shutdown_socket(s, net::sd_send);
-    is_end_sent_ = true;
-    DMITIGR_ASSERT(is_invariant_ok());
-  }
-
-  /// @returns `true` if the send part of socket is shutted down, or `false` otherwise.
-  bool is_end_sent() const
-  {
-    return is_end_sent_;
   }
 
   /**
    * @par Requires
-   * `((is_server() && !is_head_received()) || (!is_server() && is_end_sent()))`
+   * `(!is_closed() && !is_head_received() && ((is_server() && !is_start_sent()) || (!is_server() && !unsent_body_length())))`
    */
   void receive_head()
   {
-    DMITIGR_REQUIRE((is_server() && !is_head_received()) || (!is_server() && is_end_sent()), std::logic_error);
+    DMITIGR_REQUIRE(!is_closed() && !is_head_received() &&
+      ((is_server() && !is_start_sent()) ||
+       (!is_server() && !unsent_body_length())), std::logic_error);
 
     unsigned hpos{};
 
@@ -264,6 +289,8 @@ public:
       else if (!headers_received)
         return 0; // no headers sent
 
+      //std::cerr << "headers received = " << headers_received << std::endl;
+
       if (hpos < head_size_) {
         headers_.pairs().reserve(16);
         static const std::locale l{"C"};
@@ -327,7 +354,7 @@ public:
           case crlfcrlf:;
           }
 
-          if (name_size > 64 || value_size > 128)
+          if (name_size > max_header_name_size || value_size > max_header_value_size)
             return -1; // name/value too long
         }
 
@@ -340,9 +367,11 @@ public:
       return -1;
     };
 
+    //std::cerr << "Parsing start line" << std::endl;
     while (const int r = parse_start_line())
       if (r < 0) return;
 
+    //std::cerr << "Parsing headers" << std::endl;
     name_offset = hpos; // both captured by parse_headers()
     while (const int r = parse_headers())
       if (r < 0) return;
@@ -352,8 +381,7 @@ public:
     if (hpos < head_size_)
       head_body_offset_ = hpos;
 
-    if (const auto cl = content_length(); !cl)
-      is_body_received_ = true;
+    unreceived_body_length_ = content_length();
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -382,31 +410,22 @@ public:
     return headers_.pairs();
   }
 
-  /**
-   * @returns The value of "Content-Length" HTTP header if presents, or
-   * `std::nullopt` otherwise.
-   */
-  std::optional<std::intmax_t> content_length() const
+  /// @returns The value of "Content-Length" HTTP header if presents, or `0` otherwise.
+  std::intmax_t content_length() const
   {
-    std::optional<std::intmax_t> result{};
     const std::string cl{header("content-length")};
-    if (!cl.empty())
-      return std::stoll(cl);
-    else
-      return std::nullopt;
+    return !cl.empty() ? std::stoll(cl) : 0;
   }
 
   /**
    * @returns The size of body received.
    *
    * @par Requires
-   * `is_head_received()`.
+   * `is_head_received() && unreceived_body_length() > 0`.
    */
   unsigned receive_body(char* buf, unsigned size)
   {
-    DMITIGR_REQUIRE(is_head_received(), std::logic_error);
-    if (is_body_received_)
-      return 0;
+    DMITIGR_REQUIRE(is_head_received() && unreceived_body_length() > 0, std::logic_error);
 
     const unsigned head_body_size = head_size_ - head_body_offset_;
     if (head_body_size) {
@@ -418,7 +437,7 @@ public:
         std::memcpy(buf, head_.data() + head_body_offset_, head_body_size);
         head_body_offset_ += head_body_size;
         if (head_size_ < head_.size()) {
-          is_body_received_ = true;
+          unreceived_body_length_ -= head_body_size;
           return head_body_size;
         } else {
           size -= head_body_size;
@@ -428,9 +447,8 @@ public:
       }
     }
 
-    const auto result = recv__(buf, size);
-    if (result < size)
-      is_body_received_ = true;
+    const auto result = recv__(buf, std::min(static_cast<std::intmax_t>(size), unreceived_body_length_));
+    unreceived_body_length_ -= result;
     DMITIGR_ASSERT(is_invariant_ok());
     return head_body_size + result;
   }
@@ -438,18 +456,18 @@ public:
   /// Convenient method to receive an entire body to string.
   std::string receive_body_to_string()
   {
-    if (const auto cl = content_length()) {
-      std::string result(*cl, 0);
+    if (unreceived_body_length_) {
+      std::string result(unreceived_body_length_, 0);
       receive_body(result.data(), result.size());
       return result;
     } else
       return std::string{};
   }
 
-  /// @returns `true` if body received, or `false` otherwise.
-  bool is_body_received() const
+  /// @returns The amount of bytes of body which are not yet received.
+  std::intmax_t unreceived_body_length() const
   {
-    return is_body_received_;
+    return unreceived_body_length_;
   }
 
   /// Dismisses the body.
@@ -461,7 +479,7 @@ public:
       if (n < bufsize)
         break;
     }
-    DMITIGR_ASSERT(is_body_received());
+    DMITIGR_ASSERT(!unreceived_body_length());
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
@@ -523,7 +541,9 @@ protected:
 
   void send_start__(const std::string_view line)
   {
-    DMITIGR_REQUIRE(!is_closed() && !is_start_sent() && !is_body_sent(), std::logic_error);
+    DMITIGR_REQUIRE(!is_closed() && !is_start_sent() &&
+      ((is_server() && is_head_received()) ||
+       (!is_server() && !is_head_received())) , std::logic_error);
     send__(line, "dmitigr::http: unable to send start line");
     is_start_sent_ = true;
   }
@@ -577,10 +597,8 @@ protected:
   std::array<char, max_head_size> head_;
 private:
   bool is_start_sent_{};
-  bool is_body_sent_{};
-  bool is_end_sent_{};
+  bool is_headers_sent_{};
   bool is_head_received_{};
-  bool is_body_received_{};
 protected:
   unsigned method_size_{};
   unsigned path_size_{};
@@ -590,21 +608,21 @@ protected:
 private:
   unsigned head_size_{};
   unsigned head_body_offset_{};
+  std::intmax_t unsent_body_length_{};
+  std::intmax_t unreceived_body_length_{};
   std::unique_ptr<net::Descriptor> io_;
   Header_map headers_;
 
   virtual bool is_invariant_ok() const
   {
-    const bool body_sent_ok = !is_body_sent_ || is_start_sent_;
-    const bool end_sent_ok = !is_end_sent_ || is_start_sent_;
-    const bool body_received_ok = !is_body_received_ || is_head_received_;
     const bool start_line_ok = !is_head_received_ ||
       (is_server() && method_size_ > 0 && path_size_ > 0 && version_size_ > 0) ||
       (!is_server() && version_size_ > 0 && code_size_ > 0 && phrase_size_ > 0);
     const bool head_ok = (head_body_offset_ <= head_size_) && (head_size_ <= head_.size());
+    const bool body_lengths_ok = (unsent_body_length_ >= 0) && (unreceived_body_length_ >= 0);
     const bool io_ok = static_cast<bool>(io_);
-    //std::cerr << body_sent_ok << end_sent_ok << body_received_ok << start_line_ok << head_ok << io_ok << std::endl;
-    return body_sent_ok && end_sent_ok && body_received_ok && start_line_ok && head_ok && io_ok;
+
+    return start_line_ok && head_ok && body_lengths_ok && io_ok;
   }
 };
 
