@@ -67,6 +67,11 @@ public:
    */
   DMITIGR_WS_API void close();
 
+  /**
+   * @brief Closes all opened WebSocket connections.
+   */
+  DMITIGR_WS_API void close_connections(int code, std::string_view reason);
+
   /// @name Timers
   /// @{
 

@@ -12,6 +12,7 @@
 
 #include <uwebsockets/App.h>
 
+#include <algorithm>
 #include <limits>
 #include <vector>
 #include <utility>
@@ -36,6 +37,7 @@ public:
   virtual bool is_listening() const = 0;
   virtual void listen() = 0;
   virtual void close() = 0;
+  virtual void close_connections(int code, std::string_view reason) = 0;
 
   virtual std::size_t timer_count() const = 0;
   virtual std::optional<std::size_t> timer_index(std::string_view name) const = 0;
@@ -106,9 +108,10 @@ public:
         auto* const data = static_cast<Ws_data*>(ws->getUserData());
         DMITIGR_ASSERT(data);
         data->conn = listener_->make_connection();
-        if (data->conn)
+        if (data->conn) {
           data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws);
-        else
+          connections_.emplace_back(static_cast<Conn<IsSsl>*>(data->conn->rep_.get()));
+        } else
           ws->end(1011, "internal error");
       };
 
@@ -142,7 +145,7 @@ public:
 #endif
       };
 
-      result.close = [](auto* const ws, const int code, const std::string_view reason)
+      result.close = [this](auto* const ws, const int code, const std::string_view reason)
       {
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .close emitted" << std::endl;
@@ -152,6 +155,14 @@ public:
         // If connection is closed from .open, then (data->conn == nullptr) in such a case.
         if (data->conn) {
           data->conn->handle_close(code, reason);
+          if (!close_connections_called_) {
+            auto* conn = static_cast<Conn<IsSsl>*>(data->conn->rep_.get());
+            const auto b = cbegin(connections_);
+            const auto e = cend(connections_);
+            const auto i = std::find_if(b, e, [conn](const auto p) { return p == conn; });
+            DMITIGR_ASSERT(i != e);
+            connections_.erase(i);
+          }
           {
             const std::lock_guard lg{data->conn->mut_};
             data->conn->rep_.reset();
@@ -237,6 +248,21 @@ public:
     }
   }
 
+  void close_connections(const int code, const std::string_view reason) override
+  {
+    struct Guard {
+      Guard(Lstnr& l) : l{l} { l.close_connections_called_ = true; }
+      ~Guard() { l.close_connections_called_ = false; }
+      Lstnr& l;
+    } guard{*this};
+
+    for (auto* const conn : connections_) {
+      DMITIGR_ASSERT(conn);
+      conn->close(code, reason);
+    }
+    connections_.clear();
+  }
+
   std::size_t timer_count() const override
   {
     return timers_.size();
@@ -300,6 +326,9 @@ private:
   std::unique_ptr<Listener_options> options_;
   us_listen_socket_t* listening_socket_{};
   mutable std::vector<std::pair<std::string, iTimer>> timers_;
+
+  bool close_connections_called_{};
+  std::vector<Conn<IsSsl>*> connections_;
 };
 
 using Non_ssl_listener = Lstnr<false>;
@@ -344,6 +373,11 @@ DMITIGR_WS_INLINE void Listener::listen()
 DMITIGR_WS_INLINE void Listener::close()
 {
   rep_->close();
+}
+
+DMITIGR_WS_INLINE void Listener::close_connections(const int code, const std::string_view reason)
+{
+  rep_->close_connections(code, reason);
 }
 
 DMITIGR_WS_INLINE std::size_t Listener::timer_count() const
