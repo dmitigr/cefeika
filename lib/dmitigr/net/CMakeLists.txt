@@ -18,7 +18,7 @@ set(dmitigr_net_headers
   descriptor.hpp
   endpoint.hpp
   exceptions.hpp
-  server.hpp
+  listener.hpp
   socket.hpp
   types_fwd.hpp
   util.hpp
