@@ -120,8 +120,10 @@ inline void set_timeout(const Socket_native socket,
   const auto rrcv = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, rcv_to, sizeof(DWORD));
   const auto rsnd = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, snd_to, sizeof(DWORD));
 #else
-  timeval rcv_tv{chrono::duration_cast<chrono::seconds>(rcv_timeout).count(), 0};
-  timeval snd_tv{chrono::duration_cast<chrono::seconds>(snd_timeout).count(), 0};
+  using chrono::system_clock;
+  constexpr chrono::time_point<system_clock> z;
+  timeval rcv_tv{system_clock::to_time_t(z + chrono::duration_cast<chrono::seconds>(rcv_timeout)), 0};
+  timeval snd_tv{system_clock::to_time_t(z + chrono::duration_cast<chrono::seconds>(snd_timeout)), 0};
   char* const rcv_to = reinterpret_cast<char*>(&rcv_tv);
   char* const snd_to = reinterpret_cast<char*>(&snd_tv);
   const auto rrcv = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, rcv_to, sizeof(rcv_tv));
