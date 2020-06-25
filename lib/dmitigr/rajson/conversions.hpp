@@ -62,6 +62,17 @@ Destination to(Source&& value, Types&& ... args)
 }
 
 /**
+ * @brief Full specialization of Conversions for `bool`.
+ */
+template<> struct Conversions<bool> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    return value.GetBool();
+  }
+};
+
+/**
  * @brief Full specialization of Conversions for `int`.
  */
 template<> struct Conversions<int> final {
