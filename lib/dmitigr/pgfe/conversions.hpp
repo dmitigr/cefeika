@@ -11,7 +11,7 @@
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/exceptions.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
-#include <dmitigr/base/endianness.hpp>
+#include <dmitigr/net/conversions.hpp>
 
 #include <cstring>
 #include <limits>
@@ -242,28 +242,9 @@ struct Numeric_data_conversions final {
   static Type to_type(const Data* const data, Types&& ... args)
   {
     DMITIGR_REQUIRE(data, std::invalid_argument);
-    if (data->format() == Data_format::binary) {
-      const auto data_size = data->size();
-      DMITIGR_REQUIRE(data_size <= sizeof(Type), std::invalid_argument);
-      Type result{};
-      const auto data_ubytes = reinterpret_cast<const unsigned char*>(data->bytes());
-      const auto result_ubytes = reinterpret_cast<unsigned char*>(&result);
-      using Counter = std::remove_const_t<decltype (data_size)>;
-
-      switch (endianness()) {
-      case Endianness::big:
-        for (Counter i = 0; i < data_size; ++i)
-          result_ubytes[sizeof(Type) - data_size + i] = data_ubytes[i];
-        break;
-      case Endianness::little:
-        for (Counter i = 0; i < data_size; ++i)
-          result_ubytes[sizeof(Type) - 1 - i] = data_ubytes[i];
-        break;
-      case Endianness::unknown:
-        throw std::logic_error("unknown endianness");
-      }
-      return result;
-    } else
+    if (data->format() == Data_format::binary)
+      return net::conv<Type>(data->bytes(), data->size());
+    else
       return Generic_data_conversions<Type, StringConversions>::to_type(data, std::forward<Types>(args)...);
   }
 

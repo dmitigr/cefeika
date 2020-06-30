@@ -27,6 +27,12 @@ int main(int, char* argv[])
     ASSERT(ip.family() == net::Protocol_family::ipv6);
     ASSERT(ip.binary());
     ASSERT(ip.to_string() == v6_addr_str);
+
+    int n = 10;
+    auto n1 = net::conv(n);
+    ASSERT(n != n1);
+    n1 = net::conv(n1);
+    ASSERT(n == n1);
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

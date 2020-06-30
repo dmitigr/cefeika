@@ -25,6 +25,7 @@
 
 #include "dmitigr/net/address.hpp"
 #include "dmitigr/net/client.hpp"
+#include "dmitigr/net/conversions.hpp"
 #include "dmitigr/net/descriptor.hpp"
 #include "dmitigr/net/endpoint.hpp"
 #include "dmitigr/net/exceptions.hpp"
