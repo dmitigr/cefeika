@@ -11,6 +11,7 @@
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/exceptions.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
+#include <dmitigr/base/endianness.hpp>
 
 #include <cstring>
 #include <limits>
@@ -249,8 +250,7 @@ struct Numeric_data_conversions final {
       const auto result_ubytes = reinterpret_cast<unsigned char*>(&result);
       using Counter = std::remove_const_t<decltype (data_size)>;
 
-      static const auto endianness = endianness__();
-      switch (endianness) {
+      switch (endianness()) {
       case Endianness::big:
         for (Counter i = 0; i < data_size; ++i)
           result_ubytes[sizeof(Type) - data_size + i] = data_ubytes[i];
@@ -277,22 +277,6 @@ struct Numeric_data_conversions final {
   static std::unique_ptr<Data> to_data(Type value, Types&& ... args)
   {
     return Generic_data_conversions<Type, StringConversions>::to_data(value, std::forward<Types>(args)...);
-  }
-
-private:
-  enum class Endianness {
-    unknown = 0,
-    big,
-    little
-  };
-
-  static Endianness endianness__()
-  {
-    if constexpr (sizeof(unsigned char) < sizeof(unsigned long)) {
-      constexpr unsigned long number = 0x01;
-      return (reinterpret_cast<const unsigned char*>(&number)[0] == 1) ? Endianness::little : Endianness::big;
-    } else
-      return Endianness::unknown;
   }
 };
 
