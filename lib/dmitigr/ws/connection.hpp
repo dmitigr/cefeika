@@ -150,6 +150,21 @@ private:
    */
   virtual void handle_close(int code, std::string_view reason) = 0;
 
+  /**
+   * @brief This function is called when the amount of buffered data has been
+   * changed (most likely reduced) and these changes are needed to be handled.
+   *
+   * Typically, this handler is called in case of back pressure, i.e. when the
+   * size of the buffered data to send exceeds the set limit. Before sending
+   * more data, the value returned by buffered_amount() must be taken into
+   * account.
+   *
+   * @remarks This function is called on the thread of the associated event loop.
+   *
+   * @see buffered_amount(), Listener_options::set_max_buffered_amount().
+   */
+  virtual void handle_drain() = 0;
+
 private:
   friend detail::iListener;
   template<bool> friend class detail::Lstnr;

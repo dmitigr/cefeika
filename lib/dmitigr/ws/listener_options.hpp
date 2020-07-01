@@ -120,6 +120,23 @@ public:
    */
   DMITIGR_WS_API std::size_t max_payload_size() const;
 
+  /**
+   * @brief Sets the maximum buffered data amount.
+   *
+   * @par Requires
+   * `(value <= std::numeric_limits<int>::max())`
+   *
+   * @see max_buffered_amount().
+   */
+  virtual DMITIGR_WS_API Listener_options& set_max_buffered_amount(std::size_t value);
+
+  /**
+   * @return The current value of the maximum buffered data amount.
+   *
+   * @see set_max_buffered_amount(), Connection::buffered_amount().
+   */
+  DMITIGR_WS_API std::size_t max_buffered_amount() const;
+
   /// @name SSL options
   /// @{
 

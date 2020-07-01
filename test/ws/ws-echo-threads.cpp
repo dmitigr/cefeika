@@ -33,6 +33,7 @@ class Connection final : public ws::Connection {
   }
 
   void handle_close(int, std::string_view) override {};
+  void handle_drain() override {};
 };
 
 class Listener final : public ws::Listener {

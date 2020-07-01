@@ -55,6 +55,8 @@ class Connection : public ws::Connection {
     std::string ip = is_connected() ? remote_ip_address() : "unknown IP";
     std::clog << "The connection to " << ip << " is about to close" << std::endl;
   }
+
+  void handle_drain() override {}
 };
 
 class Listener : public ws::Listener {

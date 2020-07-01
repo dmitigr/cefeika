@@ -81,24 +81,24 @@ public:
 
     const auto ws_behavior = [this]
     {
+      namespace chrono = std::chrono;
       typename App::WebSocketBehavior result;
 
-      const auto idle_timeout = std::chrono::duration_cast<std::chrono::seconds>(
-        options().idle_timeout().value_or(std::chrono::milliseconds::zero()));
-
-      const auto max_payload_size = options().max_payload_size();
-      using Ws_payload_size = decltype(max_payload_size);
-      using Uws_payload_size = decltype(result.maxPayloadLength);
-      static_assert(sizeof(Ws_payload_size) >= sizeof(Uws_payload_size));
-      const auto max_payload_size_max = static_cast<Ws_payload_size>(std::numeric_limits<Uws_payload_size>::max());
-      DMITIGR_ASSERT(max_payload_size <= max_payload_size_max);
-
       result.compression = uWS::DISABLED;
-      result.maxPayloadLength = static_cast<Uws_payload_size>(max_payload_size);
+
       using Timeout = decltype(result.idleTimeout);
+      const auto idle_timeout = chrono::duration_cast<chrono::seconds>(
+        options().idle_timeout().value_or(chrono::milliseconds::zero()));
       constexpr auto max_idle_timeout = std::numeric_limits<Timeout>::max();
       result.idleTimeout = std::min(max_idle_timeout, static_cast<Timeout>(idle_timeout.count()));
-      result.maxBackpressure = std::numeric_limits<decltype(result.maxPayloadLength)>::max();
+
+      const auto max_payload_size = options().max_payload_size();
+      DMITIGR_ASSERT(max_payload_size <= std::numeric_limits<int>::max());
+      result.maxPayloadLength = static_cast<decltype(result.maxPayloadLength)>(max_payload_size);
+
+      const auto max_buffered_amount = options().max_buffered_amount();
+      DMITIGR_ASSERT(max_buffered_amount <= std::numeric_limits<int>::max());
+      result.maxBackpressure = static_cast<decltype(result.maxBackpressure)>(max_buffered_amount);
 
       result.open = [this](auto* const ws)
       {
@@ -125,10 +125,12 @@ public:
 
       result.drain = [](auto* const ws)
       {
-        (void)ws;
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .drain emitted. Buffered amount is " << ws->getBufferedAmount() << std::endl;
 #endif
+        auto* const data = static_cast<Ws_data*>(ws->getUserData());
+        DMITIGR_ASSERT(data && data->conn);
+        data->conn->handle_drain();
       };
 
       result.ping = [](auto* const /*ws*/)

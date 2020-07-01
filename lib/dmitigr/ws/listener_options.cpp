@@ -63,6 +63,18 @@ public:
     return max_payload_size_;
   }
 
+  void set_max_buffered_amount(const std::size_t value)
+  {
+    validate(value <= std::numeric_limits<int>::max(), "max buffered amount");
+    max_buffered_amount_ = value;
+    DMITIGR_ASSERT(is_invariant_ok());
+  }
+
+  std::size_t max_buffered_amount() const
+  {
+    return max_buffered_amount_;
+  }
+
   void set_http_enabled(const bool value)
   {
     is_http_enabled_ = value;
@@ -166,6 +178,7 @@ private:
   net::Listener_options net_options_;
   std::optional<std::chrono::milliseconds> idle_timeout_;
   std::size_t max_payload_size_{static_cast<std::size_t>(std::numeric_limits<int>::max())};
+  std::size_t max_buffered_amount_{static_cast<std::size_t>(std::numeric_limits<int>::max())};
 
   bool is_http_enabled_{};
 
@@ -253,7 +266,7 @@ DMITIGR_WS_INLINE std::optional<std::chrono::milliseconds> Listener_options::idl
   return rep_->idle_timeout();
 }
 
-DMITIGR_WS_INLINE Listener_options& Listener_options::set_max_payload_size(std::size_t value)
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_max_payload_size(const std::size_t value)
 {
   rep_->set_max_payload_size(value);
   return *this;
@@ -262,6 +275,17 @@ DMITIGR_WS_INLINE Listener_options& Listener_options::set_max_payload_size(std::
 DMITIGR_WS_INLINE std::size_t Listener_options::max_payload_size() const
 {
   return rep_->max_payload_size();
+}
+
+DMITIGR_WS_INLINE Listener_options& Listener_options::set_max_buffered_amount(const std::size_t value)
+{
+  rep_->set_max_buffered_amount(value);
+  return *this;
+}
+
+DMITIGR_WS_INLINE std::size_t Listener_options::max_buffered_amount() const
+{
+  return rep_->max_buffered_amount();
 }
 
 DMITIGR_WS_INLINE Listener_options& Listener_options::set_ssl_enabled(const bool value)
