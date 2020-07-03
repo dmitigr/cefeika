@@ -16,7 +16,7 @@ namespace dmitigr::net {
  * @brief If the host architecture is big endian, then the `src` is copyied to
  * `dest` as is. Otherwise, the bytes of `src` is copied to `dest` in reverse order.
  */
-inline void conv(void* const dest, const std::size_t dest_size, const void* const src, const std::size_t src_size)
+inline void copy(void* const dest, const std::size_t dest_size, const void* const src, const std::size_t src_size)
 {
   DMITIGR_REQUIRE(dest, std::invalid_argument);
   DMITIGR_REQUIRE(src, std::invalid_argument);
@@ -39,9 +39,16 @@ inline void conv(void* const dest, const std::size_t dest_size, const void* cons
 
 /// @overload
 template<typename Src>
-inline void conv(void* const dest, const std::size_t dest_size, const Src& value)
+inline void copy(void* const dest, const std::size_t dest_size, const Src& value)
 {
-  conv(dest, dest_size, value, sizeof(value));
+  copy(dest, dest_size, &value, sizeof(value));
+}
+
+/// @overload
+template<typename Src>
+inline void copy(void* const dest, const Src& value)
+{
+  copy(dest, sizeof(value), value);
 }
 
 /**
@@ -56,7 +63,7 @@ template<typename Dest>
 inline Dest conv(const void* const data, const std::size_t data_size)
 {
   Dest result{};
-  conv(&result, sizeof(result), data, data_size);
+  copy(&result, sizeof(result), data, data_size);
   return result;
 }
 
