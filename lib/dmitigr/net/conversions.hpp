@@ -37,18 +37,25 @@ inline void conv(void* const dest, const std::size_t dest_size, const void* cons
   }
 }
 
+/// @overload
+template<typename Src>
+inline void conv(void* const dest, const std::size_t dest_size, const Src& value)
+{
+  conv(dest, dest_size, value, sizeof(value));
+}
+
 /**
- * @brief Converts the `data` to the value of type `T` taking into account the
- * host's endianness.
+ * @brief Converts the `data` to the value of type `Dest` taking into account
+ * the host's endianness.
  *
- * @returns The copy of `data` represented as a value of type `T`.
+ * @returns The copy of `data` represented as a value of type `Dest`.
  *
  * @see conv()
  */
-template<typename T>
-inline T conv(const void* const data, const std::size_t data_size)
+template<typename Dest>
+inline Dest conv(const void* const data, const std::size_t data_size)
 {
-  T result{};
+  Dest result{};
   conv(&result, sizeof(result), data, data_size);
   return result;
 }
