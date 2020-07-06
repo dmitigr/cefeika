@@ -103,7 +103,7 @@ inline void detach(std::function<void()> start,
   // Closing the standard file descriptors
   static auto close_fd = [](const int fd)
   {
-    if (!::close(fd)) {
+    if (::close(fd)) {
       const int err = errno;
       std::clog << "cannot close file descriptor " << fd << " (" << std::strerror(err) << ")" << std::endl;
       std::exit(EXIT_FAILURE);
