@@ -9,13 +9,14 @@
 #ifndef DMITIGR_OS_PROC_DETACH_HPP
 #define DMITIGR_OS_PROC_DETACH_HPP
 
+#include "dmitigr/os/log.hpp"
 #include "dmitigr/os/proc.hpp"
 #include <dmitigr/base/debug.hpp>
 #include <dmitigr/base/filesystem.hpp>
 
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <fstream>
 #include <functional>
 #include <stdexcept>
 
@@ -24,10 +25,6 @@
 
 namespace dmitigr::os::proc {
 
-namespace detail {
-inline std::ofstream log_file_stream;
-} // namespace detail
-
 /**
  * @brief Detaches the process to make it work in background.
  *
@@ -35,8 +32,6 @@ inline std::ofstream log_file_stream;
  * ID of the forked process will be written.
  * @param log_file The log file the detached process will use as the
  * destination instead of `std::clog` to write the log info.
- *
- * @throws `std::runtime_error` on failure.
  *
  * @remarks The function returns in the detached (forked) process!
  */
@@ -52,7 +47,8 @@ inline void detach(std::function<void()> start,
   // Forking for a first time
   if (const auto pid = ::fork(); pid < 0) {
     const int err = errno;
-    throw std::runtime_error{std::string{"First fork() failed ("}.append(std::strerror(err)).append(")")};
+    std::clog << "first fork() failed (" << std::strerror(err) << ")" << std::endl;
+    std::exit(EXIT_FAILURE); // exit parent
   } else if (pid > 0)
     std::exit(EXIT_SUCCESS); // exit parent
 
@@ -60,17 +56,20 @@ inline void detach(std::function<void()> start,
   ::umask(S_IWGRP | S_IRWXO);
 
   // Redirecting clog to `log_file`.
-  detail::log_file_stream = std::ofstream{log_file, log_file_openmode};
-  if (!detail::log_file_stream) {
-    std::clog << "Cannot open log file " << log_file << std::endl;
-    std::exit(EXIT_FAILURE);
-  } else
-    std::clog.rdbuf(detail::log_file_stream.rdbuf());
+  try {
+    redirect_clog(log_file, log_file_openmode);
+  } catch (const std::exception& e) {
+    std::clog << e.what() << std::endl;
+    std::exit(EXIT_FAILURE); // exit parent
+  } catch (...) {
+    std::clog << "cannot redirect std::clog to " << log_file << std::endl;
+    std::exit(EXIT_FAILURE); // exit parent
+  }
 
   // Setup the new process group leader
   if (const auto sid = ::setsid(); sid < 0) {
     const int err = errno;
-    std::clog << "Cannot setup the new process group leader ("
+    std::clog << "cannot setup the new process group leader ("
               << std::strerror(err) << ")" << std::endl;
     std::exit(EXIT_FAILURE);
   }
@@ -78,33 +77,53 @@ inline void detach(std::function<void()> start,
   // Forking for a second time
   if (const auto pid = ::fork(); pid < 0) {
     const int err = errno;
-    std::clog << "Second fork() failed (" << std::strerror(err) << ")" << std::endl;
+    std::clog << "second fork() failed (" << std::strerror(err) << ")" << std::endl;
     std::exit(EXIT_FAILURE);
   } else if (pid > 0)
     std::exit(EXIT_SUCCESS);
 
   // Creating the PID file
-  if (std::ofstream pf{pid_file, std::ios_base::trunc | std::ios_base::out}; !pf) {
-    std::clog << "Cannot open PID file " << pid_file << std::endl;
+  try {
+    dump_pid(pid_file);
+  } catch (const std::exception& e) {
+    std::clog << e.what() << std::endl;
     std::exit(EXIT_FAILURE);
-  } else
-    pf << id() << std::endl;
+  } catch (...) {
+    std::clog << "cannot open log file at " << log_file << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
 
   // Changing the CWD
   if (const int r = ::chdir("/"); r < 0) {
     const int err = errno;
-    std::clog << "Cannot chdir() to / ("
-              << std::strerror(err) << ")" << std::endl;
+    std::clog << "cannot chdir() to / (" << std::strerror(err) << ")" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
   // Closing the standard file descriptors
-  ::close(STDIN_FILENO);
-  ::close(STDOUT_FILENO);
-  ::close(STDERR_FILENO);
+  static auto close_fd = [](const int fd)
+  {
+    if (!::close(fd)) {
+      const int err = errno;
+      std::clog << "cannot close file descriptor " << fd << " (" << std::strerror(err) << ")" << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
+  };
+
+  close_fd(STDIN_FILENO);
+  close_fd(STDOUT_FILENO);
+  close_fd(STDERR_FILENO);
 
   // Calling the start routine.
-  start();
+  try {
+    start();
+  } catch (const std::exception& e) {
+    std::clog << e.what() << std::endl;
+    std::exit(EXIT_FAILURE);
+  } catch (...) {
+    std::clog << "start routine failed" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
 }
 
 } // namespace dmitigr::os::proc
