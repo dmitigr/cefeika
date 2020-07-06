@@ -31,6 +31,8 @@ inline std::ofstream log_file_stream;
 /**
  * @brief Detaches the process to make it work in background.
  *
+ * @param pid_file The PID file that will be created and to which the
+ * ID of the forked process will be written.
  * @param log_file The log file the detached process will use as the
  * destination instead of `std::clog` to write the log info.
  *
@@ -39,7 +41,9 @@ inline std::ofstream log_file_stream;
  * @remarks The function returns in the detached (forked) process!
  */
 inline void detach(std::function<void()> start,
-  const std::filesystem::path& pid_file, const std::filesystem::path& log_file)
+  const std::filesystem::path& pid_file,
+  const std::filesystem::path& log_file,
+  const std::ios_base::openmode log_file_openmode = std::ios_base::app | std::ios_base::ate | std::ios_base::out)
 {
   DMITIGR_REQUIRE(start, std::invalid_argument);
   DMITIGR_REQUIRE(!pid_file.empty(), std::invalid_argument);
@@ -56,8 +60,7 @@ inline void detach(std::function<void()> start,
   ::umask(S_IWGRP | S_IRWXO);
 
   // Redirecting clog to `log_file`.
-  detail::log_file_stream = std::ofstream{log_file,
-                                          std::ios_base::app | std::ios_base::ate | std::ios_base::out};
+  detail::log_file_stream = std::ofstream{log_file, log_file_openmode};
   if (!detail::log_file_stream) {
     std::clog << "Cannot open log file " << log_file << std::endl;
     std::exit(EXIT_FAILURE);
