@@ -45,6 +45,7 @@ inline void detach(const std::function<void()>& startup,
   const std::ios_base::openmode log_file_openmode = std::ios_base::app | std::ios_base::ate | std::ios_base::out)
 {
   DMITIGR_REQUIRE(startup, std::invalid_argument);
+  DMITIGR_REQUIRE(!working_directory.empty(), std::invalid_argument);
   DMITIGR_REQUIRE(!pid_file.empty(), std::invalid_argument);
   DMITIGR_REQUIRE(!log_file.empty(), std::invalid_argument);
 
