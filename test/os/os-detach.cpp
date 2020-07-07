@@ -44,7 +44,7 @@ int main(int, char* argv[])
       std::signal(SIGTERM, &std::quick_exit);
 
       std::clog << "Detached process done." << std::endl;
-    }, pid_file, log_file);
+    }, dirname, pid_file, log_file);
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

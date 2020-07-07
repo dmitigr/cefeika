@@ -28,19 +28,23 @@ namespace dmitigr::os::proc {
 /**
  * @brief Detaches the process to make it work in background.
  *
+ * @param startup The startup function to be called from a forked process.
  * @param pid_file The PID file that will be created and to which the
  * ID of the forked process will be written.
  * @param log_file The log file the detached process will use as the
  * destination instead of `std::clog` to write the log info.
+ * @param log_file_openmode The openmode to use upon opening the specified
+ * `log_file`.
  *
  * @remarks The function returns in the detached (forked) process!
  */
-inline void detach(std::function<void()> start,
+inline void detach(std::function<void()> startup,
+  const std::filesystem::path& working_directory,
   const std::filesystem::path& pid_file,
   const std::filesystem::path& log_file,
   const std::ios_base::openmode log_file_openmode = std::ios_base::app | std::ios_base::ate | std::ios_base::out)
 {
-  DMITIGR_REQUIRE(start, std::invalid_argument);
+  DMITIGR_REQUIRE(startup, std::invalid_argument);
   DMITIGR_REQUIRE(!pid_file.empty(), std::invalid_argument);
   DMITIGR_REQUIRE(!log_file.empty(), std::invalid_argument);
 
@@ -95,7 +99,7 @@ inline void detach(std::function<void()> start,
 
   // Changing the CWD
   try {
-    std::filesystem::current_path("/");
+    std::filesystem::current_path(working_directory);
   } catch (const std::exception& e) {
     std::clog << e.what() << std::endl;
     std::exit(EXIT_FAILURE);
@@ -118,9 +122,9 @@ inline void detach(std::function<void()> start,
   close_fd(STDOUT_FILENO);
   close_fd(STDERR_FILENO);
 
-  // Calling the start routine.
+  // Starting up.
   try {
-    start();
+    startup();
   } catch (const std::exception& e) {
     std::clog << e.what() << std::endl;
     std::exit(EXIT_FAILURE);
