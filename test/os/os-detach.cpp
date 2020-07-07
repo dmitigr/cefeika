@@ -22,7 +22,7 @@ int main(int, char* argv[])
     log_file = std::filesystem::absolute(dirname/"os-proc-detach.log");
     proc::detach([]
     {
-      const auto cleanup = []
+      static const auto cleanup = []
       {
         std::clog << "Cleaning up..." << std::endl;
         {
