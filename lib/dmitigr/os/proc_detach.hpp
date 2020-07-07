@@ -38,7 +38,7 @@ namespace dmitigr::os::proc {
  *
  * @remarks The function returns in the detached (forked) process!
  */
-inline void detach(std::function<void()> startup,
+inline void detach(const std::function<void()>& startup,
   const std::filesystem::path& working_directory,
   const std::filesystem::path& pid_file,
   const std::filesystem::path& log_file,
