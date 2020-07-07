@@ -94,9 +94,13 @@ inline void detach(std::function<void()> start,
   }
 
   // Changing the CWD
-  if (const int r = ::chdir("/"); r < 0) {
-    const int err = errno;
-    std::clog << "cannot chdir() to / (" << std::strerror(err) << ")" << std::endl;
+  try {
+    std::filesystem::current_path("/");
+  } catch (const std::exception& e) {
+    std::clog << e.what() << std::endl;
+    std::exit(EXIT_FAILURE);
+  } catch (...) {
+    std::clog << "cannot change current working directory to /" << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
