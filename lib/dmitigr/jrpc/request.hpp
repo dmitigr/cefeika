@@ -8,6 +8,8 @@
 #include "dmitigr/jrpc/response.hpp"
 #include <dmitigr/str/str.hpp>
 
+#include <tuple>
+
 namespace dmitigr::jrpc {
 
 /**
@@ -137,7 +139,7 @@ public:
    * @returns A Structured value that holds the parameter values to be
    * used during the invocation of the method, or `nullptr` if no parameters.
    */
-  const rapidjson::Value* parameters() const
+  const rapidjson::Value* params() const
   {
     const auto i = rep_.FindMember("params");
     return i != rep_.MemberEnd() ? &i->value : nullptr;
@@ -148,7 +150,7 @@ public:
    */
   const rapidjson::Value* parameter(const std::size_t position) const
   {
-    if (const auto* const p = parameters(); p && p->IsArray()) {
+    if (const auto* const p = params(); p && p->IsArray()) {
       DMITIGR_REQUIRE(position < p->Size(), std::invalid_argument);
       return &(*p)[position];
     } else
@@ -160,7 +162,7 @@ public:
    */
   const rapidjson::Value* parameter(const std::string_view name) const
   {
-    if (const auto* const p = parameters(); p && p->IsObject()) {
+    if (const auto* const p = params(); p && p->IsObject()) {
       const auto nr = rajson::to<rapidjson::Value::StringRefType>(name);
       const auto i = p->FindMember(nr);
       return i != p->MemberEnd() ? &i->value : nullptr;
@@ -169,11 +171,22 @@ public:
   }
 
   /**
+   * @returns A value of type `std::tuple<rapidjson::Value*, ..., bool>`. The
+   * last value of returned tuple indicates whether the all parameters of
+   * request specified in `names` or not.
+   */
+  template<class ... Types>
+  auto parameters(Types&& ... names) const
+  {
+    return parameters__(std::make_index_sequence<sizeof ... (Types)>{}, std::forward<Types>(names)...);
+  }
+
+  /**
    * @brief Sets the method parameter of the specified `position` to the
    * specifid `value`.
    *
    * @par Requires
-   * `(!parameters() || parameters()->IsArray())`.
+   * `(!params() || params()->IsArray())`.
    *
    * @par Effects
    * `(parameter(position) != nullptr)`.
@@ -181,10 +194,10 @@ public:
   void set_parameter(const std::size_t position, rapidjson::Value value)
   {
     auto& alloc = allocator();
-    rapidjson::Value* p = parameters__();
+    rapidjson::Value* p = params__();
     if (!p) {
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kArrayType}, alloc);
-      p = parameters__();
+      p = params__();
       p->Reserve(8, alloc);
       DMITIGR_ASSERT(p && p->IsArray());
     } else
@@ -214,7 +227,7 @@ public:
    * specified `value`.
    *
    * @par Requires
-   * `(!name.empty() && (!parameters() || parameters()->IsObject()))`.
+   * `(!name.empty() && (!params() || params()->IsObject()))`.
    *
    * @par Effects
    * `(parameter(name) != nullptr)`.
@@ -224,10 +237,10 @@ public:
     DMITIGR_REQUIRE(!name.empty(), std::invalid_argument);
 
     auto& alloc = allocator();
-    rapidjson::Value* p = parameters__();
+    rapidjson::Value* p = params__();
     if (!p) {
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kObjectType}, alloc);
-      p = parameters__();
+      p = params__();
       DMITIGR_ASSERT(p && p->IsObject());
     } else
       DMITIGR_REQUIRE(p->IsObject(), std::logic_error);
@@ -249,16 +262,16 @@ public:
   }
 
   /**
-   * @returns The parameter count. Returns 0 if `(parameters() == nullptr)`.
+   * @returns The parameter count. Returns 0 if `(params() == nullptr)`.
    */
   std::size_t parameter_count() const
   {
-    const auto* const p = parameters();
+    const auto* const p = params();
     return p ? (p->IsArray() ? p->Size() : p->MemberCount()) : 0;
   }
 
   /**
-   * @returns `(parameters() && parameter_count() > 0)`.
+   * @returns `(params() && parameter_count() > 0)`.
    */
   bool has_parameters() const
   {
@@ -269,11 +282,11 @@ public:
    * @brief Resets parameters and sets theirs notation.
    *
    * @par Effects
-   * `(parameters() && parameter_count() == 0)`.
+   * `(params() && parameter_count() == 0)`.
    */
   void reset_parameters(const Parameters_notation value)
   {
-    if (auto* const p = parameters__()) {
+    if (auto* const p = params__()) {
       if (value == Parameters_notation::positional) {
         if (p->IsArray())
           p->Clear();
@@ -290,14 +303,14 @@ public:
     else
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kObjectType}, allocator());
 
-    DMITIGR_ASSERT(parameters() && parameter_count() == 0);
+    DMITIGR_ASSERT(params() && parameter_count() == 0);
   }
 
   /**
    * @brief Omits parameters.
    *
    * @par Effects
-   * `(!parameters())`.
+   * `(!params())`.
    */
   void omit_parameters()
   {
@@ -382,9 +395,26 @@ private:
       (ii == e || ii->value.IsInt() || ii->value.IsString() || ii->value.IsNull());
   }
 
-  rapidjson::Value* parameters__()
+  rapidjson::Value* params__()
   {
-    return const_cast<rapidjson::Value*>(static_cast<const Request*>(this)->parameters());
+    return const_cast<rapidjson::Value*>(static_cast<const Request*>(this)->params());
+  }
+
+  template<std::size_t ... I, typename ... Types>
+  auto parameters__(std::index_sequence<I...>, Types&& ... names) const
+  {
+    static_assert(sizeof...(I) == sizeof...(names));
+    static const auto incf = [](std::size_t& count, const auto* const param)
+    {
+      if (param)
+        ++count;
+    };
+    auto result = std::make_tuple(parameter(names)..., true);
+    std::size_t count{};
+    (incf(count, std::get<I>(result)), ...);
+    if (count < parameter_count())
+      std::get<sizeof...(I)>(result) = false;
+    return result;
   }
 
   // for from_json

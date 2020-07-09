@@ -16,8 +16,8 @@ int main(int, char* argv[])
       auto req = jrpc::Request::from_json(R"({"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1})");
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "subtract");
-      ASSERT(req.parameters());
-      ASSERT(req.parameters()->IsArray());
+      ASSERT(req.params());
+      ASSERT(req.params()->IsArray());
       ASSERT(req.has_parameters());
       ASSERT(req.parameter_count() == 2);
       ASSERT(req.id());
@@ -42,21 +42,21 @@ int main(int, char* argv[])
       ASSERT(req.to_string() == R"({"jsonrpc":"2.0","method":"subtract","params":[42,23,null,7],"id":1})");
 
       req.reset_parameters(jrpc::Parameters_notation::positional);
-      ASSERT(req.parameters());
+      ASSERT(req.params());
       ASSERT(!req.has_parameters());
       ASSERT(req.parameter_count() == 0);
       ASSERT(req.to_string() == R"({"jsonrpc":"2.0","method":"subtract","params":[],"id":1})");
 
       req.omit_parameters();
-      ASSERT(!req.parameters());
+      ASSERT(!req.params());
       ASSERT(!req.has_parameters());
       ASSERT(req.parameter_count() == 0);
       ASSERT(req.to_string() == R"({"jsonrpc":"2.0","method":"subtract","id":1})");
 
       req.set_parameter(0, 10);
       req.set_parameter(1, 5.5);
-      ASSERT(req.parameters());
-      ASSERT(req.parameters()->IsArray());
+      ASSERT(req.params());
+      ASSERT(req.params()->IsArray());
       ASSERT(req.has_parameters());
       ASSERT(req.parameter_count() == 2);
       ASSERT(req.parameter(0));
@@ -73,8 +73,8 @@ int main(int, char* argv[])
       const auto req = jrpc::Request::from_json(R"({"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]})");
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "update");
-      ASSERT(req.parameters());
-      ASSERT(req.parameters()->IsArray());
+      ASSERT(req.params());
+      ASSERT(req.params()->IsArray());
       ASSERT(req.has_parameters());
       ASSERT(req.parameter_count() == 5);
       ASSERT(!req.id());
@@ -138,12 +138,12 @@ int main(int, char* argv[])
       jrpc::Request req{jrpc::null, "foo"};
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "foo");
-      ASSERT(!req.parameters());
+      ASSERT(!req.params());
       ASSERT(req.id());
       ASSERT(req.id()->IsNull());
       req.reset_parameters(jrpc::Parameters_notation::named);
-      ASSERT(req.parameters());
-      ASSERT(req.parameters()->IsObject());
+      ASSERT(req.params());
+      ASSERT(req.params()->IsObject());
       ASSERT(req.parameter_count() == 0);
     }
 
@@ -152,7 +152,7 @@ int main(int, char* argv[])
       const jrpc::Request req{3, "bar"};
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "bar");
-      ASSERT(!req.parameters());
+      ASSERT(!req.params());
       ASSERT(req.id());
       ASSERT(req.id()->IsInt());
       ASSERT(req.id()->GetInt() == 3);
@@ -163,7 +163,7 @@ int main(int, char* argv[])
       const jrpc::Request req{"Id123", "baz"};
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "baz");
-      ASSERT(!req.parameters());
+      ASSERT(!req.params());
       ASSERT(req.id());
       ASSERT(req.id()->IsString());
       ASSERT(std::strcmp(req.id()->GetString(), "Id123") == 0);
@@ -174,16 +174,26 @@ int main(int, char* argv[])
       jrpc::Request req{"move"};
       ASSERT(req.jsonrpc() == "2.0");
       ASSERT(req.method() == "move");
-      ASSERT(!req.parameters());
+      ASSERT(!req.params());
       ASSERT(!req.id());
 
       req.set_parameter("x", 10);
       req.set_parameter("y", 20);
-      ASSERT(req.parameters());
-      ASSERT(req.parameters()->IsObject());
+      ASSERT(req.params());
+      ASSERT(req.params()->IsObject());
       ASSERT(req.parameter_count() == 2);
       ASSERT(req.parameter("x") && req.parameter("x")->IsInt() && req.parameter("x")->GetInt() == 10);
       ASSERT(req.parameter("y") && req.parameter("y")->IsInt() && req.parameter("y")->GetInt() == 20);
+
+      {
+        const auto [x, y, z, all] = req.parameters("x", "y", "z");
+        ASSERT(x && y && !z && all);
+      }
+
+      {
+        const auto [x, z, all] = req.parameters("x", "z");
+        ASSERT(x && !z && !all);
+      }
     }
 
     // Copying request
@@ -192,7 +202,7 @@ int main(int, char* argv[])
       const jrpc::Request req_copy = req;
       ASSERT(req_copy.jsonrpc() == "2.0");
       ASSERT(req_copy.method() == "copy");
-      ASSERT(!req_copy.parameters());
+      ASSERT(!req_copy.params());
       ASSERT(!req_copy.id());
     }
   } catch (const std::exception& e) {
