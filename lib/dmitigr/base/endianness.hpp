@@ -7,12 +7,14 @@
 
 namespace dmitigr {
 
+/// @brief Represents endianness.
 enum class Endianness {
   unknown = 0,
   big,
   little
 };
 
+/// @returns Endianness of the system.
 inline Endianness endianness() noexcept
 {
   if constexpr (sizeof(unsigned char) < sizeof(unsigned long)) {
