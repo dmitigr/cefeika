@@ -28,6 +28,78 @@
 
 namespace dmitigr::math {
 
+/// Represents a type of interval.
+enum class Interval_type {
+  closed,
+  open,
+  lopen,
+  ropen
+};
+
+/// Represents an interval.
+template<typename T>
+class Interval final {
+public:
+  /// Alias of Interval_type.
+  using Type = Interval_type;
+
+  /// Constructs [{},{}] interval.
+  Interval() = default;
+
+  /**
+   * Constructs the interval one of the following:
+   *   - [min, max] if `type == closed`
+   *   - (min, max) if `type == open`
+   *   - (min, max] if `type == lopen`
+   *   - [min, max) if `type == ropen`
+   */
+  Interval(const Type type, T&& min, T&& max)
+    : type_{type}
+    , min_{std::move(min)}
+    , max_{std::move(max)}
+  {
+    if (type_ == Type::closed)
+      DMITIGR_REQUIRE(min_ <= max_, std::invalid_argument);
+    else
+      DMITIGR_REQUIRE(min_ < max_, std::invalid_argument);
+  }
+
+  /// @returns The type of interval.
+  Type type() const
+  {
+    return type_;
+  }
+
+  /// @returns The minimum of interval.
+  const T& min() const
+  {
+    return min_;
+  }
+
+  /// @returns The maximum of interval.
+  const T& max() const
+  {
+    return max_;
+  }
+
+  /// @returns `true` if value belongs to interval, or `false` otherwise.
+  bool has(const T& value) const
+  {
+    switch (type_) {
+    case Type::closed: return (min_ <= value) && (value <= max_); // []
+    case Type::open:   return (min_ <  value) && (value <  max_); // ()
+    case Type::lopen:  return (min_ <  value) && (value <= max_); // (]
+    case Type::ropen:  return (min_ <= value) && (value <  max_); // [)
+    default: DMITIGR_ASSERT_ALWAYS(!true);
+    }
+  }
+
+private:
+  Type type_{Type::closed};
+  T min_{};
+  T max_{};
+};
+
 /**
  * @returns `true` if `number` is a power of 2, or `false` otherwise.
  */
