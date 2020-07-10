@@ -12,6 +12,8 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
+#include <cstdint>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -68,18 +70,162 @@ template<> struct Conversions<bool> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
-    return value.GetBool();
+    if (value.IsBool())
+      return value.GetBool();
+    else
+      throw std::invalid_argument{"invalid bool"};
   }
 };
 
 /**
- * @brief Full specialization of Conversions for `int`.
+ * @brief Full specialization of Conversions for `std::uint8_t`.
  */
-template<> struct Conversions<int> final {
+template<> struct Conversions<std::uint8_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
-    return value.GetInt();
+    if (value.IsUint()) {
+      const auto result = value.GetUint();
+      if (result <= std::numeric_limits<std::uint8_t>::max())
+        return static_cast<std::uint8_t>(result);
+    }
+    throw std::invalid_argument{"invalid std::uint8_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::uint16_t`.
+ */
+template<> struct Conversions<std::uint16_t> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsUint()) {
+      const auto result = value.GetUint();
+      if (result <= std::numeric_limits<std::uint16_t>::max())
+        return static_cast<std::uint16_t>(result);
+    }
+    throw std::invalid_argument{"invalid std::uint16_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::uint32_t`.
+ */
+template<> struct Conversions<std::uint32_t> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsUint()) {
+      const auto result = value.GetUint();
+      if (result <= std::numeric_limits<std::uint32_t>::max())
+        return static_cast<std::uint32_t>(result);
+    }
+    throw std::invalid_argument{"invalid std::uint32_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::uint64_t`.
+ */
+template<> struct Conversions<std::uint64_t> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsUint())
+      return static_cast<std::uint64_t>(value.GetUint64());
+    else
+      throw std::invalid_argument{"invalid std::uint64_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::int8_t`.
+ */
+template<> struct Conversions<std::int8_t> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsInt()) {
+      const auto result = value.GetInt();
+      if (std::numeric_limits<std::int8_t>::min() <= result && result <= std::numeric_limits<std::int8_t>::max())
+        return static_cast<std::int8_t>(result);
+    }
+    throw std::invalid_argument{"invalid std::int8_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::int16_t`.
+ */
+template<> struct Conversions<short> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsInt()) {
+      const auto result = value.GetInt();
+      if (std::numeric_limits<std::int16_t>::min() <= result && result <= std::numeric_limits<std::int16_t>::max())
+        return static_cast<std::int16_t>(result);
+    }
+    throw std::invalid_argument{"invalid std::int16_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::int32_t`.
+ */
+template<> struct Conversions<std::int32_t> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsInt()) {
+      const auto result = value.GetInt();
+      if (std::numeric_limits<std::int32_t>::min() <= result && result <= std::numeric_limits<std::int32_t>::max())
+        return static_cast<std::int32_t>(result);
+    }
+    throw std::invalid_argument{"invalid std::int32_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `std::int64_t`.
+ */
+template<> struct Conversions<std::int64_t> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsInt64())
+      return static_cast<std::int64_t>(value.GetInt64());
+    else
+      throw std::invalid_argument{"invalid std::int64_t"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `float`.
+ */
+template<> struct Conversions<float> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsFloat())
+      return value.GetFloat();
+    else
+      throw std::invalid_argument{"invalid float"};
+  }
+};
+
+/**
+ * @brief Full specialization of Conversions for `double`.
+ */
+template<> struct Conversions<double> final {
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsDouble())
+      return value.GetDouble();
+    else
+      throw std::invalid_argument{"invalid double"};
   }
 };
 
@@ -91,7 +237,9 @@ struct Conversions<std::string> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
-    return std::string{value.GetString(), value.GetStringLength()};
+    if (value.IsString())
+      return std::string{value.GetString(), value.GetStringLength()};
+    throw std::invalid_argument{"invalid std::string"};
   }
 };
 
@@ -103,7 +251,9 @@ struct Conversions<std::string_view> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
-    return std::string_view{value.GetString(), value.GetStringLength()};
+    if (value.IsString())
+      return std::string_view{value.GetString(), value.GetStringLength()};
+    throw std::invalid_argument{"invalid std::string_view"};
   }
 };
 
