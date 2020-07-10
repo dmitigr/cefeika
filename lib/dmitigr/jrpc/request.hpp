@@ -6,8 +6,10 @@
 #define DMITIGR_JRPC_REQUEST_HPP
 
 #include "dmitigr/jrpc/response.hpp"
+#include <dmitigr/math/math.hpp>
 #include <dmitigr/str/str.hpp>
 
+#include <optional>
 #include <tuple>
 
 namespace dmitigr::jrpc {
@@ -168,6 +170,111 @@ public:
       return i != p->MemberEnd() ? &i->value : nullptr;
     } else
       return nullptr;
+  }
+
+  /**
+   * @returns The result of conversion of `p` to a value of type `T`, or
+   * `std::nullopt` if `(!p || p->IsNull())`.
+   *
+   * @throws Error if `p` cannot be converted to `T`.
+   */
+  template<typename T>
+  std::optional<T> optional_parameter(const rapidjson::Value* const p,
+    const std::string& error_message = {}) const
+  {
+    try {
+      if (!p || p->IsNull())
+        return std::nullopt;
+      else
+        return rajson::to<T>(*p);
+    } catch (...) {
+      throw_error(Server_errc::invalid_params, error_message);
+    }
+  }
+
+  /// @overload
+  template<typename T>
+  std::optional<T> optional_parameter(const std::string_view name,
+    const std::string& error_message = {}) const
+  {
+    return optional_parameter<T>(parameter(name), error_message);
+  }
+
+  /**
+   * @returns The result of conversion of `p` to a value of type `T`, or
+   * `std::nullopt` if `(!p || p->IsNull())`.
+   *
+   * @throws Error if `p` cannot be converted to `T`, or if `valid_set` doesn't
+   * contains a value that equals to the result of such a conversion.
+   */
+  template<typename T>
+  std::optional<T> optional_parameter(const rapidjson::Value* const p,
+    const std::vector<T>& valid_set, const std::string& error_message = {}) const
+  {
+    if (auto result = optional_parameter<T>(p, error_message)) {
+      auto& r = *result;
+      if (std::any_of(cbegin(valid_set), cend(valid_set), [r](const auto& e){return r == e;}))
+        return result;
+      else
+        throw_error(Server_errc::invalid_params, error_message);
+    } else
+      return std::nullopt;
+  }
+
+  /// @overload
+  template<typename T>
+  std::optional<T> optional_parameter(const std::string_view name,
+    const std::vector<T>& valid_set, const std::string& error_message = {}) const
+  {
+    return optional_parameter(parameter(name), valid_set, error_message);
+  }
+
+  /**
+   * @returns The result of conversion of `p` to a value of type `T`, or
+   * `std::nullopt` if `(!p || p->IsNull())`.
+   *
+   * @throws Error if `p` cannot be converted to `T`, or if `!interval.has(p)`.
+   */
+  template<typename T>
+  std::optional<T> optional_parameter(const rapidjson::Value* const p,
+    const math::Interval<T>& interval, const std::string& error_message = {}) const
+  {
+    if (auto result = optional_parameter<T>(p, error_message)) {
+      if (interval.has(*result))
+        return result;
+      else
+        throw_error(Server_errc::invalid_params, error_message);
+    } else
+      return std::nullopt;
+  }
+
+  /// @overload
+  template<typename T>
+  std::optional<T> optional_parameter(const std::string_view name,
+    const math::Interval<T>& interval, const std::string& error_message = {}) const
+  {
+    return optional_parameter(parameter(name), interval, error_message);
+  }
+
+  /**
+   * @returns The result of conversion of parameter denoted by the first
+   * argument to a value of type `T`.
+   *
+   * @params args The same arguments as for optional_parameter() methods.
+   *
+   * @throws Error if parameter is `nullptr` or represents Null.
+   */
+  template<typename T, typename ... Types>
+  T mandatory_parameter(Types&& ... args) const
+  {
+    if (auto result = optional_parameter<T>(std::forward<Types>(args)...); !result) {
+      if constexpr (sizeof...(args) > 1) {
+        const std::string& error_message = std::get<sizeof...(args) - 1>(std::make_tuple(args...));
+        throw_error(Server_errc::invalid_params, error_message);
+      } else
+        throw_error(Server_errc::invalid_params);
+    } else
+      return *result;
   }
 
   /**
@@ -339,8 +446,10 @@ public:
    */
   [[noreturn]] void throw_error(const std::error_code code, const std::string& message = {}) const
   {
-    DMITIGR_REQUIRE(id(), std::logic_error, "throwing errors for notifications is nonsense");
-    throw Error{code, *id(), message};
+    if (id())
+      throw Error{code, *id(), message};
+    else
+      throw Error{code, Null{}, message};
   }
 
   /**
@@ -349,8 +458,10 @@ public:
    */
   Error make_error(const std::error_code code, const std::string& message = {}) const
   {
-    DMITIGR_REQUIRE(id(), std::logic_error, "making errors for notifications is nonsense");
-    return Error{code, *id(), message};
+    if (id())
+      return Error{code, *id(), message};
+    else
+      return Error{code, Null{}, message};
   }
 
   /**

@@ -194,6 +194,15 @@ int main(int, char* argv[])
         const auto [x, z, all] = req.parameters("x", "z");
         ASSERT(x && !z && !all);
       }
+
+      {
+        const auto x = req.mandatory_parameter<int>("x");
+        const auto y = req.mandatory_parameter<std::int8_t>("y");
+        const auto z = req.optional_parameter<int>("z");
+        ASSERT(x == 10);
+        ASSERT(y == 20);
+        ASSERT(!z);
+      }
     }
 
     // Copying request
