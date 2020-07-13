@@ -12,6 +12,7 @@
 #include <functional>
 #include <optional>
 #include <tuple>
+#include <type_traits>
 
 namespace dmitigr::jrpc {
 
@@ -211,7 +212,8 @@ public:
    * @throws Error if `p` cannot be converted to `T`, or if `!is_valid(T)`.
    */
   template<typename T, typename Predicate>
-  std::optional<T> optional_parameter(const rapidjson::Value* const p,
+  std::enable_if_t<std::is_invocable_r_v<bool, Predicate, const T&>, std::optional<T>>
+  optional_parameter(const rapidjson::Value* const p,
     Predicate&& is_valid, const std::string& error_message = {}) const
   {
     if (auto result = optional_parameter<T>(p, error_message)) {
@@ -225,10 +227,11 @@ public:
 
   /// @overload
   template<typename T, typename Predicate>
-  std::optional<T> optional_parameter(const std::string_view name,
+  std::enable_if_t<std::is_invocable_r_v<bool, Predicate, const T&>, std::optional<T>>
+  optional_parameter(const std::string_view name,
     Predicate&& is_valid, const std::string& error_message = {}) const
   {
-    return optional_parameter(parameter(name), std::forward<Predicate>(is_valid), error_message);
+    return optional_parameter<T>(parameter(name), std::forward<Predicate>(is_valid), error_message);
   }
 
   /**
@@ -240,7 +243,7 @@ public:
   std::optional<T> optional_parameter(const rapidjson::Value* const p,
     const std::vector<T>& valid_set, const std::string& error_message = {}) const
   {
-    return optional_parameter(p, [&valid_set](const T& v)
+    return optional_parameter<T>(p, [&valid_set](const T& v)
     {
       return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const T& e){return v == e;});
     }, error_message);
@@ -251,7 +254,7 @@ public:
   std::optional<T> optional_parameter(const std::string_view name,
     const std::vector<T>& valid_set, const std::string& error_message = {}) const
   {
-    return optional_parameter(parameter(name), valid_set, error_message);
+    return optional_parameter<T>(parameter(name), valid_set, error_message);
   }
 
   /**
@@ -263,8 +266,7 @@ public:
   std::optional<T> optional_parameter(const rapidjson::Value* const p,
     const math::Interval<T>& interval, const std::string& error_message = {}) const
   {
-    return optional_parameter(p,
-      std::bind(&math::Interval<T>::has, &interval, std::placeholders::_1), error_message);
+    return optional_parameter<T>(p, std::bind(&math::Interval<T>::has, &interval, std::placeholders::_1), error_message);
   }
 
   /// @overload
@@ -272,7 +274,7 @@ public:
   std::optional<T> optional_parameter(const std::string_view name,
     const math::Interval<T>& interval, const std::string& error_message = {}) const
   {
-    return optional_parameter(parameter(name), interval, error_message);
+    return optional_parameter<T>(parameter(name), interval, error_message);
   }
 
   /**
