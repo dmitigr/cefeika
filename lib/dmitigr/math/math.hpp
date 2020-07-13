@@ -64,28 +64,33 @@ public:
       DMITIGR_REQUIRE(min_ < max_, std::invalid_argument);
   }
 
+  /// Constructs the [min, max] interval.
+  Interval(T&& min, T&& max)
+    : Interval{Type::closed, std::forward<T>(min), std::forward<T>(max)}
+  {}
+
   /// @returns [min, max] interval.
   static Interval make_closed(T&& min, T&& max)
   {
-    return {Type::closed, min, max};
+    return {Type::closed, std::forward<T>(min), std::forward<T>(max)};
   }
 
   /// @returns (min, max) interval.
   static Interval make_open(T&& min, T&& max)
   {
-    return {Type::open, min, max};
+    return {Type::open, std::forward<T>(min), std::forward<T>(max)};
   }
 
   /// @returns (min, max] interval.
   static Interval make_lopen(T&& min, T&& max)
   {
-    return {Type::lopen, min, max};
+    return {Type::lopen, std::forward<T>(min), std::forward<T>(max)};
   }
 
   /// @returns [min, max) interval.
   static Interval make_ropen(T&& min, T&& max)
   {
-    return {Type::ropen, min, max};
+    return {Type::ropen, std::forward<T>(min), std::forward<T>(max)};
   }
 
   /// @returns The type of interval.
