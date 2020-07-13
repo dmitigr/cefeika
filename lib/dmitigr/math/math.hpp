@@ -30,9 +30,13 @@ namespace dmitigr::math {
 
 /// Represents a type of interval.
 enum class Interval_type {
+  /// Denotes [min, max] interval.
   closed,
+  /// Denotes (min, max) interval.
   open,
+  /// Denotes (min, max] interval.
   lopen,
+  /// Denotes [min, max) interval.
   ropen
 };
 
@@ -47,11 +51,7 @@ public:
   Interval() = default;
 
   /**
-   * Constructs the interval one of the following:
-   *   - [min, max] if `type == closed`
-   *   - (min, max) if `type == open`
-   *   - (min, max] if `type == lopen`
-   *   - [min, max) if `type == ropen`
+   * Constructs the interval of the specified type.
    */
   Interval(const Type type, T&& min, T&& max)
     : type_{type}
@@ -62,6 +62,30 @@ public:
       DMITIGR_REQUIRE(min_ <= max_, std::invalid_argument);
     else
       DMITIGR_REQUIRE(min_ < max_, std::invalid_argument);
+  }
+
+  /// @returns [min, max] interval.
+  static Interval make_closed(T&& min, T&& max)
+  {
+    return {Type::closed, min, max};
+  }
+
+  /// @returns (min, max) interval.
+  static Interval make_open(T&& min, T&& max)
+  {
+    return {Type::open, min, max};
+  }
+
+  /// @returns (min, max] interval.
+  static Interval make_lopen(T&& min, T&& max)
+  {
+    return {Type::lopen, min, max};
+  }
+
+  /// @returns [min, max) interval.
+  static Interval make_ropen(T&& min, T&& max)
+  {
+    return {Type::ropen, min, max};
   }
 
   /// @returns The type of interval.
