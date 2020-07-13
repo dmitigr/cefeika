@@ -9,6 +9,7 @@
 #include <dmitigr/math/math.hpp>
 #include <dmitigr/str/str.hpp>
 
+#include <functional>
 #include <optional>
 #include <tuple>
 
@@ -204,21 +205,45 @@ public:
    * @returns The result of conversion of `p` to a value of type `T`, or
    * `std::nullopt` if `(!p || p->IsNull())`.
    *
-   * @throws Error if `p` cannot be converted to `T`, or if `valid_set` doesn't
-   * contains a value that equals to the result of such a conversion.
+   * @param is_valid An unary predicate that returns `true` if a value of type
+   * `T` is valid, or `false` otherwise.
+   *
+   * @throws Error if `p` cannot be converted to `T`, or if `!is_valid(T)`.
    */
-  template<typename T>
+  template<typename T, typename Predicate>
   std::optional<T> optional_parameter(const rapidjson::Value* const p,
-    const std::vector<T>& valid_set, const std::string& error_message = {}) const
+    Predicate&& is_valid, const std::string& error_message = {}) const
   {
     if (auto result = optional_parameter<T>(p, error_message)) {
-      auto& r = *result;
-      if (std::any_of(cbegin(valid_set), cend(valid_set), [r](const auto& e){return r == e;}))
+      if (is_valid(*result))
         return result;
       else
         throw_error(Server_errc::invalid_params, error_message);
     } else
       return std::nullopt;
+  }
+
+  /// @overload
+  template<typename T, typename Predicate>
+  std::optional<T> optional_parameter(const std::string_view name,
+    Predicate&& is_valid, const std::string& error_message = {}) const
+  {
+    return optional_parameter(parameter(name), std::forward<Predicate>(is_valid), error_message);
+  }
+
+  /**
+   * @overload
+   *
+   * @param valid_set A vector of acceptable values.
+   */
+  template<typename T>
+  std::optional<T> optional_parameter(const rapidjson::Value* const p,
+    const std::vector<T>& valid_set, const std::string& error_message = {}) const
+  {
+    return optional_parameter(p, [&valid_set](const T& v)
+    {
+      return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const T& e){return v == e;});
+    }, error_message);
   }
 
   /// @overload
@@ -230,22 +255,16 @@ public:
   }
 
   /**
-   * @returns The result of conversion of `p` to a value of type `T`, or
-   * `std::nullopt` if `(!p || p->IsNull())`.
+   * @overload
    *
-   * @throws Error if `p` cannot be converted to `T`, or if `!interval.has(p)`.
+   * @param interval An interval of acceptable values.
    */
   template<typename T>
   std::optional<T> optional_parameter(const rapidjson::Value* const p,
     const math::Interval<T>& interval, const std::string& error_message = {}) const
   {
-    if (auto result = optional_parameter<T>(p, error_message)) {
-      if (interval.has(*result))
-        return result;
-      else
-        throw_error(Server_errc::invalid_params, error_message);
-    } else
-      return std::nullopt;
+    return optional_parameter(p,
+      std::bind(&math::Interval<T>::has, &interval, std::placeholders::_1), error_message);
   }
 
   /// @overload
