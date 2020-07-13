@@ -237,11 +237,11 @@ public:
   /**
    * @overload
    *
-   * @param valid_set A vector of acceptable values.
+   * @param valid_set A container of acceptable values.
    */
-  template<typename T>
+  template<typename T, typename U, typename A, template<class, class> class Container>
   std::optional<T> optional_parameter(const rapidjson::Value* const p,
-    const std::vector<T>& valid_set, const std::string& error_message = {}) const
+    const Container<U, A>& valid_set, const std::string& error_message = {}) const
   {
     return optional_parameter<T>(p, [&valid_set](const T& v)
     {
@@ -250,9 +250,9 @@ public:
   }
 
   /// @overload
-  template<typename T>
+  template<typename T, typename U, typename A, template<class, class> class Container>
   std::optional<T> optional_parameter(const std::string_view name,
-    const std::vector<T>& valid_set, const std::string& error_message = {}) const
+    const Container<U, A>& valid_set, const std::string& error_message = {}) const
   {
     return optional_parameter<T>(parameter(name), valid_set, error_message);
   }
@@ -262,17 +262,17 @@ public:
    *
    * @param interval An interval of acceptable values.
    */
-  template<typename T>
+  template<typename T, typename U>
   std::optional<T> optional_parameter(const rapidjson::Value* const p,
-    const math::Interval<T>& interval, const std::string& error_message = {}) const
+    const math::Interval<U>& interval, const std::string& error_message = {}) const
   {
-    return optional_parameter<T>(p, std::bind(&math::Interval<T>::has, &interval, std::placeholders::_1), error_message);
+    return optional_parameter<T>(p, std::bind(&math::Interval<U>::has, &interval, std::placeholders::_1), error_message);
   }
 
   /// @overload
-  template<typename T>
+  template<typename T, typename U>
   std::optional<T> optional_parameter(const std::string_view name,
-    const math::Interval<T>& interval, const std::string& error_message = {}) const
+    const math::Interval<U>& interval, const std::string& error_message = {}) const
   {
     return optional_parameter<T>(parameter(name), interval, error_message);
   }
