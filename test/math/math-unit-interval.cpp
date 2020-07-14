@@ -41,6 +41,12 @@ int main(int, char* argv[])
       ASSERT(i.has(2));
       ASSERT(i.has(3));
       ASSERT(!i.has(4));
+      const auto [min, max] = i.release();
+      ASSERT(min == 0);
+      ASSERT(max == 3);
+      ASSERT(i.type() == Interval_type::closed);
+      ASSERT(i.min() == 0);
+      ASSERT(i.max() == 0);
     }
     {
       Interval i{Interval_type::open, .0f, 1.0f};

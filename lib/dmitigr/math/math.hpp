@@ -26,6 +26,8 @@
 #include "dmitigr/math/version.hpp"
 #include <dmitigr/base/debug.hpp>
 
+#include <utility>
+
 namespace dmitigr::math {
 
 /// Represents a type of interval.
@@ -44,16 +46,26 @@ enum class Interval_type {
 template<typename T>
 class Interval final {
 public:
-  /// Alias of Interval_type.
+  /// An alias of T.
+  using Value_type = T;
+
+  /// An alias of Interval_type.
   using Type = Interval_type;
 
-  /// Constructs [{},{}] interval.
+  /// Constructs closed [{},{}] interval.
   Interval() = default;
+
+  /// Constructs closed [min, max] interval.
+  Interval(T min, T max)
+    : type_{Type::closed}
+    , min_{std::move(min)}
+    , max_{std::move(max)}
+  {}
 
   /**
    * Constructs the interval of the specified type.
    */
-  Interval(const Type type, T&& min, T&& max)
+  Interval(const Type type, T min, T max)
     : type_{type}
     , min_{std::move(min)}
     , max_{std::move(max)}
@@ -64,49 +76,44 @@ public:
       DMITIGR_REQUIRE(min_ < max_, std::invalid_argument);
   }
 
-  /// Constructs the [min, max] interval.
-  Interval(T&& min, T&& max)
-    : Interval{Type::closed, std::forward<T>(min), std::forward<T>(max)}
-  {}
-
   /// @returns [min, max] interval.
-  static Interval make_closed(T&& min, T&& max)
+  static Interval make_closed(T min, T max)
   {
-    return {Type::closed, std::forward<T>(min), std::forward<T>(max)};
+    return {Type::closed, std::move(min), std::move(max)};
   }
 
   /// @returns (min, max) interval.
-  static Interval make_open(T&& min, T&& max)
+  static Interval make_open(T min, T max)
   {
-    return {Type::open, std::forward<T>(min), std::forward<T>(max)};
+    return {Type::open, std::move(min), std::move(max)};
   }
 
   /// @returns (min, max] interval.
-  static Interval make_lopen(T&& min, T&& max)
+  static Interval make_lopen(T min, T max)
   {
-    return {Type::lopen, std::forward<T>(min), std::forward<T>(max)};
+    return {Type::lopen, std::move(min), std::move(max)};
   }
 
   /// @returns [min, max) interval.
-  static Interval make_ropen(T&& min, T&& max)
+  static Interval make_ropen(T min, T max)
   {
-    return {Type::ropen, std::forward<T>(min), std::forward<T>(max)};
+    return {Type::ropen, std::move(min), std::move(max)};
   }
 
   /// @returns The type of interval.
-  Type type() const
+  Type type() const noexcept
   {
     return type_;
   }
 
   /// @returns The minimum of interval.
-  const T& min() const
+  const T& min() const noexcept
   {
     return min_;
   }
 
   /// @returns The maximum of interval.
-  const T& max() const
+  const T& max() const noexcept
   {
     return max_;
   }
@@ -121,6 +128,19 @@ public:
     case Type::ropen:  return (min_ <= value) && (value <  max_); // [)
     default: DMITIGR_ASSERT_ALWAYS(!true);
     }
+  }
+
+  /**
+   * @returns A pair of {min, max}.
+   *
+   * @par Effects
+   * The state of this instance as if it default constructed.
+   */
+  std::pair<T, T> release()
+  {
+    std::pair<T, T> result{std::move(min_), std::move(max_)};
+    *this = {};
+    return result;
   }
 
 private:
