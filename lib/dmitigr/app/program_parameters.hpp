@@ -177,18 +177,6 @@ public:
   }
 
   /**
-   * @returns `true` if the given option presents and has no associated argument,
-   * or `false` otherwise.
-   */
-  bool is_option_without_argument(const std::string& name) const
-  {
-    if (const auto* const oa = option(name))
-      return !*oa;
-    else
-      return false;
-  }
-
-  /**
    * @returns An option argument, or `std::nullopt` if option is not present.
    *
    * @throw std::runtime_error if argument for this option is not present.
