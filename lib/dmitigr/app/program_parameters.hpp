@@ -20,7 +20,7 @@ namespace dmitigr::app {
  * @brief A program parameters.
  *
  * Stores the parsed program parameters like the following:
- *   executabe [command] [--opt1 --opt2=arg] [--] [arg1 arg2]
+ *   executabe [--opt1 --opt2=arg] [--] [arg1 arg2]
  *
  * Each option may have an argument which is specified after the "=" character.
  * The sequence of characters "--" indicates that the remaining parameters should
@@ -79,12 +79,6 @@ public:
 
     int argi = 1;
 
-    // Extracting a command name
-    if (auto cmd = opt(argv[argi]); !cmd) {
-      command_name_ = std::string{argv[argi]};
-      ++argi;
-    }
-
     // Collecting options
     for (; argi < argc; ++argi) {
       if (auto o = opt(argv[argi])) {
@@ -111,10 +105,8 @@ public:
    * `(!executable_path.empty())`.
    */
   explicit Program_parameters(std::filesystem::path executable_path,
-    std::optional<std::string> command_name = {},
     Option_map options = {}, Argument_vector arguments = {})
     : executable_path_{std::move(executable_path)}
-    , command_name_{std::move(command_name)}
     , options_{std::move(options)}
     , arguments_{std::move(arguments)}
   {
@@ -137,14 +129,6 @@ public:
   const std::filesystem::path& executable_path() const
   {
     return executable_path_;
-  }
-
-  /**
-   * @returns The name of the command.
-   */
-  const std::optional<std::string>& command_name() const
-  {
-    return command_name_;
   }
 
   /**
@@ -218,7 +202,6 @@ public:
 
 private:
   std::filesystem::path executable_path_;
-  std::optional<std::string> command_name_;
   Option_map options_;
   Argument_vector arguments_;
 

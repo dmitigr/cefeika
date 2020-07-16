@@ -18,9 +18,6 @@ int main(int argc, char* argv[])
     ASSERT(!epath.empty());
     std::cout << "Executable path: " << epath << std::endl;
 
-    const auto& cname = po.command_name();
-    std::cout << "Command name: " << cname.value_or("<UNSPECIFIED>") << std::endl;
-
     const auto& opts = po.options();
     std::cout << opts.size() << " options specified";
     if (!opts.empty()) {
