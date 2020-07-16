@@ -26,7 +26,7 @@ namespace dmitigr::app {
  * The sequence of characters "--" indicates that the remaining parameters should
  * not be treated as options, but arguments.
  *
- * @remarks "Short" options (e.g. `-o` or `-o 1`) does not supported
+ * @remarks "Short" options (e.g. `-o` or `-o 1`) does not supported currently
  * and treated as arguments.
  */
 class Program_parameters final {
@@ -161,55 +161,30 @@ public:
   }
 
   /**
-   * @returns An option argument, or `std::nullopt` if option is not present.
-   *
-   * @throw std::runtime_error if argument for this option is not present.
+   * @returns Iterator to the first found option that is not presents in `list`.
    */
-  const std::optional<std::string>& option_with_argument(const std::string& name) const
+  Option_map::const_iterator option_except(const std::vector<std::string>& list) const
   {
-    if (const auto* const oa = option(name)) {
-      if (*oa)
-        return *oa;
-      else
-        throw std::runtime_error{"argument for option --" + name + " is not present"};
-    } else
-      return null();
+    return std::find_if(cbegin(options_), cend(options_),
+      [b = cbegin(list), e = cend(list)](const auto& o)
+      {
+        return std::find(b, e, o.first) == e;
+      });
   }
 
   /**
-   * @returns Iterator to the first found option that is not presents in `options`.
-   */
-  Option_map::const_iterator option_other_than(const std::vector<std::string>& options) const
-  {
-    const auto boptions = cbegin(options);
-    const auto eoptions = cend(options);
-    const auto e = cend(options_);
-    for (auto i = cbegin(options_); i != e; ++i) {
-      if (const auto ioptions = std::find(boptions, eoptions, i->first); ioptions == eoptions)
-        return i;
-    }
-    return e;
-  }
-
-  /**
-   * @returns `true` if there are option that is not present in given `options`,
+   * @returns `true` if there are option that is not present in given `list`,
    * or `false` otherwise.
    */
-  bool has_option_other_than(const std::vector<std::string>& options) const
+  bool has_option_except(const std::vector<std::string>& list) const
   {
-    return option_other_than(options) != cend(options_);
+    return option_except(list) != cend(options_);
   }
 
 private:
   std::filesystem::path executable_path_;
   Option_map options_;
   Argument_vector arguments_;
-
-  static const std::optional<std::string>& null()
-  {
-    static const std::optional<std::string> result;
-    return result;
-  }
 };
 
 } // namespace dmitigr::app
