@@ -208,7 +208,7 @@ template<> struct Conversions<float> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
-    if (value.IsFloat())
+    if (value.IsFloat() || value.IsLosslessFloat())
       return value.GetFloat();
     else
       throw std::invalid_argument{"invalid float"};
@@ -222,7 +222,7 @@ template<> struct Conversions<double> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
-    if (value.IsDouble())
+    if (value.IsDouble() || value.IsLosslessDouble())
       return value.GetDouble();
     else
       throw std::invalid_argument{"invalid double"};
