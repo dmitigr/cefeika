@@ -141,7 +141,7 @@ public:
    * @returns The amount of bytes wasn't send yet. This value can be set initially by
    * sending "Content-Length" header to the remote side.
    */
-  std::intmax_t unsent_body_length() const
+  std::uintmax_t unsent_body_length() const
   {
     return unsent_body_length_;
   }
@@ -468,7 +468,7 @@ public:
   }
 
   /// @returns The amount of bytes of body which are not yet received.
-  std::intmax_t unreceived_body_length() const
+  std::uintmax_t unreceived_body_length() const
   {
     return unreceived_body_length_;
   }

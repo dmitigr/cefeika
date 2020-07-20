@@ -128,8 +128,8 @@ inline void set_timeout(const Socket_native socket,
   const auto snd_s = system_clock::to_time_t(z + snd_timeout_s);
   const auto rcv_micro = chrono::duration_cast<chrono::microseconds>(rcv_timeout - rcv_timeout_s);
   const auto snd_micro = chrono::duration_cast<chrono::microseconds>(snd_timeout - snd_timeout_s);
-  timeval rcv_tv{rcv_s, rcv_micro.count()};
-  timeval snd_tv{snd_s, rcv_micro.count()};
+  timeval rcv_tv{rcv_s, static_cast<decltype(rcv_tv.tv_usec)>(rcv_micro.count())};
+  timeval snd_tv{snd_s, static_cast<decltype(snd_tv.tv_usec)>(rcv_micro.count())};
   char* const rcv_to = reinterpret_cast<char*>(&rcv_tv);
   char* const snd_to = reinterpret_cast<char*>(&snd_tv);
   const auto rrcv = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, rcv_to, sizeof(rcv_tv));
