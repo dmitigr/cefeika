@@ -9,7 +9,6 @@
 #include "dmitigr/http/errc.hpp"
 #include "dmitigr/http/types_fwd.hpp"
 #include <dmitigr/net/listener.hpp>
-#include <dmitigr/os/exceptions.hpp>
 
 #include <string>
 #include <type_traits>

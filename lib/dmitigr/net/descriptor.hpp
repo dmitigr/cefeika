@@ -156,7 +156,7 @@ public:
     }
 
     if (socket_.close() != 0)
-      throw os::Sys_exception{"closesocket"};
+      throw Sys_exception{"closesocket"};
   }
 
   std::intptr_t native_handle() noexcept override
@@ -212,10 +212,10 @@ public:
   {
     if (pipe_ != INVALID_HANDLE_VALUE) {
       if (!::FlushFileBuffers(pipe_))
-        os::Sys_exception::report("FlushFileBuffers");
+        Sys_exception::report("FlushFileBuffers");
 
       if (!::DisconnectNamedPipe(pipe_))
-        os::Sys_exception::report("DisconnectNamedPipe");
+        Sys_exception::report("DisconnectNamedPipe");
     }
   }
 
@@ -235,7 +235,7 @@ public:
 
     DWORD result{};
     if (!::ReadFile(pipe_, buf, static_cast<DWORD>(len), &result, nullptr))
-      throw os::Sys_exception{"Readfile"};
+      throw Sys_exception{"Readfile"};
 
     return static_cast<std::streamsize>(result);
   }
@@ -247,7 +247,7 @@ public:
 
     DWORD result{};
     if (!::WriteFile(pipe_, buf, static_cast<DWORD>(len), &result, nullptr))
-      throw os::Sys_exception{"WriteFile"};
+      throw Sys_exception{"WriteFile"};
 
     return static_cast<std::streamsize>(result);
   }
@@ -256,13 +256,13 @@ public:
   {
     if (pipe_ != INVALID_HANDLE_VALUE) {
       if (!::FlushFileBuffers(pipe_))
-        throw os::Sys_exception{"FlushFileBuffers"};
+        throw Sys_exception{"FlushFileBuffers"};
 
       if (!::DisconnectNamedPipe(pipe_))
-        throw os::Sys_exception{"DisconnectNamedPipe"};
+        throw Sys_exception{"DisconnectNamedPipe"};
 
       if (!pipe_.close())
-        throw os::Sys_exception{"CloseHandle"};
+        throw Sys_exception{"CloseHandle"};
     }
   }
 

@@ -415,7 +415,7 @@ public:
     OVERLAPPED ol{0, 0, 0, 0, nullptr};
     ol.hEvent = ::CreateEventA(nullptr, true, false, nullptr);
     if (!ol.hEvent)
-      throw os::Sys_exception{"CreateEventA"};
+      throw Sys_exception{"CreateEventA"};
 
     os::windows::Handle_guard pipe = make_named_pipe();
 
@@ -434,20 +434,20 @@ public:
           if (::GetOverlappedResult(pipe, &ol, &number_of_bytes_transferred, false))
             goto have_waited;
           else
-            throw os::Sys_exception{"GetOverlappedResult"};
+            throw Sys_exception{"GetOverlappedResult"};
         } else {
           if (!::CancelIo(pipe))
-            throw os::Sys_exception{"CancelIo"};
+            throw Sys_exception{"CancelIo"};
 
           if (r == WAIT_TIMEOUT)
             return false;
           else
-            throw os::Sys_exception{"WaitForSingleObject"};
+            throw Sys_exception{"WaitForSingleObject"};
         }
       }
 
       default:
-        throw os::Sys_exception{"ConnectNamedPipe"};
+        throw Sys_exception{"ConnectNamedPipe"};
       }
     }
 
@@ -467,7 +467,7 @@ public:
   {
     if (is_listening()) {
       if (!pipe_.close())
-        throw os::Sys_exception{"CloseHandle"};
+        throw Sys_exception{"CloseHandle"};
       is_listening_ = false;
     }
   }
@@ -501,7 +501,7 @@ private:
     if (result != INVALID_HANDLE_VALUE)
       return result;
     else
-      throw os::Sys_exception{"CreateNamedPipeA"};
+      throw Sys_exception{"CreateNamedPipeA"};
   }
 };
 
