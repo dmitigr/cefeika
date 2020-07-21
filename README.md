@@ -14,6 +14,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [jrpc] - [JSON-RPC 2.0][json-rpc2] implementation
   - [math] - mathematical stuff
   - [mem] - memory management stuff
+  - [mp] - multiprocessing stuff
   - [mulf] - multipart/form-data library
   - [net] - networking library
   - [os] - OS interaction
@@ -21,7 +22,6 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [rajson] - [RapidJSON] wrapper
   - [rng] - random number generators
   - [str] - string miscellaneous
-  - [mp] - multiprocessing stuff
   - [testo] - testing stuff
   - [ttpl] - text templates library
   - [url] - URL processing
@@ -45,7 +45,7 @@ Any feedback are [welcome][dmitigr_mail]. Donations are also [welcome][dmitigr_p
 
 ## Third-party dependencies
 
-- [CMake] build system version 3.10+;
+- [CMake] build system version 3.17+;
 - C++17 compiler ([GCC] 7.4+ or [Microsoft Visual C++][Visual_Studio] 15.7+).
 
 Also:
@@ -98,6 +98,11 @@ contains variables which can be passed to [CMake] for customization.
   - `LIBPQ_INCLUDE_PREFIX` specifies a prefix of the [libpq] headers (namely,
   `libpq-fe.h`).
 
+  Note, that when building with Visual Studio on Windows the value of
+  `CMAKE_BUILD_TYPE` doesn't selects the build configuration within the
+  generated build environment. The [CMake] command line option `--config` may
+  be used for that purpose.
+
   Note, on Windows [CMake] will automatically search for dependency libraries in
   `<prefix>/lib` for each `<prefix>/[s]bin` found in `PATH` environment variable,
   and `<prefix>/lib` for other entries of `PATH`, and the directories of `PATH`
@@ -120,7 +125,7 @@ The default build type is *Debug*.
     $ git clone https://github.com/dmitigr/cefeika.git
     $ mkdir cefeika/build
     $ cd cefeika/build
-    $ cmake ..
+    $ cmake -DCMAKE_BUILD_TYPE=Release ..
     $ cmake --build . --parallel
     $ cmake sudo make install
 
@@ -132,13 +137,16 @@ Run Developer Command Prompt for Visual Studio and type:
     > mkdir cefeika\build
     > cd cefeika\build
     > cmake -G "Visual Studio 15 2017 Win64" ..
-    > cmake --build . --parallel
+    > cmake --build . --config Release --parallel
 
 Next, run the elevated command prompt (i.e. the command prompt with
 administrator privileges) and type:
 
-    > cd cefeika\build
-    > cmake -DBUILD_TYPE=Debug -P cmake_install.cmake
+    > cmake -DBUILD_TYPE=Release -P cmake_install.cmake
+
+Alternatively, the following build command may be used:
+
+    > cmake --build . --config Release --target install
 
 **A bitness of the target architecture must corresponds to the bitness
 of external dependencies!**
@@ -176,7 +184,7 @@ The code below demonstrates how to import system-wide installed Cefeika librarie
 by using [CMake] (this snippet is also valid when using the standalone libraries):
 
 ```cmake
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.17)
 project(foo)
 find_package(dmitigr_cefeika REQUIRED COMPONENTS fcgi pgfe)
 set(CMAKE_CXX_STANDARD 17)
