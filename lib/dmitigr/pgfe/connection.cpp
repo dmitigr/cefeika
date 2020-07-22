@@ -61,7 +61,7 @@ public:
 
     const auto throw_timeout = []()
     {
-      throw detail::iClient_exception{Client_errc::timed_out, "connection timeout"};
+      throw Client_exception{Client_errc::timed_out, "connection timeout"};
     };
 
     if (is_connected())
@@ -196,7 +196,7 @@ public:
         if (timeout)
           *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
       } else // Timeout
-        throw detail::iClient_exception{Client_errc::timed_out, "wait response timeout"};
+        throw Client_exception{Client_errc::timed_out, "wait response timeout"};
     }
 
     DMITIGR_ASSERT(is_invariant_ok());
@@ -233,7 +233,7 @@ public:
       if (timeout) {
         *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
         if (timeout <= milliseconds::zero()) // Timeout
-          throw detail::iClient_exception{Client_errc::timed_out, "wait last response timeout"};
+          throw Client_exception{Client_errc::timed_out, "wait last response timeout"};
       }
     }
     DMITIGR_ASSERT(!is_awaiting_response());
@@ -289,7 +289,7 @@ protected:
   void throw_if_error()
   {
     if (const std::shared_ptr<Error> ei{release_error()}; ei)
-      throw iServer_exception(ei);
+      throw Server_exception(ei);
   }
 };
 

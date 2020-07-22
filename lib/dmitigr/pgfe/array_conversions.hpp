@@ -349,7 +349,7 @@ public:
     } else {
       (void)value;   // dummy usage
       (void)is_null; // dummy usage
-      throw detail::iClient_exception{Client_errc::excessive_array_dimensionality};
+      throw Client_exception{Client_errc::excessive_array_dimensionality};
     }
   }
 
@@ -371,7 +371,7 @@ template<typename T, typename ... Types>
 const char* fill_container(T& /*result*/, const char* /*literal*/,
   const char /*delimiter*/, Types&& ... /*args*/)
 {
-  throw iClient_exception(Client_errc::insufficient_array_dimensionality);
+  throw Client_exception(Client_errc::insufficient_array_dimensionality);
 }
 
 /**
@@ -532,7 +532,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
       } else if (std::isspace(c, std::locale{})) {
         ;
       } else
-        throw iClient_exception(Client_errc::malformed_array_literal);
+        throw Client_exception(Client_errc::malformed_array_literal);
 
       goto preparing_to_the_next_iteration;
     }
@@ -544,13 +544,13 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
         ;
       } else if (c == delimiter) {
         if (previous_nonspace_char == delimiter || previous_nonspace_char == '{')
-          throw iClient_exception(Client_errc::malformed_array_literal);
+          throw Client_exception(Client_errc::malformed_array_literal);
       } else if (c == '{') {
         handler(dimension);
         ++dimension;
       } else if (c == '}') {
         if (previous_nonspace_char == delimiter)
-          throw iClient_exception(Client_errc::malformed_array_literal);
+          throw Client_exception(Client_errc::malformed_array_literal);
 
         --dimension;
         if (dimension == 0) {
@@ -594,7 +594,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
     DMITIGR_ASSERT(is_element_extracted);
     {
       if (element.empty())
-        throw iClient_exception(Client_errc::malformed_array_literal);
+        throw Client_exception(Client_errc::malformed_array_literal);
 
       const bool is_element_null =
         ((state == in_unquoted_element && element.size() == 4)
@@ -629,7 +629,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
   } // while
 
   if (dimension != 0)
-    throw iClient_exception(Client_errc::malformed_array_literal);
+    throw Client_exception(Client_errc::malformed_array_literal);
 
   return literal;
 }
@@ -662,7 +662,7 @@ const char* fill_container(Container<Optional<T>, Allocator<Optional<T>>>& resul
 
   literal = next_non_space_pointer(literal);
   if (*literal != '{')
-    throw iClient_exception(Client_errc::malformed_array_literal);
+    throw Client_exception(Client_errc::malformed_array_literal);
 
   const char* subliteral = next_non_space_pointer(literal + 1);
   if (*subliteral == '{') {
@@ -693,7 +693,7 @@ const char* fill_container(Container<Optional<T>, Allocator<Optional<T>>>& resul
          */
         subliteral = next_non_space_pointer(subliteral + 1);
         if (*subliteral != '{')
-          throw iClient_exception(Client_errc::malformed_array_literal);
+          throw Client_exception(Client_errc::malformed_array_literal);
       } else if (*subliteral == '}') {
         // The end of the dimension: subliteral is "},{{3,4}}}"
         ++subliteral;
@@ -767,7 +767,7 @@ auto to_container_of_values(Container<Optional<T>, Allocator<Optional<T>>>&& con
       if (elem)
         return to_container_of_values(std::move(*elem));
       else
-        throw iClient_exception{Client_errc::improper_value_type_of_container};
+        throw Client_exception{Client_errc::improper_value_type_of_container};
     });
   return result;
 }
