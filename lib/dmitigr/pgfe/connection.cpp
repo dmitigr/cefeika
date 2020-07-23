@@ -288,8 +288,8 @@ protected:
 
   void throw_if_error()
   {
-    if (const std::shared_ptr<Error> ei{release_error()}; ei)
-      throw Server_exception(ei);
+    if (std::shared_ptr<Error> ei{release_error()})
+      throw Server_exception(std::move(ei));
   }
 };
 
