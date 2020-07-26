@@ -39,6 +39,75 @@ public:
 /**
  * @ingroup errors
  *
+ * @brief Denotes an insufficient array dimensionality.
+ */
+class Insufficient_array_dimensionality final : public Client_exception {
+public:
+  /// The constructor.
+  Insufficient_array_dimensionality()
+    : Client_exception{Client_errc::insufficient_array_dimensionality}
+  {}
+};
+
+/**
+ * @ingroup errors
+ *
+ * @brief Denotes an excessive array dimensionality.
+ */
+class Excessive_array_dimensionality final : public Client_exception {
+public:
+  /// The constructor.
+  Excessive_array_dimensionality()
+    : Client_exception{Client_errc::excessive_array_dimensionality}
+  {}
+};
+
+/**
+ * @ingroup errors
+ *
+ * @brief Denotes a malformed array literal.
+ */
+class Malformed_array_literal final : public Client_exception {
+public:
+  /// The constructor.
+  Malformed_array_literal()
+    : Client_exception{Client_errc::malformed_array_literal}
+  {}
+};
+
+/**
+ * @ingroup errors
+ *
+ * @brief Denotes an usage of container with improper type of elements.
+ */
+class Improper_value_type_of_container final : public Client_exception {
+public:
+  /// The constructor.
+  Improper_value_type_of_container()
+    : Client_exception{Client_errc::improper_value_type_of_container}
+  {}
+};
+
+/**
+ * @ingroup errors
+ *
+ * @brief Denotes a timed out operation.
+ */
+class Timed_out final : public Client_exception {
+public:
+  /// The constructor.
+  Timed_out()
+    : Client_exception{Client_errc::timed_out}
+  {}
+};
+
+// -----------------------------------------------------------------------------
+// Server_exception
+// -----------------------------------------------------------------------------
+
+/**
+ * @ingroup errors
+ *
  * @brief The base class of exceptions thrown on a server side.
  */
 class Server_exception : public std::system_error {
