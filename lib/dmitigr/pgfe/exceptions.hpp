@@ -44,8 +44,8 @@ public:
 class Insufficient_array_dimensionality final : public Client_exception {
 public:
   /// The constructor.
-  Insufficient_array_dimensionality()
-    : Client_exception{Client_errc::insufficient_array_dimensionality}
+  explicit Insufficient_array_dimensionality(const std::string& what = {})
+    : Client_exception{Client_errc::insufficient_array_dimensionality, what}
   {}
 };
 
@@ -57,8 +57,8 @@ public:
 class Excessive_array_dimensionality final : public Client_exception {
 public:
   /// The constructor.
-  Excessive_array_dimensionality()
-    : Client_exception{Client_errc::excessive_array_dimensionality}
+  explicit Excessive_array_dimensionality(const std::string& what = {})
+    : Client_exception{Client_errc::excessive_array_dimensionality, what}
   {}
 };
 
@@ -70,8 +70,8 @@ public:
 class Malformed_array_literal final : public Client_exception {
 public:
   /// The constructor.
-  Malformed_array_literal()
-    : Client_exception{Client_errc::malformed_array_literal}
+  explicit Malformed_array_literal(const std::string& what = {})
+    : Client_exception{Client_errc::malformed_array_literal, what}
   {}
 };
 
@@ -83,8 +83,8 @@ public:
 class Improper_value_type_of_container final : public Client_exception {
 public:
   /// The constructor.
-  Improper_value_type_of_container()
-    : Client_exception{Client_errc::improper_value_type_of_container}
+  explicit Improper_value_type_of_container(const std::string& what = {})
+    : Client_exception{Client_errc::improper_value_type_of_container, what}
   {}
 };
 
@@ -96,8 +96,8 @@ public:
 class Timed_out final : public Client_exception {
 public:
   /// The constructor.
-  Timed_out()
-    : Client_exception{Client_errc::timed_out}
+  explicit Timed_out(const std::string& what = {})
+    : Client_exception{Client_errc::timed_out, what}
   {}
 };
 
