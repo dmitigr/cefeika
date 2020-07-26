@@ -19,7 +19,7 @@ namespace dmitigr::pgfe {
  *
  * @brief The base class of exceptions thrown on a client side.
  */
-class Client_exception final : public std::system_error {
+class Client_exception : public std::system_error {
 public:
   /**
    * @brief The constructor.
