@@ -701,14 +701,14 @@ public:
     return notice_handler_;
   }
 
-  void set_notification_handler(const std::function<void(std::unique_ptr<Notification>&&)>& handler) override
+  void set_notification_handler(Notification_handler handler) override
   {
-    notification_handler_ = handler;
+    notification_handler_ = std::move(handler);
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  std::function<void(std::unique_ptr<Notification>&&)> notification_handler() const override
+  const Notification_handler& notification_handler() const override
   {
     return notification_handler_;
   }

@@ -375,6 +375,9 @@ public:
    */
   virtual const Notice_handler& notice_handler() const = 0;
 
+  /// An alias of a notification handler.
+  using Notification_handler = std::function<void(std::unique_ptr<Notification>&&)>;
+
   /**
    * @brief Sets the handler for notifications.
    *
@@ -387,12 +390,12 @@ public:
    *
    * @see handle_signals().
    */
-  virtual void set_notification_handler(const std::function<void(std::unique_ptr<Notification>&&)>& handler) = 0;
+  virtual void set_notification_handler(Notification_handler handler) = 0;
 
   /**
    * @returns The current notification handler.
    */
-  virtual std::function<void(std::unique_ptr<Notification>&&)> notification_handler() const = 0;
+  virtual const Notification_handler& notification_handler() const = 0;
 
   /**
    * @brief Call signals handlers.
