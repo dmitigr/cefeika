@@ -327,6 +327,32 @@ public:
   virtual void dismiss_notification() = 0;
 
   /**
+   * @brief An alias of error handler.
+   *
+   * Being set, this handler is called when the server responded with an error.
+   * If calling of this handler doesn't throw an exception and returns `false`
+   * the instance of type Server_exception will be thrown eventually.
+   */
+  using Error_handler = std::function<bool(std::shared_ptr<Error>)>;
+
+  /**
+   * @brief Sets the handler for custom errors.
+   *
+   * @param hander A handler to set.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   *
+   * @see Error_handler, error_handler().
+   */
+  virtual void set_error_handler(Error_handler handler) = 0;
+
+  /**
+   * @returns A current error handler.
+   */
+  virtual const Error_handler& error_handler() = 0;
+
+  /**
    * @brief Sets the handler for notices.
    *
    * By default, the notice handler just prints notices to the standard error
@@ -337,7 +363,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see handle_signals().
+   * @see handle_signals(), notice_handler().
    */
   virtual void set_notice_handler(const std::function<void(std::unique_ptr<Notice>&&)>& handler) = 0;
 
