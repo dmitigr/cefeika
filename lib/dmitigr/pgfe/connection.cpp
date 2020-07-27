@@ -689,14 +689,14 @@ public:
     return error_handler_;
   }
 
-  void set_notice_handler(const std::function<void(std::unique_ptr<Notice>&&)>& handler) override
+  void set_notice_handler(Notice_handler handler) override
   {
-    notice_handler_ = handler;
+    notice_handler_ = std::move(handler);
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  std::function<void(std::unique_ptr<Notice>&&)> notice_handler() const override
+  const Notice_handler& notice_handler() const override
   {
     return notice_handler_;
   }

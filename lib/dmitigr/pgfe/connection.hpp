@@ -352,6 +352,9 @@ public:
    */
   virtual const Error_handler& error_handler() = 0;
 
+  /// An alias of a notice handler.
+  using Notice_handler = std::function<void(std::unique_ptr<Notice>&&)>;
+
   /**
    * @brief Sets the handler for notices.
    *
@@ -365,12 +368,12 @@ public:
    *
    * @see handle_signals(), notice_handler().
    */
-  virtual void set_notice_handler(const std::function<void(std::unique_ptr<Notice>&&)>& handler) = 0;
+  virtual void set_notice_handler(Notice_handler handler) = 0;
 
   /**
    * @returns The current notice handler.
    */
-  virtual std::function<void(std::unique_ptr<Notice>&&)> notice_handler() const = 0;
+  virtual const Notice_handler& notice_handler() const = 0;
 
   /**
    * @brief Sets the handler for notifications.
