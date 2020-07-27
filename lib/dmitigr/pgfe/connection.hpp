@@ -702,10 +702,14 @@ public:
 
   /**
    * @overload
-   *
-   * @remarks The statement will be send as-is without any preparsing.
    */
   virtual void prepare_statement_async(const std::string& statement, const std::string& name = {}) = 0;
+
+  /**
+   * @brief Same as prepare_statement_async() except the statement will be send
+   * as-is, i.e. without preparsing.
+   */
+  virtual void prepare_statement_async_as_is(const std::string& statement, const std::string& name = {}) = 0;
 
   /**
    * @returns `(prepare_statement_async(), wait_response_throw(), prepared_statement())`
@@ -724,10 +728,14 @@ public:
 
   /**
    * @overload
-   *
-   * @remarks The statement will be send as-is without any preparsing.
    */
   virtual Prepared_statement* prepare_statement(const std::string& statement, const std::string& name = {}) = 0;
+
+  /**
+   * @brief Same as prepare_statement() except the statement will be send as-is,
+   * i.e. without preparsing.
+   */
+  virtual Prepared_statement* prepare_statement_as_is(const std::string& statement, const std::string& name = {}) = 0;
 
   /**
    * @brief Submits a request to a PostgreSQL server to describe

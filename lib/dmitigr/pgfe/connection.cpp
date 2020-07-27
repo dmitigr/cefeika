@@ -263,6 +263,12 @@ public:
 
   Prepared_statement* prepare_statement(const std::string& statement, const std::string& name = {}) override
   {
+    const iSql_string s{statement};
+    return prepare_statement(&s, name);
+  }
+
+  Prepared_statement* prepare_statement_as_is(const std::string& statement, const std::string& name = {}) override
+  {
     return prepare_statement__(statement, name);
   }
 
@@ -871,9 +877,15 @@ public:
     prepare_statement_async__(s->to_query_string().c_str(), name.c_str(), s); // can throw
   }
 
-  void prepare_statement_async(const std::string& query, const std::string& name = {}) override
+  void prepare_statement_async(const std::string& statement, const std::string& name = {}) override
   {
-    prepare_statement_async__(query.c_str(), name.c_str(), nullptr); // can throw
+    const iSql_string s{statement};
+    prepare_statement_async(&s, name);
+  }
+
+  void prepare_statement_async_as_is(const std::string& statement, const std::string& name = {}) override
+  {
+    prepare_statement_async__(statement.c_str(), name.c_str(), nullptr); // can throw
   }
 
   void describe_prepared_statement_async(const std::string& name) override
