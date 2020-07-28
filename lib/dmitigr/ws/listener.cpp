@@ -422,8 +422,7 @@ DMITIGR_WS_INLINE const std::string& Listener::timer_name(const std::size_t pos)
   return rep_->timer_name(pos);
 }
 
-DMITIGR_WS_INLINE void Listener::handle_request(const ws::Http_request&,
-  std::shared_ptr<ws::Http_io>)
+DMITIGR_WS_INLINE void Listener::handle_request(const Http_request&, std::shared_ptr<Http_io>)
 {
 }
 
