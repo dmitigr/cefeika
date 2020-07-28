@@ -38,7 +38,7 @@ class Connection final : public ws::Connection {
 
 class Listener final : public ws::Listener {
   using ws::Listener::Listener;
-  std::shared_ptr<ws::Connection> make_connection() override
+  std::shared_ptr<ws::Connection> handle_handshake(const ws::Http_request&, std::shared_ptr<ws::Http_io>) override
   {
     return std::make_shared<Connection>();
   }

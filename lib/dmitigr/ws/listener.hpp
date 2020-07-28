@@ -135,12 +135,19 @@ public:
 
 private:
   /**
-   * @brief This function to be called on every accepted connection
-   * in order to create an instance of class derived from Connection.
+   * @brief This function to be called on every HTTP Upgrade request in order
+   * to create an instance of class derived from Connection.
    *
-   * @returns The new connection instance, or `nullptr` to reject the connection.
+   * Handshake may be defered by setting abort handler on `io`, or finished
+   * immediately by just returning a new Connection instance. Defered handshake
+   * can be finished by using Http_io::send_handshake() method.
+   *
+   * @returns The new connection instance, or `nullptr` to reject the handshake.
+   *
+   * @see Http_io.
    */
-  virtual std::shared_ptr<Connection> make_connection() = 0;
+  virtual std::shared_ptr<Connection> handle_handshake(const Http_request& req,
+    std::shared_ptr<Http_io> io) = 0;
 
   /**
    * @brief This function to be called on every HTTP request if HTTP

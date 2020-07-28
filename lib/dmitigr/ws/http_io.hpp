@@ -66,7 +66,27 @@ public:
   virtual bool is_valid() const = 0;
 
   /**
-   * @brief Sends the Status-Line to the remote side.
+   * @returns A pointer to an instance of a not yet open WebSockets connection.
+   *
+   * @see send_handshake().
+   */
+  virtual Connection* connection() = 0;
+
+  /**
+   * @brief Sends a WebSocket handshake.
+   *
+   * @par Requires
+   * `is_vaild() && connection()`.
+   *
+   * @par Effects
+   * `!is_valid()`.
+   *
+   * @see connection().
+   */
+  virtual void send_handshake() = 0;
+
+  /**
+   * @brief Sends the Status-Line.
    *
    * @param code 3-digit HTTP status code, like 200
    * @param phrase A human-readable textual phrase, like "OK"
@@ -120,7 +140,7 @@ public:
    * @brief Sends the `data` (if any) and finishes the IO.
    *
    * @par Effects
-   * `(!is_valid)`.
+   * `(!is_valid())`.
    */
   virtual void end(std::string_view data = {}) = 0;
 

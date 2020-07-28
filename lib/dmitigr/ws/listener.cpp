@@ -100,6 +100,43 @@ public:
       DMITIGR_ASSERT(max_buffered_amount <= std::numeric_limits<int>::max());
       result.maxBackpressure = static_cast<decltype(result.maxBackpressure)>(max_buffered_amount);
 
+      result.upgrade = [this](uWS::HttpResponse<IsSsl>* const res, uWS::HttpRequest* const req,
+        us_socket_context_t* const ctx)
+      {
+#ifdef DMITIGR_WS_DEBUG
+        std::clog << "dmitigr::ws: .upgrade emitted" << std::endl;
+#endif
+        const iHttp_request request{req, res->getRemoteAddress(),
+          local_address(IsSsl, reinterpret_cast<us_socket_t*>(res))};
+        const auto io = std::make_shared<iHttp_io_templ<IsSsl>>(res);
+        Ws_data data{listener_->handle_handshake(request, io)};
+        if (data.conn) {
+          DMITIGR_REQUIRE(io->is_valid(), std::logic_error,
+            "Http_io must be valid after handle_upgrade_request()");
+          const auto sec_ws_key = request.header("sec-websocket-key");
+          const auto sec_ws_protocol = request.header("sec-websocket-protocol");
+          const auto sec_ws_extensions = request.header("sec-websocket-extensions");
+          if (!io->is_abort_handler_set()) {
+            DMITIGR_REQUIRE(!io->is_response_handler_set(), std::logic_error,
+              "Http_io must not have response handler without abort handler");
+            res->upgrade(std::move(data),
+              sec_ws_key,
+              sec_ws_protocol,
+              sec_ws_extensions,
+              ctx);
+          } else {
+            io->ws_data_ = std::move(data); // application is responsible for upgrade
+            io->sec_ws_key_ = sec_ws_key;
+            io->sec_ws_protocol_ = sec_ws_protocol;
+            io->sec_ws_extensions_ = sec_ws_extensions;
+            io->ctx_ = ctx;
+          }
+        } else if (io->is_valid()) {
+          io->send_status(500, "Internal Error");
+          io->end();
+        }
+      };
+
       result.open = [this](auto* const ws)
       {
 #ifdef DMITIGR_WS_DEBUG
@@ -107,7 +144,6 @@ public:
 #endif
         auto* const data = static_cast<Ws_data*>(ws->getUserData());
         DMITIGR_ASSERT(data);
-        data->conn = listener_->make_connection();
         if (data->conn) {
           data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws);
           connections_.emplace_back(static_cast<Conn<IsSsl>*>(data->conn->rep_.get()));
@@ -219,6 +255,7 @@ public:
           local_address(IsSsl, reinterpret_cast<us_socket_t*>(res))};
         const auto io = std::make_shared<iHttp_io_templ<IsSsl>>(res);
         listener_->handle_request(request, io);
+        /// FIXME: is_response_hander_set() doesn't required.
         if (!io->is_response_handler_set() || !io->is_abort_handler_set()) {
           io->rep_ = nullptr;
           DMITIGR_ASSERT(!io->is_valid());
@@ -318,11 +355,6 @@ public:
   }
 
 private:
-  // The data associated with every WebSocket.
-  struct Ws_data final {
-    std::shared_ptr<Connection> conn;
-  };
-
   Listener* listener_;
   uWS::Loop* loop_;
   std::unique_ptr<Listener_options> options_;

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/http_io.hpp"
+#include "dmitigr/ws/util.hpp"
 #include <dmitigr/base/debug.hpp>
 
 #include <uwebsockets/HttpResponse.h>
@@ -34,6 +35,23 @@ public:
     return static_cast<bool>(rep_);
   }
 
+  Connection* connection() override
+  {
+    return ws_data_.conn.get();
+  }
+
+  void send_handshake() override
+  {
+    DMITIGR_REQUIRE(is_valid() && connection(), std::logic_error);
+
+    rep_->upgrade(std::move(ws_data_), sec_ws_key_, sec_ws_protocol_, sec_ws_extensions_, ctx_);
+    rep_ = nullptr;
+    sec_ws_key_ = sec_ws_protocol_ = sec_ws_extensions_ = {};
+    ctx_ = nullptr;
+
+    DMITIGR_ASSERT(!is_valid() && !connection());
+  }
+
   void send_status(const int code, const std::string_view phrase) override
   {
     DMITIGR_REQUIRE(is_valid(), std::logic_error);
@@ -63,11 +81,12 @@ public:
       return rep_->tryEnd(data, total_size);
   }
 
-  void end(const std::string_view data) override
+  void end(const std::string_view data = {}) override
   {
     DMITIGR_REQUIRE(is_valid(), std::logic_error);
 
     rep_->end(data);
+    DMITIGR_ASSERT(rep_->hasResponded());
     rep_ = nullptr;
 
     DMITIGR_ASSERT(!is_valid());
@@ -143,6 +162,11 @@ private:
   bool is_response_handler_set_{};
   bool is_request_handler_set_{};
   uWS::HttpResponse<IsSsl>* rep_{};
+  Ws_data ws_data_;
+  std::string sec_ws_key_;
+  std::string sec_ws_protocol_;
+  std::string sec_ws_extensions_;
+  us_socket_context_t* ctx_{};
 };
 
 } // namespace dmitigr::ws::detail

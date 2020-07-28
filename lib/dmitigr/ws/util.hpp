@@ -13,6 +13,11 @@
 
 namespace dmitigr::ws::detail {
 
+// The data associated with every WebSocket.
+struct Ws_data final {
+  std::shared_ptr<Connection> conn;
+};
+
 inline std::string_view local_address(const bool is_ssl, us_socket_t* const s)
 {
   DMITIGR_ASSERT(s);

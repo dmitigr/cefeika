@@ -62,7 +62,7 @@ class Connection : public ws::Connection {
 class Listener : public ws::Listener {
   using ws::Listener::Listener;
 
-  std::shared_ptr<ws::Connection> make_connection() override
+  std::shared_ptr<ws::Connection> handle_handshake(const ws::Http_request&, std::shared_ptr<ws::Http_io>) override
   {
     std::clog << "The connection is about to be opened" << std::endl;
     const bool is_should_be_created = rng::cpp_pl_3rd(1);
