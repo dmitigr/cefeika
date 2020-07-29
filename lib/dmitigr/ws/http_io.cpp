@@ -120,6 +120,8 @@ public:
     DMITIGR_REQUIRE(is_valid(), std::logic_error);
 
     rep_->close();
+    rep_ = nullptr;
+    DMITIGR_ASSERT(!is_valid());
   }
 
   void set_abort_handler(Abort_handler handler) override

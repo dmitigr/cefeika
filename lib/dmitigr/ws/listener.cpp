@@ -256,14 +256,8 @@ public:
           local_address(IsSsl, reinterpret_cast<us_socket_t*>(res))};
         const auto io = std::make_shared<iHttp_io_templ<IsSsl>>(res);
         listener_->handle_request(request, io);
-        /// FIXME: is_response_hander_set() doesn't required.
-        if (!io->is_response_handler_set() || !io->is_abort_handler_set()) {
-          io->rep_ = nullptr;
-          DMITIGR_ASSERT(!io->is_valid());
-        }
-        if (!io->is_abort_handler_set())
-          throw std::runtime_error{"The overriding of "
-              "Listener::handle_request() didn't set the abort handler"};
+        if (io->is_valid() && !io->is_abort_handler_set())
+          io->abort();
       });
     }
     app.listen(host, port, [this](auto* const listening_socket)

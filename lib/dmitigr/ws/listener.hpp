@@ -179,6 +179,13 @@ private:
    * @brief This function to be called on every HTTP request if HTTP
    * functionality is enabled in Listener_options.
    *
+   * @param req A HTTP request.
+   * @param io An IO object To defer the handshake the abort handler must be set
+   * on this object.
+   *
+   * @remarks `io` will be aborted in case if it's unfinished and it doesn't have
+   * the abort handler set immediately after returning from this function.
+   *
    * @see Listener_options.
    */
   virtual void handle_request(const Http_request& req, std::shared_ptr<Http_io> io);

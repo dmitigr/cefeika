@@ -170,6 +170,9 @@ public:
    * @par Requires
    * `is_valid()`.
    *
+   * @par Effects
+   * `!is_valid()`.
+   *
    * @see set_abort_handler().
    */
   virtual void abort() = 0;
