@@ -40,7 +40,7 @@ public:
     return ws_data_.conn.get();
   }
 
-  void send_handshake() override
+  void end_handshake() override
   {
     DMITIGR_REQUIRE(is_valid() && connection(), std::logic_error);
 

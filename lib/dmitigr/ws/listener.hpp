@@ -135,14 +135,40 @@ public:
 
 private:
   /**
-   * @brief This function to be called on every HTTP Upgrade request in order
-   * to create an instance of class derived from Connection.
+   * @brief This function is called on every opening handshake (HTTP Upgrade
+   * request) from a WebSocket client.
    *
-   * Handshake may be defered by setting abort handler on `io`, or finished
-   * immediately by just returning a new Connection instance. Defered handshake
-   * can be finished by using Http_io::send_handshake() method.
+   * Handshake from the server may be either implicitly rejected (HTTP response
+   * with status code of `500` will be send to the client) or implicitly completed
+   * by just returning `nullptr` or a new Connection instance accordingly.
    *
-   * @returns The new connection instance, or `nullptr` to reject the handshake.
+   * Handshake from the server may be deferred by setting abort handler on `io`
+   * and returning `nullptr` or a new Connection instance. Deferred handshake
+   * can be either explicitly rejected or explicitly completed later by sending
+   * a custom HTTP response or by calling Http_io::end_handshake() method
+   * accordingly.
+   *
+   * @param req A HTTP request.
+   * @param io An IO object which should be touched only in cases of explicit
+   * rejections or completions (either deferred or not). To defer the handshake
+   * the abort handler must be set on this object.
+   *
+   * @par Postconditions
+   * For any handshake completion:
+   * `io->is_valid()`.
+   *
+   * For implicit handshake completion:
+   * `!io->is_response_handler_set()`.
+   *
+   * @returns The result may be:
+   *   - `nullptr` to reject the handshake implicitly or to denote the explicit
+   *   (either deferred or not) rejection of a handshake;
+   *   - a new Connection instance to complete handshake implicitly or to defer
+   *   the handshake (for either rejection or completion).
+   *
+   * @remarks The behaviour is undefined if `io` has been used for sending any
+   * data from within this function in cases of implicit rejection or completion
+   * of the handshake.
    *
    * @see Http_io.
    */

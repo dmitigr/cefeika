@@ -112,26 +112,27 @@ public:
         Ws_data data{listener_->handle_handshake(request, io)};
         if (data.conn) {
           DMITIGR_REQUIRE(io->is_valid(), std::logic_error,
-            "Http_io must be valid after handle_upgrade_request()");
+            "dmitigr::ws: Http_io must be valid to complete a handshake");
           const auto sec_ws_key = request.header("sec-websocket-key");
           const auto sec_ws_protocol = request.header("sec-websocket-protocol");
           const auto sec_ws_extensions = request.header("sec-websocket-extensions");
           if (!io->is_abort_handler_set()) {
             DMITIGR_REQUIRE(!io->is_response_handler_set(), std::logic_error,
-              "Http_io must not have response handler without abort handler");
+              "dmitigr::ws: Http_io must not have response"
+              " handler in case of implicit handshake completion");
             res->upgrade(std::move(data),
               sec_ws_key,
               sec_ws_protocol,
               sec_ws_extensions,
               ctx);
-          } else {
-            io->ws_data_ = std::move(data); // application is responsible for upgrade
+          } else { // deferred handshake
+            io->ws_data_ = std::move(data);
             io->sec_ws_key_ = sec_ws_key;
             io->sec_ws_protocol_ = sec_ws_protocol;
             io->sec_ws_extensions_ = sec_ws_extensions;
             io->ctx_ = ctx;
           }
-        } else if (io->is_valid()) {
+        } else if (io->is_valid() && !io->is_abort_handler_set()) { // implicit rejection
           io->send_status(500, "Internal Error");
           io->end();
         }

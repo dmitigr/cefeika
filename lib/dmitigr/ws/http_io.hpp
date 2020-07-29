@@ -68,22 +68,25 @@ public:
   /**
    * @returns A pointer to an instance of a not yet open WebSockets connection.
    *
-   * @see send_handshake().
+   * @remarks During the call of Listener::handle_handshake() the returned value
+   * is always `nullptr`.
+   *
+   * @see end_handshake(), Listener::handle_handshake().
    */
   virtual Connection* connection() = 0;
 
   /**
-   * @brief Sends a WebSocket handshake.
+   * @brief Sends a WebSocket handshake and finishes the IO.
    *
    * @par Requires
-   * `is_vaild() && connection()`.
+   * `is_valid() && connection()`.
    *
    * @par Effects
-   * `!is_valid()`.
+   * `!is_valid() && !connection()`.
    *
-   * @see connection().
+   * @see connection(), Listener::handle_handshake().
    */
-  virtual void send_handshake() = 0;
+  virtual void end_handshake() = 0;
 
   /**
    * @brief Sends the Status-Line.
