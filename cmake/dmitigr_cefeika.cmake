@@ -38,7 +38,7 @@ set(dmitigr_cefeika_libraries
 set(dmitigr_cefeika_base_deps)
 
 set(dmitigr_cefeika_algo_deps base)
-set(dmitigr_cefeika_app_deps base)
+set(dmitigr_cefeika_app_deps os base)
 set(dmitigr_cefeika_dt_deps base)
 set(dmitigr_cefeika_fs_deps base)
 set(dmitigr_cefeika_img_deps base)
