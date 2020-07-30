@@ -164,6 +164,16 @@ DMITIGR_WS_INLINE void Connection::send(const std::string_view data, const Data_
   rep_->send(data, format);
 }
 
+DMITIGR_WS_INLINE void Connection::send_text(const std::string_view data)
+{
+  send(data, Data_format::text);
+}
+
+DMITIGR_WS_INLINE void Connection::send_binary(const std::string_view data)
+{
+  send(data, Data_format::binary);
+}
+
 DMITIGR_WS_INLINE void Connection::close(const int code, const std::string_view reason)
 {
   if (rep_)

@@ -110,6 +110,12 @@ public:
    */
   DMITIGR_WS_API void send(std::string_view data, Data_format format);
 
+  /// Shortcut of `send(data, Data_format::text)`.
+  DMITIGR_WS_API void send_text(std::string_view data);
+
+  /// Shortcut of `send(data, Data_format::binary)`.
+  DMITIGR_WS_API void send_binary(std::string_view data);
+
   /**
    * @brief Closes the connection in a normal way.
    *
