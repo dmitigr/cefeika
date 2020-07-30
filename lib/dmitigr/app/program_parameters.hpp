@@ -161,6 +161,23 @@ public:
   }
 
   /**
+   * @returns `true` if the given option presents, or `false` otherwise.
+   *
+   * @throws An instance of type `std::runtime_error` if the given option
+   * presents and have an argument.
+   */
+  bool has_option_throw_if_argument(const std::string& name) const
+  {
+    if (const auto* const oa = option(name)) {
+      if (!*oa)
+        return true;
+      else
+        throw std::runtime_error{std::string{"program option --"}.append(name).append(" has no argument")};
+    } else
+      return false;
+  }
+
+  /**
    * @returns Iterator to the first found option that is not presents in `list`.
    */
   Option_map::const_iterator option_except(const std::vector<std::string>& list) const
