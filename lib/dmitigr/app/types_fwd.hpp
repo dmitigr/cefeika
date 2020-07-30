@@ -15,6 +15,12 @@ namespace app {
 class Program_parameters;
 
 /**
+ * @brief Version 1 of process control framework.
+ */
+namespace proc1 {
+} // namespace proc1
+
+/**
  * @brief The implementation details.
  */
 namespace detail {

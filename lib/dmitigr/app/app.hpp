@@ -23,6 +23,7 @@
 #ifndef DMITIGR_APP_APP_HPP
 #define DMITIGR_APP_APP_HPP
 
+#include "dmitigr/app/proc1.hpp"
 #include "dmitigr/app/program_parameters.hpp"
 #include "dmitigr/app/version.hpp"
 

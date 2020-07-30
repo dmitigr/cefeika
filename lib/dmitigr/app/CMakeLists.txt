@@ -13,6 +13,7 @@ dmitigr_set_library_info(app 0 1 "Application support library")
 # ------------------------------------------------------------------------------
 
 set(dmitigr_app_headers
+  proc1.hpp
   program_parameters.hpp
   types_fwd.hpp
   )
