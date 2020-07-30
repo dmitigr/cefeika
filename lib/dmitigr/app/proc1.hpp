@@ -70,6 +70,25 @@ inline void default_handle_signal(const int sig) noexcept
 }
 
 /**
+ * @brief Assigns the `signals` as a signal handler of:
+ *   - SIGABRT;
+ *   - SIGFPE;
+ *   - SIGILL;
+ *   - SIGINT;
+ *   - SIGSEGV;
+ *   - SIGTERM.
+ */
+inline void set_signals(void(*signals)(int) = &default_handle_signal) noexcept
+{
+  std::signal(SIGABRT, signals);
+  std::signal(SIGFPE, signals);
+  std::signal(SIGILL, signals);
+  std::signal(SIGINT, signals);
+  std::signal(SIGSEGV, signals);
+  std::signal(SIGTERM, signals);
+}
+
+/**
  * @brief Removes a file associated with proc1::pid_file and clears
  * `pid_file` global variable on success.
  */
@@ -103,6 +122,21 @@ inline void set_cleanup(void(*cleanup)() = &default_cleanup) noexcept
 // =============================================================================
 
 /**
+ * @brief A subroutine of start().
+ *
+ * @see start().
+ */
+inline void run(void(*startup)(), void(*cleanup)(), void(*signals)(int))
+{
+  proc1::is_running = true;
+  if (cleanup)
+    set_cleanup(cleanup);
+  if (signals)
+    set_signals(signals);
+  startup();
+}
+
+/**
  * @brief Calls `startup` in the current process.
  *
  * @param detach Denotes should the process be forked or not.
@@ -120,12 +154,16 @@ inline void set_cleanup(void(*cleanup)() = &default_cleanup) noexcept
  * `prog_params.is_valid()`.
  */
 inline void start(const bool detach,
-  const std::function<void()>& startup,
+  void(*startup)(),
+  void(*cleanup)() = &default_cleanup,
+  void(*signals)(int) = &default_handle_signal,
   std::filesystem::path working_directory = {},
   std::filesystem::path pid_file = {},
   std::filesystem::path log_file = {},
   const std::ios_base::openmode log_file_mode = std::ios_base::trunc | std::ios_base::out)
 {
+  DMITIGR_REQUIRE(startup, std::invalid_argument);
+  DMITIGR_REQUIRE(!proc1::is_running, std::logic_error);
   DMITIGR_REQUIRE(proc1::prog_params.is_valid(), std::logic_error);
 
   // Preparing.
@@ -159,9 +197,12 @@ inline void start(const bool detach,
     if (!proc1::log_file.empty())
       os::proc::redirect_clog(proc1::log_file, log_file_mode);
 
-    startup();
+    run(startup, cleanup, signals);
   } else
-    os::proc::detach(startup, working_directory, proc1::pid_file, proc1::log_file, log_file_mode);
+    os::proc::detach([&startup, &cleanup, &signals]
+    {
+      run(startup, cleanup, signals);
+    }, working_directory, proc1::pid_file, proc1::log_file, log_file_mode);
 }
 
 // =============================================================================

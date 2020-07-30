@@ -13,6 +13,7 @@ void start()
 {
   proc::set_cleanup();
   std::clog << "The application is started!" << std::endl;
+  std::clog << "Start flag is " << proc::is_running << std::endl;
 }
 
 int main(int argc, char* argv[])
