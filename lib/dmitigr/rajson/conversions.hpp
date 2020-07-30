@@ -132,7 +132,7 @@ template<> struct Conversions<std::uint64_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
-    if (value.IsUint())
+    if (value.IsUint64())
       return static_cast<std::uint64_t>(value.GetUint64());
     else
       throw std::invalid_argument{"invalid std::uint64_t"};
