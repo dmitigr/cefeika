@@ -222,11 +222,11 @@ void with_shutdown_on_error(F&& f, const std::string_view where) noexcept
   try {
     f();
   } catch (const std::exception& e) {
+    proc1::is_running = false; // should cause a normal shutdown
     std::clog << where << ": " << e.what() << ". Shutting down!\n";
-    proc1::is_running = false; // normal shutdown
   } catch (...) {
+    proc1::is_running = false; // should cause a normal shutdown
     std::clog << where << ": unknown error! Shutting down!\n";
-    proc1::is_running = false; // normal shutdown
   }
 }
 
