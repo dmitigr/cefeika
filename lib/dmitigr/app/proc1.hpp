@@ -217,10 +217,10 @@ inline void start(const bool detach,
  * @param where A descriptive context of call for printing to `std::clog`.
  */
 template<typename F>
-auto with_shutdown_on_error(F&& f, const std::string_view where) noexcept
+void with_shutdown_on_error(F&& f, const std::string_view where) noexcept
 {
   try {
-    return f();
+    f();
   } catch (const std::exception& e) {
     std::clog << where << ": " << e.what() << ". Shutting down!\n";
     proc1::is_running = false; // normal shutdown
