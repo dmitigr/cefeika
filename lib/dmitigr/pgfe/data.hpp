@@ -186,27 +186,37 @@ protected:
  * @ingroup main
  *
  * @brief A data view.
+ *
+ * @remarks Doesn't owns the data.
  */
 class Data_view : public Data {
 public:
-  /// The constructor.
+  /**
+   * @brief The constructor.
+   *
+   * @par Requires
+   * `bytes`.
+   */
   explicit DMITIGR_PGFE_API Data_view(const char* bytes = "", std::size_t size = 0,
     Format format = Format::text);
 
-  /// Non copy-constructible.
-  Data_view(const Data_view&) = delete;
+  /// Copy-constructible.
+  Data_view(const Data_view&) = default;
 
-  /// @brief Move-constructible.
-  Data_view(Data_view&&) = default;
+  /// Move-constructible.
+  DMITIGR_PGFE_API Data_view(Data_view&& rhs);
 
-  /// Non copy-assignable.
-  Data_view& operator=(const Data_view&) = delete;
+  /// Copy-assignable.
+  Data_view& operator=(const Data_view&) = default;
 
   /// Move-assignable.
-  Data_view& operator=(Data_view&&) = default;
+  DMITIGR_PGFE_API Data_view& operator=(Data_view&& rhs);
 
   /// @see Data::to_data().
   DMITIGR_PGFE_API std::unique_ptr<Data> to_data() const override;
+
+  /// Swaps this instance with `rhs`.
+  DMITIGR_PGFE_API void swap(Data_view& rhs) noexcept;
 
   /// @see Data::format().
   Format format() const noexcept override
@@ -241,7 +251,7 @@ public:
 private:
   Format format_{Format::text};
   std::size_t size_{};
-  const char* bytes_{};  // No ownership
+  const char* bytes_{""};
 };
 
 /**

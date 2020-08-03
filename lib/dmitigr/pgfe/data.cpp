@@ -399,7 +399,32 @@ DMITIGR_PGFE_INLINE Data_view::Data_view(const char* const bytes, const std::siz
   , size_(size)
   , bytes_(bytes)
 {
+  DMITIGR_REQUIRE(bytes, std::invalid_argument);
   DMITIGR_ASSERT(is_invariant_ok());
+}
+
+DMITIGR_PGFE_INLINE Data_view::Data_view(Data_view&& rhs)
+  : format_{rhs.format_}
+  , size_{rhs.size_}
+  , bytes_{rhs.bytes_}
+{
+  rhs.format_ = Format::text;
+  rhs.size_ = 0;
+  rhs.bytes_ = "";
+}
+
+DMITIGR_PGFE_INLINE Data_view& Data_view::operator=(Data_view&& rhs)
+{
+  Data_view tmp{std::move(rhs)};
+  swap(tmp);
+  return *this;
+}
+
+DMITIGR_PGFE_INLINE void Data_view::swap(Data_view& rhs) noexcept
+{
+  std::swap(format_, rhs.format_);
+  std::swap(size_, rhs.size_);
+  std::swap(bytes_, rhs.bytes_);
 }
 
 std::unique_ptr<Data> Data_view::to_data() const
