@@ -959,6 +959,18 @@ public:
     return ::lo_unlink(conn_, oid);
   }
 
+  Oid import_large_object(const std::filesystem::path& filename, const Oid oid) override
+  {
+    DMITIGR_REQUIRE(is_ready_for_request(), std::logic_error);
+    return ::lo_import_with_oid(conn_, filename.c_str(), oid);
+  }
+
+  bool export_large_object(Oid oid, const std::filesystem::path& filename) override
+  {
+    DMITIGR_REQUIRE(is_ready_for_request(), std::logic_error);
+    return ::lo_export(conn_, oid, filename.c_str()) == 1; // lo_export returns -1 on failure
+  }
+
   void for_each(const std::function<void(const Row*)>& body) override
   {
     DMITIGR_REQUIRE(body, std::invalid_argument);

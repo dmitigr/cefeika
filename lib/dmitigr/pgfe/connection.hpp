@@ -978,7 +978,7 @@ public:
    * `(is_ready_for_request())`.
    *
    * @par Exception safety guarantee
-   * Basic.
+   * Strong.
    */
   virtual Oid create_large_object(Oid oid = invalid_oid) = 0;
 
@@ -991,7 +991,7 @@ public:
    * `(is_ready_for_request())`.
    *
    * @par Exception safety guarantee
-   * Basic.
+   * Strong.
    */
   virtual Large_object open_large_object(Oid oid, Large_object_open_mode mode) = 0;
 
@@ -1004,9 +1004,39 @@ public:
    * `(is_ready_for_request())`.
    *
    * @par Exception safety guarantee
-   * Basic.
+   * Strong.
    */
   virtual bool remove_large_object(Oid oid) = 0;
+
+  /**
+   * @brief Submits multiple requests to import the specified file as a large
+   * object.
+   *
+   * @returns The OID of the new large object on success, or `invalid_oid`
+   * otherwise.
+   *
+   * @par Requires
+   * `(is_ready_for_request())`.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   */
+  virtual Oid import_large_object(const std::filesystem::path& filename,
+    Oid oid = invalid_oid) = 0;
+
+  /**
+   * @brief Submits multiple requests to export the specified large object
+   * to the specified file.
+   *
+   * @returns `true` on success, or `false` otherwise.
+   *
+   * @par Requires
+   * `(is_ready_for_request())`.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   */
+  virtual bool export_large_object(Oid oid, const std::filesystem::path& filename) = 0;
 
   /// @}
 
