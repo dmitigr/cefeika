@@ -53,45 +53,45 @@ public:
   explicit Conn(Underlying_type* const ws)
     : ws_{ws}
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
   }
 
   std::string remote_ip_address() const override
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
     const auto ip = net::Ip_address::from_binary(ws_->getRemoteAddress());
     return ip.to_string();
   }
 
   std::string local_ip_address() const override
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
     const auto ip = net::Ip_address::from_binary(detail::local_address(is_ssl(), reinterpret_cast<us_socket_t*>(ws_)));
     return ip.to_string();
   }
 
   std::size_t buffered_amount() const override
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
     return ws_->getBufferedAmount();
   }
 
   void send(const std::string_view data, const Data_format format) override
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
     ws_->send(data, (format == Data_format::text) ? uWS::OpCode::TEXT : uWS::OpCode::BINARY);
   }
 
   void close(const int code, const std::string_view reason) override
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
     ws_->end(code, reason);
     ws_ = nullptr;
   }
 
   void abort() override
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
     ws_->close();
     ws_ = nullptr;
   }
@@ -104,7 +104,7 @@ public:
 
   void event_loop_call_soon(std::function<void()> callback) override
   {
-    DMITIGR_ASSERT(ws_);
+    DMITIGR_ASSERT(!is_closed());
     auto* const uss = reinterpret_cast<us_socket_t*>(ws_);
     us_socket_context_t* const uss_ctx = us_socket_context(is_ssl(), uss);
     us_loop_t* const uss_loop = us_socket_context_loop(is_ssl(), uss_ctx);
@@ -128,11 +128,14 @@ namespace dmitigr::ws {
 DMITIGR_WS_INLINE Connection::~Connection() = default;
 DMITIGR_WS_INLINE Connection::Connection() = default;
 
-DMITIGR_WS_INLINE void Connection::event_loop_call_soon(std::function<void()> callback)
+DMITIGR_WS_INLINE bool Connection::event_loop_call_soon(std::function<void()> callback)
 {
   const std::lock_guard lg{mut_};
-  if (rep_ && !rep_->is_closed())
+  if (rep_ && !rep_->is_closed()) {
     rep_->event_loop_call_soon(callback);
+    return true;
+  } else
+    return false;
 }
 
 DMITIGR_WS_INLINE bool Connection::is_connected() const
@@ -142,25 +145,25 @@ DMITIGR_WS_INLINE bool Connection::is_connected() const
 
 DMITIGR_WS_INLINE std::string Connection::remote_ip_address() const
 {
-  DMITIGR_REQUIRE(rep_, std::logic_error);
+  DMITIGR_REQUIRE(is_connected(), std::logic_error);
   return rep_->remote_ip_address();
 }
 
 DMITIGR_WS_INLINE std::string Connection::local_ip_address() const
 {
-  DMITIGR_REQUIRE(rep_, std::logic_error);
+  DMITIGR_REQUIRE(is_connected(), std::logic_error);
   return rep_->local_ip_address();
 }
 
 DMITIGR_WS_INLINE std::size_t Connection::buffered_amount() const
 {
-  DMITIGR_REQUIRE(rep_, std::logic_error);
+  DMITIGR_REQUIRE(is_connected(), std::logic_error);
   return rep_->buffered_amount();
 }
 
 DMITIGR_WS_INLINE void Connection::send(const std::string_view data, const Data_format format)
 {
-  DMITIGR_REQUIRE(rep_, std::logic_error);
+  DMITIGR_REQUIRE(is_connected(), std::logic_error);
   rep_->send(data, format);
 }
 

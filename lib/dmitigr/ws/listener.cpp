@@ -191,7 +191,10 @@ public:
 #endif
         auto* const data = static_cast<Ws_data*>(ws->getUserData());
         DMITIGR_ASSERT(data);
-        // If connection is closed from .open, then (data->conn == nullptr) in such a case.
+        /*
+         * If connection is closed from .open or .upgrade,
+         * then (data->conn == nullptr) in such a case.
+         */
         if (data->conn) {
           data->conn->handle_close(code, reason);
           if (!close_connections_called_) {
@@ -208,6 +211,7 @@ public:
           }
           data->conn.reset();
         }
+        DMITIGR_ASSERT(!data->conn);
       };
 
       return result;

@@ -40,10 +40,12 @@ public:
    * @brief Attempts to schedule the `callback` to the called on the thread of
    * the event loop associated with this connection.
    *
+   * @returns `true` on success, or `false` otherwise.
+   *
    * @par Thread safety
    * Thread-safe.
    */
-  DMITIGR_WS_API void event_loop_call_soon(std::function<void()> callback);
+  DMITIGR_WS_API bool event_loop_call_soon(std::function<void()> callback);
 
   /**
    * @returns `true` if the connection is valid, or `false` otherwise.
