@@ -85,6 +85,15 @@ public:
    */
   DMITIGR_WS_API void event_loop_call_soon(std::function<void()> callback);
 
+  /**
+   * @brief Schedules the `callback` to be called on the thread of the event
+   * loop associated with this listener.
+   *
+   * @par Thread safety
+   * Thread-safe.
+   */
+  DMITIGR_WS_API void for_each(std::function<void(Connection*)> callback);
+
   /// @}
 
   /// @name Timers

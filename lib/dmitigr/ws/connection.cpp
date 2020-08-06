@@ -26,6 +26,7 @@ namespace dmitigr::ws::detail {
 class iConnection {
 public:
   virtual ~iConnection() = default;
+  virtual Connection* connection() const = 0;
   virtual std::string remote_ip_address() const = 0;
   virtual std::string local_ip_address() const = 0;
   virtual std::size_t buffered_amount() const = 0;
@@ -54,6 +55,13 @@ public:
     : ws_{ws}
   {
     DMITIGR_ASSERT(!is_closed());
+  }
+
+  Connection* connection() const override
+  {
+    auto* const data = static_cast<Ws_data*>(ws_->getUserData());
+    DMITIGR_ASSERT(data);
+    return data->conn.get();
   }
 
   std::string remote_ip_address() const override
