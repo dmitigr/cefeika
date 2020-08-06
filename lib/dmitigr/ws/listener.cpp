@@ -39,6 +39,8 @@ public:
   virtual void close() = 0;
   virtual void close_connections(int code, std::string_view reason) = 0;
 
+  virtual void event_loop_call_soon(std::function<void()> callback) = 0;
+
   virtual std::size_t timer_count() const = 0;
   virtual std::optional<std::size_t> timer_index(std::string_view name) const = 0;
   virtual std::size_t timer_index_throw(std::string_view name) const = 0;
@@ -301,6 +303,11 @@ public:
     connections_.clear();
   }
 
+  void event_loop_call_soon(std::function<void()> callback) override
+  {
+    loop_->defer(std::move(callback));
+  }
+
   std::size_t timer_count() const override
   {
     return timers_.size();
@@ -411,6 +418,11 @@ DMITIGR_WS_INLINE void Listener::close()
 DMITIGR_WS_INLINE void Listener::close_connections(const int code, const std::string_view reason)
 {
   rep_->close_connections(code, reason);
+}
+
+DMITIGR_WS_INLINE void Listener::event_loop_call_soon(std::function<void()> callback)
+{
+  rep_->event_loop_call_soon(std::move(callback));
 }
 
 DMITIGR_WS_INLINE std::size_t Listener::timer_count() const

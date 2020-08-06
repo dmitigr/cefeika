@@ -9,6 +9,7 @@
 #include "dmitigr/ws/dll.hpp"
 #include "dmitigr/ws/types_fwd.hpp"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -71,6 +72,20 @@ public:
    * @brief Closes all opened WebSocket connections.
    */
   DMITIGR_WS_API void close_connections(int code, std::string_view reason);
+
+  /// @name Event-loop
+  /// @{
+
+  /**
+   * @brief Schedules the `callback` to be called on the thread of the event
+   * loop associated with this listener.
+   *
+   * @par Thread safety
+   * Thread-safe.
+   */
+  DMITIGR_WS_API void event_loop_call_soon(std::function<void()> callback);
+
+  /// @}
 
   /// @name Timers
   /// @{
