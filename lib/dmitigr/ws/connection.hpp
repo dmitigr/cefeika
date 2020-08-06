@@ -31,15 +31,6 @@ public:
    */
   DMITIGR_WS_API Connection();
 
-  /**
-   * @returns The listener that open this connection if this instance is
-   * valid, or `nullptr` otherwise.
-   */
-  DMITIGR_WS_API Listener* listener();
-
-  /// @overload
-  DMITIGR_WS_API const Listener* listener() const;
-
   /// @name Event-loop related API
   /// These functions can only be used for implementing a `callback` of
   /// event_loop_call_soon().
@@ -57,7 +48,7 @@ public:
   DMITIGR_WS_API bool event_loop_call_soon(std::function<void()> callback);
 
   /**
-   * @returns `true` if the underlying socket is valid, or `false` otherwise.
+   * @returns `true` if the connection is valid, or `false` otherwise.
    *
    * @remarks The behaviour is undefined if called not on the thread of the
    * associated event loop!
