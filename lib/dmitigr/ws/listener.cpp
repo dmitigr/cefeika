@@ -37,7 +37,7 @@ public:
   virtual bool is_listening() const = 0;
   virtual void listen() = 0;
   virtual void close() = 0;
-  virtual void close_connections(int code, std::string_view reason) = 0;
+  virtual void close_connections(int code, std::string reason) = 0;
 
   virtual void event_loop_call_soon(std::function<void()> callback) = 0;
   virtual void for_each(std::function<void(Connection*)> callback) = 0;
@@ -279,29 +279,34 @@ public:
 
   void close() override
   {
-    if (is_listening()) {
-      DMITIGR_ASSERT(listening_socket_);
-      loop_->defer([this]
-      {
+    loop_->defer([this]
+    {
+      if (is_listening()) {
+        DMITIGR_ASSERT(listening_socket_);
         us_listen_socket_close(IsSsl, listening_socket_);
         listening_socket_ = nullptr;
-      });
-    }
+      }
+    });
   }
 
-  void close_connections(const int code, const std::string_view reason) override
+  void close_connections(const int code, std::string reason) override
   {
-    struct Guard {
-      Guard(Lstnr& l) : l{l} { l.close_connections_called_ = true; }
-      ~Guard() { l.close_connections_called_ = false; }
-      Lstnr& l;
-    } guard{*this};
+    loop_->defer([this, code, reason = std::move(reason)]
+    {
+      if (is_listening()) {
+        struct Guard {
+          Guard(Lstnr& l) : l{l} { l.close_connections_called_ = true; }
+          ~Guard() { l.close_connections_called_ = false; }
+          Lstnr& l;
+        } guard{*this};
 
-    for (auto* const conn : connections_) {
-      DMITIGR_ASSERT(conn);
-      conn->close(code, reason);
-    }
-    connections_.clear();
+        for (auto* const conn : connections_) {
+          DMITIGR_ASSERT(conn);
+          conn->close(code, reason);
+        }
+        connections_.clear();
+      }
+    });
   }
 
   void event_loop_call_soon(std::function<void()> callback) override
@@ -427,9 +432,9 @@ DMITIGR_WS_INLINE void Listener::close()
   rep_->close();
 }
 
-DMITIGR_WS_INLINE void Listener::close_connections(const int code, const std::string_view reason)
+DMITIGR_WS_INLINE void Listener::close_connections(const int code, std::string reason)
 {
-  rep_->close_connections(code, reason);
+  rep_->close_connections(code, std::move(reason));
 }
 
 DMITIGR_WS_INLINE void Listener::event_loop_call_soon(std::function<void()> callback)

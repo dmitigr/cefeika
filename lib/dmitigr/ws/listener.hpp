@@ -64,14 +64,20 @@ public:
   DMITIGR_WS_API void listen();
 
   /**
-   * @brief Stops listening.
+   * @brief Schedules the stopping of listening.
+   *
+   * @par Thread safety
+   * Thread-safe.
    */
   DMITIGR_WS_API void close();
 
   /**
-   * @brief Closes all opened WebSocket connections.
+   * @brief Schedules the closing of all opened WebSocket connections.
+   *
+   * @par Thread safety
+   * Thread-safe.
    */
-  DMITIGR_WS_API void close_connections(int code, std::string_view reason);
+  DMITIGR_WS_API void close_connections(int code, std::string reason);
 
   /// @name Event-loop
   /// @{
