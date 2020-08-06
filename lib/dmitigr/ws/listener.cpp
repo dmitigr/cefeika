@@ -146,7 +146,7 @@ public:
         auto* const data = static_cast<Ws_data*>(ws->getUserData());
         DMITIGR_ASSERT(data);
         if (data->conn) {
-          data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws);
+          data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws, listener_);
           connections_.emplace_back(static_cast<Conn<IsSsl>*>(data->conn->rep_.get()));
         } else
           ws->end(1011, "internal error");

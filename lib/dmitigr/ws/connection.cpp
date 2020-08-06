@@ -35,6 +35,7 @@ public:
   virtual bool is_closed() const = 0;
   virtual void event_loop_call_soon(std::function<void()> callback) = 0;
   virtual bool is_ssl() const noexcept = 0;
+  virtual Listener* listener() const = 0;
 };
 
 /**
@@ -50,9 +51,11 @@ public:
   Conn(Conn&&) = delete;
   Conn& operator=(Conn&&) = delete;
 
-  explicit Conn(Underlying_type* const ws)
+  Conn(Underlying_type* const ws, Listener* listener)
     : ws_{ws}
+    , listener_{listener}
   {
+    DMITIGR_ASSERT(ws && listener);
     DMITIGR_ASSERT(!is_closed());
   }
 
@@ -117,8 +120,14 @@ public:
     return IsSsl;
   }
 
+  Listener* listener() const override
+  {
+    return listener_;
+  }
+
 private:
-  Underlying_type* ws_;
+  Underlying_type* ws_{};
+  Listener* listener_{};
 };
 
 } // namespace dmitigr::ws::detail
@@ -127,6 +136,16 @@ namespace dmitigr::ws {
 
 DMITIGR_WS_INLINE Connection::~Connection() = default;
 DMITIGR_WS_INLINE Connection::Connection() = default;
+
+DMITIGR_WS_INLINE Listener* Connection::listener()
+{
+  return const_cast<Listener*>(static_cast<const Connection*>(this)->listener());
+}
+
+DMITIGR_WS_INLINE const Listener* Connection::listener() const
+{
+  return rep_ ? rep_->listener() : nullptr;
+}
 
 DMITIGR_WS_INLINE bool Connection::event_loop_call_soon(std::function<void()> callback)
 {
