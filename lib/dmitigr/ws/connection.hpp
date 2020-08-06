@@ -48,7 +48,7 @@ public:
   DMITIGR_WS_API bool event_loop_call_soon(std::function<void()> callback);
 
   /**
-   * @returns `true` if the connection is valid, or `false` otherwise.
+   * @returns `true` if the underlying socket is valid, or `false` otherwise.
    *
    * @remarks The behaviour is undefined if called not on the thread of the
    * associated event loop!
