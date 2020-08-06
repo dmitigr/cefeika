@@ -109,7 +109,7 @@ public:
     us_socket_context_t* const uss_ctx = us_socket_context(is_ssl(), uss);
     us_loop_t* const uss_loop = us_socket_context_loop(is_ssl(), uss_ctx);
     auto* const loop = reinterpret_cast<uWS::Loop*>(uss_loop);
-    loop->defer(callback);
+    loop->defer(std::move(callback));
   }
 
   bool is_ssl() const noexcept override
@@ -132,7 +132,7 @@ DMITIGR_WS_INLINE bool Connection::event_loop_call_soon(std::function<void()> ca
 {
   const std::lock_guard lg{mut_};
   if (rep_ && !rep_->is_closed()) {
-    rep_->event_loop_call_soon(callback);
+    rep_->event_loop_call_soon(std::move(callback));
     return true;
   } else
     return false;
