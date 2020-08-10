@@ -172,11 +172,11 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   add_subdirectory(lib/dmitigr/${lib})
 
-  # ------------------------------------
-  # Unconditional preprocessing
-  # ------------------------------------
-
   dmitigr_set_library_info_lib_variables(${lib})
+
+  # -------------
+  # Documentation
+  # -------------
 
   configure_file(doc/Doxyfile.in
     ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/Doxyfile @ONLY
