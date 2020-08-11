@@ -366,12 +366,12 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # ------------------------------------
 
   add_custom_command(TARGET dmitigr_cefeika_uninstall PRE_BUILD
-    COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}/dmitigr_${lib}*
-    COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_DOC_INSTALL_DIR}/dmitigr_${lib}*
-    COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/dmitigr_${lib}*
-    COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/libdmitigr_${lib}*
-    COMMAND cmake -E remove -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib}*
-    COMMAND cmake -E remove_directory ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}/dmitigr_${lib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_DOC_INSTALL_DIR}/dmitigr_${lib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/dmitigr_${lib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/libdmitigr_${lib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib}*
+    COMMAND cmake -E rm -rf ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
 endforeach()
 
 # ------------------------------------------------------------------------------
