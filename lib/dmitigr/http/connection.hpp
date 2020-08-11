@@ -500,9 +500,15 @@ public:
     return !static_cast<bool>(io_);
   }
 
-  /// @returns The underlying IO descriptor. (Use with care.)
+  /**
+   * @returns The underlying IO descriptor. (Use with care.)
+   *
+   * @par Requires
+   * `!is_closed()`.
+   */
   auto native_handle() const
   {
+    DMITIGR_REQUIRE(!is_closed(), std::logic_error);
     return io_->native_handle();
   }
 
