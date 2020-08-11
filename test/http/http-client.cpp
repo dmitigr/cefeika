@@ -30,11 +30,11 @@ int main(int argc, char* argv[])
     if (!conn->is_head_received())
       throw std::runtime_error{"could not receive head"};
 
-    std::string body;
+    std::string content;
     if (conn->content_length() >= 1048576)
       throw std::runtime_error{"payload too large"};
     else
-      body = conn->receive_body_to_string();
+      content = conn->receive_content_to_string();
 
     std::string response{"Start line:\n"};
     response.append("version = ").append(conn->version()).append("\n");
@@ -47,9 +47,9 @@ int main(int argc, char* argv[])
       response += rh.value();
       response += "\n";
     }
-    if (!body.empty()) {
-      response.append("Body:\n");
-      response.append(body);
+    if (!content.empty()) {
+      response.append("Content:\n");
+      response.append(content);
     }
     std::cout << response;
   } catch (const std::exception& e) {

@@ -113,7 +113,7 @@ public:
         if (errno || cl < 0)
           throw std::runtime_error{"bad value of Content-Length header"};
         else
-          unsent_body_length_ = cl;
+          unsent_content_length_ = cl;
       }
       whole.clear();
     }
@@ -141,33 +141,33 @@ public:
    * @returns The amount of bytes wasn't send yet. This value can be set initially by
    * sending "Content-Length" header to the remote side.
    */
-  std::uintmax_t unsent_body_length() const
+  std::uintmax_t unsent_content_length() const
   {
-    return unsent_body_length_;
+    return unsent_content_length_;
   }
 
   /**
    * @par Requires
-   * `(!is_closed() && is_headers_sent() && data.size() <= unsent_body_length())`.
+   * `(!is_closed() && is_headers_sent() && data.size() <= unsent_content_length())`.
    */
-  void send_body(const std::string_view data)
+  void send_content(const std::string_view data)
   {
     DMITIGR_REQUIRE(!is_closed() && is_headers_sent() &&
-      data.size() <= static_cast<std::uintmax_t>(unsent_body_length()), std::logic_error);
-    send__(data, "dmitigr::http: unable to send body");
-    unsent_body_length_ -= data.size();
+      data.size() <= static_cast<std::uintmax_t>(unsent_content_length()), std::logic_error);
+    send__(data, "dmitigr::http: unable to send content");
+    unsent_content_length_ -= data.size();
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
    * @par Requires
-   * `(!is_closed() && !is_head_received() && ((is_server() && !is_start_sent()) || (!is_server() && is_headers_sent() && !unsent_body_length())))`
+   * `(!is_closed() && !is_head_received() && ((is_server() && !is_start_sent()) || (!is_server() && is_headers_sent() && !unsent_content_length())))`
    */
   void receive_head()
   {
     DMITIGR_REQUIRE(!is_closed() && !is_head_received() &&
       ((is_server() && !is_start_sent()) ||
-       (!is_server() && is_headers_sent() && !unsent_body_length())), std::logic_error);
+       (!is_server() && is_headers_sent() && !unsent_content_length())), std::logic_error);
 
     unsigned hpos{};
 
@@ -177,7 +177,7 @@ public:
         return head_size_ - hpos;
       else if (const unsigned n = recv__(head_.data() + head_size_, head_.size() - head_size_)) {
         head_size_ += n;
-        head_body_offset_ = head_size_;
+        head_content_offset_ = head_size_;
         return n;
       } else
         return 0;
@@ -382,9 +382,9 @@ public:
     is_head_received_ = true;
 
     if (hpos < head_size_)
-      head_body_offset_ = hpos;
+      head_content_offset_ = hpos;
 
-    unreceived_body_length_ = content_length();
+    unreceived_content_length_ = content_length();
 
     DMITIGR_ASSERT(is_invariant_ok());
   }
@@ -421,68 +421,68 @@ public:
   }
 
   /**
-   * @returns The size of body received.
+   * @returns The size of content received.
    *
    * @par Requires
-   * `is_head_received() && unreceived_body_length() > 0`.
+   * `is_head_received() && unreceived_content_length() > 0`.
    */
-  unsigned receive_body(char* buf, unsigned size)
+  unsigned receive_content(char* buf, unsigned size)
   {
-    DMITIGR_REQUIRE(is_head_received() && unreceived_body_length() > 0, std::logic_error);
+    DMITIGR_REQUIRE(is_head_received() && unreceived_content_length() > 0, std::logic_error);
 
-    const unsigned head_body_size = head_size_ - head_body_offset_;
-    if (head_body_size) {
-      if (size < head_body_size) {
-        std::memcpy(buf, head_.data() + head_body_offset_, size);
-        head_body_offset_ += size;
+    const unsigned head_content_size = head_size_ - head_content_offset_;
+    if (head_content_size) {
+      if (size < head_content_size) {
+        std::memcpy(buf, head_.data() + head_content_offset_, size);
+        head_content_offset_ += size;
         return size;
       } else {
-        std::memcpy(buf, head_.data() + head_body_offset_, head_body_size);
-        head_body_offset_ += head_body_size;
+        std::memcpy(buf, head_.data() + head_content_offset_, head_content_size);
+        head_content_offset_ += head_content_size;
         if (head_size_ < head_.size()) {
-          unreceived_body_length_ -= head_body_size;
-          return head_body_size;
+          unreceived_content_length_ -= head_content_size;
+          return head_content_size;
         } else {
-          size -= head_body_size;
-          buf += head_body_size;
-          DMITIGR_ASSERT(head_body_offset_ == head_size_);
+          size -= head_content_size;
+          buf += head_content_size;
+          DMITIGR_ASSERT(head_content_offset_ == head_size_);
         }
       }
     }
 
-    const auto result = recv__(buf, std::min(static_cast<std::intmax_t>(size), unreceived_body_length_));
-    unreceived_body_length_ -= result;
+    const auto result = recv__(buf, std::min(static_cast<std::intmax_t>(size), unreceived_content_length_));
+    unreceived_content_length_ -= result;
     DMITIGR_ASSERT(is_invariant_ok());
-    return head_body_size + result;
+    return head_content_size + result;
   }
 
-  /// Convenient method to receive an entire (unreceived) body to string.
-  std::string receive_body_to_string()
+  /// Convenient method to receive an entire (unreceived) content to string.
+  std::string receive_content_to_string()
   {
-    if (unreceived_body_length_) {
-      std::string result(unreceived_body_length_, 0);
-      receive_body(result.data(), result.size());
+    if (unreceived_content_length_) {
+      std::string result(unreceived_content_length_, 0);
+      receive_content(result.data(), result.size());
       return result;
     } else
       return std::string{};
   }
 
-  /// @returns The amount of bytes of body which are not yet received.
-  std::uintmax_t unreceived_body_length() const
+  /// @returns The amount of bytes of content which are not yet received.
+  std::uintmax_t unreceived_content_length() const
   {
-    return unreceived_body_length_;
+    return unreceived_content_length_;
   }
 
-  /// Dismisses the body.
-  void dismiss_body()
+  /// Dismisses the content.
+  void dismiss_content()
   {
     constexpr unsigned bufsize = 65536;
     char trashcan[bufsize];
-    while (const auto n = receive_body(trashcan, bufsize)) {
+    while (const auto n = receive_content(trashcan, bufsize)) {
       if (n < bufsize)
         break;
     }
-    DMITIGR_ASSERT(!unreceived_body_length());
+    DMITIGR_ASSERT(!unreceived_content_length());
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
@@ -608,9 +608,9 @@ protected:
   unsigned phrase_size_{};
 private:
   unsigned head_size_{};
-  unsigned head_body_offset_{};
-  std::intmax_t unsent_body_length_{};
-  std::intmax_t unreceived_body_length_{};
+  unsigned head_content_offset_{};
+  std::intmax_t unsent_content_length_{};
+  std::intmax_t unreceived_content_length_{};
   std::unique_ptr<net::Descriptor> io_;
   Header_map headers_;
 
@@ -619,11 +619,11 @@ private:
     const bool start_line_ok = !is_head_received_ ||
       (is_server() && method_size_ > 0 && path_size_ > 0 && version_size_ > 0) ||
       (!is_server() && version_size_ > 0 && code_size_ > 0 && phrase_size_ > 0);
-    const bool head_ok = (head_body_offset_ <= head_size_) && (head_size_ <= head_.size());
-    const bool body_lengths_ok = (unsent_body_length_ >= 0) && (unreceived_body_length_ >= 0);
+    const bool head_ok = (head_content_offset_ <= head_size_) && (head_size_ <= head_.size());
+    const bool content_lengths_ok = (unsent_content_length_ >= 0) && (unreceived_content_length_ >= 0);
     const bool io_ok = static_cast<bool>(io_);
 
-    return start_line_ok && head_ok && body_lengths_ok && io_ok;
+    return start_line_ok && head_ok && content_lengths_ok && io_ok;
   }
 };
 

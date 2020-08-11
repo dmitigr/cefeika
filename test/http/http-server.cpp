@@ -30,9 +30,9 @@ int main(int, char* argv[])
         continue;
       }
 
-      constexpr chrono::seconds body_timeout{10};
-      net::set_timeout(static_cast<net::Socket_native>(nh), body_timeout, body_timeout);
-      const auto body = conn->receive_body_to_string();
+      constexpr chrono::seconds content_timeout{10};
+      net::set_timeout(static_cast<net::Socket_native>(nh), content_timeout, content_timeout);
+      const auto content = conn->receive_content_to_string();
 
       std::string response{"Start line:\n"};
       response.append("method = ").append(conn->method()).append("\n");
@@ -47,9 +47,9 @@ int main(int, char* argv[])
           response += "\n";
         }
       }
-      if (!body.empty()) {
-        response.append("Body:\n");
-        response.append(body);
+      if (!content.empty()) {
+        response.append("Content:\n");
+        response.append(content);
       }
 
       conn->send_start(http::Server_succ::ok);
@@ -57,9 +57,9 @@ int main(int, char* argv[])
       conn->send_header("Content-Type", "text/plain");
       //conn->send_header("Content-Disposition", "attachment; filename=a.txt");
       conn->send_last_header("Content-Length", std::to_string(response.size()));
-      ASSERT(conn->unsent_body_length() == response.size());
-      conn->send_body(response);
-      ASSERT(!conn->unsent_body_length());
+      ASSERT(conn->unsent_content_length() == response.size());
+      conn->send_content(response);
+      ASSERT(!conn->unsent_content_length());
     } catch (const std::system_error& e) {
       if (e.code() != std::errc::resource_unavailable_try_again &&
         e.code()   != std::errc::broken_pipe &&
