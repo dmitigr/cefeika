@@ -47,7 +47,7 @@ public:
    * @par Requires
    * `!is_head_received()`.
    */
-  void send_start(const Method method, const std::string_view path)
+  void send_start(const Method method, const std::string_view path, const bool skip_headers = false)
   {
     DMITIGR_REQUIRE(!is_head_received(), std::logic_error);
     const char* const m = to_literal(method);
@@ -55,7 +55,17 @@ public:
     std::string line;
     line.reserve(7 + 1 + path.size() + 11);
     line.append(m).append(" ").append(path).append(" HTTP/1.0\r\n");
+    if (skip_headers) {
+      line.append("\r\n");
+      is_headers_sent_ = true;
+    }
     send_start__(line);
+  }
+
+  /// Alternative of `send_start(name, value, true)`.
+  void send_start_skip_headers(const Method method, const std::string_view path)
+  {
+    send_start(method, path, true);
   }
 
   /// @returns The HTTP version extracted from start line.

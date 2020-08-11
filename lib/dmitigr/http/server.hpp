@@ -26,7 +26,7 @@ public:
 
   /// Sends start line.
   template<class StatusCode>
-  void send_start(const StatusCode code)
+  void send_start(const StatusCode code, const bool skip_headers = false)
   {
     static_assert(std::is_same_v<StatusCode, Server_infoc> ||
       std::is_same_v<StatusCode, Server_succ> ||
@@ -39,7 +39,18 @@ public:
     line.reserve(9 + 3 + 1 + std::strlen(literal) + 2);
     line.append("HTTP/1.0 ").append(std::to_string(static_cast<int>(code)))
       .append(" ").append(literal).append("\r\n");
+    if (skip_headers) {
+      line.append("\r\n");
+      is_headers_sent_ = true;
+    }
     send_start__(line);
+  }
+
+  /// Alternative of `send_start(name, value, true)`.
+  template<class StatusCode>
+  void send_start_skip_headers(const StatusCode code)
+  {
+    send_start(code, true);
   }
 
   /// @returns The method extracted from start line.

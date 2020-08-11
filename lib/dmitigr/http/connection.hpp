@@ -596,9 +596,9 @@ private:
 
 protected:
   std::array<char, max_head_size> head_;
+  bool is_headers_sent_{};
 private:
   bool is_start_sent_{};
-  bool is_headers_sent_{};
   bool is_head_received_{};
 protected:
   unsigned method_size_{};
