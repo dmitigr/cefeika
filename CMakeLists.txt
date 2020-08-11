@@ -104,15 +104,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CXX_STANDARD_REQUIRED ON)
 
 # ------------------------------------------------------------------------------
-# Include directories
-# ------------------------------------------------------------------------------
-
-include_directories(BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}/lib
-  ${CMAKE_CURRENT_BINARY_DIR}/lib
-  )
-
-# ------------------------------------------------------------------------------
 # Third-party dependencies
 # ------------------------------------------------------------------------------
 
@@ -295,12 +286,22 @@ foreach(lib ${dmitigr_cefeika_libraries})
     target_include_directories(${lib}
       PRIVATE ${dmitigr_${lib}_target_include_directories_private}
       PUBLIC  ${dmitigr_${lib}_target_include_directories_public})
+
+    target_include_directories(${lib} BEFORE PRIVATE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
+      )
   else() # header-only
     target_compile_definitions(${lib}
       INTERFACE ${dmitigr_${lib}_target_compile_definitions_interface})
 
     target_include_directories(${lib}
       INTERFACE ${dmitigr_${lib}_target_include_directories_interface})
+
+    target_include_directories(${lib} BEFORE INTERFACE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
+      )
   endif()
 
   # ------------------------------------
