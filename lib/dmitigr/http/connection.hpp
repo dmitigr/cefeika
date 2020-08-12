@@ -459,12 +459,9 @@ public:
   /// Convenient method to receive an entire (unreceived) content to string.
   std::string receive_content_to_string()
   {
-    if (unreceived_content_length_) {
-      std::string result(unreceived_content_length_, 0);
-      receive_content(result.data(), result.size());
-      return result;
-    } else
-      return std::string{};
+    std::string result(unreceived_content_length_, 0);
+    receive_content(result.data(), result.size());
+    return result;
   }
 
   /// @returns The amount of bytes of content which are not yet received.
