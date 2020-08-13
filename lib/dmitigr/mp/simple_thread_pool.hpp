@@ -22,14 +22,14 @@
 namespace dmitigr::mp {
 
 /**
- * @brief Simple threadpool.
+ * @brief Simple thread pool.
  */
-class Simple_threadpool final {
+class Simple_thread_pool final {
 public:
   /**
    * @brief The destructor.
    */
-  ~Simple_threadpool()
+  ~Simple_thread_pool()
   {
     stop();
   }
@@ -38,24 +38,24 @@ public:
   /// @{
 
   /// Non copy-consructible.
-  Simple_threadpool(const Simple_threadpool&) = delete;
+  Simple_thread_pool(const Simple_thread_pool&) = delete;
 
   /// Non copy-assignable.
-  Simple_threadpool& operator=(const Simple_threadpool&) = delete;
+  Simple_thread_pool& operator=(const Simple_thread_pool&) = delete;
 
   /// Non move-constructible.
-  Simple_threadpool(Simple_threadpool&&) = delete;
+  Simple_thread_pool(Simple_thread_pool&&) = delete;
 
   /// Non move-assignable.
-  Simple_threadpool& operator=(Simple_threadpool&&) = delete;
+  Simple_thread_pool& operator=(Simple_thread_pool&&) = delete;
 
   /**
-   * @brief Constructs the threadpool with size of `size`.
+   * @brief Constructs the thread pool with size of `size`.
    *
    * @par Requires
    * `(size > 0 && queue_max_size > 0)`.
    */
-  explicit Simple_threadpool(const std::size_t size, std::string name = {})
+  explicit Simple_thread_pool(const std::size_t size, std::string name = {})
     : name_{std::move(name)}
     , workers_{size}
   {
@@ -66,7 +66,7 @@ public:
   /// @}
 
   /**
-   * @brief Submit the function to run on the threadpool.
+   * @brief Submit the function to run on the thread pool.
    *
    * @par Requires
    * `(function)`.
@@ -107,7 +107,7 @@ public:
   }
 
   /**
-   * @returns The threadpool size.
+   * @returns The thread pool size.
    */
   std::size_t size() const
   {
@@ -116,7 +116,7 @@ public:
   }
 
   /**
-   * @brief Starts the threadpool.
+   * @brief Starts the thread pool.
    */
   void start()
   {
@@ -127,12 +127,12 @@ public:
 
     is_running_ = true;
     for (auto& worker : workers_)
-      worker = std::thread{&Simple_threadpool::wait_and_run, this};
+      worker = std::thread{&Simple_thread_pool::wait_and_run, this};
     state_changed_.notify_all();
   }
 
   /**
-   * @brief Stops the threadpool.
+   * @brief Stops the thread pool.
    *
    * @see start().
    */
@@ -152,7 +152,7 @@ public:
   }
 
   /**
-   * @returns `true` if the threadpool is running, or `false` otherwise.
+   * @returns `true` if the thread pool is running, or `false` otherwise.
    */
   bool is_running() const noexcept
   {

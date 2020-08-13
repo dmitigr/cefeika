@@ -15,7 +15,7 @@ int main(int, char* argv[])
 
   try {
     const auto size = std::thread::hardware_concurrency() * 2;
-    mp::Simple_threadpool pool{size};
+    mp::Simple_thread_pool pool{size};
     ASSERT(pool.size() == size);
     ASSERT(pool.queue_size() == 0);
     ASSERT(pool.is_queue_empty());
