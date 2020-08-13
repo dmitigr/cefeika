@@ -7,12 +7,15 @@
 
 #include <dmitigr/base/debug.hpp>
 
+#include <cassert>
 #include <condition_variable>
 #include <cstddef>
 #include <functional>
-#include <memory>
+#include <iostream>
 #include <mutex>
 #include <queue>
+#include <stdexcept>
+#include <string>
 #include <thread>
 #include <utility>
 
@@ -52,8 +55,9 @@ public:
    * @par Requires
    * `(size > 0 && queue_max_size > 0)`.
    */
-  explicit Simple_threadpool(const std::size_t size)
-    : workers_{size}
+  explicit Simple_threadpool(const std::size_t size, std::string name = {})
+    : name_{std::move(name)}
+    , workers_{size}
   {
     DMITIGR_REQUIRE(size > 0, std::invalid_argument);
     DMITIGR_ASSERT(workers_.size() == size);
@@ -118,12 +122,12 @@ public:
   {
     const std::lock_guard lg{work_mutex_};
 
-    if (is_working_)
+    if (is_running_)
       return;
 
-    is_working_ = true;
+    is_running_ = true;
     for (auto& worker : workers_)
-      worker = std::thread{&Simple_threadpool::do_work, this};
+      worker = std::thread{&Simple_threadpool::wait_and_run, this};
     state_changed_.notify_all();
   }
 
@@ -136,10 +140,10 @@ public:
   {
     const std::lock_guard lg{work_mutex_};
 
-    if (!is_working_)
+    if (!is_running_)
       return;
 
-    is_working_ = false;
+    is_running_ = false;
     state_changed_.notify_all();
     for (auto& worker : workers_) {
       if (worker.joinable())
@@ -148,12 +152,12 @@ public:
   }
 
   /**
-   * @returns `true` if the threadpool is working, or `false` otherwise.
+   * @returns `true` if the threadpool is running, or `false` otherwise.
    */
-  bool is_working() const
+  bool is_running() const noexcept
   {
     const std::lock_guard lg{work_mutex_};
-    return is_working_;
+    return is_running_;
   }
 
 private:
@@ -162,38 +166,7 @@ private:
     void clear() { c.clear(); }
   };
 
-  enum class Pool_status {
-    ok,
-    stopped
-  };
-
-  std::pair<std::function<void()>, Pool_status> next_work()
-  {
-    std::unique_lock lock{queue_mutex_};
-    state_changed_.wait(lock, [this]{ return !queue_.empty() || !is_working_; });
-    std::function<void()> work;
-    if (is_working_) {
-      DMITIGR_ASSERT(static_cast<bool>(queue_.front()));
-      work = std::move(queue_.front());
-      queue_.pop();
-      return std::make_pair(std::move(work), Pool_status::ok);
-    } else
-      return std::make_pair(std::move(work), Pool_status::stopped);
-  }
-
-  void do_work()
-  {
-    while (true) {
-      const auto [work, status] = next_work();
-      switch (status) {
-      case Pool_status::ok:
-        work();
-        break;
-      case Pool_status::stopped:
-        return;
-      }
-    }
-  }
+  const std::string name_;
 
   std::condition_variable state_changed_;
 
@@ -202,7 +175,41 @@ private:
 
   mutable std::mutex work_mutex_;
   std::vector<std::thread> workers_;
-  bool is_working_{};
+  bool is_running_{};
+
+  void wait_and_run() noexcept
+  {
+    while (true) {
+      try {
+        std::function<void()> func;
+        {
+          std::unique_lock lk{queue_mutex_};
+          state_changed_.wait(lk, [this]{ return !queue_.empty() || !is_running_; });
+          if (is_running_) {
+            assert(!queue_.empty());
+            func = std::move(queue_.front());
+            assert(static_cast<bool>(func));
+            queue_.pop();
+          } else
+            return;
+        }
+        func();
+      } catch (const std::exception& e) {
+        log_error(e.what());
+      } catch (...) {
+        log_error("unknown error");
+      }
+    }
+  }
+
+  void log_error(const char* const what) const noexcept
+  {
+    assert(what);
+    std::clog << "dmitigr::mp::Simple_thread_pool ";
+    if (!name_.empty())
+      std::clog << name_ << " ";
+    std::clog << "(thread " << std::this_thread::get_id() << "): " << what << "\n";
+  }
 };
 
 } // namespace dmitigr::mp

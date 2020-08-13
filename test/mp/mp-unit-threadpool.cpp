@@ -19,7 +19,7 @@ int main(int, char* argv[])
     ASSERT(pool.size() == size);
     ASSERT(pool.queue_size() == 0);
     ASSERT(pool.is_queue_empty());
-    ASSERT(!pool.is_working());
+    ASSERT(!pool.is_running());
 
     for (std::size_t i = 0; i < 16*size; ++i) {
       pool.submit([]
@@ -30,10 +30,10 @@ int main(int, char* argv[])
     }
 
     pool.start();
-    ASSERT(pool.is_working());
+    ASSERT(pool.is_running());
     std::this_thread::sleep_for(std::chrono::milliseconds{50});
     pool.stop();
-    ASSERT(!pool.is_working());
+    ASSERT(!pool.is_running());
     std::cout << "Thread pool has " << pool.queue_size() << " uncompleted tasks" << std::endl;
     pool.clear();
     ASSERT(pool.queue_size() == 0);
