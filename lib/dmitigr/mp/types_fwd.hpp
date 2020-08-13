@@ -18,7 +18,6 @@ class Simple_threadpool;
  * @brief The implementation detail.
  */
 namespace detail {
-class iSimple_threadpool;
 } // namespace detail
 } // namespace mp
 } // namespace dmitigr
