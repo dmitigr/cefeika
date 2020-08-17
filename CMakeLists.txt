@@ -32,6 +32,8 @@ set(DMITIGR_CEFEIKA_WITH_ZLIB False CACHE BOOL
   "Link to Zlib where possible?")
 set(DMITIGR_LIBRARIAN_DEBUG FALSE CACHE BOOL
   "Print librarian.cmake debug output?")
+set(DMITIGR_CEFEIKA_CLANG_LINK_FILESYSTEM TRUE CACHE BOOL
+  "Link automatically to a separate filesystem library (actual for Clang 9-)?")
 
 if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   if(BUILD_SHARED_LIBS)
