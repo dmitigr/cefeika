@@ -56,7 +56,7 @@ public:
   Interval() = default;
 
   /// Constructs closed [min, max] interval.
-  Interval(T min, T max)
+  explicit Interval(T min, T max)
     : type_{Type::closed}
     , min_{std::move(min)}
     , max_{std::move(max)}
@@ -65,7 +65,7 @@ public:
   /**
    * Constructs the interval of the specified type.
    */
-  Interval(const Type type, T min, T max)
+  explicit Interval(const Type type, T min, T max)
     : type_{type}
     , min_{std::move(min)}
     , max_{std::move(max)}
