@@ -10,6 +10,7 @@
 #include <dmitigr/str/str.hpp>
 
 #include <functional>
+#include <initializer_list>
 #include <optional>
 #include <tuple>
 #include <type_traits>
@@ -257,6 +258,21 @@ public:
     return optional_parameter<T>(parameter(name), valid_set, error_message);
   }
 
+  /// @overload
+  template<typename T, typename P, typename U>
+  std::optional<T> optional_parameter(P&& p,
+    const std::initializer_list<U>& valid_set, const std::string& error_message = {}) const
+  {
+    static_assert(!std::is_pointer_v<T>);
+    return optional_parameter<T>(std::forward<P>(p), [&valid_set](const T& v)
+    {
+      return std::any_of(begin(valid_set), end(valid_set), [&v](const auto& e)
+      {
+        return v == e;
+      });
+    }, error_message);
+  }
+
   /**
    * @overload
    *
@@ -289,13 +305,25 @@ public:
   T mandatory_parameter(Types&& ... args) const
   {
     if (auto result = optional_parameter<T>(std::forward<Types>(args)...); !result) {
-      if constexpr (sizeof...(args) > 1) {
-        const std::string& error_message = std::get<sizeof...(args) - 1>(std::make_tuple(args...));
-        throw_error(Server_errc::invalid_params, error_message);
-      } else
+      const auto& last = std::get<sizeof...(args) - 1>(std::make_tuple(args...));
+      using LastType = std::decay_t<decltype(last)>;
+      if constexpr (std::is_same_v<LastType, std::string>)
+        throw_error(Server_errc::invalid_params, last);
+      else
         throw_error(Server_errc::invalid_params);
     } else
-      return *result;
+      return std::move(*result);
+  }
+
+  /// @overload
+  template<typename T, typename P, typename U>
+  T mandatory_parameter(P&& p,
+    const std::initializer_list<U>& valid_set, const std::string& error_message = {}) const
+  {
+    if (auto result = optional_parameter<T>(std::forward<P>(p), valid_set, error_message); !result)
+      throw_error(Server_errc::invalid_params, error_message);
+    else
+      return std::move(*result);
   }
 
   /**

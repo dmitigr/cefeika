@@ -184,10 +184,23 @@ int main(int, char* argv[])
       ASSERT(req.parameter_count() == 2);
       ASSERT(req.parameter("x") && req.parameter("x")->IsInt() && req.parameter("x")->GetInt() == 10);
       ASSERT(req.parameter("y") && req.parameter("y")->IsInt() && req.parameter("y")->GetInt() == 20);
+    }
+
+    // Convenient methods.
+    {
+      jrpc::Request req{4, "foo"};
+      req.set_parameter("x", 10);
+      req.set_parameter("y", 20);
+      req.set_parameter("s", "foo");
 
       {
-        const auto [x, y, z, all] = req.parameters("x", "y", "z");
-        ASSERT(x && y && !z && all);
+        const auto [x, s, y, all] = req.parameters("x", "s", "y");
+        ASSERT(x && s && y && all);
+      }
+
+      {
+        const auto [x, y, s, z, all] = req.parameters("x", "y", "s", "z");
+        ASSERT(x && y && s && !z && all);
       }
 
       {
@@ -202,6 +215,11 @@ int main(int, char* argv[])
         ASSERT(x == 10);
         ASSERT(y == 20);
         ASSERT(!z);
+      }
+
+      {
+        const auto x = req.mandatory_parameter<int>("x", {10,20});
+        const auto s = req.mandatory_parameter<std::string_view>("s", {"bar","baz", "foo"}, "not foo!");
       }
     }
 
