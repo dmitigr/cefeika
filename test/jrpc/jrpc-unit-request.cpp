@@ -219,7 +219,9 @@ int main(int, char* argv[])
 
       {
         const auto x = req.mandatory_parameter<int>("x", {10,20});
+        (void)x;
         const auto s = req.mandatory_parameter<std::string_view>("s", {"bar","baz", "foo"}, "not foo!");
+        (void)s;
       }
     }
 

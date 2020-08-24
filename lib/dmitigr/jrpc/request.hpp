@@ -581,7 +581,7 @@ private:
   Request(const std::string_view input, int)
     : rep_{rajson::to_document(input)}
   {
-    if (rep_.HasParseError())
+    if (rep_.HasParseError() || !rep_.IsObject())
       throw Error{Server_errc::parse_error, null};
 
     std::size_t expected_member_count = 4;
