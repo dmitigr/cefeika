@@ -52,6 +52,7 @@ void test_pq()
       PQfinish(conn);
       throw std::runtime_error{PQresultErrorMessage(res)};
     }
+    PQfreemem(PQnotifies(conn));
   }
 
   PQfinish(conn);
