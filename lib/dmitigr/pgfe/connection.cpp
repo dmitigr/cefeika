@@ -523,13 +523,15 @@ public:
      * indicating that the command is done."
      */
     bool get_would_block{};
-    while ( !(get_would_block = is_get_result_would_block())) {
-      if (auto r = pq::Result{::PQgetResult(conn_)}) {
-        pending_results_.push(std::move(r));
-        if (pending_results_.front().status() == PGRES_SINGLE_TUPLE)
-          break; // optimization: skip is_get_result_would_block() here
-      } else
-        break;
+    if (pending_results_.empty() || pending_results_.front().status() != PGRES_SINGLE_TUPLE) {
+      while ( !(get_would_block = is_get_result_would_block())) {
+        if (auto r = pq::Result{::PQgetResult(conn_)}) {
+          pending_results_.push(std::move(r));
+          if (pending_results_.front().status() == PGRES_SINGLE_TUPLE)
+            break; // optimization: skip is_get_result_would_block() here
+        } else
+          break;
+      }
     }
 
     if (!pending_results_.empty()) {
