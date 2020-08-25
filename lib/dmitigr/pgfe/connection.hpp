@@ -225,6 +225,9 @@ public:
    *
    * @returns The value of type Response_status.
    *
+   * @param wait_response Indicates whether to wait for response (which assumes
+   * the possible thread block).
+   *
    * @par Requires
    * `is_connected()`.
    *
@@ -234,7 +237,7 @@ public:
    * @par Exception safety guarantee
    * Basic.
    */
-  virtual Response_status collect_server_messages() = 0;
+  virtual Response_status collect_server_messages(bool wait_response = false) = 0;
 
   /**
    * @returns `(is_signal_available() || is_response_available())`

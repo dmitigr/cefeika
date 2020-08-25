@@ -190,7 +190,7 @@ public:
       timeout = options()->wait_response_timeout();
 
     while (true) {
-      const auto s = collect_server_messages();
+      const auto s = collect_server_messages(!timeout);
       handle_signals();
       if (s == Response_status::unready) {
         const auto moment_of_wait = system_clock::now();
@@ -301,6 +301,9 @@ protected:
 
   void throw_if_error()
   {
+    if (!error())
+      return;
+
     if (std::shared_ptr<Error> ei{release_error()}) {
       // Attempting to throw a custom exception.
       if (const auto& eh = error_handler(); eh && eh(ei))
@@ -488,14 +491,21 @@ public:
       throw std::runtime_error{error_message()};
   }
 
-  Response_status collect_server_messages() override
+  Response_status collect_server_messages(const bool wait_response) override
   {
     DMITIGR_REQUIRE(is_connected(), std::logic_error);
 
     if (is_response_available())
       return Response_status::ready;
 
-    const auto is_get_result_would_block = [this]
+    const auto collect_notifications = [this]
+    {
+      // Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
+      while (auto* const n = ::PQnotifies(conn_))
+        signals_.push_back(pq_Notification{n});
+    };
+
+    const auto is_get_result_would_block = [this, &collect_notifications]
     {
       /*
        * Checking for nonblocking result and collecting notices btw.
@@ -506,14 +516,7 @@ public:
        * are available. (::PQnotifies() calls this routine as well.)
        */
       const int result = ::PQisBusy(conn_);
-
-      /*
-       * Collecting notifications.
-       * Note: notifications are collected by libpq after ::PQisBusy() was called.
-       */
-      while (auto* const n = ::PQnotifies(conn_))
-        signals_.push_back(pq_Notification{n});
-
+      collect_notifications();
       return result == 1;
     };
 
@@ -522,10 +525,19 @@ public:
      * "PQgetResult() must be called repeatedly until it returns a null pointer,
      * indicating that the command is done."
      */
+    if (wait_response) {
+      if (pq::Result r{::PQgetResult(conn_)}) {
+        pending_results_.push(std::move(r));
+        if (pending_results_.front().status() == PGRES_FATAL_ERROR)
+          while (pq::Result{::PQgetResult(conn_)}); // getting complete error
+      }
+      collect_notifications();
+    }
+
     bool get_would_block{};
     if (pending_results_.empty() || pending_results_.front().status() != PGRES_SINGLE_TUPLE) {
       while ( !(get_would_block = is_get_result_would_block())) {
-        if (auto r = pq::Result{::PQgetResult(conn_)}) {
+        if (pq::Result r{::PQgetResult(conn_)}) {
           pending_results_.push(std::move(r));
           if (pending_results_.front().status() == PGRES_SINGLE_TUPLE)
             break; // optimization: skip is_get_result_would_block() here
