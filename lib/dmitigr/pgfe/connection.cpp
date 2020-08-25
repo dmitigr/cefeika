@@ -524,9 +524,11 @@ public:
      */
     bool get_would_block{};
     while ( !(get_would_block = is_get_result_would_block())) {
-      if (auto r = pq::Result{::PQgetResult(conn_)})
+      if (auto r = pq::Result{::PQgetResult(conn_)}) {
         pending_results_.push(std::move(r));
-      else
+        if (pending_results_.front().status() == PGRES_SINGLE_TUPLE)
+          break; // optimization: skip is_get_result_would_block() here
+      } else
         break;
     }
 
@@ -549,7 +551,8 @@ public:
         DMITIGR_ASSERT(op_id == Request_id::perform || op_id == Request_id::execute);
         if (!shared_field_names_)
           shared_field_names_ = pq_Row_info::make_shared_field_names(r);
-        set_response(pq_Row{pq_Row_info{std::move(r), shared_field_names_}});
+        response_ = pq_Row{pq_Row_info{std::move(r), shared_field_names_}};
+        pending_results_.pop();
         return Response_status::ready;
       }
 
