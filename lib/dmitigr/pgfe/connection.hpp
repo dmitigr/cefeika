@@ -258,6 +258,12 @@ public:
    */
   virtual bool is_signal_available() const noexcept = 0;
 
+  // Not implemented.
+  virtual const Signal* signal() const noexcept = 0;
+
+  // Not implemented.
+  virtual std::unique_ptr<Signal> release_signal() = 0;
+
   /**
    * @returns The pointer to the instance of type Notice if available, or
    * `nullptr` otherwise.
@@ -489,6 +495,12 @@ public:
    * @returns `(error() || row() || completion() || prepared_statement())`
    */
   virtual bool is_response_available() const noexcept = 0;
+
+  // Not implemented.
+  virtual const Response* response() const noexcept = 0;
+
+  // Not implemented.
+  virtual std::unique_ptr<Response> release_response() = 0;
 
   /**
    * @brief Dismissing the last available Response.

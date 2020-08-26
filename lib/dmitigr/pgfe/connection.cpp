@@ -660,6 +660,16 @@ public:
     return !signals_.empty();
   }
 
+  const Signal* signal() const noexcept override
+  {
+    return nullptr;
+  }
+
+  std::unique_ptr<Signal> release_signal() override
+  {
+    throw "not implemented";
+  }
+
   const simple_Notice* notice() const noexcept override
   {
     return signal_ptr<simple_Notice>();
@@ -763,6 +773,16 @@ public:
   bool is_response_available() const noexcept override
   {
     return bool(response_);
+  }
+
+  const Response* response() const noexcept override
+  {
+    return nullptr;
+  }
+
+  std::unique_ptr<Response> release_response() override
+  {
+    throw "not implemented";
   }
 
   void dismiss_response() noexcept override
