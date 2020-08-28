@@ -490,10 +490,10 @@ public:
    */
   virtual bool is_response_available() const noexcept = 0;
 
-  // Not implemented.
+  /// @returns The currently available response.
   virtual const Response* response() const noexcept = 0;
 
-  // Not implemented.
+  /// Releases the currently available response.
   virtual std::unique_ptr<Response> release_response() = 0;
 
   /**

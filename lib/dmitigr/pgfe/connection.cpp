@@ -752,12 +752,12 @@ public:
 
   const Response* response() const noexcept override
   {
-    return nullptr;
+    return response_.response();
   }
 
   std::unique_ptr<Response> release_response() override
   {
-    throw "not implemented";
+    return response_.release_response();
   }
 
   void dismiss_response() noexcept override
