@@ -9,41 +9,33 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief The base implementation of Row.
- */
+/// The base implementation of Row.
 class iRow : public Row {
 protected:
-  virtual bool is_invariant_ok() = 0;
+  virtual bool is_invariant_ok() const
+  {
+    return detail::is_invariant_ok(*this);
+  }
 };
 
-inline bool iRow::is_invariant_ok()
-{
-  const bool compositional_ok = detail::is_invariant_ok(*this);
-  return compositional_ok;
-}
-
-/**
- * @brief The implementation of Row based on libpq.
- */
+/// The implementation of Row based on libpq.
 class pq_Row final : public iRow {
 public:
-  /// Default constructible.
+  /// Default-constructible.
   pq_Row() = default;
 
-  /**
-   * @brief The constructor.
-   */
-  explicit pq_Row(pq_Row_info&& info)
-    : info_{std::move(info)}
+  /// The constructor.
+  template<typename ... Types>
+  explicit pq_Row(Types&& ... args)
+    : info_{std::forward<Types>(args)...}
   {
     const auto& pq_result = info_.pq_result_;
     const int fc = pq_result.field_count();
-    DMITIGR_ASSERT(fc >= 0);
     datas_.reserve(fc);
     for (int f = 0; f < fc; ++f)
       datas_.emplace_back(pq_result.data_value(0, f),
         pq_result.data_size(0, f), pq_result.field_format(f));
+
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
@@ -103,7 +95,7 @@ public:
   }
 
 protected:
-  bool is_invariant_ok() override
+  bool is_invariant_ok() const override
   {
     const bool info_ok = (info_.field_count() == datas_.size()) && (info_.pq_result_.status() == PGRES_SINGLE_TUPLE);
     const bool irow_ok = iRow::is_invariant_ok();
@@ -117,7 +109,7 @@ private:
     return !info_.pq_result_.is_data_null(row, static_cast<int>(index)) ? &datas_[index] : nullptr;
   }
 
-  pq_Row_info info_; // contains pq::Result
+  pq_Row_info info_; // pq::Result
   std::vector<Data_view> datas_;
 };
 
