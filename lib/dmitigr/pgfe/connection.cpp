@@ -404,7 +404,7 @@ public:
     reset_session();
 
     ::PQfinish(conn_); // Discarding unhandled notifications btw.
-    conn_ = nullptr;
+    conn_ = {};
     DMITIGR_ASSERT(communication_status() == Communication_status::disconnected);
 
     DMITIGR_ASSERT(is_invariant_ok());
@@ -856,7 +856,7 @@ private:
     try {
       pq_Prepared_statement ps{name, this, preparsed};
       constexpr int n_params{0};
-      constexpr const ::Oid* const param_types{nullptr};
+      constexpr const ::Oid* const param_types{};
       const int send_ok = ::PQsendPrepare(conn_, name, query, n_params, param_types);
       if (!send_ok)
         throw std::runtime_error(error_message());
@@ -1176,7 +1176,7 @@ private:
   Data_format default_result_format_{Data_format::text};
 
   // Persistent data / private-modifiable data
-  ::PGconn* conn_{nullptr};
+  ::PGconn* conn_{};
   std::optional<Communication_status> polling_status_;
 
   // ---------------------------------------------------------------------------
@@ -1313,7 +1313,7 @@ private:
       queue.pop();
       return r;
     } else
-      return nullptr;
+      return {};
   }
 
   template<class Problem>
