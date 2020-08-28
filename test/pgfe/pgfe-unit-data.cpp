@@ -16,7 +16,7 @@ int main(int, char* argv[])
   using namespace dmitigr::testo;
 
   try {
-    // Data::make(const char*)
+    // Data::make(std::string_view)
     {
       const std::size_t sz = std::strlen("Dmitry Igrishin");
       const auto d = pgfe::Data::make("Dmitry Igrishin");
@@ -25,10 +25,10 @@ int main(int, char* argv[])
       ASSERT(std::strcmp(d->bytes(), "Dmitry Igrishin") == 0);
     }
 
-    // Data::make(const char*, std::size_t, Data_format);
+    // Data::make(std::string_view);
     {
       const std::size_t sz = std::strlen("Dmitry");
-      const auto d = pgfe::Data::make("Dmitry Igrishin", sz, pgfe::Data_format::binary);
+      const auto d = pgfe::Data::make(std::string_view{"Dmitry Igrishin", sz}, pgfe::Data_format::binary);
       ASSERT(d->format() == pgfe::Data_format::binary);
       ASSERT(d->size() == sz);
       ASSERT(std::strncmp(d->bytes(), "Dmitry", sz) == 0);
@@ -51,7 +51,7 @@ int main(int, char* argv[])
     {
       const char* const name = "Dmitry Igrishin";
       const std::size_t sz = std::strlen(name);
-      const auto d = pgfe::Data::make(std::string(name));
+      const auto d = pgfe::Data::make(std::string(name), pgfe::Data_format::text);
       ASSERT(d->format() == pgfe::Data_format::text);
       ASSERT(d->size() == sz);
       ASSERT(std::strcmp(d->bytes(), name) == 0);
@@ -61,40 +61,10 @@ int main(int, char* argv[])
     {
       const std::string name{"Dmitry Igrishin"};
       const std::size_t sz = name.size();
-      const auto d = pgfe::Data::make(name);
+      const auto d = pgfe::Data::make(name, pgfe::Data_format::text);
       ASSERT(d->format() == pgfe::Data_format::text);
       ASSERT(d->size() == sz);
       ASSERT(d->bytes() == name);
-    }
-
-    // Data::make(std::vector<unsigned char>&&, Data_format)
-    {
-      const char* const name = "Dmitry Igrishin";
-      const std::size_t sz = std::strlen(name);
-      const auto d = pgfe::Data::make([&]() {
-                                        std::vector<unsigned char> storage(sz);
-                                        std::memcpy(storage.data(), name, sz);
-                                        return storage;
-                                      }());
-      ASSERT(d->format() == pgfe::Data_format::binary);
-      ASSERT(d->size() == sz);
-      ASSERT(std::strncmp(d->bytes(), name, sz) == 0);
-    }
-
-    // Data::make(const std::vector<unsigned char>&, Data_format)
-    {
-      const auto vec = []()
-                       {
-                         const char* const name = "Dmitry Igrishin";
-                         const std::size_t sz = std::strlen(name);
-                         std::vector<unsigned char> storage(sz);
-                         std::memcpy(storage.data(), name, sz);
-                         return storage;
-                       }();
-      const auto d = pgfe::Data::make(vec);
-      ASSERT(d->format() == pgfe::Data_format::binary);
-      ASSERT(d->size() == vec.size());
-      ASSERT(std::strncmp(d->bytes(), reinterpret_cast<const char*>(vec.data()), vec.size()) == 0);
     }
   } catch (std::exception& e) {
     report_failure(argv[0], e);

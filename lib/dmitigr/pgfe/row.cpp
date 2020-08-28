@@ -90,13 +90,13 @@ public:
     return &info_;
   }
 
-  const readonly_Data_view* data(const std::size_t index) const override
+  const Data_view* data(const std::size_t index) const override
   {
     DMITIGR_REQUIRE(index < field_count(), std::out_of_range);
     return data__(index);
   }
 
-  const readonly_Data_view* data(const std::string& name, const std::size_t offset) const override
+  const Data_view* data(const std::string& name, const std::size_t offset) const override
   {
     const auto index = field_index_throw(name, offset);
     return data__(index);
@@ -111,14 +111,14 @@ protected:
   }
 
 private:
-  const readonly_Data_view* data__(const std::size_t index) const noexcept
+  const Data_view* data__(const std::size_t index) const noexcept
   {
     constexpr int row = 0;
     return !info_.pq_result_.is_data_null(row, static_cast<int>(index)) ? &datas_[index] : nullptr;
   }
 
   pq_Row_info info_; // contains pq::Result
-  std::vector<readonly_Data_view> datas_;
+  std::vector<Data_view> datas_;
 };
 
 } // namespace dmitigr::pgfe::detail

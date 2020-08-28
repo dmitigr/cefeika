@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
-#include <vector>
+#include <string_view>
 
 namespace dmitigr::pgfe {
 
@@ -41,74 +41,38 @@ public:
 
   /**
    * @returns A new instance of this class.
-   *
-   * @param bytes - the pointer to the data;
-   * @param size - the size of the data;
-   * @param format - the format of the data.
-   *
-   * @remarks The data pointed by `bytes` will be copied into the modifiable
-   * internal storage.
-   *
-   * @par Requires
-   * `(bytes && (format == Data_format::binary || bytes[size] == '\0'))`.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make(const char* bytes,
-    std::size_t size, Data_format format = Data_format::text);
-
-  /**
-   * @overload
-   */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make(const char* bytes);
+  static DMITIGR_PGFE_API std::unique_ptr<Data> make(
+    std::string storage,
+    Data_format format);
 
   /**
    * @overload
    *
-   * @param storage - the internal storage of the result;
-   * @param size - the size of the data;
-   * @param format - the format of the data.
-   *
-   * @par Requires
-   * `(storage && (format == Data_format::binary ||
-   *   static_cast<const char*>(storage.get())[size] == '\0'))`.
+   * @remarks The `bytes` will be copied into the modifiable internal storage.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make(std::unique_ptr<void, void(*)(void*)>&& storage,
-    std::size_t size, Data_format format = Data_format::binary);
-
-  /**
-   * @overload
-   */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make(std::string storage,
+  static DMITIGR_PGFE_API std::unique_ptr<Data> make(
+    std::string_view bytes,
     Data_format format = Data_format::text);
 
   /**
    * @overload
    *
    * @par Requires
-   * `(format == Data_format::binary || !storage.empty() && storage.back() == '\0')`.
-   *
-   * @remarks iff (format == Data_format::text) then the result->size()
-   * does not count the trailing zero.
+   * `storage`.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make(std::vector<unsigned char> storage,
-    Data_format format = Data_format::binary);
+  static DMITIGR_PGFE_API std::unique_ptr<Data> make(
+    std::unique_ptr<void, void(*)(void*)>&& storage, std::size_t size,
+    Data_format format);
 
   /**
    * @returns A new instance of this class.
    *
-   * @param bytes - the pointer to the data;
-   * @param size - the size of the data;
-   * @param format - the format of the data.
-   *
-   * @remarks The data pointed by `bytes` will *not* be copied into the
-   * modifiable internal storage.
-   *
-   * @par Requires
-   * `(bytes && (format == Data_format::binary || bytes[size] == '\0'))`.
-   *
    * @see Data_view.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make_no_copy(const char* bytes,
-    std::size_t size, Data_format format = Data_format::text);
+  static DMITIGR_PGFE_API std::unique_ptr<Data> make_no_copy(
+    std::string_view bytes,
+    Data_format format = Data_format::text);
 
   /**
    * @returns The copy of this instance.
@@ -138,11 +102,9 @@ public:
   virtual bool is_empty() const noexcept = 0;
 
   /**
-   * @returns The pointer to the unmodifiable character array (which is the
-   * representation of the content of format()). Iff
-    `(format() == Data_format::text)` then this array is guaranteed to be
-   * zero-terminated.
+   * @returns The pointer to the unmodifiable character array.
    *
+   * @remarks The result is not guaranteed to be zero-terminated.
    * @remarks Any bits stored in the array shall not be altered!
    */
   virtual const char* bytes() const noexcept = 0;
@@ -150,10 +112,7 @@ public:
   /// @}
 
 protected:
-  /**
-   * @returns `true` if the invariant of this instance is correct, or
-   * `false` otherwise.
-   */
+  /// @returns `true` if the invariant of this instance is correct.
   virtual bool is_invariant_ok() const;
 };
 
