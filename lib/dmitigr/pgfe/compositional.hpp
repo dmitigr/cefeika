@@ -9,7 +9,6 @@
 
 #include <optional>
 #include <string>
-#include <string_view>
 
 namespace dmitigr::pgfe {
 
@@ -45,7 +44,7 @@ public:
    * @par Requires
    * `(index < field_count())`.
    */
-  virtual std::string_view field_name(std::size_t index) const = 0;
+  virtual const std::string& field_name(std::size_t index) const = 0;
 
   /**
    * @returns The field index if `has_field(name, offset)`, or

@@ -146,7 +146,7 @@ public:
     return !shared_field_names_->empty();
   }
 
-  std::string_view field_name(const std::size_t index) const override
+  const std::string& field_name(const std::size_t index) const override
   {
     DMITIGR_REQUIRE(index < field_count(), std::out_of_range);
     return (*shared_field_names_)[index];

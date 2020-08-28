@@ -124,11 +124,11 @@ int main(int, char* argv[])
     for (std::size_t i = 0; i < 3; ++i) {
       const auto fname = ri->field_name(i);
       ASSERT(ri->table_oid(i)        == 0);
-      ASSERT(ri->table_oid(std::string{fname}, i) == 0);
+      ASSERT(ri->table_oid(fname, i) == 0);
       ASSERT(ri->table_column_number(i)        == 0);
-      ASSERT(ri->table_column_number(std::string{fname}, i) == 0);
+      ASSERT(ri->table_column_number(fname, i) == 0);
       ASSERT(ri->type_oid(i)        == integer_oid);
-      ASSERT(ri->type_oid(std::string{fname}, i) == integer_oid);
+      ASSERT(ri->type_oid(fname, i) == integer_oid);
       ASSERT(ri->type_size(i)        >= 0);
       ASSERT(ri->type_size(fname, i) >= 0);
       ASSERT(ri->type_modifier(i)        == -1);
