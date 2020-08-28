@@ -18,7 +18,7 @@ inline bool is_invariant_ok(Compositional& o)
     const auto fc = o.field_count();
     using Counter = std::remove_const_t<decltype (fc)>;
     for (Counter i = 0; i < fc; ++i)
-      if (o.field_index(o.field_name(i), i) != i)
+      if (o.field_index(std::string{o.field_name(i)}, i) != i)
         return false;
     return true;
   }();

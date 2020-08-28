@@ -61,7 +61,7 @@ public:
     return info_.has_fields();
   }
 
-  const std::string& field_name(const std::size_t index) const override
+  std::string_view field_name(const std::size_t index) const override
   {
     return info_.field_name(index);
   }

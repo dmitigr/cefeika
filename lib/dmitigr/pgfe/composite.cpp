@@ -103,7 +103,7 @@ public:
     return !datas_.empty();
   }
 
-  const std::string& field_name(const std::size_t index) const override
+  std::string_view field_name(const std::size_t index) const override
   {
     DMITIGR_REQUIRE(index < field_count(), std::out_of_range);
     return datas_[index].first;
