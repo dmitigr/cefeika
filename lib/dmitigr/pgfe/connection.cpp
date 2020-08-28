@@ -1183,18 +1183,13 @@ private:
   // Session data
   // ---------------------------------------------------------------------------
 
-  class Results_queue final : public std::queue<pq::Result> {
-  public:
-    void clear() { c.clear(); }
-  };
-
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
 
   mutable std::queue<simple_Notice> notices_;
   mutable std::queue<pq_Notification> notifications_;
 
   mutable pq_Response_variant response_;
-  Results_queue pending_results_;
+  std::queue<pq::Result> pending_results_;
   mutable std::optional<Transaction_block_status> transaction_block_status_;
   mutable std::optional<std::int_fast32_t> server_pid_;
   mutable std::list<pq_Prepared_statement> named_prepared_statements_;
@@ -1213,12 +1208,7 @@ private:
     unprepare_statement
   };
 
-  class Requests_queue final : public std::queue<Request_id> {
-  public:
-    void clear() { c.clear(); }
-  };
-
-  Requests_queue requests_; // for now only 1 request can be queued
+  std::queue<Request_id> requests_; // for now only 1 request can be queued
   std::optional<pq_Prepared_statement> request_prepared_statement_;
   std::optional<std::string> request_prepared_statement_name_;
 
@@ -1250,13 +1240,13 @@ private:
     notices_ = {};
     notifications_ = {};
     response_.reset();
-    pending_results_.clear();
+    pending_results_ = {};
     transaction_block_status_.reset();
     server_pid_.reset();
     named_prepared_statements_.clear();
     unnamed_prepared_statement_.reset();
     shared_field_names_.reset();
-    requests_.clear();
+    requests_ = {};
     request_prepared_statement_.reset();
     request_prepared_statement_name_.reset();
   }
