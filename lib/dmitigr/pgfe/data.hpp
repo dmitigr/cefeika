@@ -70,18 +70,12 @@ public:
    * @par Requires
    * `(storage && (format == Data_format::binary ||
    *   static_cast<const char*>(storage.get())[size] == '\0'))`.
-   *
-   * @par Effects
-   * `(result->memory() == storage.get())`.
    */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(std::unique_ptr<void, void(*)(void*)>&& storage,
     std::size_t size, Data_format format = Data_format::binary);
 
   /**
    * @overload
-   *
-   * @par Effects
-   * `(result->memory() == storage.get())`.
    */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(std::string storage,
     Data_format format = Data_format::text);
@@ -91,9 +85,6 @@ public:
    *
    * @par Requires
    * `(format == Data_format::binary || !storage.empty() && storage.back() == '\0')`.
-   *
-   * @par Effects
-   * `(result->memory() == reinterpret_cast<char*>(storage.get()))`.
    *
    * @remarks iff (format == Data_format::text) then the result->size()
    * does not count the trailing zero.
@@ -155,20 +146,6 @@ public:
    * @remarks Any bits stored in the array shall not be altered!
    */
   virtual const char* bytes() const noexcept = 0;
-
-  /**
-   * @returns The pointer to the modifiable memory space within [0, size()), or
-   * `nullptr` if the content is unmodifiable.
-   *
-   * @remarks The default implementation exists.
-   */
-  void* memory() noexcept
-  {
-    return const_cast<void*>(static_cast<const Data*>(this)->memory());
-  }
-
-  /// @overload
-  virtual const void* memory() const noexcept = 0;
 
   /// @}
 
@@ -238,12 +215,6 @@ public:
 
   /// @see Data::bytes().
   const char* bytes() const noexcept override
-  {
-    return bytes_;
-  }
-
-  /// @see Data::memory().
-  const void* memory() const noexcept override
   {
     return bytes_;
   }

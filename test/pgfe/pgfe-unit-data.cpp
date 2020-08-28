@@ -23,7 +23,6 @@ int main(int, char* argv[])
       ASSERT(d->format() == pgfe::Data_format::text);
       ASSERT(d->size() == sz);
       ASSERT(std::strcmp(d->bytes(), "Dmitry Igrishin") == 0);
-      ASSERT(std::strcmp(static_cast<const char*>(d->memory()), "Dmitry Igrishin") == 0);
     }
 
     // Data::make(const char*, std::size_t, Data_format);
@@ -33,7 +32,6 @@ int main(int, char* argv[])
       ASSERT(d->format() == pgfe::Data_format::binary);
       ASSERT(d->size() == sz);
       ASSERT(std::strncmp(d->bytes(), "Dmitry", sz) == 0);
-      ASSERT(std::strncmp(static_cast<const char*>(d->memory()), "Dmitry", sz) == 0);
     }
 
     // Data::make(std::unique_ptr<void, void (*)(void*)>&&, std::size_t, Data_format)
@@ -47,7 +45,6 @@ int main(int, char* argv[])
       ASSERT(d->format() == pgfe::Data_format::binary);
       ASSERT(d->size() == sz);
       ASSERT(std::strncmp(d->bytes(), "Dmit", sz - 1) == 0);
-      ASSERT(std::strncmp(static_cast<const char*>(d->memory()), "Dmit", sz - 1) == 0);
     }
 
     // Data::make(std::string&&, Data_format)
@@ -58,7 +55,6 @@ int main(int, char* argv[])
       ASSERT(d->format() == pgfe::Data_format::text);
       ASSERT(d->size() == sz);
       ASSERT(std::strcmp(d->bytes(), name) == 0);
-      ASSERT(std::strcmp(static_cast<const char*>(d->memory()), name) == 0);
     }
 
     // Data::make(const std::string&, Data_format)
@@ -69,7 +65,6 @@ int main(int, char* argv[])
       ASSERT(d->format() == pgfe::Data_format::text);
       ASSERT(d->size() == sz);
       ASSERT(d->bytes() == name);
-      ASSERT(static_cast<const char*>(d->memory()) == name);
     }
 
     // Data::make(std::vector<unsigned char>&&, Data_format)
@@ -84,7 +79,6 @@ int main(int, char* argv[])
       ASSERT(d->format() == pgfe::Data_format::binary);
       ASSERT(d->size() == sz);
       ASSERT(std::strncmp(d->bytes(), name, sz) == 0);
-      ASSERT(std::strncmp(static_cast<const char*>(d->memory()), name, sz) == 0);
     }
 
     // Data::make(const std::vector<unsigned char>&, Data_format)
@@ -101,8 +95,6 @@ int main(int, char* argv[])
       ASSERT(d->format() == pgfe::Data_format::binary);
       ASSERT(d->size() == vec.size());
       ASSERT(std::strncmp(d->bytes(), reinterpret_cast<const char*>(vec.data()), vec.size()) == 0);
-      ASSERT(std::strncmp(static_cast<const char*>(d->memory()),
-                          reinterpret_cast<const char*>(vec.data()), vec.size()) == 0);
     }
   } catch (std::exception& e) {
     report_failure(argv[0], e);

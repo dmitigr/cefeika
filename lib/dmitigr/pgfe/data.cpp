@@ -92,17 +92,11 @@ public:
     return storage_.size();
   }
 
-  const void* memory() const noexcept override
-  {
-    return storage_.data();
-  }
-
 protected:
   bool is_invariant_ok() const override
   {
-    const bool memory_ok = memory();
     const bool container_data_ok = container_Data::is_invariant_ok();
-    return memory_ok && container_data_ok;
+    return container_data_ok;
   }
 };
 
@@ -141,17 +135,11 @@ public:
     return (format_ == Data_format::binary) ? storage_.size() : storage_.size() - 1;
   }
 
-  const void* memory() const noexcept override
-  {
-    return storage_.data();
-  }
-
 protected:
   bool is_invariant_ok() const override
   {
-    const bool memory_ok = memory();
     const bool container_data_ok = container_Data::is_invariant_ok();
-    return memory_ok && container_data_ok;
+    return container_data_ok;
   }
 };
 
@@ -164,9 +152,8 @@ class memory_Data_base : public iData {
 protected:
   bool is_invariant_ok() const override
   {
-    const bool memory_ok = memory();
     const bool idata_ok = iData::is_invariant_ok();
-    return memory_ok && idata_ok;
+    return idata_ok;
   }
 };
 
@@ -212,11 +199,6 @@ public:
   const char* bytes() const noexcept override
   {
     return static_cast<const char*>(storage_.get());
-  }
-
-  const void* memory() const noexcept override
-  {
-    return storage_.get();
   }
 
 private:
@@ -278,18 +260,12 @@ public:
     return "";
   }
 
-  const void* memory() const noexcept override
-  {
-    return nullptr;
-  }
-
 private:
   bool is_invariant_ok() const override
   {
     const bool empty_ok = is_empty();
-    const bool memory_ok = !memory();
     const bool idata_ok = iData::is_invariant_ok();
-    return empty_ok && memory_ok && idata_ok;
+    return empty_ok && idata_ok;
   }
 
   const Format format_{Format::text};
@@ -307,17 +283,11 @@ public:
   using Super = Data_view;
   using Super::Super;
 
-  const void* memory() const noexcept override
-  {
-    return nullptr;
-  }
-
 protected:
   bool is_invariant_ok() const override
   {
-    const bool memory_ok = !memory();
     const bool super_ok = Super::is_invariant_ok();
-    return memory_ok && super_ok;
+    return super_ok;
   }
 };
 
@@ -332,8 +302,7 @@ DMITIGR_PGFE_INLINE bool Data::is_invariant_ok() const
   const bool size_ok = ((size() == 0) == is_empty());
   const bool empty_ok = !is_empty() || ((size() == 0) && !std::strcmp(bytes(), ""));
   const bool bytes_ok = bytes() && (format() == Data_format::binary || bytes()[size()] == '\0');
-  const bool memory_ok = !memory() || (memory() == bytes());
-  return size_ok && empty_ok && bytes_ok && memory_ok;
+  return size_ok && empty_ok && bytes_ok;
 }
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data>
