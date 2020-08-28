@@ -70,9 +70,9 @@ public:
   // Row overridings
   // ---------------------------------------------------------------------------
 
-  const pq_Row_info* info() const noexcept override
+  const pq_Row_info& info() const noexcept override
   {
-    return &info_;
+    return info_;
   }
 
   std::optional<Data_view> data(const std::size_t index) const override
@@ -87,7 +87,9 @@ public:
     return data__(index);
   }
 
-protected:
+private:
+  pq_Row_info info_; // pq::Result
+
   bool is_invariant_ok() const override
   {
     const bool info_ok = (info_.pq_result_.status() == PGRES_SINGLE_TUPLE);
@@ -95,7 +97,6 @@ protected:
     return info_ok && irow_ok;
   }
 
-private:
   std::optional<Data_view> data__(const std::size_t index) const noexcept
   {
     constexpr int row{};
@@ -106,8 +107,6 @@ private:
     else
       return std::nullopt;
   }
-
-  pq_Row_info info_; // pq::Result
 };
 
 } // namespace dmitigr::pgfe::detail

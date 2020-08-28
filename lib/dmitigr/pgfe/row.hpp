@@ -23,7 +23,7 @@ namespace dmitigr::pgfe {
 class Row : public Response, public Compositional {
 public:
   /// @returns The information about this row.
-  virtual const Row_info* info() const noexcept = 0;
+  virtual const Row_info& info() const noexcept = 0;
 
   /**
    * @returns The field data of this row, or `std::nullopt` if NULL.

@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
   try {
     auto [output_file, conn] = pgfe::test::arraybench::prepare(argc, argv);
     conn->perform("select dat[1], dat[2], dat[3], dat[4], dat[5] from benchmark_test_array");
-    ASSERT(conn->row() && conn->row()->info());
-    const auto field_count = conn->row()->info()->field_count();
+    ASSERT(conn->row());
+    const auto field_count = conn->row()->info().field_count();
     ASSERT(field_count == 5);
     conn->for_each([&](const pgfe::Row* const r) {
       using Counter = std::decay_t<decltype (field_count)>;

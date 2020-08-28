@@ -19,10 +19,10 @@ int main(int, char* argv[])
 
     conn->perform(R"(select 1::integer theNumberOne, 1::integer "theNumberOne")");
     ASSERT(conn->row());
-    ASSERT(conn->row()->info()->field_name(0) == "thenumberone");
-    ASSERT(conn->row()->info()->field_name(1) == "theNumberOne");
-    ASSERT(conn->row()->info()->field_index("thenumberone") == 0);
-    ASSERT(conn->row()->info()->field_index("theNumberOne") == 1);
+    ASSERT(conn->row()->info().field_name(0) == "thenumberone");
+    ASSERT(conn->row()->info().field_name(1) == "theNumberOne");
+    ASSERT(conn->row()->info().field_index("thenumberone") == 0);
+    ASSERT(conn->row()->info().field_index("theNumberOne") == 1);
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;
