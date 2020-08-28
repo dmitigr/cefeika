@@ -21,12 +21,8 @@
 #include "dmitigr/pgfe/util.hpp"
 #include <dmitigr/base/debug.hpp>
 
-#include <list>
 #include <optional>
 #include <queue>
-#include <variant>
-
-#include <iostream>
 
 namespace dmitigr::pgfe::detail {
 
@@ -544,7 +540,7 @@ public:
      * Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
      */
     while (auto* const n = ::PQnotifies(conn_))
-      signals_.push_back(pq_Notification{n});
+      notifications_.push(pq_Notification{n});
 
     // Processing the result.
     if (!pending_results_.empty()) {
@@ -658,47 +654,37 @@ public:
 
   bool is_signal_available() const noexcept override
   {
-    return !signals_.empty();
-  }
-
-  const Signal* signal() const noexcept override
-  {
-    return nullptr;
-  }
-
-  std::unique_ptr<Signal> release_signal() override
-  {
-    throw "not implemented";
+    return !notices_.empty() || !notifications_.empty();
   }
 
   const simple_Notice* notice() const noexcept override
   {
-    return signal_ptr<simple_Notice>();
+    return !notices_.empty() ? &notices_.front() : nullptr;
   }
 
   std::unique_ptr<Notice> pop_notice() override
   {
-    return pop_signal<Notice, simple_Notice>();
+    return pop_signal(notices_);
   }
 
   void dismiss_notice() override
   {
-    dismiss_signal<simple_Notice>();
+    notices_.pop();
   }
 
   const pq_Notification* notification() const noexcept override
   {
-    return signal_ptr<pq_Notification>();
+    return !notifications_.empty() ? &notifications_.front() : nullptr;
   }
 
   std::unique_ptr<Notification> pop_notification() override
   {
-    return pop_signal<Notification, pq_Notification>();
+    return pop_signal(notifications_);
   }
 
   void dismiss_notification() override
   {
-    dismiss_signal<pq_Notification>();
+    notifications_.pop();
   }
 
   void set_error_handler(Error_handler handler) override
@@ -739,33 +725,18 @@ public:
 
   void handle_signals() override
   {
-    if (signals_.empty())
-      return;
-
-    const auto handle_notice = notice_handler();
-    const auto handle_notification = notification_handler();
-    if (handle_notice && handle_notification) {
-      while (is_signal_available()) {
-        std::visit(
-          [&](auto& signal)
-          {
-            using T = std::decay_t<decltype (signal)>;
-            auto signal_ptr = std::make_unique<T>(std::move(signal));
-            if constexpr (std::is_same_v<T, simple_Notice>)
-              handle_notice(std::move(signal_ptr));
-            else if constexpr (std::is_same_v<T, pq_Notification>)
-              handle_notification(std::move(signal_ptr));
-            else
-              DMITIGR_ASSERT(!true);
-          }, signals_.front());
-        signals_.pop_front();
+    if (!notices_.empty()) {
+      if (const auto& handle_notice = notice_handler()) {
+        while (auto n = pop_notice())
+          handle_notice(std::move(n));
       }
-    } else if (handle_notice) {
-      while (auto n = pop_notice())
-        handle_notice(std::move(n));
-    } else if (handle_notification) {
-      while (auto n = pop_notification())
-        handle_notification(std::move(n));
+    }
+
+    if (!notifications_.empty()) {
+      if (const auto& handle_notification = notification_handler()) {
+        while (auto n = pop_notification())
+          handle_notification(std::move(n));
+      }
     }
   }
 
@@ -1140,7 +1111,7 @@ protected:
       ((communication_status() == Communication_status::connected) == bool(session_start_time_));
     const bool session_data_empty =
       !session_start_time_ &&
-      signals_.empty() &&
+      (notices_.empty() && notifications_.empty()) &&
       !response_ &&
       pending_results_.empty() &&
       !transaction_block_status_ &&
@@ -1219,8 +1190,8 @@ private:
 
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
 
-  using Signal_ = std::variant<std::monostate, simple_Notice, pq_Notification>;
-  mutable std::list<Signal_> signals_;
+  mutable std::queue<simple_Notice> notices_;
+  mutable std::queue<pq_Notification> notifications_;
 
   mutable pq_Response_variant response_;
   Results_queue pending_results_;
@@ -1260,7 +1231,7 @@ private:
     DMITIGR_ASSERT(arg);
     DMITIGR_ASSERT(r);
     auto const cn = static_cast<pq_Connection*>(arg);
-    cn->signals_.push_back(problem<simple_Notice>(r));
+    cn->notices_.push(problem<simple_Notice>(r));
   }
 
   static void default_notice_handler(std::unique_ptr<Notice>&& n)
@@ -1276,7 +1247,8 @@ private:
   void reset_session()
   {
     session_start_time_.reset();
-    signals_.clear();
+    notices_ = {};
+    notifications_ = {};
     response_.reset();
     pending_results_.clear();
     transaction_block_status_.reset();
@@ -1342,48 +1314,16 @@ private:
   // Server messages helpers
   // ---------------------------------------------------------------------------
 
-  template<class S>
-  std::enable_if_t<std::is_base_of_v<Signal, S>, decltype (signals_)::iterator> signal_iterator() const
+  template<typename Q>
+  std::unique_ptr<typename Q::value_type> pop_signal(Q& queue)
   {
-    return std::find_if(begin(signals_), end(signals_),
-      [](auto& variant)
-      {
-        return std::visit(
-          [](auto& signal)
-          {
-            using T = std::decay_t<decltype (signal)>;
-            if constexpr (std::is_same_v<S, T>)
-              return true;
-            else
-              return false;
-          }, variant);
-      });
-  }
-
-  template<class S>
-  std::enable_if_t<std::is_base_of_v<Signal, S>, S*> signal_ptr() const
-  {
-    const auto i = signal_iterator<S>();
-    return (i != end(signals_)) ? &std::get<S>(*i) : nullptr;
-  }
-
-  template<class Abstract, class Concrete>
-  std::enable_if_t<(std::is_base_of_v<Abstract, Concrete> &&
-    std::is_base_of_v<Signal, Concrete>), std::unique_ptr<Abstract>> pop_signal()
-  {
-    if (const auto i = signal_iterator<Concrete>(); i != end(signals_)) {
-      auto result = std::make_unique<Concrete>(std::move(std::get<Concrete>(*i)));
-      signals_.erase(i);
-      return result;
+    if (!queue.empty()) {
+      using V = typename Q::value_type;
+      auto r = std::make_unique<V>(std::move(queue.front()));
+      queue.pop();
+      return r;
     } else
       return nullptr;
-  }
-
-  template<class Concrete>
-  std::enable_if_t<std::is_base_of_v<Signal, Concrete>, void> dismiss_signal()
-  {
-    if (const auto i = signal_iterator<Concrete>(); i != end(signals_))
-      signals_.erase(i);
   }
 
   template<class Problem>

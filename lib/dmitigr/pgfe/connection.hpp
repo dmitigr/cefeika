@@ -258,12 +258,6 @@ public:
    */
   virtual bool is_signal_available() const noexcept = 0;
 
-  // Not implemented.
-  virtual const Signal* signal() const noexcept = 0;
-
-  // Not implemented.
-  virtual std::unique_ptr<Signal> release_signal() = 0;
-
   /**
    * @returns The pointer to the instance of type Notice if available, or
    * `nullptr` otherwise.
