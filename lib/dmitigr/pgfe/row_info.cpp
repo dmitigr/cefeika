@@ -78,6 +78,9 @@ inline bool iRow_info::is_invariant_ok()
  */
 class pq_Row_info final : public iRow_info {
 public:
+  /// Default constructible.
+  pq_Row_info() = default;
+
   /**
    * @brief The constructor.
    */

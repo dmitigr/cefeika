@@ -52,7 +52,8 @@ void test_pq()
       PQfinish(conn);
       throw std::runtime_error{PQresultErrorMessage(res)};
     }
-    PQfreemem(PQnotifies(conn));
+    while (auto* n = PQnotifies(conn))
+      PQfreemem(n);
   }
 
   PQfinish(conn);

@@ -28,6 +28,9 @@ inline bool iRow::is_invariant_ok()
  */
 class pq_Row final : public iRow {
 public:
+  /// Default constructible.
+  pq_Row() = default;
+
   /**
    * @brief The constructor.
    */

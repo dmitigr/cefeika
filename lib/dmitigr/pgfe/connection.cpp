@@ -14,6 +14,7 @@
 #include "dmitigr/pgfe/notification.hpp"
 #include "dmitigr/pgfe/pq.hpp"
 #include "dmitigr/pgfe/prepared_statement_impl.hpp"
+#include "dmitigr/pgfe/response_variant.hpp"
 #include "dmitigr/pgfe/row.hpp"
 #include "dmitigr/pgfe/row_info.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
@@ -491,6 +492,11 @@ public:
       throw std::runtime_error{error_message()};
   }
 
+  /*
+   * According to https://www.postgresql.org/docs/current/libpq-async.html,
+   * "PQgetResult() must be called repeatedly until it returns a null pointer,
+   * indicating that the command is done."
+   */
   Response_status collect_server_messages(const bool wait_response) override
   {
     DMITIGR_REQUIRE(is_connected(), std::logic_error);
@@ -498,45 +504,32 @@ public:
     if (is_response_available())
       return Response_status::ready;
 
-    const auto collect_notifications = [this]
-    {
-      // Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
-      while (auto* const n = ::PQnotifies(conn_))
-        signals_.push_back(pq_Notification{n});
-    };
-
-    const auto is_get_result_would_block = [this, &collect_notifications]
-    {
-      /*
-       * Checking for nonblocking result and collecting notices btw.
-       * Note: notice_receiver() (which is the Notice collector) will be
-       * called (indirectly) from ::PQisBusy().
-       * Note: ::PQisBusy() calls a routine (pqParseInput3() from fe-protocol3.c)
-       * which parses consumed input and stores notifications and notices if
-       * are available. (::PQnotifies() calls this routine as well.)
-       */
-      const int result = ::PQisBusy(conn_);
-      collect_notifications();
-      return result == 1;
-    };
-
-    /*
-     * According to https://www.postgresql.org/docs/current/libpq-async.html,
-     * "PQgetResult() must be called repeatedly until it returns a null pointer,
-     * indicating that the command is done."
-     */
+    // Optimization for case when wait_response.
     if (wait_response) {
       if (pq::Result r{::PQgetResult(conn_)}) {
         pending_results_.push(std::move(r));
         if (pending_results_.front().status() == PGRES_FATAL_ERROR)
           while (pq::Result{::PQgetResult(conn_)}); // getting complete error
       }
-      collect_notifications();
     }
 
+    // Common case.
     bool get_would_block{};
     if (pending_results_.empty() || pending_results_.front().status() != PGRES_SINGLE_TUPLE) {
-      while ( !(get_would_block = is_get_result_would_block())) {
+      static const auto is_get_result_would_block = [](PGconn* const conn)
+      {
+        /*
+         * Checking for nonblocking result and collecting notices btw.
+         * Note: notice_receiver() (which is the Notice collector) will be
+         * called (indirectly) from ::PQisBusy().
+         * Note: ::PQisBusy() calls a routine (pqParseInput3() from fe-protocol3.c)
+         * which parses consumed input and stores notifications and notices if
+         * are available. (::PQnotifies() calls this routine as well.)
+         */
+        return ::PQisBusy(conn) == 1;
+      };
+
+      while ( !(get_would_block = is_get_result_would_block(conn_))) {
         if (pq::Result r{::PQgetResult(conn_)}) {
           pending_results_.push(std::move(r));
           if (pending_results_.front().status() == PGRES_SINGLE_TUPLE)
@@ -546,6 +539,14 @@ public:
       }
     }
 
+    /*
+     * Collecting notifications
+     * Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
+     */
+    while (auto* const n = ::PQnotifies(conn_))
+      signals_.push_back(pq_Notification{n});
+
+    // Processing the result.
     if (!pending_results_.empty()) {
       DMITIGR_ASSERT(!response_);
       const auto set_response = [this, get_would_block](auto&& response)
@@ -738,6 +739,9 @@ public:
 
   void handle_signals() override
   {
+    if (signals_.empty())
+      return;
+
     const auto handle_notice = notice_handler();
     const auto handle_notification = notification_handler();
     if (handle_notice && handle_notification) {
@@ -772,7 +776,7 @@ public:
 
   bool is_response_available() const noexcept override
   {
-    return bool(response_);
+    return static_cast<bool>(response_);
   }
 
   const Response* response() const noexcept override
@@ -792,37 +796,37 @@ public:
 
   const simple_Error* error() const noexcept override
   {
-    return response_ptr<simple_Error>();
+    return response_.error();
   }
 
   std::unique_ptr<Error> release_error() override
   {
-    return release_response<Error, simple_Error>();
+    return response_.release_error();
   }
 
   const pq_Row* row() const noexcept override
   {
-    return response_ptr<pq_Row>();
+    return response_.row();
   }
 
   std::unique_ptr<Row> release_row() override
   {
-    return release_response<Row, pq_Row>();
+    return response_.release_row();
   }
 
   const simple_Completion* completion() const noexcept override
   {
-    return response_ptr<simple_Completion>();
+    return response_.completion();
   }
 
   std::unique_ptr<Completion> release_completion() override
   {
-    return release_response<Completion, simple_Completion>();
+    return response_.release_completion();
   }
 
   pq_Prepared_statement* prepared_statement() const override
   {
-    return response_ptr<pq_Prepared_statement>();
+    return response_.prepared_statement();
   }
 
   pq_Prepared_statement* prepared_statement(const std::string& name) const override
@@ -1218,9 +1222,7 @@ private:
   using Signal_ = std::variant<std::monostate, simple_Notice, pq_Notification>;
   mutable std::list<Signal_> signals_;
 
-  using Response_ = std::optional<std::variant<std::monostate,
-    simple_Error, pq_Row, simple_Completion, pq_Prepared_statement*>>;
-  mutable Response_ response_;
+  mutable pq_Response_variant response_;
   Results_queue pending_results_;
   mutable std::optional<Transaction_block_status> transaction_block_status_;
   mutable std::optional<std::int_fast32_t> server_pid_;
@@ -1340,24 +1342,6 @@ private:
   // Server messages helpers
   // ---------------------------------------------------------------------------
 
-  template<class T, class V>
-  T* variant_ptr(V&& variant) const
-  {
-    return std::visit(
-      [](auto& value) -> T*
-      {
-        using U = std::decay_t<decltype (value)>;
-
-        T* result{};
-        if constexpr (std::is_same_v<T, U>)
-          result = &value;
-        else if constexpr (std::is_same_v<T*, U>)
-          result = value;
-
-        return result;
-      }, std::forward<V>(variant));
-  }
-
   template<class S>
   std::enable_if_t<std::is_base_of_v<Signal, S>, decltype (signals_)::iterator> signal_iterator() const
   {
@@ -1374,12 +1358,6 @@ private:
               return false;
           }, variant);
       });
-  }
-
-  template<class R>
-  std::enable_if_t<std::is_base_of_v<Response, R>, R*> response_ptr() const
-  {
-    return response_ ? variant_ptr<R>(*response_) : nullptr;
   }
 
   template<class S>
@@ -1406,18 +1384,6 @@ private:
   {
     if (const auto i = signal_iterator<Concrete>(); i != end(signals_))
       signals_.erase(i);
-  }
-
-  template<class Abstract, class Concrete>
-  std::enable_if_t<(std::is_base_of_v<Abstract, Concrete> &&
-    std::is_base_of_v<Response, Concrete>), std::unique_ptr<Abstract>> release_response()
-  {
-    if (auto* const response = response_ptr<Concrete>()) {
-      auto result = std::make_unique<Concrete>(std::move(*response));
-      response_.reset();
-      return result;
-    } else
-      return nullptr;
   }
 
   template<class Problem>
