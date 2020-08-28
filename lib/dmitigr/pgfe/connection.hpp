@@ -12,7 +12,6 @@
 #include "dmitigr/pgfe/types_fwd.hpp"
 #include <dmitigr/base/debug.hpp>
 
-
 #include <chrono>
 #include <cstdint>
 #include <functional>

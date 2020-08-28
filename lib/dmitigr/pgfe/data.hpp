@@ -133,7 +133,7 @@ public:
    * @par Requires
    * `bytes`.
    */
-  explicit DMITIGR_PGFE_API Data_view(const char* bytes = "", std::size_t size = 0,
+  explicit DMITIGR_PGFE_API Data_view(const char* bytes = "", int size = 0,
     Format format = Format::text);
 
   /// Copy-constructible.
@@ -180,7 +180,7 @@ public:
 
 private:
   Format format_{Format::text};
-  std::size_t size_{};
+  int size_{};
   const char* bytes_{""};
 };
 

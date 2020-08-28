@@ -29,13 +29,6 @@ public:
   explicit pq_Row(Types&& ... args)
     : info_{std::forward<Types>(args)...}
   {
-    const auto& pq_result = info_.pq_result_;
-    const int fc = pq_result.field_count();
-    datas_.reserve(fc);
-    for (int f = 0; f < fc; ++f)
-      datas_.emplace_back(pq_result.data_value(0, f),
-        pq_result.data_size(0, f), pq_result.field_format(f));
-
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
@@ -82,13 +75,13 @@ public:
     return &info_;
   }
 
-  const Data_view* data(const std::size_t index) const override
+  std::optional<Data_view> data(const std::size_t index) const override
   {
     DMITIGR_REQUIRE(index < field_count(), std::out_of_range);
     return data__(index);
   }
 
-  const Data_view* data(const std::string& name, const std::size_t offset) const override
+  std::optional<Data_view> data(const std::string& name, const std::size_t offset) const override
   {
     const auto index = field_index_throw(name, offset);
     return data__(index);
@@ -97,20 +90,24 @@ public:
 protected:
   bool is_invariant_ok() const override
   {
-    const bool info_ok = (info_.field_count() == datas_.size()) && (info_.pq_result_.status() == PGRES_SINGLE_TUPLE);
+    const bool info_ok = (info_.pq_result_.status() == PGRES_SINGLE_TUPLE);
     const bool irow_ok = iRow::is_invariant_ok();
     return info_ok && irow_ok;
   }
 
 private:
-  const Data_view* data__(const std::size_t index) const noexcept
+  std::optional<Data_view> data__(const std::size_t index) const noexcept
   {
-    constexpr int row = 0;
-    return !info_.pq_result_.is_data_null(row, static_cast<int>(index)) ? &datas_[index] : nullptr;
+    constexpr int row{};
+    const auto fld = static_cast<int>(index);
+    const auto& r = info_.pq_result_;
+    if (!r.is_data_null(row, fld))
+      return Data_view{r.data_value(row, fld), r.data_size(row, fld), r.field_format(fld)};
+    else
+      return std::nullopt;
   }
 
   pq_Row_info info_; // pq::Result
-  std::vector<Data_view> datas_;
 };
 
 } // namespace dmitigr::pgfe::detail

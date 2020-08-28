@@ -227,7 +227,7 @@ Data::make_no_copy(const std::string_view bytes, const Data_format format)
 // Data_view
 // -----------------------------------------------------------------------------
 
-DMITIGR_PGFE_INLINE Data_view::Data_view(const char* const bytes, const std::size_t size, const Format format)
+DMITIGR_PGFE_INLINE Data_view::Data_view(const char* const bytes, const int size, const Format format)
   : format_(format)
   , size_(size)
   , bytes_(bytes)
