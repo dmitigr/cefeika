@@ -22,9 +22,7 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief `T` to/from `std::string` conversions.
- */
+/// `T` to/from `std::string` conversions.
 template<typename T>
 struct Generic_string_conversions final {
   using Type = T;
@@ -37,6 +35,7 @@ struct Generic_string_conversions final {
     stream >> result;
     if (!stream.eof())
       throw std::runtime_error("invalid text representation");
+
     return result;
   }
 
@@ -47,13 +46,12 @@ struct Generic_string_conversions final {
     stream << value;
     if (stream.fail())
       throw std::runtime_error("invalid native representation");
+
     return stream.str();
   }
 };
 
-/**
- * @brief `T` to/from Data conversions.
- */
+/// `T` to/from Data conversions.
 template<typename T, class StringConversions>
 struct Generic_data_conversions final {
   using Type = T;
@@ -82,9 +80,7 @@ struct Generic_data_conversions final {
 // Optimized numeric to/from std::string conversions
 // -----------------------------------------------------------------------------
 
-/**
- * @brief The common implementation of numeric to/from `std::string` conversions.
- */
+/// The common implementation of numeric to/from `std::string` conversions.
 template<typename T>
 struct Numeric_string_conversions_base {
   using Type = T;
@@ -111,9 +107,7 @@ protected:
 
 // -----------------------------------------------------------------------------
 
-/**
- * @brief The implementation of `short int` to/from `std::string` conversions.
- */
+/// The implementation of `short int` to/from `std::string` conversions.
 template<>
 struct Numeric_string_conversions<short int> final
   : private Numeric_string_conversions_base<int> {
@@ -127,13 +121,12 @@ struct Numeric_string_conversions<short int> final
     constexpr auto max = std::numeric_limits<short int>::max();
     if (result > max)
       throw std::runtime_error("numeric value " + text + " > " + std::to_string(max));
+
     return Type(result);
   }
 };
 
-/**
- * @brief The implementation of `int` to/from `std::string` conversions.
- */
+/// The implementation of `int` to/from `std::string` conversions.
 template<>
 struct Numeric_string_conversions<int> final
   : private Numeric_string_conversions_base<int> {
@@ -147,9 +140,7 @@ struct Numeric_string_conversions<int> final
   }
 };
 
-/**
- * @brief The implementation of `long int` to/from `std::string` conversions.
- */
+/// The implementation of `long int` to/from `std::string` conversions.
 template<>
 struct Numeric_string_conversions<long int> final
   : private Numeric_string_conversions_base<long int> {
@@ -163,9 +154,7 @@ struct Numeric_string_conversions<long int> final
   }
 };
 
-/**
- * @brief The implementation of `long long int` to/from `std::string` conversions.
- */
+/// The implementation of `long long int` to/from `std::string` conversions.
 template<>
 struct Numeric_string_conversions<long long int> final
   : private Numeric_string_conversions_base<long long int> {
@@ -179,9 +168,7 @@ struct Numeric_string_conversions<long long int> final
   }
 };
 
-/**
- * @brief The implementation of `float` to/from `std::string` conversions.
- */
+/// The implementation of `float` to/from `std::string` conversions.
 template<>
 struct Numeric_string_conversions<float> final
   : private Numeric_string_conversions_base<float> {
@@ -195,9 +182,7 @@ struct Numeric_string_conversions<float> final
   }
 };
 
-/**
- * @brief The implementation of `double` to/from `std::string` conversions.
- */
+/// The implementation of `double` to/from `std::string` conversions.
 template<>
 struct Numeric_string_conversions<double> final
   : private Numeric_string_conversions_base<double> {
@@ -211,9 +196,7 @@ struct Numeric_string_conversions<double> final
   }
 };
 
-/**
- * @brief The implementation of `long double` to/from `std::string` conversions.
- */
+/// The implementation of `long double` to/from `std::string` conversions.
 template<>
 struct Numeric_string_conversions<long double> final
   : private Numeric_string_conversions_base<long double> {
@@ -231,9 +214,7 @@ struct Numeric_string_conversions<long double> final
 // Optimized numeric to/from Data conversions
 // -----------------------------------------------------------------------------
 
-/**
- * @brief The common implementation of numeric to/from Data conversions.
- */
+/// The common implementation of numeric to/from Data conversions.
 template<typename T, class StringConversions>
 struct Numeric_data_conversions final {
   using Type = T;
@@ -265,9 +246,7 @@ struct Numeric_data_conversions final {
 // Forwarding string conversions
 // -----------------------------------------------------------------------------
 
-/**
- * @brief The implementation of String to/from String conversions.
- */
+/// The implementation of String to/from String conversions.
 struct Forwarding_string_conversions final {
   template<typename String, typename ... Types>
   static String to_type(String&& text, Types&& ...)
@@ -286,9 +265,7 @@ struct Forwarding_string_conversions final {
 // char conversions
 // -----------------------------------------------------------------------------
 
-/**
- * @brief The implementation of `char` to/from `std::string` conversions.
- */
+/// The implementation of `char` to/from `std::string` conversions.
 struct Char_string_conversions final {
   using Type = char;
 
@@ -306,9 +283,7 @@ struct Char_string_conversions final {
   }
 };
 
-/**
- * @brief The implementation of `char` to/from Data conversions.
- */
+/// The implementation of `char` to/from Data conversions.
 struct Char_data_conversions final {
   using Type = char;
 
@@ -336,9 +311,7 @@ struct Char_data_conversions final {
 // bool conversions
 // -----------------------------------------------------------------------------
 
-/**
- * @brief The implementation of `bool` to/from `std::string` conversions.
- */
+/// The implementation of `bool` to/from `std::string` conversions.
 struct Bool_string_conversions final {
   using Type = char;
 
@@ -381,9 +354,7 @@ private:
   }
 };
 
-/**
- * @brief The implementation of `bool` to/from Data conversions.
- */
+/// The implementation of `bool` to/from Data conversions.
 struct Bool_data_conversions final {
   using Type = char;
 
@@ -415,9 +386,7 @@ struct Bool_data_conversions final {
 // std::string_view conversions
 // -----------------------------------------------------------------------------
 
-/**
- * @brief The implementation of `std::string_view` to/from Data conversions.
- */
+/// The implementation of `std::string_view` to/from Data conversions.
 struct String_view_data_conversions final {
   using Type = std::string_view;
 
