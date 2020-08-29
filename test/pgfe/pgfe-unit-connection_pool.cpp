@@ -31,7 +31,7 @@ int main()
     conn1->perform("select 1");
     conn1->for_each([](const auto* const row)
     {
-      const int n = pgfe::to<int>(row->data(0));
+      const int n = pgfe::to<int>(*row->data(0));
       ASSERT(n == 1);
     });
 
@@ -41,7 +41,7 @@ int main()
     conn2->perform("select 2");
     conn2->for_each([](const auto* const row)
     {
-      const int n = pgfe::to<int>(row->data(0));
+      const int n = pgfe::to<int>(*row->data(0));
       ASSERT(n == 2);
     });
 

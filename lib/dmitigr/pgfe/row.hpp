@@ -8,7 +8,6 @@
 #include "dmitigr/pgfe/compositional.hpp"
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/response.hpp"
-#include <dmitigr/base/debug.hpp>
 
 #include <optional>
 #include <string>
@@ -53,21 +52,6 @@ private:
 
   Row() = default;
 };
-
-/**
- * @ingroup conversions
- *
- * @overload
- *
- * @par Requires
- * `(data != std::nullopt)`.
- */
-template<typename T, typename ... Types>
-inline T to(const std::optional<Data_view>& data, Types&& ... args)
-{
-  DMITIGR_REQUIRE(data, std::invalid_argument);
-  return to<T>(&*data, std::forward<Types>(args)...);
-}
 
 } // namespace dmitigr::pgfe
 

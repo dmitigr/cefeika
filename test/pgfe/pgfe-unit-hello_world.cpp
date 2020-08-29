@@ -24,7 +24,7 @@ int main() try {
 
   // Executing query with positional parameters.
   conn->execute("select generate_series($1::int, $2::int)", 1, 3);
-  conn->for_each([](auto* r){ std::printf("Number %i\n", to<int>(r->data())); });
+  conn->for_each([](auto* r){ std::printf("Number %i\n", to<int>(*r->data())); });
 
   // Prepare and execute the statement with named parameters.
   auto* ps = conn->prepare_statement("select :begin b, :end e");
@@ -32,13 +32,13 @@ int main() try {
   ps->set_parameter("end", 1);
   ps->execute();
   ps->connection()->for_each([](auto* r) {
-    std::printf("Range [%i, %i]\n", to<int>(r->data("b")), to<int>(r->data("e")));
+    std::printf("Range [%i, %i]\n", to<int>(*r->data("b")), to<int>(*r->data("e")));
   });
 
   // Invoking the function.
   conn->invoke("cos", .5f);
   conn->for_each([](auto* r){
-    std::printf("cos(%f) = %f\n", .5f, to<float>(r->data()));
+    std::printf("cos(%f) = %f\n", .5f, to<float>(*r->data()));
   });
 
   // Provoking the syntax error.

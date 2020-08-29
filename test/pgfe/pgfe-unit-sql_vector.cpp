@@ -78,7 +78,7 @@ int main(int, char* argv[])
 
     // plus_one
     conn->execute(plus_one, 2);
-    ASSERT(pgfe::to<int>(conn->row()->data(0)) == 2 + 1);
+    ASSERT(pgfe::to<int>(*conn->row()->data(0)) == 2 + 1);
     conn->complete();
 
     // digit
@@ -86,7 +86,7 @@ int main(int, char* argv[])
     ASSERT(pgfe::to<std::string>(digit->extra()->data("cond")) == "n > 0\n  AND n < 2");
     digit->replace_parameter("cond", digit->extra()->data("cond")->bytes());
     conn->execute(digit);
-    ASSERT(pgfe::to<int>(conn->row()->data(0)) == 1);
+    ASSERT(pgfe::to<int>(*conn->row()->data(0)) == 1);
     conn->complete();
 
     // -------------------------------------------------------------------------

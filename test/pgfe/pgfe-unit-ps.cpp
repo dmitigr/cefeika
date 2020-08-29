@@ -51,7 +51,7 @@ int main(int, char* argv[])
       ASSERT(ps1->connection());
       ASSERT(ps1->connection()->row());
       ASSERT(ps1->connection()->row()->data(0));
-      ASSERT(pgfe::to<int>(ps1->connection()->row()->data(0)) == 1983);
+      ASSERT(pgfe::to<int>(*ps1->connection()->row()->data(0)) == 1983);
       conn->wait_last_response_throw();
     }
 

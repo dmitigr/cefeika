@@ -140,6 +140,17 @@ inline T to(std::unique_ptr<Data>&& data, Types&& ... args)
 /**
  * @ingroup conversions
  *
+ * @overload
+ */
+template<typename T, typename ... Types>
+inline T to(const Data& data, Types&& ... args)
+{
+  return to<T>(&data, std::forward<Types>(args)...);
+}
+
+/**
+ * @ingroup conversions
+ *
  * @brief Converts the value of type `T` to the value of type Data by using
  * the specialization of the struct template Conversions.
  *
