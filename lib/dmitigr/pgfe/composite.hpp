@@ -27,19 +27,13 @@ public:
   /// @name Constructors
   /// @{
 
-  /**
-   * @returns A new instance of this class.
-   */
+  /// @returns A new instance of this class.
   static DMITIGR_PGFE_API std::unique_ptr<Composite> make();
 
-  /**
-   * @overload
-   */
+  /// @overload
   static DMITIGR_PGFE_API std::unique_ptr<Composite> make(std::vector<std::pair<std::string, std::unique_ptr<Data>>>&& v);
 
-  /**
-   * @returns A copy of this instance.
-   */
+  /// @returns A copy of this instance.
   virtual std::unique_ptr<Composite> to_composite() const = 0;
 
   /// @}
@@ -89,9 +83,7 @@ public:
    */
   virtual void set_data(std::size_t index, std::unique_ptr<Data>&& data) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual void set_data(std::size_t index, std::nullptr_t data) = 0;
 
   /**
@@ -117,14 +109,10 @@ public:
    */
   virtual void set_data(const std::string& name, std::unique_ptr<Data>&& data) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual void set_data(const std::string& name, std::nullptr_t data) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   std::enable_if_t<!std::is_same_v<Data*, T>> set_data(const std::string& name, T&& value)
   {
@@ -171,9 +159,7 @@ public:
    */
   virtual void append_field(const std::string& name, std::unique_ptr<Data>&& data = {}) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   void append_field(const std::string& name, T&& value)
   {
@@ -195,9 +181,7 @@ public:
    */
   virtual void insert_field(std::size_t index, const std::string& name, std::unique_ptr<Data>&& data = {}) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   void insert_field(std::size_t index, const std::string& name, T&& value)
   {
@@ -216,9 +200,7 @@ public:
    */
   virtual void insert_field(const std::string& name, const std::string& new_field_name, std::unique_ptr<Data>&& data) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   void insert_field(const std::string& name, const std::string& new_field_name, T&& value)
   {
