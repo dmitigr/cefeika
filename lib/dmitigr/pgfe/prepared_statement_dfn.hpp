@@ -24,14 +24,11 @@ namespace dmitigr::pgfe {
 /**
  * @ingroup main
  *
- * @brief A named argument to pass to a prepared statement,
- * function or procedure.
+ * @brief A named argument to pass to a prepared statement, function or procedure.
  */
 class Named_argument final {
 public:
-  /**
-   * @brief Constructs the named argument bound to NULL.
-   */
+  /// Constructs the named argument bound to NULL.
   Named_argument(std::string name, std::nullptr_t)
     : name_{std::move(name)}
   {
@@ -83,26 +80,19 @@ public:
     check_name(name_);
   }
 
-  /**
-   * @returns The argument name.
-   */
+  /// @returns The argument name.
   const std::string& name() const
   {
     return name_;
   }
 
-  /**
-   * @returns The bound data.
-   */
+  /// @returns The bound data.
   const Data* data() const
   {
     return data_.get();
   }
 
-  /**
-   * @returns `true` if the bound data is owned by this instance, or
-   * `false` otherwise.
-   */
+  /// @returns `true` if the bound data is owned by this instance.
   bool is_data_owner() const
   {
     return data_.get_deleter().condition();
@@ -142,7 +132,7 @@ private:
  *
  * @brief The alias of Named_argument.
  */
-using _ = Named_argument;
+using Na = Named_argument;
 
 /**
  * @ingroup main
@@ -196,18 +186,14 @@ public:
 
   /**
    * @returns `true` if the information inferred by the Pgfe about
-   * this prepared statement is available, or `false` otherwise.
+   * this prepared statement is available.
    */
   virtual bool is_preparsed() const = 0;
 
-  /**
-   * @returns The maximum parameter count allowed.
-   */
+  /// @returns The maximum parameter count allowed.
   virtual std::size_t maximum_parameter_count() const = 0;
 
-  /**
-   * @returns The maximum data size allowed.
-   */
+  /// @returns The maximum data size allowed.
   virtual std::size_t maximum_data_size() const = 0;
 
   /// @}
@@ -418,19 +404,13 @@ public:
    */
   virtual Connection* connection() = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual const Connection* connection() const = 0;
 
-  /**
-   * @brief Similar to Connection::describe_prepared_statement_async().
-   */
+  /// Similar to Connection::describe_prepared_statement_async().
   virtual void describe_async() = 0;
 
-  /**
-   * @brief Similar to Connection::describe_prepared_statement().
-   */
+  /// Similar to Connection::describe_prepared_statement().
   virtual void describe() = 0;
 
   /**

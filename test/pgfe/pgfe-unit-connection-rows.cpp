@@ -96,7 +96,7 @@ int main(int, char* argv[])
 
     // Test 1c.
     {
-      using pgfe::_;
+      using pgfe::Na;
 
       conn->perform("begin");
 
@@ -108,7 +108,7 @@ int main(int, char* argv[])
       )");
 
       std::cout << "From rows created on the server side by function persons_by_name:\n";
-      conn->invoke("persons_by_name", _{"fname", "^B"});
+      conn->invoke("persons_by_name", Na{"fname", "^B"});
       auto persons = conn->rows<std::vector<Person>>();
       ASSERT(persons.size() == 1);
       for (const auto& person : persons)

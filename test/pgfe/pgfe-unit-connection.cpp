@@ -385,7 +385,7 @@ int main(int, char* argv[])
 
       // invoke 2
       {
-        using pgfe::_;
+        using pgfe::Na;
 
         conn->perform("begin");
 
@@ -409,14 +409,14 @@ int main(int, char* argv[])
         conn->complete();
 
         // Using named notation.
-        conn->invoke("person_info", _{"age", age}, _{"name", name}, _{"id", id});
+        conn->invoke("person_info", Na{"age", age}, Na{"name", name}, Na{"id", id});
         ASSERT(conn->row());
         ASSERT(conn->row()->has_field("person_info"));
         ASSERT(conn->row()->data("person_info")->bytes() == expected_result);
         conn->complete();
 
         // Using mixed notation.
-        conn->invoke("person_info", id, _{"age", age}, _{"name", name});
+        conn->invoke("person_info", id, Na{"age", age}, Na{"name", name});
         ASSERT(conn->row());
         ASSERT(conn->row()->has_field("person_info"));
         ASSERT(conn->row()->data("person_info")->bytes() == expected_result);

@@ -22,53 +22,38 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief The base implementation of Prepared_statement.
- */
+/// The base implementation of Prepared_statement.
 class iPrepared_statement : public Prepared_statement {
 protected:
-  virtual bool is_invariant_ok() = 0;
+  virtual bool is_invariant_ok() const
+  {
+    return detail::is_invariant_ok(*this);
+  }
 };
-
-inline bool iPrepared_statement::is_invariant_ok()
-{
-  const bool parameterizable_ok = detail::is_invariant_ok(*this);
-  return parameterizable_ok;
-}
 
 // -----------------------------------------------------------------------------
 
 class pq_Connection;
 
-/**
- * @brief The implementation of Prepared_statement based on libpq.
- */
+/// The implementation of Prepared_statement based on libpq.
 class pq_Prepared_statement final : public iPrepared_statement {
 public:
-  /**
-   * @brief Constructs when preparing.
-   */
+  /// Constructs when preparing.
   pq_Prepared_statement(std::string name, pq_Connection* connection, const Sql_string* preparsed);
 
-  /**
-   * @brief Constructs when describing.
-   */
+  /// Constructs when describing.
   pq_Prepared_statement(std::string name, pq_Connection* connection, std::size_t parameters_count);
 
-  /** Non copyable. */
+  /// Non copy-constructible.
   pq_Prepared_statement(const pq_Prepared_statement&) = delete;
 
-  /**
-   * @brief The move constructor.
-   */
+  /// Move constructible.
   pq_Prepared_statement(pq_Prepared_statement&&) = default;
 
-  /** Non copyable. */
+  /// Non copy-assignable.
   pq_Prepared_statement& operator=(const pq_Prepared_statement&) = delete;
 
-  /**
-   * @brief The move assignment operator.
-   */
+  /// Move-assignable.
   pq_Prepared_statement& operator=(pq_Prepared_statement&&) = default;
 
   // ---------------------------------------------------------------------------
@@ -239,7 +224,7 @@ public:
     DMITIGR_REQUIRE(index < parameter_count(), std::out_of_range);
     if (is_described()) {
       return std::visit(
-        [&](const auto& descr) -> std::uint_fast32_t
+        [index](const auto& descr) -> std::uint_fast32_t
         {
           using T = std::decay_t<decltype (descr)>;
           if constexpr (std::is_same_v<T, pq::Result>)
@@ -260,7 +245,7 @@ public:
   {
     if (is_described()) {
       return std::visit(
-        [&](const auto& descr) -> const Row_info*
+        [](const auto& descr) -> const Row_info*
         {
           using T = std::decay_t<decltype (descr)>;
           if constexpr (std::is_same_v<T, pq::Result>)
@@ -283,7 +268,17 @@ private:
     std::string name;
   };
 
-  bool is_invariant_ok() override;
+  constexpr static std::size_t maximum_parameter_count_{65536 - 1};
+  constexpr static std::size_t maximum_data_size_{std::size_t(std::numeric_limits<int>::max())};
+  Data_format result_format_{Data_format::text};
+  std::string name_;
+  bool preparsed_{};
+  pq_Connection* connection_{};
+  std::chrono::system_clock::time_point session_start_time_;
+  std::vector<Parameter> parameters_;
+  std::optional<std::variant<pq::Result, pq_Row_info>> description_;
+
+  bool is_invariant_ok() const override;
 
   void set_parameter(const std::size_t index, Data_ptr&& data)
   {
@@ -320,16 +315,6 @@ private:
     const auto i = std::find_if(b, e, [&](const auto& p) { return p.name == name; });
     return i - b;
   }
-
-  constexpr static std::size_t maximum_parameter_count_{65536 - 1};
-  constexpr static std::size_t maximum_data_size_{std::size_t(std::numeric_limits<int>::max())};
-  Data_format result_format_{Data_format::text};
-  std::string name_;
-  bool preparsed_{};
-  pq_Connection* connection_{};
-  std::chrono::system_clock::time_point session_start_time_;
-  std::vector<Parameter> parameters_;
-  std::optional<std::variant<pq::Result, pq_Row_info>> description_;
 };
 
 } // namespace dmitigr::pgfe::detail

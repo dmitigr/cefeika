@@ -116,7 +116,7 @@ inline void pq_Prepared_statement::describe()
   DMITIGR_ASSERT(is_invariant_ok());
 }
 
-inline bool pq_Prepared_statement::is_invariant_ok()
+inline bool pq_Prepared_statement::is_invariant_ok() const
 {
   const bool params_ok = (parameter_count() <= maximum_parameter_count());
   const bool preparsed_ok = is_preparsed() || !has_named_parameters();
