@@ -11,7 +11,6 @@
 #include <cerrno>
 #include <limits>
 #include <locale>
-#include <type_traits>
 
 namespace dmitigr::pgfe {
 
@@ -44,9 +43,8 @@ DMITIGR_PGFE_INLINE std::string unquote_identifier(const std::string_view identi
   enum { top, double_quote, adjacent_double_quote } state = top;
 
   std::string result;
-  const auto sz = identifier.size();
-  using Counter = std::remove_const_t<decltype (sz)>;
-  for (Counter i = 0; i < sz; ++i) {
+  const std::string_view::size_type sz = identifier.size();
+  for (std::string_view::size_type i = 0; i < sz; ++i) {
     const char c = identifier[i];
     if (state == top) {
       if (c != '"')

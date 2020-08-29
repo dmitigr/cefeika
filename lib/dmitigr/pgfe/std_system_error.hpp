@@ -21,9 +21,7 @@ namespace dmitigr::pgfe {
  */
 class Client_error_category final : public std::error_category {
 public:
-  /**
-   * @returns The literal `dmitigr_pgfe_client_error`.
-   */
+  /// @returns The literal `dmitigr_pgfe_client_error`.
   const char* name() const noexcept override;
 
   /**
@@ -47,9 +45,7 @@ public:
  */
 class Server_error_category final : public std::error_category {
 public:
-  /**
-   * @returns The literal `dmitigr_pgfe_server_error`.
-   */
+  /// @returns The literal `dmitigr_pgfe_server_error`.
   const char* name() const noexcept override;
 
   /**

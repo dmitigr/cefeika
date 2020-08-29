@@ -5,9 +5,7 @@
 #ifndef DMITIGR_PGFE_TYPES_FWD_HPP
 #define DMITIGR_PGFE_TYPES_FWD_HPP
 
-/**
- * @brief The API.
- */
+/// The API.
 namespace dmitigr::pgfe {
 
 /**
@@ -72,9 +70,7 @@ class Server_exception;
 template<typename> struct Conversions;
 template<typename> class Entity_vector;
 
-/**
- * @brief The implementation details.
- */
+/// The implementation details.
 namespace detail {
 
 class iCompletion;
