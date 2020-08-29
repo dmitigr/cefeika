@@ -7,30 +7,22 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief The base implementation of Completion.
- */
+/// The base implementation of Completion.
 class iCompletion : public Completion {
 protected:
-  virtual bool is_invariant_ok() = 0;
+  virtual bool is_invariant_ok() const
+  {
+    return true;
+  }
 };
 
-inline bool iCompletion::is_invariant_ok()
-{
-  return true;
-}
-
-/**
- * @brief The implementation of Completion.
- */
+/// The implementation of Completion.
 class simple_Completion final : public iCompletion {
 public:
-  /// Default constructible.
+  /// Default-constructible.
   simple_Completion() = default;
 
-  /**
-   * @brief The constructor.
-   */
+  /// The constructor.
   explicit simple_Completion(const std::string& tag)
   {
     auto space_before_word_pos = tag.find_last_of(' ');
@@ -76,7 +68,7 @@ public:
   }
 
 protected:
-  bool is_invariant_ok() override
+  bool is_invariant_ok() const override
   {
     const bool affected_row_ok = (!affected_row_count_ || (!affected_row_count_->empty() && !operation_name_.empty()));
     const bool icompletion_ok = iCompletion::is_invariant_ok();

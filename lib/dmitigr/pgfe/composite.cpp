@@ -14,19 +14,14 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief The base implementation of Composite.
- */
+/// The base implementation of Composite.
 class iComposite : public Composite {
 protected:
-  virtual bool is_invariant_ok() = 0;
+  virtual bool is_invariant_ok() const
+  {
+    return detail::is_invariant_ok(*this);
+  }
 };
-
-inline bool iComposite::is_invariant_ok()
-{
-  const bool compositional_ok = detail::is_invariant_ok(*this);
-  return compositional_ok;
-}
 
 /**
  * @brief The implementation of Composite that stores the data as a vector of
@@ -36,39 +31,29 @@ inline bool iComposite::is_invariant_ok()
  */
 class heap_data_Composite final : public iComposite {
 public:
-  /**
-   * @brief The default constructor
-   */
+  /// Default-constructible
   heap_data_Composite() = default;
 
-  /**
-   * @brief See Composite::make().
-   */
+  /// See Composite::make().
   explicit heap_data_Composite(std::vector<std::pair<std::string, std::unique_ptr<Data>>>&& datas)
     : datas_{std::move(datas)}
   {
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @brief The copy constructor.
-   */
+  /// Copy-constructible.
   heap_data_Composite(const heap_data_Composite& rhs)
     : datas_{rhs.datas_.size()}
   {
     std::transform(cbegin(rhs.datas_), cend(rhs.datas_), begin(datas_),
-      [&](const auto& pair) { return std::make_pair(pair.first, pair.second->to_data()); });
+      [](const auto& pair) { return std::make_pair(pair.first, pair.second->to_data()); });
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @brief The move constructor.
-   */
+  /// Move-constructible.
   heap_data_Composite(heap_data_Composite&& rhs) = default;
 
-  /**
-   * @brief The copy assignment operator.
-   */
+  /// Copy-assignable.
   heap_data_Composite& operator=(const heap_data_Composite& rhs)
   {
     heap_data_Composite tmp{rhs};
@@ -76,14 +61,10 @@ public:
     return *this;
   }
 
-  /**
-   * @brief The move assignment operator.
-   */
+  /// Move-assignable operator.
   heap_data_Composite& operator=(heap_data_Composite&& rhs) = default;
 
-  /**
-   * @brief The swap operation.
-   */
+  /// Swaps the instances.
   void swap(heap_data_Composite& rhs) noexcept
   {
     datas_.swap(rhs.datas_);
@@ -180,8 +161,9 @@ public:
   {
     DMITIGR_REQUIRE(index < field_count(), std::out_of_range);
     auto& data = datas_[index].second;
-    auto result = std::move(data); // As described in 14882:2014 20.8.1/4, u.p is equal to nullptr after transfer ownership...
-    data.reset(); // but just in case...
+    auto result = std::move(data); // As described in 14882:2014 20.8.1/4, u.p
+                                   // is equal to nullptr after transfer ownership...
+    data.reset(); // ... but let it be here just in case.
     DMITIGR_ASSERT(is_invariant_ok());
     return result;
   }
@@ -240,19 +222,11 @@ public:
   // Non public API
   // ---------------------------------------------------------------------------
 
-  /**
-   * @brief Appends `rhs` to the end of `this` composite.
-   */
+  /// Appends `rhs` to the end of `this` composite.
   void append(heap_data_Composite&& rhs)
   {
     datas_.insert(cend(datas_), std::make_move_iterator(begin(rhs.datas_)), std::make_move_iterator(end(rhs.datas_)));
     DMITIGR_ASSERT(is_invariant_ok());
-  }
-
-protected:
-  bool is_invariant_ok() override
-  {
-    return true;
   }
 
 private:
