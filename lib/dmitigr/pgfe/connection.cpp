@@ -26,9 +26,7 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * The base implementation of Connection.
- */
+/// The base implementation of Connection.
 class iConnection : public Connection {
 public:
   std::unique_ptr<Connection> to_connection() const override
@@ -326,9 +324,7 @@ inline bool iConnection::is_invariant_ok()
 
 // =============================================================================
 
-/**
- * The implementation of Connection based on libpq.
- */
+/// The implementation of Connection based on libpq.
 class pq_Connection final : public iConnection {
 public:
   ~pq_Connection() override
@@ -1374,7 +1370,7 @@ private:
     else
       /*
        * Currently, the only possible error is insufficient memory for the result string.
-       * See: https://www.postgresql.org/docs/10/static/libpq-exec.html#LIBPQ-PQESCAPEBYTEACONN
+       * See: https://www.postgresql.org/docs/current/static/libpq-exec.html#LIBPQ-PQESCAPEBYTEACONN
        */
       throw std::bad_alloc();
   }

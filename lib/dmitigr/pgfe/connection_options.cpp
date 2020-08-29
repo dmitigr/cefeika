@@ -63,9 +63,7 @@ inline void validate(const bool condition, const std::string& option_name)
 
 // =============================================================================
 
-/**
- * @brief The Connection_options implementation.
- */
+/// The Connection_options implementation.
 class iConnection_options final : public Connection_options {
 public:
   iConnection_options()
@@ -567,14 +565,10 @@ private:
 
 // =============================================================================
 
-/**
- * @brief A generator of connection options for libpq from Connection_options.
- */
+/// The generator of connection options for libpq from Connection_options.
 class pq_Connection_options final {
 public:
-  /**
-   * @brief The constructor.
-   */
+  /// The constructor.
   explicit pq_Connection_options(const Connection_options* const o)
   {
     DMITIGR_ASSERT(o);
@@ -642,9 +636,7 @@ public:
     update_cache();
   }
 
-  /**
-   * @brief The copy constructor.
-   */
+  /// Copy-constructible.
   pq_Connection_options(const pq_Connection_options& rhs)
   {
     for (decltype (+Keyword_count_) i = host; i < Keyword_count_; ++i)
@@ -652,9 +644,7 @@ public:
     update_cache();
   }
 
-  /**
-   * @brief The move constructor.
-   */
+  /// Move-constructible.
   pq_Connection_options(pq_Connection_options&& rhs)
   {
     for (decltype (+Keyword_count_) i = host; i < Keyword_count_; ++i)
@@ -662,9 +652,7 @@ public:
     update_cache();
   }
 
-  /**
-   * @brief The copy assignment operator.
-   */
+  /// Copy-assignable.
   pq_Connection_options& operator=(const pq_Connection_options& rhs)
   {
     if (this != &rhs) {
@@ -674,9 +662,7 @@ public:
     return *this;
   }
 
-  /**
-   * @brief The move assignment operator.
-   */
+  /// Move-assignable.
   pq_Connection_options& operator=(pq_Connection_options&& rhs)
   {
     if (this != &rhs) {
@@ -686,9 +672,7 @@ public:
     return *this;
   }
 
-  /**
-   * @brief The swap operation.
-   */
+  /// Swaps the instances.
   void swap(pq_Connection_options& rhs)
   {
     for (decltype (+Keyword_count_) i = host; i < Keyword_count_; ++i) {
@@ -718,26 +702,13 @@ public:
     return pq_values_;
   }
 
-  /**
-   * @returns The total count of keyword/value pairs.
-   */
+  /// @returns The total count of keyword/value pairs.
   static std::size_t count()
   {
     return Keyword_count_;
   }
 
 private:
-  constexpr bool is_invariant_ok() const
-  {
-    constexpr auto keywords_count = sizeof(pq_keywords_) / sizeof(*pq_keywords_);
-    constexpr auto values_count = sizeof(values_) / sizeof(*values_);
-    static_assert(sizeof(pq_keywords_) == sizeof(pq_values_));
-    static_assert(keywords_count == (1 + values_count));
-    return true;
-  }
-
-  // ===========================================================================
-
   /**
    * @brief A libpq keyword.
    *
@@ -760,9 +731,7 @@ private:
     Keyword_count_
   };
 
-  /**
-   * @returns The libpq keyword literal.
-   */
+  /// @returns The libpq keyword literal.
   static const char* to_literal(const Keyword keyword)
   {
     switch (keyword) {
@@ -819,6 +788,15 @@ private:
   const char* pq_keywords_[Keyword_count_ + 1];
   const char* pq_values_[Keyword_count_ + 1];
   std::string values_[Keyword_count_];
+
+  constexpr bool is_invariant_ok() const
+  {
+    constexpr auto keywords_count = sizeof(pq_keywords_) / sizeof(*pq_keywords_);
+    constexpr auto values_count = sizeof(values_) / sizeof(*values_);
+    static_assert(sizeof(pq_keywords_) == sizeof(pq_values_));
+    static_assert(keywords_count == (1 + values_count));
+    return true;
+  }
 };
 
 } // namespace dmitigr::pgfe::detail

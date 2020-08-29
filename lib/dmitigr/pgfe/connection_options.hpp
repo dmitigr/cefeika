@@ -26,17 +26,13 @@ namespace dmitigr::pgfe {
  */
 class Connection_options {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Connection_options() = default;
 
   /// @name Constructors
   /// @{
 
-  /**
-   * @returns A new instance of the default connection options.
-   */
+  /// @returns A new instance of the default connection options.
   static DMITIGR_PGFE_API std::unique_ptr<Connection_options> make();
 
   /**
@@ -55,9 +51,7 @@ public:
    */
   virtual std::unique_ptr<Connection> make_connection() const = 0;
 
-  /**
-   * @returns A copy of this instance.
-   */
+  /// @returns A copy of this instance.
   virtual std::unique_ptr<Connection_options> to_connection_options() const = 0;
 
   /// @}
@@ -97,7 +91,7 @@ public:
   virtual Connection_options* set_connect_timeout(std::optional<std::chrono::milliseconds> value) = 0;
 
   /**
-   * @return The current value of the connect timeout.
+   * @returns The current value of the connect timeout.
    *
    * @see set_connect_timeout(), Connection::connect().
    */
@@ -113,7 +107,7 @@ public:
   virtual Connection_options* set_wait_response_timeout(std::optional<std::chrono::milliseconds> value) = 0;
 
   /**
-   * @return The current value of the wait response timeout.
+   * @returns The current value of the wait response timeout.
    *
    * @see set_wait_response_timeout(), Connection::wait_response().
    */
@@ -129,7 +123,7 @@ public:
   virtual Connection_options* set_wait_last_response_timeout(std::optional<std::chrono::milliseconds> value) = 0;
 
   /**
-   * @return The current value of the wait last response timeout.
+   * @returns The current value of the wait last response timeout.
    *
    * @see set_wait_last_response_timeout(), Connection::wait_last_response().
    */

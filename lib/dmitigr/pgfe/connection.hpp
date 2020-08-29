@@ -30,9 +30,7 @@ namespace dmitigr::pgfe {
  */
 class Connection {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// @brief The destructor.
   virtual ~Connection() = default;
 
   /// @name Constructors
@@ -62,28 +60,33 @@ public:
 
   /**
    * @returns The communication status.
+   *
+   * @see is_connected().
    */
   virtual Communication_status communication_status() const = 0;
 
   /**
-   * @returns `true` if the communication status is Communication_status::connected.
+   * @returns `(communication_status() == Communication_status::connected)`.
+   *
+   * @see communication_status().
    */
   virtual bool is_connected() const = 0;
 
-  /**
-   * @returns `true` if the connection secured by SSL, or `false` otherwise.
-   */
+  /// @returns `true` if the connection secured by SSL.
   virtual bool is_ssl_secured() const = 0;
 
   /**
    * @returns The last reported server transaction block status, or
    * `std::nullopt` if unavailable.
+   *
+   * @see is_transaction_block_uncommitted().
    */
   virtual std::optional<Transaction_block_status> transaction_block_status() const = 0;
 
   /**
-   * @returns `true` if transaction block status is Transaction_block_status::uncommitted, or
-   * `false` otherwise.
+   * @returns `(transaction_block_status() == Transaction_block_status::uncommitted`).
+   *
+   * @see transaction_block_status().
    */
   virtual bool is_transaction_block_uncommitted() const = 0;
 
@@ -93,9 +96,7 @@ public:
    */
   virtual std::optional<std::chrono::system_clock::time_point> session_start_time() const noexcept = 0;
 
-  /**
-   * @returns The connection options of this instance.
-   */
+  /// @returns The connection options of this instance.
   virtual const Connection_options* options() const noexcept = 0;
 
   /**
@@ -216,6 +217,8 @@ public:
    * This function should be called every time when the value returned by
    * collect_server_messages() is Response_status::unready and the socket is in
    * read-ready state.
+   *
+   * @see collect_server_messages(), socket_readiness().
    */
   virtual void read_server_input() = 0;
 
@@ -235,6 +238,8 @@ public:
    *
    * @par Exception safety guarantee
    * Basic.
+   *
+   * @see read_server_input().
    */
   virtual Response_status collect_server_messages(bool wait_response = false) = 0;
 
@@ -258,8 +263,7 @@ public:
   virtual bool is_signal_available() const noexcept = 0;
 
   /**
-   * @returns The pointer to the instance of type Notice if available, or
-   * `nullptr` otherwise.
+   * @returns The pointer to the instance of type Notice if available.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    *
@@ -268,8 +272,7 @@ public:
   virtual const Notice* notice() const noexcept = 0;
 
   /**
-   * @returns The released instance of type Notice if available, or
-   * `nullptr` otherwise.
+   * @returns The released instance of type Notice if available.
    *
    * @par Effects
    * notice() returns the pointer to a next instance in the queue, or
@@ -281,7 +284,7 @@ public:
    * @remarks A caller should always rely upon assumption that the pointer
    * obtained by notice() becomes invalid after calling this function.
    *
-   * @see notice().
+   * @see notice(), dismiss_notice().
    */
   virtual std::unique_ptr<Notice> pop_notice() = 0;
 
@@ -295,12 +298,13 @@ public:
    * Strong.
    *
    * @remarks It's more efficiently than pop_notice().
+   *
+   * @see pop_notice().
    */
   virtual void dismiss_notice() = 0;
 
   /**
-   * @returns The pointer to the instance of type Notification if available, or
-   * `nullptr` otherwise.
+   * @returns The pointer to the instance of type Notification if available.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    *
@@ -309,8 +313,7 @@ public:
   virtual const Notification* notification() const noexcept = 0;
 
   /**
-   * @returns The released instance of type Notification (with ownership
-   * transfer) if available, or `nullptr` otherwise.
+   * @returns The released instance of type Notification if available.
    *
    * @par Effects
    * notification() returns the pointer to a next instance in the queue, or
@@ -322,7 +325,7 @@ public:
    * @remarks A caller should always rely upon assumption that the pointer
    * obtained by notification() becomes invalid after calling this function.
    *
-   * @see notification().
+   * @see notification(), dismiss_notification().
    */
   virtual std::unique_ptr<Notification> pop_notification() = 0;
 
@@ -336,6 +339,8 @@ public:
    * Strong.
    *
    * @remarks It's more efficiently than pop_notification().
+   *
+   * @see pop_notification().
    */
   virtual void dismiss_notification() = 0;
 
@@ -360,9 +365,7 @@ public:
    */
   virtual void set_error_handler(Error_handler handler) = 0;
 
-  /**
-   * @returns A current error handler.
-   */
+  /// @returns A current error handler.
   virtual const Error_handler& error_handler() = 0;
 
   /// An alias of a notice handler.
@@ -383,9 +386,7 @@ public:
    */
   virtual void set_notice_handler(Notice_handler handler) = 0;
 
-  /**
-   * @returns The current notice handler.
-   */
+  /// @returns The current notice handler.
   virtual const Notice_handler& notice_handler() const = 0;
 
   /// An alias of a notification handler.
@@ -405,9 +406,7 @@ public:
    */
   virtual void set_notification_handler(Notification_handler handler) = 0;
 
-  /**
-   * @returns The current notification handler.
-   */
+  /// @returns The current notification handler.
   virtual const Notification_handler& notification_handler() const = 0;
 
   /**
@@ -426,7 +425,7 @@ public:
   /// @{
 
   /**
-   * @returns `true` if some kind of the Response is awaited, or `false` otherwise.
+   * @returns `true` if some kind of the Response is awaited.
    *
    * @see wait_response().
    */
@@ -484,9 +483,7 @@ public:
    */
   virtual void wait_last_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
 
-  /**
-   * @returns `(error() || row() || completion() || prepared_statement())`
-   */
+  /// @returns `(error() || row() || completion() || prepared_statement())`
   virtual bool is_response_available() const noexcept = 0;
 
   /// @returns The currently available response.
@@ -507,8 +504,7 @@ public:
   virtual void dismiss_response() = 0;
 
   /**
-   * @returns The pointer to the instance of type Error if available, or
-   * `nullptr` otherwise.
+   * @returns The pointer to the instance of type Error if available.
    *
    * @remarks This method is semantically similar to release_error() but
    * allows the implementation to avoid extra memory allocation for the
@@ -522,8 +518,7 @@ public:
   virtual const Error* error() const noexcept = 0;
 
   /**
-   * @returns The released instance of type Error if available, or
-   * `nullptr` otherwise.
+   * @returns The released instance of type Error if available.
    *
    * @par Effects
    * `(error() == nullptr)`.
@@ -539,8 +534,7 @@ public:
   virtual std::unique_ptr<Error> release_error() = 0;
 
   /**
-   * @returns The pointer to the instance of type Row if available, or
-   * `nullptr` otherwise.
+   * @returns The pointer to the instance of type Row if available.
    *
    * @remarks This method is semantically similar to release_row() but allows
    * the implementation to avoid extra memory allocation for the each retrieved
@@ -553,8 +547,7 @@ public:
   virtual const Row* row() const noexcept = 0;
 
   /**
-   * @returns The released instance of type Row if available, or
-   * `nullptr` otherwise.
+   * @returns The released instance of type Row if available.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -571,8 +564,7 @@ public:
   virtual std::unique_ptr<Row> release_row() = 0;
 
   /**
-   * @returns The pointer to the instance of type Completion if available, or
-   * `nullptr` otherwise.
+   * @returns The pointer to the instance of type Completion if available.
    *
    * @remarks This method is semantically similar to release_completion() but
    * allows the implementation to avoid extra memory allocation for the retrieved
@@ -585,8 +577,7 @@ public:
   virtual const Completion* completion() const noexcept = 0;
 
   /**
-   * @returns The released instance of type Completion if available, or
-   * `nullptr` otherwise.
+   * @returns The released instance of type Completion if available.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -599,8 +590,7 @@ public:
   virtual std::unique_ptr<Completion> release_completion() = 0;
 
   /**
-   * @returns The pointer to the instance of type Prepared_statement if
-   * available, or `nullptr` otherwise.
+   * @returns The pointer to the instance of type Prepared_statement if available.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    */
@@ -629,15 +619,14 @@ public:
 
   /**
    * @returns `true` if the connection is ready for requesting a server in a
-   * non-blocking manner, or `false` otherwise.
+   * non-blocking manner.
    *
    * @see is_ready_for_request().
    */
   virtual bool is_ready_for_async_request() const = 0;
 
   /**
-   * @returns `true` if the connection is ready for requesting a server,
-   * or `false` otherwise.
+   * @returns `true` if the connection is ready for requesting a server.
    *
    * @see is_awaiting_response().
    */
@@ -719,9 +708,7 @@ public:
    */
   virtual void prepare_statement_async(const Sql_string* statement, const std::string& name = {}) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual void prepare_statement_async(const std::string& statement, const std::string& name = {}) = 0;
 
   /**
@@ -745,9 +732,7 @@ public:
    */
   virtual Prepared_statement* prepare_statement(const Sql_string* statement, const std::string& name = {}) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual Prepared_statement* prepare_statement(const std::string& statement, const std::string& name = {}) = 0;
 
   /**
@@ -856,9 +841,7 @@ public:
     ps->execute();
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename ... Types>
   void execute(const std::string& statement, Types&& ... parameters)
   {
@@ -991,7 +974,7 @@ public:
    *
    * @param oid A desired oid. If `invalid_oid` assumes unused oid.
    *
-   * @returns: A valid oid if successful, or `invalid_oid` otherwise.
+   * @returns A valid oid if successful, or `invalid_oid` otherwise.
    *
    * @par Requires
    * `(is_ready_for_request())`.
@@ -1004,7 +987,7 @@ public:
   /**
    * @brief Submits a request to open the large object and waits the result.
    *
-   * @returns: A valid instance if successful, or invalid instance otherwise.
+   * @returns A valid instance if successful, or invalid instance otherwise.
    *
    * @par Requires
    * `(is_ready_for_request())`.
@@ -1017,7 +1000,7 @@ public:
   /**
    * @brief Submits a request to remove the large object and waits the result.
    *
-   * @returns: `true` if successful, or `false` otherwise.
+   * @returns `true` on success.
    *
    * @par Requires
    * `(is_ready_for_request())`.
@@ -1047,7 +1030,7 @@ public:
    * @brief Submits multiple requests to export the specified large object
    * to the specified file.
    *
-   * @returns `true` on success, or `false` otherwise.
+   * @returns `true` on success.
    *
    * @par Requires
    * `(is_ready_for_request())`.

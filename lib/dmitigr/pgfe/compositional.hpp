@@ -23,19 +23,13 @@ namespace dmitigr::pgfe {
  */
 class Compositional {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// @brief The destructor.
   virtual ~Compositional() = default;
 
-  /**
-   * @returns The number of fields.
-   */
+  /// @returns The number of fields.
   virtual std::size_t field_count() const = 0;
 
-  /**
-   * @returns `(field_count() > 0)`
-   */
+  /// @returns `(field_count() > 0)`
   virtual bool has_fields() const = 0;
 
   /**
@@ -63,10 +57,7 @@ public:
    */
   virtual std::size_t field_index_throw(const std::string& name, std::size_t offset = 0) const = 0;
 
-  /**
-   * @returns `true` if this instance has the field with the specified `name`,
-   * or `false` otherwise.
-   */
+  /// @returns `true` if this instance has the field with the specified `name`.
   virtual bool has_field(const std::string& name, std::size_t offset = 0) const = 0;
 
 private:

@@ -13,7 +13,7 @@ namespace dmitigr::pgfe::detail {
 inline bool is_invariant_ok(const Compositional& o)
 {
   const bool fields_ok = !o.has_fields() || ((o.field_count() > 0));
-  const bool field_names_ok = [&]()
+  const bool field_names_ok = [&o]
   {
     const auto fc = o.field_count();
     using Counter = std::remove_const_t<decltype (fc)>;
