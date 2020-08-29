@@ -45,7 +45,7 @@ template<> struct Conversions<std::shared_ptr<Row>> {
  */
 template<class Container>
 struct Row_collector {
-  /** The alias of underlying container type. */
+  /// The alias of underlying container type.
   using Underlying_type = Container;
 
   /**
@@ -72,16 +72,14 @@ struct Row_collector {
 template<class T>
 struct Row_collector<std::vector<T>> {
 private:
-  /** Denotes the increment of memory allocation for underlying container.  */
+  /// Denotes the increment of memory allocation for underlying container.
   constexpr static std::size_t delta_ = 16;
 
 public:
-  /** The alias of underlying container type. */
+  /// The alias of underlying container type.
   using Underlying_type = std::vector<T>;
 
-  /**
-   * @brief The default constructor
-   */
+  /// Default-constructible.
   Row_collector()
   {
     container.reserve(delta_);

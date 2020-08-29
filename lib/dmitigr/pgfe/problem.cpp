@@ -12,19 +12,15 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief The generic implementation of Problem.
- */
+/// The generic implementation of Problem.
 template<class ProblemDerived>
 class basic_Problem final : public ProblemDerived {
   static_assert(std::is_base_of_v<Problem, ProblemDerived>);
 public:
-  /// Default constructible.
+  /// Default-constructible.
   basic_Problem() = default;
 
-  /**
-   * @brief The constructor.
-   */
+  /// The constructor.
   basic_Problem(std::string severity_localized,
     std::optional<std::string> severity_non_localized,
     std::string sqlstate,
@@ -174,33 +170,6 @@ public:
     return source_function_;
   }
 
-protected:
-  bool is_invariant_ok() const override
-  {
-    constexpr bool is_error = std::is_base_of_v<Error, ProblemDerived>;
-    const bool mandatory_ok = !severity_localized().empty() && !sqlstate().empty();
-    const bool severity_ok =
-      !severity_non_localized_ ||
-      (!is_error && ((severity_non_localized_ == "LOG") ||
-        (severity_non_localized_ == "INFO") ||
-        (severity_non_localized_ == "DEBUG") ||
-        (severity_non_localized_ == "NOTICE") ||
-        (severity_non_localized_ == "WARNING")))
-      ||
-      (is_error && ((severity_non_localized_ == "ERROR") ||
-        (severity_non_localized_ == "FATAL") ||
-        (severity_non_localized_ == "PANIC")));
-
-    /*
-     * Note: Error with SQLSTATE codes of classes 00, 01, 02
-     * (which correspond to warnings, not errors) are legal.
-     */
-    const int value = code().value();
-    const bool code_ok = (min_warning_integer_code_ <= value && value <= max_error_integer_code_);
-    const bool problemderived_ok = ProblemDerived::is_invariant_ok();
-    return mandatory_ok && severity_ok && code_ok && problemderived_ok;
-  }
-
 private:
   // The integer with the base 36 that represents the error condition "00000".
   constexpr static int min_warning_integer_code_ = 0;
@@ -229,6 +198,32 @@ private:
   std::optional<std::string> source_file_;
   std::optional<std::string> source_line_;
   std::optional<std::string> source_function_;
+
+  bool is_invariant_ok() const override
+  {
+    constexpr bool is_error = std::is_base_of_v<Error, ProblemDerived>;
+    const bool mandatory_ok = !severity_localized().empty() && !sqlstate().empty();
+    const bool severity_ok =
+      !severity_non_localized_ ||
+      (!is_error && ((severity_non_localized_ == "LOG") ||
+        (severity_non_localized_ == "INFO") ||
+        (severity_non_localized_ == "DEBUG") ||
+        (severity_non_localized_ == "NOTICE") ||
+        (severity_non_localized_ == "WARNING")))
+      ||
+      (is_error && ((severity_non_localized_ == "ERROR") ||
+        (severity_non_localized_ == "FATAL") ||
+        (severity_non_localized_ == "PANIC")));
+
+    /*
+     * Note: Error with SQLSTATE codes of classes 00, 01, 02
+     * (which correspond to warnings, not errors) are legal.
+     */
+    const int value = code().value();
+    const bool code_ok = (min_warning_integer_code_ <= value && value <= max_error_integer_code_);
+    const bool problemderived_ok = ProblemDerived::is_invariant_ok();
+    return mandatory_ok && severity_ok && code_ok && problemderived_ok;
+  }
 };
 
 } // namespace dmitigr::pgfe::detail

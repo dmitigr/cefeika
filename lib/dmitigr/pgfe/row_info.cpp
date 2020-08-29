@@ -204,7 +204,13 @@ public:
     return pq_result_.field_format(int(index));
   }
 
-protected:
+private:
+  friend pq_Row;
+  friend pq_Prepared_statement;
+
+  pq::Result pq_result_;
+  std::shared_ptr<std::vector<std::string>> shared_field_names_;
+
   bool is_invariant_ok() const override
   {
     const bool size_ok =
@@ -227,10 +233,6 @@ protected:
     return size_ok && field_names_ok && irow_info_ok;
   }
 
-private:
-  friend pq_Row;
-  friend pq_Prepared_statement;
-
   std::size_t field_index__(const std::string& name, const std::size_t offset) const
   {
     DMITIGR_ASSERT(offset < field_count());
@@ -239,9 +241,6 @@ private:
     const auto i = std::find(b + offset, e, name);
     return i - b;
   }
-
-  pq::Result pq_result_;
-  std::shared_ptr<std::vector<std::string>> shared_field_names_;
 };
 
 } // namespace dmitigr::pgfe::detail

@@ -21,24 +21,18 @@ namespace dmitigr::pgfe {
  */
 class Problem {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Problem() = default;
 
   /// @name Conversions
   /// @{
 
-  /**
-   * @returns The copy of this instance.
-   */
+  /// @returns The copy of this instance.
   virtual std::unique_ptr<Problem> to_problem() const = 0;
 
   /// @}
 
-  /**
-   * @returns The object with the corresponding PostgreSQL error code.
-   */
+  /// @returns The object with the corresponding PostgreSQL error code.
   virtual std::error_code code() const = 0;
 
   /**
@@ -71,9 +65,7 @@ public:
    */
   virtual const std::string& severity_non_localized() const = 0;
 
-  /**
-   * @returns The SQLSTATE code of the problem.
-   */
+  /// @returns The SQLSTATE code of the problem.
   virtual const std::string& sqlstate() const noexcept = 0;
 
   /**
@@ -132,9 +124,7 @@ public:
    */
   virtual const std::optional<std::string>& context() const noexcept = 0;
 
-  /**
-   * @returns The name of schema, associated with the problem.
-   */
+  /// @returns The name of schema, associated with the problem.
   virtual const std::optional<std::string>& schema_name() const noexcept = 0;
 
   /**
@@ -166,19 +156,13 @@ public:
    */
   virtual const std::optional<std::string>& constraint_name() const noexcept = 0;
 
-  /**
-   * @returns The file name of the source-code location reporting the problem.
-   */
+  /// @returns The file name of the source-code location reporting the problem.
   virtual const std::optional<std::string>& source_file() const noexcept = 0;
 
-  /**
-   * @returns The line number of the source-code location reporting the problem.
-   */
+  /// @returns The line number of the source-code location reporting the problem.
   virtual const std::optional<std::string>& source_line() const noexcept = 0;
 
-  /**
-   * @returns The name of the source-code function reporting the problem.
-   */
+  /// @returns The name of the source-code function reporting the problem.
   virtual const std::optional<std::string>& source_function() const noexcept = 0;
 
 private:

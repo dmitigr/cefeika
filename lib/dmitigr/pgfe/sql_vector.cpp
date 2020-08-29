@@ -8,19 +8,13 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief The implementation of Sql_vector.
- */
+/// The implementation of Sql_vector.
 class iSql_vector final : public Sql_vector {
 public:
-  /**
-   * @brief See Sql_vector::make().
-   */
+  /// See Sql_vector::make().
   iSql_vector() = default;
 
-  /**
-   * @brief See Sql_vector::make().
-   */
+  /// See Sql_vector::make().
   explicit iSql_vector(const std::string& input)
   {
     const char* text{input.c_str()};
@@ -33,18 +27,14 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   explicit iSql_vector(std::vector<std::unique_ptr<Sql_string>>&& storage)
     : storage_{std::move(storage)}
   {
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @brief The copy constructor.
-   */
+  /// Copy-constructible.
   iSql_vector(const iSql_vector& rhs)
     : storage_(rhs.storage_.size())
   {
@@ -53,14 +43,10 @@ public:
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @brief The move constructor.
-   */
+  /// Move-constructible.
   iSql_vector(iSql_vector&& rhs) = default;
 
-  /**
-   * @brief The copy assignment operator.
-   */
+  /// Copy-assignable.
   iSql_vector& operator=(const iSql_vector& rhs)
   {
     iSql_vector tmp{rhs};
@@ -68,14 +54,10 @@ public:
     return *this;
   }
 
-  /**
-   * @brief The move assignment operator.
-   */
+  /// Move assignable.
   iSql_vector& operator=(iSql_vector&& rhs) = default;
 
-  /**
-   * @brief The swap operation.
-   */
+  /// Swaps the instances.
   void swap(iSql_vector& rhs) noexcept
   {
     storage_.swap(rhs.storage_);
@@ -94,9 +76,8 @@ public:
   std::size_t non_empty_count() const override
   {
     std::size_t result{};
-    const auto count = sql_string_count();
-    using Counter = std::remove_const_t<decltype (count)>;
-    for (Counter i = 0; i < count; ++i) {
+    const std::size_t count = sql_string_count();
+    for (std::size_t i = 0; i < count; ++i) {
       if (!sql_string(i)->is_query_empty())
         ++result;
     }
@@ -121,7 +102,7 @@ public:
       const auto b = cbegin(storage_);
       const auto e = cend(storage_);
       const auto i = std::find_if(b + offset, e,
-        [&](const auto& sql_string)
+        [&extra_name, &extra_value, extra_offset](const auto& sql_string)
         {
           DMITIGR_ASSERT(sql_string);
           if (const auto* const extra = sql_string->extra(); extra && extra_offset < extra->field_count()) {
@@ -178,8 +159,7 @@ public:
     const auto sql_string_position = [this](const std::size_t index)
     {
       std::string::size_type result{};
-      using Counter = std::remove_const_t<decltype (index)>;
-      for (Counter i = 0; i < index; ++i)
+      for (std::size_t i = 0; i < index; ++i)
         result += sql_string(i)->to_string().size() + 1;
       return result;
     };

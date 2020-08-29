@@ -54,22 +54,15 @@ public:
    */
   static DMITIGR_PGFE_API std::unique_ptr<Sql_string> make(const std::string& input);
 
-  /**
-   * @returns The copy of this instance.
-   */
+  /// @returns The copy of this instance.
   virtual std::unique_ptr<Sql_string> to_sql_string() const = 0;
 
   /// @}
 
-  /**
-   * @returns `true` if this SQL string is empty, or `false` otherwise.
-   */
+  /// @returns `true` if this SQL string is empty.
   virtual bool is_empty() const = 0;
 
-  /**
-   * @returns `true` if this SQL string is consists only from comments and
-   * blank line(-s), or `false` otherwise.
-   */
+  /// @returns `true` if this SQL string is consists only from comments and blank line(-s).
   virtual bool is_query_empty() const = 0;
 
   /**
@@ -91,7 +84,7 @@ public:
 
   /**
    * @returns `true` if this SQL string has a positional parameter with an index
-   * `i` such that `(is_parameter_missing(i) == false)`, or `false` otherwise.
+   * `i` such that `(is_parameter_missing(i) == false)`.
    *
    * @see is_parameter_missing().
    */
@@ -113,9 +106,7 @@ public:
    */
   virtual void append(const Sql_string* appendix) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual void append(const std::string& appendix) = 0;
 
   /**
@@ -136,19 +127,13 @@ public:
    */
   virtual void replace_parameter(const std::string& name, const Sql_string* replacement) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual void replace_parameter(const std::string& name, const std::string& replacement) = 0;
 
-  /**
-   * @returns The result of conversion of this instance to the instance of type `std::string`.
-   */
+  /// @returns The result of conversion of this instance to the instance of type `std::string`.
   virtual std::string to_string() const = 0;
 
-  /**
-   * @returns The query string that's actually passed to a PostgreSQL server.
-   */
+  /// @returns The query string that's actually passed to a PostgreSQL server.
   virtual std::string to_query_string() const = 0;
 
   /// @returns The extra data associated with this instance.
@@ -241,9 +226,7 @@ public:
   /// The content of the `text3` association is "one\n two\n three".
   virtual Composite* extra() = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual const Composite* extra() const = 0;
 
 private:

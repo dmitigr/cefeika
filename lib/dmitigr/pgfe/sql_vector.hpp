@@ -26,17 +26,13 @@ namespace dmitigr::pgfe {
  */
 class Sql_vector {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Sql_vector() = default;
 
   /// @name Constructors
   /// @{
 
-  /**
-   * @returns A new instance of an empty SQL vector.
-   */
+  /// @returns A new instance of an empty SQL vector.
   static DMITIGR_PGFE_API std::unique_ptr<Sql_vector> make();
 
   /**
@@ -65,14 +61,10 @@ public:
    */
   static DMITIGR_PGFE_API std::unique_ptr<Sql_vector> make(const std::string& input);
 
-  /**
-   * @overload
-   */
+  /// @overload
   static DMITIGR_PGFE_API std::unique_ptr<Sql_vector> make(std::vector<std::unique_ptr<Sql_string>>&& v);
 
-  /**
-   * @returns The copy of this instance.
-   */
+  /// @returns The copy of this instance.
   virtual std::unique_ptr<Sql_vector> to_sql_vector() const = 0;
 
   /// @}
@@ -82,25 +74,16 @@ public:
   /// @name Observers
   /// @{
 
-  /**
-   * @returns The count of SQL strings this vector contains.
-   */
+  /// @returns The count of SQL strings this vector contains.
   virtual std::size_t sql_string_count() const = 0;
 
-  /**
-   * @returns The count of non-empty SQL query strings this vector contains.
-   */
+  /// @returns The count of non-empty SQL query strings this vector contains.
   virtual std::size_t non_empty_count() const = 0;
 
-  /**
-   * @returns `true` if this SQL vector is not empty, or `false` otherwise.
-   */
+  /// @returns `true` if this SQL vector is not empty, or `false` otherwise.
   virtual bool has_sql_strings() const = 0;
 
-  /**
-   * @returns `true` if the SQL string with the given criterias is presents
-   * in this vector, or `false` otherwise.
-   */
+  /// @returns `true` if the SQL string with the given criterias is presents in this vector.
   virtual bool has_sql_string(const std::string& extra_name, const std::string& extra_value,
     const std::size_t offset = 0, const std::size_t extra_offset = 0) const = 0;
 
@@ -138,9 +121,7 @@ public:
    */
   virtual Sql_string* sql_string(std::size_t index) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual const Sql_string* sql_string(std::size_t index) const = 0;
 
   /**
@@ -155,9 +136,7 @@ public:
   virtual Sql_string* sql_string(const std::string& extra_name, const std::string& extra_value,
     std::size_t offset = 0, std::size_t extra_offset = 0) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   virtual const Sql_string* sql_string(const std::string& extra_name, const std::string& extra_value,
     std::size_t offset = 0, std::size_t extra_offset = 0) const = 0;
 
@@ -211,9 +190,7 @@ public:
    */
   virtual void append_sql_string(std::unique_ptr<Sql_string>&& sql_string) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename ... Types>
   void append_sql_string(Types&& ... args)
   {
@@ -231,9 +208,7 @@ public:
    */
   virtual void insert_sql_string(std::size_t index, std::unique_ptr<Sql_string>&& sql_string) = 0;
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename ... Types>
   void insert_sql_string(std::size_t index, Types&& ... args)
   {
@@ -257,16 +232,10 @@ public:
   /// @name Conversions
   /// @{
 
-  /**
-   * @returns The result of conversion of this instance to the instance of type
-   * `std::string`.
-   */
+  /// @returns The result of conversion of this instance to the instance of type `std::string`.
   virtual std::string to_string() const = 0;
 
-  /**
-   * @returns The result of conversion of this instance to the instance of type
-   * `std::vector`.
-   */
+  /// @returns The result of conversion of this instance to the instance of type `std::vector`.
   virtual std::vector<std::unique_ptr<Sql_string>> to_vector() const = 0;
 
   /**

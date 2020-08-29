@@ -20,40 +20,30 @@ namespace dmitigr::pgfe::detail {
 
 std::pair<iSql_string, const char*> parse_sql_input(const char* text);
 
-/**
- * @brief The implementation of Sql_string.
- */
+/// The implementation of Sql_string.
 class iSql_string final : public Sql_string {
 public:
-  /**
-   * @brief The default constructor.
-   */
+  /// The default constructor.
   iSql_string()
   {
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   explicit iSql_string(const char* const text)
     : iSql_string(parse_sql_input(text).first)
   {
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   explicit iSql_string(const std::string& text)
     : iSql_string(text.c_str())
   {
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /**
-   * @brief The copy constructor.
-   */
+  /// Copy-constructible.
   iSql_string(const iSql_string& rhs)
     : fragments_{rhs.fragments_}
     , positional_parameters_{rhs.positional_parameters_}
@@ -61,9 +51,7 @@ public:
     named_parameters_ = named_parameters();
   }
 
-  /**
-   * @brief The copy assignment operator.
-   */
+  /// Copy-assignable.
   iSql_string& operator=(const iSql_string& rhs)
   {
     iSql_string tmp{rhs};
@@ -71,9 +59,7 @@ public:
     return *this;
   }
 
-  /**
-   * @brief The move constructor.
-   */
+  /// Move-constructible.
   iSql_string(iSql_string&& rhs)
     : fragments_{std::move(rhs.fragments_)}
     , positional_parameters_{std::move(rhs.positional_parameters_)}
@@ -81,9 +67,7 @@ public:
     named_parameters_ = named_parameters();
   }
 
-  /**
-   * @brief The move assignment operator.
-   */
+  /// Move-assignable.
   iSql_string& operator=(iSql_string&& rhs)
   {
     iSql_string tmp{std::move(rhs)};
@@ -91,9 +75,7 @@ public:
     return *this;
   }
 
-  /**
-   * @brief The swap operation.
-   */
+  /// Swaps the instances.
   void swap(iSql_string& other)
   {
     fragments_.swap(other.fragments_);
@@ -331,27 +313,6 @@ public:
     return &*extra_;
   }
 
-protected:
-  bool is_invariant_ok() const
-  {
-    const bool positional_parameters_ok = ((positional_parameter_count() > 0) == has_positional_parameters());
-    const bool named_parameters_ok = ((named_parameter_count() > 0) == has_named_parameters());
-    const bool parameters_ok = ((parameter_count() > 0) == has_parameters());
-    const bool parameters_count_ok = (parameter_count() == (positional_parameter_count() + named_parameter_count()));
-    const bool empty_ok = !is_empty() || !has_parameters();
-    const bool extra_ok = is_extra_data_should_be_extracted_from_comments_ || extra_;
-    const bool parameterizable_ok = detail::is_invariant_ok(*this);
-
-    return
-      positional_parameters_ok &&
-      named_parameters_ok &&
-      parameters_ok &&
-      parameters_count_ok &&
-      empty_ok &&
-      extra_ok &&
-      parameterizable_ok;
-  }
-
 private:
   friend std::pair<iSql_string, const char*> parse_sql_input(const char*);
 
@@ -375,6 +336,32 @@ private:
     std::string str;
   };
   using Fragment_list = std::list<Fragment>;
+
+  Fragment_list fragments_;
+  std::vector<bool> positional_parameters_; // cache
+  std::vector<Fragment_list::const_iterator> named_parameters_; // cache
+  mutable bool is_extra_data_should_be_extracted_from_comments_{true};
+  mutable std::optional<heap_data_Composite> extra_; // cache
+
+  bool is_invariant_ok() const
+  {
+    const bool positional_parameters_ok = ((positional_parameter_count() > 0) == has_positional_parameters());
+    const bool named_parameters_ok = ((named_parameter_count() > 0) == has_named_parameters());
+    const bool parameters_ok = ((parameter_count() > 0) == has_parameters());
+    const bool parameters_count_ok = (parameter_count() == (positional_parameter_count() + named_parameter_count()));
+    const bool empty_ok = !is_empty() || !has_parameters();
+    const bool extra_ok = is_extra_data_should_be_extracted_from_comments_ || extra_;
+    const bool parameterizable_ok = detail::is_invariant_ok(*this);
+
+    return
+      positional_parameters_ok &&
+      named_parameters_ok &&
+      parameters_ok &&
+      parameters_count_ok &&
+      empty_ok &&
+      extra_ok &&
+      parameterizable_ok;
+  }
 
   // ---------------------------------------------------------------------------
   // Initializers
@@ -529,17 +516,11 @@ private:
     return std::all_of(cbegin(str), cend(str), is_space);
   };
 
-  /**
-   * @return `true` if the given fragment is a comment.
-   */
   static bool is_comment(const Fragment& f)
   {
     return (f.type == Fragment::Type::one_line_comment || f.type == Fragment::Type::multi_line_comment);
   };
 
-  /**
-   * @return `true` if the given fragment is a text.
-   */
   static bool is_text(const Fragment& f)
   {
     return (f.type == Fragment::Type::text);
@@ -549,26 +530,22 @@ private:
   // Extra data
   // ---------------------------------------------------------------------------
 
-  /**
-   * @brief Represents an API for extraction the extra data from the comments.
-   */
+  /// Represents an API for extraction the extra data from the comments.
   struct Extra final {
   public:
-    /** Denotes the key type of the associated data. */
+    /// Denotes the key type of the associated data.
     using Key = std::string;
 
-    /** Denotes the value type of the associated data. */
+    /// Denotes the value type of the associated data.
     using Value = std::unique_ptr<Data>;
 
-    /** Denotes the fragment type. */
+    /// Denotes the fragment type.
     using Fragment = iSql_string::Fragment;
 
-    /** Denotes the fragment list type. */
+    /// Denotes the fragment list type.
     using Fragment_list = iSql_string::Fragment_list;
 
-    /**
-     * @returns The vector of associated extra data.
-     */
+    /// @returns The vector of associated extra data.
     static std::vector<std::pair<Key, Value>> extract(const Fragment_list& fragments)
     {
       std::vector<std::pair<Key, Value>> result;
@@ -586,14 +563,12 @@ private:
     }
 
   private:
-    /**
-     * Represents a comment type.
-     */
+    /// Represents a comment type.
     enum class Comment_type {
-      /** Denotes one line comment */
+      /// Denotes one line comment
       one_line,
 
-      /** Denotes multi line comment */
+      /// Denotes multi line comment
       multi_line
     };
 
@@ -916,12 +891,6 @@ private:
       return result;
     }
   };
-
-  Fragment_list fragments_;
-  std::vector<bool> positional_parameters_; // cache
-  std::vector<Fragment_list::const_iterator> named_parameters_; // cache
-  mutable bool is_extra_data_should_be_extracted_from_comments_{true};
-  mutable std::optional<heap_data_Composite> extra_; // cache
 };
 
 } // namespace dmitigr::pgfe::detail
@@ -997,9 +966,7 @@ namespace dmitigr::pgfe::detail {
 
 namespace {
 
-/**
- * @returns `true` if `c` is a valid character of unquoted SQL identifier.
- */
+/// @returns `true` if `c` is a valid character of unquoted SQL identifier.
 inline bool is_ident_char(const char c) noexcept
 {
   return (std::isalnum(c, std::locale{}) || c == '_' || c == '$');
