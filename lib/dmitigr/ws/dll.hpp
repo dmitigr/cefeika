@@ -10,7 +10,7 @@
 #define DMITIGR_WS_DLL_HPP
 
 #ifdef _WIN32
-  #ifdef DMITIGR_CEFEIKA_DLL_BUILDING
+  #ifdef DMITIGR_WS_DLL_BUILDING
     #define DMITIGR_WS_API __declspec(dllexport)
   #else
     #if DMITIGR_WS_DLL

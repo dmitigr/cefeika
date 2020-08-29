@@ -261,7 +261,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
     set(output_name "dmitigr_${lib}")
     if(BUILD_SHARED_LIBS)
       target_compile_definitions(${lib}
-        PRIVATE DMITIGR_CEFEIKA_DLL_BUILDING
+        PRIVATE DMITIGR_${LIB}_DLL_BUILDING
         PUBLIC  DMITIGR_${LIB}_DLL)
     elseif(WIN32)
       set(output_name "dmitigr_${lib}_static")
