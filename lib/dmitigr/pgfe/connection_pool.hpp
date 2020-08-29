@@ -58,7 +58,7 @@ public:
     /// @overload
     DMITIGR_PGFE_API const Connection* operator->() const;
 
-    /// @returns `true` if handle is valid, or `false` otherwise.
+    /// @returns `true` if handle is valid.
     DMITIGR_PGFE_API bool is_valid() const;
 
     /// @returns `is_valid()`.
@@ -88,9 +88,7 @@ public:
     std::size_t connection_index_{};
   };
 
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Connection_pool() = default;
 
   /**
@@ -132,9 +130,7 @@ public:
    */
   virtual void set_release_handler(std::function<void(Connection*)> handler) = 0;
 
-  /**
-   * @returns The current release handler.
-   */
+  /// @returns The current release handler.
   virtual const std::function<void(Connection*)>& release_handler() const = 0;
 
   /**
@@ -148,7 +144,7 @@ public:
   /// Closes the connections to the server.
   virtual void disconnect() = 0;
 
-  /// @returns `true` if the pool is connected, or `false` otherwise.
+  /// @returns `true` if the pool is connected.
   virtual bool is_connected() const = 0;
 
   /**

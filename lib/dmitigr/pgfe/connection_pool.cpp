@@ -134,6 +134,7 @@ public:
     handle.pool_ = {};
     handle.connection_ = {};
     handle.connection_index_ = {};
+    DMITIGR_ASSERT(!handle.is_valid());
 
     if (!is_connected_)
       conn->disconnect();
