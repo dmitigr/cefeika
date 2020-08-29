@@ -12,49 +12,40 @@
 
 namespace dmitigr::pgfe::detail {
 
-/**
- * @brief The base implementation of Notification.
- */
+/// The base implementation of Notification.
 class iNotification : public Notification {
 protected:
-  virtual bool is_invariant_ok()
+  virtual bool is_invariant_ok() const
   {
     return (server_pid() >= 0) && !channel_name().empty() && payload();
   }
 };
 
-/**
- * @brief The implementation of Notification based on libpq.
- */
+/// The implementation of Notification based on libpq.
 class pq_Notification final : public iNotification {
 public:
-  /**
-   * @brief The constructor.
-   */
+  /// The constructor.
   explicit pq_Notification(::PGnotify* const pgnotify)
     : pgnotify_(pgnotify)
     , payload_{}
     , channel_name_(pgnotify_->relname)
   {
     if (pgnotify_->extra)
-      payload_ = Data_view(pgnotify_->extra, std::strlen(pgnotify_->extra), Data_format::text);
+      payload_ = Data_view{pgnotify_->extra, std::strlen(pgnotify_->extra), Data_format::text};
+
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
-  /** Non copyable. */
+  /// Non copy-constructible.
   pq_Notification(const pq_Notification&) = delete;
 
-  /**
-   * @brief The move constructor.
-   */
+  /// Move-constructible.
   pq_Notification(pq_Notification&&) = default;
 
-  /** Non copyable. */
+  /// Non copy-assignable.
   pq_Notification& operator=(const pq_Notification&) = delete;
 
-  /**
-   * @brief The move assignment operator.
-   */
+  /// Move-assignable.
   pq_Notification& operator=(pq_Notification&&) = default;
 
   std::int_fast32_t server_pid() const noexcept override
@@ -73,7 +64,7 @@ public:
   }
 
 protected:
-  bool is_invariant_ok() override
+  bool is_invariant_ok() const override
   {
     const bool pgnotify_ok = pgnotify_ && (!payload_ || (payload() && pgnotify_->extra == payload()->bytes()));
     const bool channel_ok = !channel_name_.empty();

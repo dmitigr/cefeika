@@ -23,9 +23,7 @@ public:
   /// @name Conversions
   /// @{
 
-  /**
-   * @returns The copy of this instance.
-   */
+  /// @returns The copy of this instance.
   virtual std::unique_ptr<Error> to_error() const = 0;
 
   /// @}

@@ -35,9 +35,7 @@ public:
    */
   virtual const std::string& channel_name() const noexcept = 0;
 
-  /**
-   * @returns The payload data.
-   */
+  /// @returns The payload data.
   virtual const Data* payload() const noexcept = 0;
 
 private:

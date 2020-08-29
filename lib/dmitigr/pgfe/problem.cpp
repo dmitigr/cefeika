@@ -175,7 +175,7 @@ public:
   }
 
 protected:
-  bool is_invariant_ok() override
+  bool is_invariant_ok() const override
   {
     constexpr bool is_error = std::is_base_of_v<Error, ProblemDerived>;
     const bool mandatory_ok = !severity_localized().empty() && !sqlstate().empty();

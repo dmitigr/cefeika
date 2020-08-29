@@ -21,24 +21,16 @@ namespace dmitigr::pgfe {
  */
 class Parameterizable {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Parameterizable() = default;
 
-  /**
-   * @returns The number of positional parameters.
-   */
+  /// @returns The number of positional parameters.
   virtual std::size_t positional_parameter_count() const = 0;
 
-  /**
-   * @returns The number of named parameters.
-   */
+  /// @returns The number of named parameters.
   virtual std::size_t named_parameter_count() const = 0;
 
-  /**
-   * @returns `(positional_parameter_count() + named_parameter_count())`
-   */
+  /// @returns `(positional_parameter_count() + named_parameter_count())`.
   virtual std::size_t parameter_count() const = 0;
 
   /**
@@ -49,10 +41,7 @@ public:
    */
   virtual const std::string& parameter_name(std::size_t index) const = 0;
 
-  /**
-   * @returns The parameter index if `has_parameter(name)`, or
-   * `std::nullopt` otherwise.
-   */
+  /// @returns The parameter index if `has_parameter(name)`.
   virtual std::optional<std::size_t> parameter_index(const std::string& name) const = 0;
 
   /**
@@ -63,25 +52,16 @@ public:
    */
   virtual std::size_t parameter_index_throw(const std::string& name) const = 0;
 
-  /**
-   * @returns `true` if this instance has the parameter with the specified
-   * `name`, or `false` otherwise.
-   */
+  /// @returns `true` if this instance has the parameter with the specified `name`.
   virtual bool has_parameter(const std::string& name) const = 0;
 
-  /**
-   * @returns  `(positional_parameter_count() > 0)`.
-   */
+  /// @returns `(positional_parameter_count() > 0)`.
   virtual bool has_positional_parameters() const = 0;
 
-  /**
-   * @returns `(named_parameter_count() > 0)`.
-   */
+  /// @returns `(named_parameter_count() > 0)`.
   virtual bool has_named_parameters() const = 0;
 
-  /**
-   * @returns `(parameter_count() > 0)`.
-   */
+  /// @returns `(parameter_count() > 0)`.
   virtual bool has_parameters() const = 0;
 
 private:

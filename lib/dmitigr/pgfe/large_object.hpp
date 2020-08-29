@@ -123,16 +123,13 @@ public:
   /// Swaps this instance with `rhs`.
   DMITIGR_PGFE_API void swap(Large_object& rhs) noexcept;
 
-  /**
-   * @returns `true` if this instance is correctly initialized, or
-   * `false` otherwise.
-   */
+  /// @returns `true` if this instance is correctly initialized.
   DMITIGR_PGFE_API bool is_valid() const noexcept;
 
   /**
    * @brief Closes the underlying large object descriptor and invalidates this instance.
    *
-   * @returns `true` on success, or `false` otherwise.
+   * @returns `true` on success.
    *
    * @par Effects
    * If returned value is `true` then `!is_valid()`.
@@ -157,7 +154,7 @@ public:
   /**
    * @brief Truncates the large object to size `new_size`.
    *
-   * @returns `true` on success, or `false` otherwise.
+   * @returns `true` on success.
    *
    * @par Requires
    * `(new_size >= 0)`

@@ -16,6 +16,7 @@ namespace dmitigr::pgfe {
  */
 class Message {
 public:
+  /// The destructor.
   virtual ~Message() = default;
 
 private:
