@@ -17,7 +17,8 @@ int main(int, char* argv[])
     conn->connect();
 
     conn->perform("begin");
-    ASSERT(conn->completion() && conn->completion()->operation_name() == "BEGIN");
+    auto comp = conn->completion();
+    ASSERT(comp && comp->operation_name() == "BEGIN");
 
     conn->perform_async
     ("create table test(id integer not null);"
@@ -37,10 +38,12 @@ int main(int, char* argv[])
      " for each row"
      " execute procedure test_constraint()");
     conn->wait_last_response_throw();
-    ASSERT(conn->completion() && conn->completion()->operation_name() == "CREATE TRIGGER");
+    comp = conn->completion();
+    ASSERT(comp && comp->operation_name() == "CREATE TRIGGER");
 
     conn->execute("insert into test(id) values($1)", 1);
-    ASSERT(conn->completion()->operation_name() == "INSERT");
+    comp = conn->completion();
+    ASSERT(comp->operation_name() == "INSERT");
 
     try {
       conn->perform("commit");

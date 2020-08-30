@@ -5,6 +5,7 @@
 #ifndef DMITIGR_PGFE_CONNECTION_HPP
 #define DMITIGR_PGFE_CONNECTION_HPP
 
+#include "dmitigr/pgfe/completion.hpp"
 #include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/prepared_statement_dfn.hpp"
 #include "dmitigr/pgfe/row_conversions.hpp"
@@ -499,7 +500,7 @@ public:
    * Strong.
    *
    * @remarks It's more efficienlty than release_error(), release_row() or
-   * release_completion().
+   * completion().
    */
   virtual void dismiss_response() = 0;
 
@@ -564,30 +565,15 @@ public:
   virtual std::unique_ptr<Row> release_row() = 0;
 
   /**
-   * @returns The pointer to the instance of type Completion if available.
-   *
-   * @remarks This method is semantically similar to release_completion() but
-   * allows the implementation to avoid extra memory allocation for the retrieved
-   * completion response.
-   *
-   * @remarks The object pointed by the returned value is owned by this instance.
-   *
-   * @see release_completion().
-   */
-  virtual const Completion* completion() const noexcept = 0;
-
-  /**
    * @returns The released instance of type Completion if available.
    *
    * @par Exception safety guarantee
    * Strong.
    *
    * @remarks There is no necessity to handle Completion explicitly. It will be
-   * dismissed automatically when appropriate. A caller should always rely upon
-   * assumption that the pointer obtained by completion() becomes invalid after
-   * calling this function.
+   * dismissed automatically when appropriate.
    */
-  virtual std::unique_ptr<Completion> release_completion() = 0;
+  virtual std::optional<Completion> completion() = 0;
 
   /**
    * @returns The pointer to the instance of type Prepared_statement if available.
@@ -1093,22 +1079,12 @@ public:
   }
 
   /**
-   * @brief Waits for the Completion or the Error and calls
-   * `body(completion())` if the `body` callback is given.
-   *
-   * @param body - the callback function.
+   * @brief Waits for the Completion or the Error and calls.
    *
    * @par Exception safety guarantee
    * Basic.
    */
-  virtual void complete(const std::function<void(const Completion*)>& body = {}) = 0;
-
-  /**
-   * @overload
-   *
-   * @remarks Calls body(release_completion()).
-   */
-  virtual void complete(const std::function<void(std::unique_ptr<Completion>&&)>& body) = 0;
+  virtual std::optional<Completion> complete() = 0;
 
   /**
    * @brief Quotes the given string to be used as a literal in a SQL query.

@@ -19,7 +19,8 @@ int main(int, char* argv[])
     conn->connect();
 
     conn->perform("begin");
-    ASSERT(conn->completion() && conn->completion()->operation_name() == "BEGIN");
+    auto comp = conn->completion();
+    ASSERT(comp && comp->operation_name() == "BEGIN");
 
     conn->perform("create or replace function provoke_err_in_mid(a_i integer)"
                   " returns integer"
@@ -33,7 +34,8 @@ int main(int, char* argv[])
                   " end;"
                   " $f$"
                   );
-    ASSERT(conn->completion() && conn->completion()->operation_name() == "CREATE FUNCTION");
+    comp = conn->completion();
+    ASSERT(comp && comp->operation_name() == "CREATE FUNCTION");
 
     bool rows_processed{};
     try {

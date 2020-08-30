@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
 #include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/completion.hpp"
 #include "dmitigr/pgfe/connection.hpp"
 #include "dmitigr/pgfe/connection_options.hpp"
 #include "dmitigr/pgfe/data.hpp"
@@ -566,7 +565,7 @@ public:
       case PGRES_TUPLES_OK: {
         DMITIGR_ASSERT(op_id == Request_id::perform || op_id == Request_id::execute);
         if (!get_would_block) {
-          set_response(simple_Completion{r.command_tag()});
+          set_response(Completion{r.command_tag()});
           shared_field_names_.reset();
           return Response_status::ready;
         } else
@@ -592,7 +591,7 @@ public:
           [[fallthrough]];
 
         case Request_id::execute:
-          set_response(simple_Completion{r.command_tag()});
+          set_response(Completion{r.command_tag()});
           return Response_status::ready;
 
         case Request_id::prepare_statement:
@@ -616,7 +615,7 @@ public:
         case Request_id::unprepare_statement:
           DMITIGR_ASSERT(request_prepared_statement_name_ && std::strcmp(r.command_tag(), "DEALLOCATE") == 0);
           unregister_ps(*request_prepared_statement_name_);
-          set_response(simple_Completion{"unprepare_statement"});
+          set_response(Completion{"unprepare_statement"});
           request_prepared_statement_name_.reset();
           return Response_status::ready;
 
@@ -626,14 +625,14 @@ public:
 
       case PGRES_EMPTY_QUERY:
         if (!get_would_block) {
-          set_response(simple_Completion{std::string{}});
+          set_response(Completion{std::string{}});
           return Response_status::ready;
         } else
           return Response_status::unready;
 
       case PGRES_BAD_RESPONSE:
         if (!get_would_block) {
-          set_response(simple_Completion{"invalid response"});
+          set_response(Completion{"invalid response"});
           return Response_status::ready;
         } else
           return Response_status::unready;
@@ -781,12 +780,7 @@ public:
     return response_.release_row();
   }
 
-  const simple_Completion* completion() const noexcept override
-  {
-    return response_.completion();
-  }
-
-  std::unique_ptr<Completion> release_completion() override
+  std::optional<Completion> completion() override
   {
     return response_.release_completion();
   }
@@ -803,7 +797,7 @@ public:
 
   bool is_ready_for_async_request() const override
   {
-    return is_connected() && requests_.empty() && (!response_ || completion() || prepared_statement());
+    return is_connected() && requests_.empty() && (!response_ || response_.completion() || prepared_statement());
   }
 
   bool is_ready_for_request() const override
@@ -988,27 +982,12 @@ public:
     }
   }
 
-  void complete(const std::function<void(const Completion*)>& body = {}) override
+  std::optional<Completion> complete() override
   {
     if (is_awaiting_response())
       wait_last_response_throw();
 
-    if (const auto* const c = completion()) {
-      if (body)
-        body(c);
-      dismiss_response();
-    }
-  }
-
-  void complete(const std::function<void(std::unique_ptr<Completion>&&)>& body) override
-  {
-    if (is_awaiting_response())
-      wait_last_response_throw();
-
-    if (auto c = release_completion()) {
-      if (body)
-        body(std::move(c));
-    }
+    return completion();
   }
 
   std::string to_quoted_literal(const std::string& literal) const override
