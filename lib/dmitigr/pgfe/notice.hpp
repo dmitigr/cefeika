@@ -8,9 +8,6 @@
 #include "dmitigr/pgfe/problem.hpp"
 #include "dmitigr/pgfe/signal.hpp"
 
-#include <string>
-#include <system_error>
-
 namespace dmitigr::pgfe {
 
 /**
@@ -23,26 +20,42 @@ namespace dmitigr::pgfe {
  *
  * @remarks It should not be confused with the Notification signal.
  */
-class Notice : public Signal, public Problem {
+class Notice final : public Signal, public Problem {
 public:
-  /// @name Conversions
-  /// @{
-
-  /// @returns The copy of this instance.
-  virtual std::unique_ptr<Notice> to_notice() const = 0;
-
-  /// @}
-
-private:
-  friend detail::iNotice;
+  ~Notice() override
+  {
+    pq_result_.release(); // freed in libpq/fe-protocol3.c:pqGetErrorNotice3()
+  }
 
   Notice() = default;
+
+  explicit Notice(const ::PGresult* const result) noexcept
+    : Problem{detail::pq::Result{const_cast< ::PGresult*>(result)}}
+  {
+    /*
+     * In fact result is not const. So it's okay to const_cast.
+     * (Allocated in libpq/fe-protocol3.c:pqGetErrorNotice3().)
+     */
+    assert(is_invariant_ok());
+  }
+
+private:
+  bool is_invariant_ok() const noexcept override
+  {
+    const auto sev = severity();
+    return ((static_cast<int>(sev) == -1) ||
+      (sev == Problem_severity::log) ||
+      (sev == Problem_severity::info) ||
+      (sev == Problem_severity::debug) ||
+      (sev == Problem_severity::notice) ||
+      (sev == Problem_severity::warning)) && Problem::is_invariant_ok();
+  }
+
+  // TODO: copying
+  // struct Rep;
+  // std::unique_ptr<Rep> rep_;
 };
 
 } // namespace dmitigr::pgfe
-
-#ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/notice.cpp"
-#endif
 
 #endif  // DMITIGR_PGFE_NOTICE_HPP

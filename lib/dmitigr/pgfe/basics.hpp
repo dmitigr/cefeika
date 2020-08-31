@@ -7,6 +7,8 @@
 
 #include <dmitigr/base/basics.hpp>
 
+#include <string_view>
+
 namespace dmitigr {
 
 namespace pgfe {
@@ -167,30 +169,60 @@ enum class Data_format {
  * @brief A problem info severity.
  */
 enum class Problem_severity {
-  /** The "log" problem severity (may be only in dmitigr::pgfe::Notice). */
+  /// The "log" problem severity (may be only in dmitigr::pgfe::Notice).
   log = 0,
 
-  /** The "info" problem severity (may be only in dmitigr::pgfe::Notice). */
+  /// The "info" problem severity (may be only in dmitigr::pgfe::Notice).
   info = 100,
 
-  /** The "debug" problem severity (may be only in dmitigr::pgfe::Notice). */
+  /// The "debug" problem severity (may be only in dmitigr::pgfe::Notice).
   debug = 200,
 
-  /** The "notice" problem severity (may be only in dmitigr::pgfe::Notice). */
+  /// The "notice" problem severity (may be only in dmitigr::pgfe::Notice).
   notice = 300,
 
-  /** The "warning" problem severity (may be only in dmitigr::pgfe::Notice). */
+  /// The "warning" problem severity (may be only in dmitigr::pgfe::Notice).
   warning = 400,
 
-  /** The "error" problem severity (may be only in dmitigr::pgfe::Error). */
+  /// The "error" problem severity (may be only in dmitigr::pgfe::Error).
   error = 500,
 
-  /** The "fatal" problem severity (may be only in dmitigr::pgfe::Error). */
+  /// The "fatal" problem severity (may be only in dmitigr::pgfe::Error).
   fatal = 600,
 
-  /** The "panic" problem severity (may be only in dmitigr::pgfe::Error). */
+  /// The "panic" problem severity (may be only in dmitigr::pgfe::Error).
   panic = 700
 };
+
+/**
+ * @ingroup main
+ *
+ * @returns The result of conversion of `str` to the value of type Problem_severity,
+ * or `-1` if `str` doesn't represents the problem severity.
+ *
+ * @remarks The value of `str` is case-sensitive.
+ */
+inline auto to_problem_severity(const std::string_view str) noexcept
+{
+  if (str == "LOG")
+    return Problem_severity::log;
+  else if (str == "INFO")
+    return Problem_severity::info;
+  else if (str == "DEBUG")
+    return Problem_severity::debug;
+  else if (str == "NOTICE")
+    return Problem_severity::notice;
+  else if (str == "WARNING")
+    return Problem_severity::warning;
+  else if (str == "ERROR")
+    return Problem_severity::error;
+  else if (str == "FATAL")
+    return Problem_severity::fatal;
+  else if (str == "PANIC")
+    return Problem_severity::panic;
+  else
+    return Problem_severity{-1};
+}
 
 // =============================================================================
 

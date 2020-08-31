@@ -100,6 +100,11 @@ template<typename T, class StringConversions = Generic_string_conversions<T>> st
 template<typename> struct Numeric_string_conversions;
 template<typename T, class StringConversions = Numeric_string_conversions<T>> struct Numeric_data_conversions;
 
+/// The abstraction layer over libpq.
+namespace pq {
+class Result;
+} // namespace pq
+
 } // namespace detail
 
 } // namespace dmitigr::pgfe

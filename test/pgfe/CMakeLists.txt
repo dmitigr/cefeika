@@ -18,7 +18,6 @@ set(dmitigr_pgfe_tests
   conversions_online data
   hello_world
   pq_vs_pgfe
-  problem
   ps
   row_info
   sql_string

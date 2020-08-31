@@ -14,22 +14,6 @@
 
 namespace dmitigr::pgfe {
 
-/**
- * @returns The integer representation of the SQLSTATE code.
- *
- * @par Requires
- * The `code` must consist of five alphanumeric characters.
- */
-DMITIGR_PGFE_API int sqlstate_string_to_int(const std::string& code);
-
-/**
- * @returns The textual representation of the SQLSTATE code.
- *
- * @par Requires
- * The `code` must be in range [0, 60466175].
- */
-DMITIGR_PGFE_API std::string sqlstate_int_to_string(int code);
-
 /// @returns The case-folded and double-quote processed SQL identifier.
 DMITIGR_PGFE_API std::string unquote_identifier(std::string_view identifier);
 

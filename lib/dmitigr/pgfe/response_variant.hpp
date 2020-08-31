@@ -20,33 +20,30 @@ public:
 
   pq_Response_variant(pq_Response_variant&& rhs) noexcept
     : error_{std::move(rhs.error_)}
-    , error_ptr_{rhs.error_ptr_ ? &error_ : nullptr}
     , row_{std::move(rhs.row_)}
     , row_ptr_{rhs.row_ptr_ ? &row_ : nullptr}
     , completion_{std::move(rhs.completion_)}
     , prepared_statement_{rhs.prepared_statement_}
   {
-    rhs.error_ptr_ = {}, rhs.row_ptr_ = {}, rhs.prepared_statement_ = {};
+    rhs.row_ptr_ = {}, rhs.prepared_statement_ = {};
   }
 
   pq_Response_variant& operator=(pq_Response_variant&& rhs) noexcept
   {
     if (this != &rhs) {
       error_ = std::move(rhs.error_);
-      error_ptr_ = rhs.error_ptr_ ? &error_ : nullptr;
       row_ = std::move(rhs.row_);
       row_ptr_ = rhs.row_ptr_ ? &row_ : nullptr;
       completion_ = std::move(rhs.completion_);
       prepared_statement_ = rhs.prepared_statement_;
 
-      rhs.error_ptr_ = {}, rhs.row_ptr_ = {}, rhs.prepared_statement_ = {};
+      rhs.row_ptr_ = {}, rhs.prepared_statement_ = {};
     }
     return *this;
   }
 
-  pq_Response_variant(simple_Error&& error) noexcept
+  pq_Response_variant(Error&& error) noexcept
     : error_{std::move(error)}
-    , error_ptr_{&error_}
   {}
 
   pq_Response_variant(pq_Row&& row) noexcept
@@ -62,46 +59,48 @@ public:
     : prepared_statement_{prepared_statement}
   {}
 
-  pq_Response_variant& operator=(simple_Error&& error) noexcept
+  pq_Response_variant& operator=(Error&& error) noexcept
   {
     error_ = std::move(error);
-    error_ptr_ = &error_, row_ptr_ = {}, completion_.reset(), prepared_statement_ = {};
+    row_ptr_ = {}, completion_.reset(), prepared_statement_ = {};
     return *this;
   }
 
   pq_Response_variant& operator=(pq_Row&& row) noexcept
   {
     row_ = std::move(row);
-    row_ptr_ = &row_, error_ptr_ = {}, completion_.reset(), prepared_statement_ = {};
+    row_ptr_ = &row_, error_.reset(), completion_.reset(), prepared_statement_ = {};
     return *this;
   }
 
   pq_Response_variant& operator=(Completion&& completion) noexcept
   {
     completion_ = std::move(completion);
-    error_ptr_ = {}, row_ptr_ = {}, prepared_statement_ = {};
+    error_.reset(), row_ptr_ = {}, prepared_statement_ = {};
     return *this;
   }
 
   pq_Response_variant& operator=(pq_Prepared_statement* const prepared_statement) noexcept
   {
-    prepared_statement_ = prepared_statement, error_ptr_ = {}, row_ptr_ = {}, completion_.reset();
+    prepared_statement_ = prepared_statement, error_.reset(), row_ptr_ = {}, completion_.reset();
     return *this;
   }
 
-  const simple_Error* error() const noexcept
+  std::optional<Error>& error() noexcept
   {
-    return error_ptr_;
+    return error_;
   }
 
-  std::unique_ptr<simple_Error> release_error()
+  const std::optional<Error>& error() const noexcept
   {
-    if (error_ptr_) {
-      auto r = std::make_unique<decltype(error_)>(std::move(error_));
-      error_ptr_ = {};
-      return r;
-    } else
-      return {};
+    return error_;
+  }
+
+  std::optional<Error> release_error() noexcept
+  {
+    auto r = std::move(error_);
+    error_.reset();
+    return r;
   }
 
   const pq_Row* row() const noexcept
@@ -149,8 +148,10 @@ public:
       return &*completion_;
     else if (prepared_statement_)
       return prepared_statement_;
+    else if (error_)
+      return &*error_;
     else
-      return error_ptr_;
+      return nullptr;
   }
 
   std::unique_ptr<Response> release_response()
@@ -158,12 +159,14 @@ public:
     if (auto r = release_row())
       return r;
     else if (completion_) {
-      auto comp = std::make_unique<Completion>(std::move(*completion_));
+      auto res = std::make_unique<Completion>(std::move(*completion_));
       completion_.reset();
-      return comp;
-    } else if (auto r = release_error())
-      return r;
-    else
+      return res;
+    } else if (error_) {
+      auto res = std::make_unique<Error>(std::move(*error_));
+      error_.reset();
+      return res;
+    } else
       return nullptr; // prepared statement cannot be released
   }
 
@@ -174,12 +177,11 @@ public:
 
   void reset() noexcept
   {
-    error_ptr_ = {}, row_ptr_ = {}, completion_.reset(), prepared_statement_ = {};
+    error_.reset(), row_ptr_ = {}, completion_.reset(), prepared_statement_ = {};
   }
 
 private:
-  simple_Error error_;
-  simple_Error* error_ptr_{}; // optimization
+  std::optional<Error> error_;
 
   pq_Row row_;
   pq_Row* row_ptr_{}; // optimization

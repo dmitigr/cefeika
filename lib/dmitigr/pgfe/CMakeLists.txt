@@ -317,11 +317,9 @@ set(dmitigr_pgfe_implementations
   connection_pool.cpp
   data.cpp
   errc.cpp
-  error.cpp
   exceptions.cpp
   large_object.cpp
   misc.cpp
-  notice.cpp
   notification.cpp
   parameterizable.cpp
   prepared_statement_impl.cpp

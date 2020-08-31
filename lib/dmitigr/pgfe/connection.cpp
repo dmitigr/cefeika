@@ -161,13 +161,9 @@ public:
 
 protected:
   virtual int socket() const = 0;
+  virtual void throw_if_error() = 0;
 
 public:
-  bool is_server_message_available() const noexcept override
-  {
-    return is_signal_available() || is_response_available();
-  }
-
   void wait_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) override
   {
     using std::chrono::system_clock;
@@ -177,7 +173,7 @@ public:
     DMITIGR_REQUIRE(!timeout || timeout >= milliseconds{-1}, std::invalid_argument);
     DMITIGR_REQUIRE(is_connected() && is_awaiting_response(), std::logic_error);
 
-    if (is_response_available())
+    if (response())
       return;
 
     if (timeout == milliseconds{-1})
@@ -293,23 +289,6 @@ protected:
 
   virtual std::string error_message() const = 0;
 
-  void throw_if_error()
-  {
-    if (!error())
-      return;
-
-    if (std::shared_ptr<Error> ei{release_error()}) {
-      // Attempting to throw a custom exception.
-      if (const auto& eh = error_handler(); eh && eh(ei))
-        return;
-
-      // Attempting to throw a predefined exception.
-      throw_server_exception(ei);
-
-      // Fallback - throwing an exception with unrecognized error code.
-      throw Server_exception{std::move(ei)};
-    }
-  }
 };
 
 inline bool iConnection::is_invariant_ok()
@@ -476,6 +455,24 @@ protected:
     return ::PQsocket(conn_);
   }
 
+  void throw_if_error() override
+  {
+    if (!response_.error())
+      return;
+
+    if (auto ei = std::make_shared<Error>(std::move(*error()))) {
+      // Attempting to throw a custom exception.
+      if (const auto& eh = error_handler(); eh && eh(ei))
+        return;
+
+      // Attempting to throw a predefined exception.
+      throw_server_exception(ei);
+
+      // Fallback - throwing an exception with unrecognized error code.
+      throw Server_exception{std::move(ei)};
+    }
+  }
+
 public:
   void read_server_input() override
   {
@@ -492,7 +489,7 @@ public:
   {
     DMITIGR_REQUIRE(is_connected(), std::logic_error);
 
-    if (is_response_available())
+    if (response())
       return Response_status::ready;
 
     // Optimization for case when wait_response.
@@ -510,9 +507,9 @@ public:
       static const auto is_get_result_would_block = [](PGconn* const conn)
       {
         /*
-         * Checking for nonblocking result and collecting notices btw.
-         * Note: notice_receiver() (which is the Notice collector) will be
-         * called (indirectly) from ::PQisBusy().
+         * Checking for nonblocking result and handling notices btw.
+         * Note: notice_receiver() (which calls the notice handler) will be
+         * called indirectly from ::PQisBusy().
          * Note: ::PQisBusy() calls a routine (pqParseInput3() from fe-protocol3.c)
          * which parses consumed input and stores notifications and notices if
          * are available. (::PQnotifies() calls this routine as well.)
@@ -574,7 +571,7 @@ public:
 
       case PGRES_FATAL_ERROR:
         if (!get_would_block) {
-          set_response(problem<simple_Error>(r.pg_result()));
+          set_response(Error{std::move(r)});
           shared_field_names_.reset();
           request_prepared_statement_.reset();
           request_prepared_statement_name_.reset();
@@ -647,26 +644,6 @@ public:
     DMITIGR_ASSERT_ALWAYS(!true);
   }
 
-  bool is_signal_available() const noexcept override
-  {
-    return !notices_.empty() || !notifications_.empty();
-  }
-
-  const simple_Notice* notice() const noexcept override
-  {
-    return !notices_.empty() ? &notices_.front() : nullptr;
-  }
-
-  std::unique_ptr<Notice> pop_notice() override
-  {
-    return pop_signal(notices_);
-  }
-
-  void dismiss_notice() override
-  {
-    notices_.pop();
-  }
-
   const pq_Notification* notification() const noexcept override
   {
     return !notifications_.empty() ? &notifications_.front() : nullptr;
@@ -720,13 +697,6 @@ public:
 
   void handle_signals() override
   {
-    if (!notices_.empty()) {
-      if (const auto& handle_notice = notice_handler()) {
-        while (auto n = pop_notice())
-          handle_notice(std::move(n));
-      }
-    }
-
     if (!notifications_.empty()) {
       if (const auto& handle_notification = notification_handler()) {
         while (auto n = pop_notification())
@@ -738,11 +708,6 @@ public:
   bool is_awaiting_response() const noexcept override
   {
     return !requests_.empty();
-  }
-
-  bool is_response_available() const noexcept override
-  {
-    return static_cast<bool>(response_);
   }
 
   const Response* response() const noexcept override
@@ -760,12 +725,7 @@ public:
     response_.reset();
   }
 
-  const simple_Error* error() const noexcept override
-  {
-    return response_.error();
-  }
-
-  std::unique_ptr<Error> release_error() override
+  std::optional<Error> error() override
   {
     return response_.release_error();
   }
@@ -1086,7 +1046,7 @@ protected:
       ((communication_status() == Communication_status::connected) == bool(session_start_time_));
     const bool session_data_empty =
       !session_start_time_ &&
-      (notices_.empty() && notifications_.empty()) &&
+      notifications_.empty() &&
       !response_ &&
       pending_results_.empty() &&
       !transaction_block_status_ &&
@@ -1146,7 +1106,7 @@ private:
 
   // Persistent data / public-modifiable data
   Error_handler error_handler_;
-  std::function<void(std::unique_ptr<Notice>&&)> notice_handler_;
+  std::function<void(const Notice&)> notice_handler_;
   std::function<void(std::unique_ptr<Notification>&&)> notification_handler_;
   Data_format default_result_format_{Data_format::text};
 
@@ -1160,7 +1120,6 @@ private:
 
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
 
-  mutable std::queue<simple_Notice> notices_;
   mutable std::queue<pq_Notification> notifications_;
 
   mutable pq_Response_variant response_;
@@ -1195,14 +1154,14 @@ private:
   {
     DMITIGR_ASSERT(arg);
     DMITIGR_ASSERT(r);
-    auto const cn = static_cast<pq_Connection*>(arg);
-    cn->notices_.push(problem<simple_Notice>(r));
+    auto* const cn = static_cast<pq_Connection*>(arg);
+    if (cn->notice_handler_)
+      cn->notice_handler_(Notice{r});
   }
 
-  static void default_notice_handler(std::unique_ptr<Notice>&& n)
+  static void default_notice_handler(const Notice& n)
   {
-    DMITIGR_ASSERT(n);
-    std::fprintf(stderr, "PostgreSQL Notice: %s\n", n->brief().c_str());
+    std::fprintf(stderr, "PostgreSQL Notice: %s\n", n.brief());
   }
 
   // ---------------------------------------------------------------------------
@@ -1212,7 +1171,6 @@ private:
   void reset_session()
   {
     session_start_time_.reset();
-    notices_ = {};
     notifications_ = {};
     response_.reset();
     pending_results_ = {};
@@ -1289,39 +1247,6 @@ private:
       return r;
     } else
       return {};
-  }
-
-  template<class Problem>
-  static Problem problem(const ::PGresult* const r)
-  {
-    using str::literal;
-    using str::coalesce;
-
-    DMITIGR_ASSERT(::PQresultStatus(r) == PGRES_NONFATAL_ERROR || ::PQresultStatus(r) == PGRES_FATAL_ERROR);
-
-    const auto oef = [](const char* const data)
-    {
-      return data ? std::optional<std::string>{data} : std::nullopt;
-    };
-
-    return Problem(literal(::PQresultErrorField(r, PG_DIAG_SEVERITY)),
-      oef(::PQresultErrorField(r, PG_DIAG_SEVERITY_NONLOCALIZED)),
-      coalesce({::PQresultErrorField(r, PG_DIAG_SQLSTATE), "00000"}),
-      literal(::PQresultErrorField(r, PG_DIAG_MESSAGE_PRIMARY)),
-      oef(::PQresultErrorField(r, PG_DIAG_MESSAGE_DETAIL)),
-      oef(::PQresultErrorField(r, PG_DIAG_MESSAGE_HINT)),
-      oef(::PQresultErrorField(r, PG_DIAG_STATEMENT_POSITION)),
-      oef(::PQresultErrorField(r, PG_DIAG_INTERNAL_POSITION)),
-      oef(::PQresultErrorField(r, PG_DIAG_INTERNAL_QUERY)),
-      oef(::PQresultErrorField(r, PG_DIAG_CONTEXT)),
-      oef(::PQresultErrorField(r, PG_DIAG_SCHEMA_NAME)),
-      oef(::PQresultErrorField(r, PG_DIAG_TABLE_NAME)),
-      oef(::PQresultErrorField(r, PG_DIAG_COLUMN_NAME)),
-      oef(::PQresultErrorField(r, PG_DIAG_DATATYPE_NAME)),
-      oef(::PQresultErrorField(r, PG_DIAG_CONSTRAINT_NAME)),
-      oef(::PQresultErrorField(r, PG_DIAG_SOURCE_FILE)),
-      oef(::PQresultErrorField(r, PG_DIAG_SOURCE_LINE)),
-      oef(::PQresultErrorField(r, PG_DIAG_SOURCE_FUNCTION)));
   }
 
   // ---------------------------------------------------------------------------

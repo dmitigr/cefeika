@@ -4,39 +4,11 @@
 
 #include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/util.hpp"
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/net/net.hpp>
-#include <dmitigr/str/str.hpp>
 
-#include <cerrno>
-#include <limits>
 #include <locale>
 
 namespace dmitigr::pgfe {
-
-DMITIGR_PGFE_INLINE int sqlstate_string_to_int(const std::string& code)
-{
-  const std::locale l{};
-  DMITIGR_REQUIRE(
-    code.size() == 5 &&
-    std::isalnum(code[0], l) &&
-    std::isalnum(code[1], l) &&
-    std::isalnum(code[2], l) &&
-    std::isalnum(code[3], l) &&
-    std::isalnum(code[4], l), std::invalid_argument);
-
-  errno = 0;
-  const long int result = std::strtol(code.c_str(), nullptr, 36);
-  DMITIGR_ASSERT(errno == 0);
-  DMITIGR_ASSERT(result >= 0 && result <= std::numeric_limits<int>::max());
-  return result;
-}
-
-DMITIGR_PGFE_INLINE std::string sqlstate_int_to_string(const int code)
-{
-  DMITIGR_REQUIRE(0 <= code && code <= 60466175, std::invalid_argument);
-  return str::to_string(code, 36);
-}
 
 DMITIGR_PGFE_INLINE std::string unquote_identifier(const std::string_view identifier)
 {

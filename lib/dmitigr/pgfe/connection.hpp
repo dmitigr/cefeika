@@ -235,7 +235,7 @@ public:
    * `is_connected()`.
    *
    * @par Effects
-   * *Possible* `is_server_message_available()` and/or `is_response_available()`.
+   * *Possible* call of notice handler, `notification()`, `response()`.
    *
    * @par Exception safety guarantee
    * Basic.
@@ -243,11 +243,6 @@ public:
    * @see read_server_input().
    */
   virtual Response_status collect_server_messages(bool wait_response = false) = 0;
-
-  /**
-   * @returns `(is_signal_available() || is_response_available())`
-   */
-  virtual bool is_server_message_available() const noexcept = 0;
 
   /// @}
 
@@ -257,52 +252,6 @@ public:
    * @name Signals
    */
   /// @{
-
-  /**
-   * @returns `(notice() || notification())`
-   */
-  virtual bool is_signal_available() const noexcept = 0;
-
-  /**
-   * @returns The pointer to the instance of type Notice if available.
-   *
-   * @remarks The object pointed by the returned value is owned by this instance.
-   *
-   * @see pop_notice().
-   */
-  virtual const Notice* notice() const noexcept = 0;
-
-  /**
-   * @returns The released instance of type Notice if available.
-   *
-   * @par Effects
-   * notice() returns the pointer to a next instance in the queue, or
-   * `nullptr` if the queue is empty.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   *
-   * @remarks A caller should always rely upon assumption that the pointer
-   * obtained by notice() becomes invalid after calling this function.
-   *
-   * @see notice(), dismiss_notice().
-   */
-  virtual std::unique_ptr<Notice> pop_notice() = 0;
-
-  /**
-   * @brief Dismissing an available Notice.
-   *
-   * @par Effects
-   * Same as for pop_notice().
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   *
-   * @remarks It's more efficiently than pop_notice().
-   *
-   * @see pop_notice().
-   */
-  virtual void dismiss_notice() = 0;
 
   /**
    * @returns The pointer to the instance of type Notification if available.
@@ -345,32 +294,8 @@ public:
    */
   virtual void dismiss_notification() = 0;
 
-  /**
-   * @brief An alias of error handler.
-   *
-   * Being set, this handler is called when the server responded with an error.
-   * If calling of this handler doesn't throw an exception and returns `false`
-   * the instance of type Server_exception will be thrown eventually.
-   */
-  using Error_handler = std::function<bool(std::shared_ptr<Error>)>;
-
-  /**
-   * @brief Sets the handler for custom errors.
-   *
-   * @param hander A handler to set.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   *
-   * @see Error_handler, error_handler().
-   */
-  virtual void set_error_handler(Error_handler handler) = 0;
-
-  /// @returns A current error handler.
-  virtual const Error_handler& error_handler() = 0;
-
   /// An alias of a notice handler.
-  using Notice_handler = std::function<void(std::unique_ptr<Notice>&&)>;
+  using Notice_handler = std::function<void(const Notice&)>;
 
   /**
    * @brief Sets the handler for notices.
@@ -441,7 +366,7 @@ public:
    * @par Requires
    * `((!timeout || timeout->count() >= -1) && is_connected() && is_awaiting_response())`.
    *
-   * @throws An instance of type Timed_out if the expression `is_response_available()`
+   * @throws An instance of type Timed_out if the expression `response()`
    * will not evaluates to `true` within the specified `timeout`.
    *
    * @par Exception safety guarantee
@@ -450,13 +375,13 @@ public:
    * @remarks All signals retrieved upon waiting the Response will be handled
    * by signals handlers being set.
    *
-   * @see is_response_available().
+   * @see response().
    */
   virtual void wait_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
 
   /**
    * @brief Similar to wait_response(), but throws Server_exception
-   * if `(error() != nullptr)` after awaiting.
+   * if `(error() != std::nullopt)` after awaiting.
    */
   virtual void wait_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
 
@@ -480,12 +405,9 @@ public:
   /**
    * @brief Similar to wait_last_response().
    *
-   * @throws Server_exception if `(error() != nullptr)` after awaiting.
+   * @throws Server_exception if `(error() != std::nullopt)` after awaiting.
    */
   virtual void wait_last_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
-
-  /// @returns `(error() || row() || completion() || prepared_statement())`
-  virtual bool is_response_available() const noexcept = 0;
 
   /// @returns The currently available response.
   virtual const Response* response() const noexcept = 0;
@@ -499,40 +421,44 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks It's more efficienlty than release_error(), release_row() or
+   * @remarks It's more efficienlty than error(), release_row() or
    * completion().
    */
   virtual void dismiss_response() = 0;
 
   /**
-   * @returns The pointer to the instance of type Error if available.
+   * @brief An alias of error handler.
    *
-   * @remarks This method is semantically similar to release_error() but
-   * allows the implementation to avoid extra memory allocation for the
-   * retrieved error response.
-   *
-   * @remarks The object pointed by the returned value is owned by this
-   * instance.
-   *
-   * @see release_error().
+   * Being set, this handler is called when the server responded with an error.
+   * If calling of this handler doesn't throw an exception and returns `false`
+   * the instance of type Server_exception will be thrown eventually.
    */
-  virtual const Error* error() const noexcept = 0;
+  using Error_handler = std::function<bool(std::shared_ptr<Error>)>;
 
   /**
-   * @returns The released instance of type Error if available.
+   * @brief Sets the handler for custom errors.
    *
-   * @par Effects
-   * `(error() == nullptr)`.
+   * @param hander A handler to set.
    *
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks A caller should always rely upon assumption that the pointer
-   * obtained by error() becomes invalid after calling this function.
-   *
-   * @see dismiss_response(), error().
+   * @see Error_handler, error_handler().
    */
-  virtual std::unique_ptr<Error> release_error() = 0;
+  virtual void set_error_handler(Error_handler handler) = 0;
+
+  /// @returns A current error handler.
+  virtual const Error_handler& error_handler() = 0;
+
+  /**
+   * @returns The released instance of type Error if available.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   *
+   * @remarks Useful only if using async API.
+   */
+  virtual std::optional<Error> error() = 0;
 
   /**
    * @returns The pointer to the instance of type Row if available.

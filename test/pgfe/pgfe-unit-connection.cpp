@@ -31,20 +31,14 @@ int main(int, char* argv[])
       ASSERT(!conn->is_ssl_secured());
       ASSERT(!conn->server_pid());
 
-      ASSERT(!conn->is_server_message_available());
-      ASSERT(!conn->is_signal_available());
-      ASSERT(!conn->notice());
-      ASSERT(!conn->pop_notice());
       ASSERT(!conn->notification());
       ASSERT(!conn->pop_notification());
       ASSERT(conn->notice_handler()); // by default handler is set
       ASSERT(!conn->notification_handler());
       ASSERT(!conn->is_awaiting_response());
-      ASSERT(!conn->is_response_available());
+      ASSERT(!conn->response());
       ASSERT(!conn->error());
-      ASSERT(!conn->release_error());
       ASSERT(!conn->row());
-      ASSERT(!conn->release_row());
       ASSERT(!conn->completion());
       ASSERT(!conn->prepared_statement());
       ASSERT(!conn->prepared_statement(""));
@@ -121,21 +115,20 @@ int main(int, char* argv[])
         ASSERT(conn->is_awaiting_response());
         ASSERT(!conn->is_ready_for_async_request());
         ASSERT(!conn->is_ready_for_request());
-        ASSERT(!conn->is_response_available());
+        ASSERT(!conn->response());
         conn->wait_response();
         conn->collect_server_messages();
         ASSERT(!conn->is_awaiting_response());
         ASSERT(conn->is_ready_for_async_request());
         ASSERT(conn->is_ready_for_request());
-        ASSERT(conn->is_response_available());
-        ASSERT(conn->is_server_message_available());
+        ASSERT(conn->response());
         ASSERT(conn->is_transaction_block_uncommitted());
         ASSERT(conn->transaction_block_status() == Transaction_block_status::uncommitted);
         const auto comp = conn->completion();
         ASSERT(comp);
         ASSERT(comp->operation_name() == "BEGIN");
         ASSERT(!comp->affected_row_count());
-        ASSERT(!conn->is_response_available());
+        ASSERT(!conn->response());
         conn->perform_async("END");
         conn->wait_response();
         ASSERT(!conn->is_transaction_block_uncommitted());
@@ -148,10 +141,8 @@ int main(int, char* argv[])
         conn->wait_response();
         conn->perform_async("PROVOKE SYNTAX ERROR");
         conn->wait_response();
-        ASSERT(conn->error());
-        ASSERT(conn->error()->code() == pgfe::Server_errc::c42_syntax_error);
-        const auto e = conn->release_error();
-        ASSERT(e);
+        const auto e = conn->error();
+        ASSERT(e && e->code() == pgfe::Server_errc::c42_syntax_error);
         ASSERT(!conn->error());
         ASSERT(conn->transaction_block_status() == Transaction_block_status::failed);
         conn->perform_async("END");
@@ -167,19 +158,19 @@ int main(int, char* argv[])
         conn->wait_response();
         auto comp = conn->completion();
         ASSERT(comp->operation_name() == "BEGIN");
-        ASSERT(!conn->is_response_available());
+        ASSERT(!conn->response());
 
         ASSERT(conn->is_awaiting_response());
         conn->wait_response();
         comp = conn->completion();
         ASSERT(comp->operation_name() == "SAVEPOINT");
-        ASSERT(!conn->is_response_available());
+        ASSERT(!conn->response());
 
         ASSERT(conn->is_awaiting_response());
         conn->wait_response();
         comp = conn->completion();
         ASSERT(comp->operation_name() == "COMMIT");
-        ASSERT(!conn->is_response_available());
+        ASSERT(!conn->response());
 
         ASSERT(!conn->is_awaiting_response());
       }
@@ -188,10 +179,10 @@ int main(int, char* argv[])
       {
         const auto old_notice_handler = conn->notice_handler();
         bool ok{};
-        conn->set_notice_handler([&ok](std::unique_ptr<pgfe::Notice>&& notice)
+        conn->set_notice_handler([&ok](const pgfe::Notice& notice)
                                  {
                                    if (!ok)
-                                     ok = std::string(notice->brief()) == "yahoo";
+                                     ok = std::string(notice.brief()) == "yahoo";
                                  });
         conn->perform_async("DO $$ BEGIN RAISE NOTICE 'yahoo'; END $$;");
         conn->wait_response();
@@ -237,7 +228,7 @@ int main(int, char* argv[])
           // Prepare
           auto* ps = conn->prepare_statement("SELECT generate_series(1,3) AS n");
           ASSERT(ps == conn->prepared_statement(""));
-          ASSERT(conn->is_response_available()); // the last prepared statement is always available
+          ASSERT(conn->response()); // the last prepared statement is always available
           ASSERT(!conn->is_awaiting_response());
           ASSERT(conn->is_ready_for_async_request());
           ASSERT(conn->is_ready_for_request());
@@ -245,7 +236,7 @@ int main(int, char* argv[])
           // Describe
           auto* dps = conn->describe_prepared_statement("");
           ASSERT(dps == ps);
-          ASSERT(conn->is_response_available()); // the last prepared statement is always available
+          ASSERT(conn->response()); // the last prepared statement is always available
           ASSERT(!conn->is_awaiting_response());
           ASSERT(conn->is_ready_for_async_request());
           ASSERT(conn->is_ready_for_request());
@@ -258,7 +249,7 @@ int main(int, char* argv[])
           // Prepare
           auto* ps = conn->prepare_statement("SELECT generate_series(1,5) AS n", "ps1");
           ASSERT(ps == conn->prepared_statement("ps1"));
-          ASSERT(conn->is_response_available()); // the last prepared statement is always available
+          ASSERT(conn->response()); // the last prepared statement is always available
           ASSERT(!conn->is_awaiting_response());
           ASSERT(conn->is_ready_for_async_request());
           ASSERT(conn->is_ready_for_request());
@@ -266,7 +257,7 @@ int main(int, char* argv[])
           // Describe
           auto* dps = conn->describe_prepared_statement("ps1");
           ASSERT(dps == ps);
-          ASSERT(conn->is_response_available()); // the last prepared statement is always available
+          ASSERT(conn->response()); // the last prepared statement is always available
           ASSERT(!conn->is_awaiting_response());
           ASSERT(conn->is_ready_for_async_request());
           ASSERT(conn->is_ready_for_request());
@@ -274,7 +265,7 @@ int main(int, char* argv[])
           // Unprepare
           conn->unprepare_statement("ps1");
           ASSERT(!conn->prepared_statement("ps1"));
-          ASSERT(conn->is_response_available());
+          ASSERT(conn->response());
           const auto comp = conn->completion();
           ASSERT(comp && (comp->operation_name() == "unprepare_statement"));
           ASSERT(!conn->is_awaiting_response());
@@ -297,7 +288,7 @@ int main(int, char* argv[])
           ASSERT(dps == ps);
           ASSERT(ps && (ps == conn->prepared_statement()));
           ASSERT(!ps->is_preparsed() && ps->is_described());
-          ASSERT(conn->is_response_available()); // the last prepared statement is always available
+          ASSERT(conn->response()); // the last prepared statement is always available
           ASSERT(!conn->is_awaiting_response());
           ASSERT(conn->is_ready_for_async_request());
           ASSERT(conn->is_ready_for_request());
@@ -305,7 +296,7 @@ int main(int, char* argv[])
           // Unprepare
           conn->unprepare_statement("ps2");
           ASSERT(!conn->prepared_statement("ps2"));
-          ASSERT(conn->is_response_available());
+          ASSERT(conn->response());
           comp = conn->completion();
           ASSERT(comp && (comp->operation_name() == "unprepare_statement"));
           ASSERT(!conn->is_awaiting_response());
@@ -320,7 +311,7 @@ int main(int, char* argv[])
             conn->describe_prepared_statement("unprepared");
           } catch (const pgfe::Server_exception& e) {
             ASSERT(e.code() == pgfe::Server_errc::c26_invalid_sql_statement_name);
-            ASSERT(!conn->is_response_available()); // the last prepared statement is always available
+            ASSERT(!conn->response()); // the last prepared statement is always available
             ASSERT(!conn->is_awaiting_response());
             ASSERT(conn->is_ready_for_async_request());
             ASSERT(conn->is_ready_for_request());
@@ -336,7 +327,7 @@ int main(int, char* argv[])
             conn->unprepare_statement("unprepared");
           } catch (const pgfe::Server_exception& e) {
             ASSERT(e.code() == pgfe::Server_errc::c26_invalid_sql_statement_name);
-            ASSERT(!conn->is_response_available()); // the last prepared statement is always available
+            ASSERT(!conn->response()); // the last prepared statement is always available
             ASSERT(!conn->is_awaiting_response());
             ASSERT(conn->is_ready_for_async_request());
             ASSERT(conn->is_ready_for_request());
@@ -349,7 +340,7 @@ int main(int, char* argv[])
       // Execute
       {
         conn->execute("SELECT generate_series(1,3) AS num");
-        ASSERT(conn->is_response_available());
+        ASSERT(conn->response());
         ASSERT(conn->row());
         int i = 1;
         while (auto* row = conn->row()) {
@@ -364,7 +355,7 @@ int main(int, char* argv[])
       // Execute (rows released rather than dismissed)
       {
         conn->execute("SELECT generate_series(1,3) AS num");
-        ASSERT(conn->is_response_available());
+        ASSERT(conn->response());
         ASSERT(conn->row());
         int i = 1;
         while (auto row = conn->release_row()) {
