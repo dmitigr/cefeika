@@ -553,7 +553,7 @@ public:
       case PGRES_SINGLE_TUPLE: {
         DMITIGR_ASSERT(op_id == Request_id::perform || op_id == Request_id::execute);
         if (!shared_field_names_)
-          shared_field_names_ = pq_Row_info::make_shared_field_names(r);
+          shared_field_names_ = Row_info::make_shared_field_names(r);
         response_ = pq_Row{std::move(r), shared_field_names_};
         pending_results_.pop();
         return Response_status::ready;

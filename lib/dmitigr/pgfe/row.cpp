@@ -14,7 +14,7 @@ class iRow : public Row {
 protected:
   virtual bool is_invariant_ok() const
   {
-    return detail::is_invariant_ok(*this);
+    return Row::is_invariant_ok();
   }
 };
 
@@ -70,7 +70,7 @@ public:
   // Row overridings
   // ---------------------------------------------------------------------------
 
-  const pq_Row_info& info() const noexcept override
+  const Row_info& info() const noexcept override
   {
     return info_;
   }
@@ -88,7 +88,7 @@ public:
   }
 
 private:
-  pq_Row_info info_; // pq::Result
+  Row_info info_; // pq::Result
 
   bool is_invariant_ok() const override
   {

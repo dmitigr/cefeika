@@ -54,6 +54,11 @@ private:
   friend detail::iRow;
 
   Row() = default;
+
+  virtual bool is_invariant_ok() const
+  {
+    return Compositional::is_invariant_ok();
+  }
 };
 
 } // namespace dmitigr::pgfe

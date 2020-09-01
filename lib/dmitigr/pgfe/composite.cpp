@@ -19,7 +19,7 @@ class iComposite : public Composite {
 protected:
   virtual bool is_invariant_ok() const
   {
-    return detail::is_invariant_ok(*this);
+    return Composite::is_invariant_ok();
   }
 };
 

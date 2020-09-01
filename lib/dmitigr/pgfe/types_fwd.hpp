@@ -92,7 +92,6 @@ class pq_Connection_options;
 class pq_Notification;
 class pq_Prepared_statement;
 class pq_Row;
-class pq_Row_info;
 
 template<typename> struct Generic_string_conversions;
 template<typename T, class StringConversions = Generic_string_conversions<T>> struct Generic_data_conversions;

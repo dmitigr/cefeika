@@ -23,7 +23,7 @@ namespace dmitigr::pgfe {
  */
 class Compositional {
 public:
-  /// @brief The destructor.
+  /// The destructor.
   virtual ~Compositional() = default;
 
   /// @returns The number of fields.
@@ -66,12 +66,23 @@ private:
   friend Row_info;
 
   Compositional() = default;
+
+  virtual bool is_invariant_ok() const
+  {
+    const bool fields_ok = !has_fields() || (field_count() > 0);
+    const bool field_names_ok = [this]
+    {
+      const std::size_t fc = field_count();
+      for (std::size_t i = 0; i < fc; ++i)
+        if (field_index(field_name(i), i) != i)
+          return false;
+      return true;
+    }();
+
+    return fields_ok && field_names_ok;
+  }
 };
 
 } // namespace dmitigr::pgfe
-
-#ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/compositional.cpp"
-#endif
 
 #endif  // DMITIGR_PGFE_COMPOSITIONAL_HPP

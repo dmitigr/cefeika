@@ -229,7 +229,7 @@ public:
           using T = std::decay_t<decltype (descr)>;
           if constexpr (std::is_same_v<T, pq::Result>)
             return descr.ps_param_type_oid(static_cast<int>(index));
-          else if constexpr (std::is_same_v<T, pq_Row_info>)
+          else if constexpr (std::is_same_v<T, Row_info>)
             return descr.pq_result_.ps_param_type_oid(static_cast<int>(index));
         }, *description_);
     } else
@@ -250,7 +250,7 @@ public:
           using T = std::decay_t<decltype (descr)>;
           if constexpr (std::is_same_v<T, pq::Result>)
             return nullptr;
-          else if constexpr (std::is_same_v<T, pq_Row_info>)
+          else if constexpr (std::is_same_v<T, Row_info>)
             return &descr;
         }, *description_);
     } else
@@ -276,7 +276,7 @@ private:
   pq_Connection* connection_{};
   std::chrono::system_clock::time_point session_start_time_;
   std::vector<Parameter> parameters_;
-  std::optional<std::variant<pq::Result, pq_Row_info>> description_;
+  std::optional<std::variant<pq::Result, Row_info>> description_;
 
   bool is_invariant_ok() const override;
 
@@ -299,7 +299,7 @@ private:
       parameters_.resize(std::size_t(r.ps_param_count()));
 
     if (r.field_count() > 0)
-      description_ = pq_Row_info(std::move(r));
+      description_ = Row_info(std::move(r));
     else
       description_ = std::move(r);
 

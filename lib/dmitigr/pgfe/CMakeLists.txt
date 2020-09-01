@@ -310,7 +310,6 @@ set(dmitigr_pgfe_headers
 set(dmitigr_pgfe_implementations
   completion.cpp
   composite.cpp
-  compositional.cpp
   connection.cpp
   connection_options.cpp
   connection_pool.cpp
