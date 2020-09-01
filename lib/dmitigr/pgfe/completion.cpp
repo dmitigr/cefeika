@@ -5,6 +5,7 @@
 #include "dmitigr/pgfe/completion.hpp"
 
 #include <cassert>
+#include <cstdlib>
 
 namespace dmitigr::pgfe {
 
@@ -23,17 +24,17 @@ DMITIGR_PGFE_INLINE Completion::Completion(const std::string_view tag)
        */
       const auto word_size = end_word_pos - space_before_word_pos;
       const std::string word{tag.substr(space_before_word_pos + 1, word_size)};
-      try {
-        const auto number = std::stol(word);
-        if (affected_row_count_ < 0)
-          affected_row_count_ = number;
-      } catch (std::invalid_argument&) {
+
+      errno = 0;
+      char* p{};
+      const long number = std::strtol(word.c_str(), &p, 10);
+      assert(errno == 0);
+      if (p == word.c_str())
         // The word is not a number.
         break;
-      } catch (std::out_of_range&) {
-        // Enormous number value.
-        throw;
-      }
+      else if (affected_row_count_ < 0)
+        affected_row_count_ = number;
+
       end_word_pos = space_before_word_pos - 1;
       space_before_word_pos = tag.find_last_of(space, end_word_pos);
     }

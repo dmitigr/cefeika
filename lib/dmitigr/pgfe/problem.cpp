@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <cerrno>
+#include <cstdlib>
 #include <locale>
 #include <stdexcept>
 
