@@ -3,11 +3,13 @@
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
 #include "dmitigr/pgfe/completion.hpp"
-#include <dmitigr/base/debug.hpp>
+
+#include <cassert>
 
 namespace dmitigr::pgfe {
 
 DMITIGR_PGFE_INLINE Completion::Completion(const std::string_view tag)
+  : affected_row_count_{-1} // mark instance as valid
 {
   constexpr char space{' '};
   auto space_before_word_pos = tag.find_last_of(space);
@@ -22,9 +24,9 @@ DMITIGR_PGFE_INLINE Completion::Completion(const std::string_view tag)
       const auto word_size = end_word_pos - space_before_word_pos;
       const std::string word{tag.substr(space_before_word_pos + 1, word_size)};
       try {
-        const auto count = std::stol(word);
-        if (!affected_row_count_)
-          affected_row_count_ = count;
+        const auto number = std::stol(word);
+        if (affected_row_count_ < 0)
+          affected_row_count_ = number;
       } catch (std::invalid_argument&) {
         // The word is not a number.
         break;
@@ -39,7 +41,8 @@ DMITIGR_PGFE_INLINE Completion::Completion(const std::string_view tag)
   } else
     operation_name_ = tag;
 
-  DMITIGR_ASSERT(is_invariant_ok());
+  assert(is_valid());
+  assert(is_invariant_ok());
 }
 
 } // namespace dmitigr::pgfe

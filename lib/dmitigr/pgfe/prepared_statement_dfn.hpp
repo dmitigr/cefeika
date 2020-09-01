@@ -174,6 +174,12 @@ using Na = Named_argument;
  */
 class Prepared_statement : public Response, public Parameterizable {
 public:
+  /// @see Message::is_valid().
+  bool is_valid() const noexcept override
+  {
+    throw "not implemented";
+  }
+
   /// @name Read-only properties
   /// @{
 

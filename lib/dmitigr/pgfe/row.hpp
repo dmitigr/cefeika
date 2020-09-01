@@ -21,6 +21,12 @@ public:
   /// @returns The information about this row.
   virtual const Row_info& info() const noexcept = 0;
 
+  /// @see Message::is_valid().
+  bool is_valid() const noexcept override
+  {
+    throw "not implemented";
+  }
+
   /**
    * @returns The field data of this row, or `std::nullopt` if NULL.
    *

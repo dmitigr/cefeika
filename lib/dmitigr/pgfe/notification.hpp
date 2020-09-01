@@ -23,6 +23,12 @@ namespace dmitigr::pgfe {
  */
 class Notification : public Signal {
 public:
+  /// @see Message::is_valid().
+  bool is_valid() const noexcept override
+  {
+    throw "not implemented";
+  }
+
   /**
    * @returns The identifier of the PostgreSQL server process that
    * produced this notification.

@@ -153,7 +153,7 @@ public:
   }
 
   /// @returns The number of rows affected by a SQL command.
-  const char* affected_rows_count() const noexcept
+  const char* affected_row_count() const noexcept
   {
     return ::PQcmdTuples(const_cast< ::PGresult*>(native_handle()));
   }

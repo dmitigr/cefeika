@@ -23,6 +23,12 @@ public:
   /// Default-constructible.
   Completion() = default;
 
+  /// @see Message::is_valid().
+  bool is_valid() const noexcept override
+  {
+    return (affected_row_count_ > -2);
+  }
+
   /// The constructor.
   explicit DMITIGR_PGFE_API Completion(const std::string_view tag);
 
@@ -51,16 +57,18 @@ public:
    */
   std::optional<long> affected_row_count() const noexcept
   {
-    return affected_row_count_;
+    return (affected_row_count_ >= 0) ?
+      std::make_optional<decltype(affected_row_count_)>(affected_row_count_) :
+      std::nullopt;
   }
 
 private:
+  long affected_row_count_{-2}; // -1 denotes no value, -2 denotes invalid instance
   std::string operation_name_;
-  std::optional<long> affected_row_count_;
 
   bool is_invariant_ok() const noexcept
   {
-    return (!affected_row_count_ || !operation_name_.empty());
+    return ((affected_row_count_ < 0) || !operation_name_.empty());
   }
 };
 

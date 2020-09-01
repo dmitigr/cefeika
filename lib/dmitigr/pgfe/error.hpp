@@ -27,6 +27,12 @@ public:
     assert(is_invariant_ok());
   }
 
+  /// @see Message::is_valid().
+  bool is_valid() const noexcept override
+  {
+    return static_cast<bool>(pq_result_);
+  }
+
 private:
   bool is_invariant_ok() const noexcept override
   {
