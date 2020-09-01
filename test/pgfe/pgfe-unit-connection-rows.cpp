@@ -28,9 +28,9 @@ template<> struct Conversions<Person> {
   {
     ASSERT(r);
     Person p;
-    p.id   = to<int>(*r->data("id"));
-    p.name = to<std::string>(*r->data("name"));
-    p.age  = to<unsigned int>(*r->data("age"));
+    p.id   = to<int>(r->data("id"));
+    p.name = to<std::string>(r->data("name"));
+    p.age  = to<unsigned int>(r->data("age"));
     return p;
   }
 

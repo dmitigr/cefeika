@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
     ASSERT(conn->row());
     conn->for_each([&](const pgfe::Row* const r) {
       using Array = std::vector<std::optional<std::string>>;
-      const auto arr = pgfe::to<Array>(*r->data(0));
+      const auto arr = pgfe::to<Array>(r->data(0));
       for (const auto& elem : arr) {
         if (elem)
           output_file << *elem;

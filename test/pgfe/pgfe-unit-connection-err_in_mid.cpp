@@ -42,7 +42,7 @@ int main(int, char* argv[])
       conn->execute("select provoke_err_in_mid(n) from generate_series(1,10) n");
       conn->for_each([&](const pgfe::Row* const row)
                      {
-                       const auto n = pgfe::to<int>(*row->data(0));
+                       const auto n = pgfe::to<int>(row->data(0));
                        ASSERT(n < 3);
                        if (n > 1)
                          rows_processed = true;

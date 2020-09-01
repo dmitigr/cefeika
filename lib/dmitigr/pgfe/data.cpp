@@ -7,6 +7,7 @@
 #include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
+#include <cassert>
 #include <cstring>
 #include <new>
 
@@ -232,8 +233,10 @@ DMITIGR_PGFE_INLINE Data_view::Data_view(const char* const bytes, const int size
   , size_(size)
   , bytes_(bytes)
 {
-  DMITIGR_REQUIRE(bytes, std::invalid_argument);
-  DMITIGR_ASSERT(is_invariant_ok());
+  assert(bytes && size >= 0);
+  if (!size_ && format_ == Format::text)
+    size_ = static_cast<int>(std::strlen(bytes));
+  assert(is_invariant_ok());
 }
 
 DMITIGR_PGFE_INLINE Data_view::Data_view(Data_view&& rhs)
@@ -241,7 +244,7 @@ DMITIGR_PGFE_INLINE Data_view::Data_view(Data_view&& rhs)
   , size_{rhs.size_}
   , bytes_{rhs.bytes_}
 {
-  rhs.format_ = Format::text;
+  rhs.format_ = Format{-1};
   rhs.size_ = 0;
   rhs.bytes_ = "";
 }

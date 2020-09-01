@@ -51,7 +51,7 @@ int main(int, char* argv[])
       ASSERT(ps1->connection());
       ASSERT(ps1->connection()->row());
       ASSERT(ps1->connection()->row()->data(0));
-      ASSERT(pgfe::to<int>(*ps1->connection()->row()->data(0)) == 1983);
+      ASSERT(pgfe::to<int>(ps1->connection()->row()->data(0)) == 1983);
       conn->wait_last_response_throw();
     }
 
@@ -140,9 +140,9 @@ int main(int, char* argv[])
     ps2->execute();
     int i = 1;
     while (auto* row = conn->row()) {
-      ASSERT(std::stoi(row->data(0)->bytes()) == 1);
-      ASSERT(std::stoi(row->data(1)->bytes()) == i);
-      ASSERT(std::stoi(row->data(2)->bytes()) == 2);
+      ASSERT(std::stoi(row->data(0).bytes()) == 1);
+      ASSERT(std::stoi(row->data(1).bytes()) == i);
+      ASSERT(std::stoi(row->data(2).bytes()) == 2);
       conn->dismiss_response();
       conn->wait_response();
       ++i;

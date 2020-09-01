@@ -344,7 +344,7 @@ int main(int, char* argv[])
         ASSERT(conn->row());
         int i = 1;
         while (auto* row = conn->row()) {
-          ASSERT(std::stoi(row->data("num")->bytes()) == i);
+          ASSERT(std::stoi(row->data("num").bytes()) == i);
           conn->dismiss_response();
           conn->wait_response();
           ++i;
@@ -359,7 +359,7 @@ int main(int, char* argv[])
         ASSERT(conn->row());
         int i = 1;
         while (auto row = conn->release_row()) {
-          ASSERT(std::stoi(row->data("num")->bytes()) == i);
+          ASSERT(std::stoi(row->data("num").bytes()) == i);
           conn->wait_response();
           ++i;
         }
@@ -371,7 +371,7 @@ int main(int, char* argv[])
         conn->invoke("version");
         ASSERT(conn->row());
         ASSERT(conn->row()->has_field("version"));
-        std::cout << "This test runs on " << conn->row()->data("version")->bytes() << std::endl;
+        std::cout << "This test runs on " << conn->row()->data("version").bytes() << std::endl;
         conn->complete();
       }
 
@@ -397,21 +397,21 @@ int main(int, char* argv[])
         conn->invoke("person_info", id, name, age);
         ASSERT(conn->row());
         ASSERT(conn->row()->has_field("person_info"));
-        ASSERT(conn->row()->data("person_info")->bytes() == expected_result);
+        ASSERT(conn->row()->data("person_info").bytes() == expected_result);
         conn->complete();
 
         // Using named notation.
         conn->invoke("person_info", Na{"age", age}, Na{"name", name}, Na{"id", id});
         ASSERT(conn->row());
         ASSERT(conn->row()->has_field("person_info"));
-        ASSERT(conn->row()->data("person_info")->bytes() == expected_result);
+        ASSERT(conn->row()->data("person_info").bytes() == expected_result);
         conn->complete();
 
         // Using mixed notation.
         conn->invoke("person_info", id, Na{"age", age}, Na{"name", name});
         ASSERT(conn->row());
         ASSERT(conn->row()->has_field("person_info"));
-        ASSERT(conn->row()->data("person_info")->bytes() == expected_result);
+        ASSERT(conn->row()->data("person_info").bytes() == expected_result);
         conn->complete();
 
         conn->perform("rollback");
@@ -425,7 +425,7 @@ int main(int, char* argv[])
         conn->execute("SELECT 1::integer");
         ASSERT(conn->row());
         ASSERT(conn->row()->has_fields());
-        ASSERT(conn->row()->data(0)->format() == pgfe::Data_format::binary);
+        ASSERT(conn->row()->data(0).format() == pgfe::Data_format::binary);
         conn->set_result_format(pgfe::Data_format::text);
         conn->dismiss_response();
         conn->wait_response();

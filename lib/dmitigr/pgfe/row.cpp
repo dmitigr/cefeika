@@ -75,13 +75,13 @@ public:
     return info_;
   }
 
-  std::optional<Data_view> data(const std::size_t index) const override
+  Data_view data(const std::size_t index) const override
   {
     DMITIGR_REQUIRE(index < field_count(), std::out_of_range);
     return data__(index);
   }
 
-  std::optional<Data_view> data(const std::string& name, const std::size_t offset) const override
+  Data_view data(const std::string& name, const std::size_t offset) const override
   {
     const auto index = field_index_throw(name, offset);
     return data__(index);
@@ -97,7 +97,7 @@ private:
     return info_ok && irow_ok;
   }
 
-  std::optional<Data_view> data__(const std::size_t index) const noexcept
+  Data_view data__(const std::size_t index) const noexcept
   {
     constexpr int row{};
     const auto fld = static_cast<int>(index);
@@ -105,7 +105,7 @@ private:
     if (!r.is_data_null(row, fld))
       return Data_view{r.data_value(row, fld), r.data_size(row, fld), r.field_format(fld)};
     else
-      return std::nullopt;
+      return Data_view{};
   }
 };
 

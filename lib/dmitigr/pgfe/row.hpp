@@ -28,14 +28,14 @@ public:
   }
 
   /**
-   * @returns The field data of this row, or `std::nullopt` if NULL.
+   * @returns The field data of this row, or invalid instance if NULL.
    *
    * @param index - see Compositional.
    *
    * @par Requires
    * `(index < field_count())`.
    */
-  virtual std::optional<Data_view> data(std::size_t index = 0) const = 0;
+  virtual Data_view data(std::size_t index = 0) const = 0;
 
   /**
    * @overload
@@ -48,7 +48,7 @@ public:
    *
    * @see has_field().
    */
-  virtual std::optional<Data_view> data(const std::string& name, std::size_t offset = 0) const = 0;
+  virtual Data_view data(const std::string& name, std::size_t offset = 0) const = 0;
 
 private:
   friend detail::iRow;

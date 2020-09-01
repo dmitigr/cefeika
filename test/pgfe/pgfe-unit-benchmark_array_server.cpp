@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     conn->for_each([&](const pgfe::Row* const r) {
       using Counter = std::decay_t<decltype (field_count)>;
       for (Counter i = 0; i < field_count; ++i)
-        output_file << pgfe::to<std::string>(*r->data(0));
+        output_file << pgfe::to<std::string>(r->data(0));
       output_file << "\n";
     });
   } catch (const std::exception& e) {

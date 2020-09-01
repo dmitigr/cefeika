@@ -46,7 +46,7 @@ public:
    */
   bool is_valid() const noexcept
   {
-    return (static_cast<int>(format()) < 0);
+    return (static_cast<int>(format()) >= 0);
   }
 
   /// @returns `true` if the instance is valid
@@ -155,7 +155,7 @@ public:
    * @par Requires
    * `bytes`.
    */
-  explicit DMITIGR_PGFE_API Data_view(const char* bytes = "", int size = 0,
+  DMITIGR_PGFE_API Data_view(const char* bytes, int size = 0,
     Format format = Format::text);
 
   /// Copy-constructible.
