@@ -180,7 +180,7 @@ public:
       timeout = options()->wait_response_timeout();
 
     while (true) {
-      const auto s = collect_server_messages(!timeout);
+      const auto s = collect_messages(!timeout);
       handle_signals();
       if (s == Response_status::unready) {
         const auto moment_of_wait = system_clock::now();
@@ -190,7 +190,7 @@ public:
         } else // timeout expired
           throw Timed_out{"wait response timeout expired"};
 
-        read_server_input();
+        read_input();
       } else
         break;
     }
@@ -474,7 +474,7 @@ protected:
   }
 
 public:
-  void read_server_input() override
+  void read_input() override
   {
     if (!::PQconsumeInput(conn_))
       throw std::runtime_error{error_message()};
@@ -485,7 +485,7 @@ public:
    * "PQgetResult() must be called repeatedly until it returns a null pointer,
    * indicating that the command is done."
    */
-  Response_status collect_server_messages(const bool wait_response) override
+  Response_status collect_messages(const bool wait_response) override
   {
     DMITIGR_REQUIRE(is_connected(), std::logic_error);
 

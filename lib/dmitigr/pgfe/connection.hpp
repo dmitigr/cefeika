@@ -134,7 +134,7 @@ public:
    * Basic.
    *
    * @remarks If called when `(communication_status() == Communication_status::failure)`,
-   * it will dismiss all unhandled server messages!
+   * it will dismiss all unhandled messages!
    *
    * @see connect(), communication_status(), socket_readiness().
    */
@@ -216,12 +216,12 @@ public:
    * @brief If input is available from the server, read it.
    *
    * This function should be called every time when the value returned by
-   * collect_server_messages() is Response_status::unready and the socket is in
+   * collect_messages() is Response_status::unready and the socket is in
    * read-ready state.
    *
-   * @see collect_server_messages(), socket_readiness().
+   * @see collect_messages(), socket_readiness().
    */
-  virtual void read_server_input() = 0;
+  virtual void read_input() = 0;
 
   /**
    * @brief Collects and queue the messages of all kinds which was sent by the server.
@@ -240,9 +240,9 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @see read_server_input().
+   * @see read_input().
    */
-  virtual Response_status collect_server_messages(bool wait_response = false) = 0;
+  virtual Response_status collect_messages(bool wait_response = false) = 0;
 
   /// @}
 

@@ -12,17 +12,19 @@ namespace dmitigr::pgfe {
 /**
  * @ingroup main
  *
- * @brief A client/server message to/from a PostgreSQL server.
+ * @brief A PostgreSQL server message (either synchronous or asynchronous).
  */
 class Message {
 public:
   /// The destructor.
   virtual ~Message() = default;
 
-private:
-  friend Server_message;
-
+  /// Default-constructible.
   Message() = default;
+
+private:
+  friend Response;
+  friend Signal;
 };
 
 } // namespace dmitigr::pgfe

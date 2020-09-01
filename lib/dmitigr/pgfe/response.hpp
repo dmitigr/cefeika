@@ -5,7 +5,7 @@
 #ifndef DMITIGR_PGFE_RESPONSE_HPP
 #define DMITIGR_PGFE_RESPONSE_HPP
 
-#include "dmitigr/pgfe/server_message.hpp"
+#include "dmitigr/pgfe/message.hpp"
 
 namespace dmitigr::pgfe {
 
@@ -14,7 +14,7 @@ namespace dmitigr::pgfe {
  *
  * @brief A synchronous (requested) message from a PostgreSQL server.
  */
-class Response : public Server_message {
+class Response : public Message {
   friend Completion;
   friend Error;
   friend Prepared_statement;

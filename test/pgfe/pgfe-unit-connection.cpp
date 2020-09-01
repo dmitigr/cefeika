@@ -117,7 +117,7 @@ int main(int, char* argv[])
         ASSERT(!conn->is_ready_for_request());
         ASSERT(!conn->response());
         conn->wait_response();
-        conn->collect_server_messages();
+        conn->collect_messages();
         ASSERT(!conn->is_awaiting_response());
         ASSERT(conn->is_ready_for_async_request());
         ASSERT(conn->is_ready_for_request());
@@ -188,7 +188,7 @@ int main(int, char* argv[])
         conn->wait_response();
         for (int i = 0; !ok && i < 100; ++i) {
           using namespace std::chrono_literals;
-          conn->collect_server_messages();
+          conn->collect_messages();
           std::this_thread::sleep_for(1ms);
         }
         conn->set_notice_handler(old_notice_handler);
@@ -214,7 +214,7 @@ int main(int, char* argv[])
         ASSERT(comp && comp->operation_name() == "NOTIFY");
         for (int i = 0; !ok && i < 100; ++i) {
           using namespace std::chrono_literals;
-          conn->collect_server_messages();
+          conn->collect_messages();
           std::this_thread::sleep_for(1ms);
         }
         conn->set_notification_handler(old_notification_handler);

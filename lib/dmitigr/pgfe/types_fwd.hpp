@@ -59,7 +59,6 @@ class Problem;
 class Response;
 class Row;
 class Row_info;
-class Server_message;
 class Signal;
 class Sql_string;
 class Sql_vector;

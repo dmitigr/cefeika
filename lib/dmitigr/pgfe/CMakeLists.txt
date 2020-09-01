@@ -299,7 +299,6 @@ set(dmitigr_pgfe_headers
   row.hpp
   row_conversions.hpp
   row_info.hpp
-  server_message.hpp
   signal.hpp
   sql_string.hpp
   sql_vector.hpp
