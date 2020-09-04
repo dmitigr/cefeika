@@ -8,6 +8,8 @@
 #include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
 
+#include <string>
+
 namespace dmitigr::pgfe {
 
 /**
@@ -21,6 +23,9 @@ namespace dmitigr::pgfe {
  * server.
  */
 DMITIGR_PGFE_API void set_initialization(External_library library);
+
+/// @returns The case-folded and double-quote processed SQL identifier.
+DMITIGR_PGFE_API std::string unquote_identifier(std::string_view identifier);
 
 } // namespace dmitigr::pgfe
 

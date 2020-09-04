@@ -5,7 +5,6 @@
 #include "dmitigr/pgfe/composite.hpp"
 #include "dmitigr/pgfe/compositional.hpp"
 #include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/util.hpp"
 #include <dmitigr/base/debug.hpp>
 
 #include <algorithm>

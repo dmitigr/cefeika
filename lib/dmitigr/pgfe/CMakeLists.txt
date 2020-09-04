@@ -303,7 +303,6 @@ set(dmitigr_pgfe_headers
   sql_string.hpp
   sql_vector.hpp
   std_system_error.hpp
-  util.hpp
   types_fwd.hpp
   )
 
@@ -326,7 +325,6 @@ set(dmitigr_pgfe_implementations
   sql_string.cpp
   sql_vector.cpp
   std_system_error.cpp
-  util.cpp
   )
 
 set(dmitigr_pgfe_cmake_unpreprocessed
