@@ -72,18 +72,13 @@ template<typename> class Entity_vector;
 /// The implementation details.
 namespace detail {
 
-class iCompletion;
 class iComposite;
 class iConnection;
 class iConnection_options;
 class iConnection_pool;
 class iData;
-class iError;
-class iNotice;
 class iNotification;
 class iPrepared_statement;
-class iRow;
-class iRow_info;
 class iSql_string;
 class iSql_vector;
 
@@ -91,7 +86,6 @@ class pq_Connection;
 class pq_Connection_options;
 class pq_Notification;
 class pq_Prepared_statement;
-class pq_Row;
 
 template<typename> struct Generic_string_conversions;
 template<typename T, class StringConversions = Generic_string_conversions<T>> struct Generic_data_conversions;

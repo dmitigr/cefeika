@@ -35,7 +35,7 @@ namespace dmitigr::pgfe {
  *   static std::unique_ptr<Data> to_data(const T& value, Types&& ... args);           // 4
  *   static T to_type(const Composite* composite, Types&& ... args);                   // 5
  *   static std::unique_ptr<Composite> to_composite(const T& value, Types&& ... args); // 6
- *   static T to_type(const Row* row, Types&& ... args);                               // 7
+ *   static T to_type(const Row& row, Types&& ... args);                               // 7
  * };
  * @endcode
  *
@@ -49,7 +49,7 @@ namespace dmitigr::pgfe {
  *   static std::unique_ptr<Data> to_data(T&& value, Types&& ... args);           // 14
  *   static T to_type(std::unique_ptr<Composite>&& composite, Types&& ... args);  // 15
  *   static std::unique_ptr<Composite> to_composite(T&& value, Types&& ... args); // 16
- *   static T to_type(std::unique_ptr<Row>&& row, Types&& ... args);              // 17
+ *   static T to_type(Row&& row, Types&& ... args);                               // 17
  * };
  * @endcode
  *
@@ -228,10 +228,10 @@ inline std::unique_ptr<Composite> to_composite(T&& value, Types&& ... args)
  * @tparam T - the destination data type of the conversion.
  *
  * @par Requires
- * `(row != nullptr)`.
+ * `(row)`.
  */
 template<typename T, typename ... Types>
-inline T to(const Row* const row, Types&& ... args)
+inline T to(const Row& row, Types&& ... args)
 {
   return Conversions<T>::to_type(row, std::forward<Types>(args)...);
 }
@@ -242,10 +242,10 @@ inline T to(const Row* const row, Types&& ... args)
  * @overload
  *
  * @par Requires
- * `(row != nullptr)`.
+ * `(row)`.
  */
 template<typename T, typename ... Types>
-inline T to(std::unique_ptr<Row>&& row, Types&& ... args)
+inline T to(Row&& row, Types&& ... args)
 {
   return Conversions<T>::to_type(std::move(row), std::forward<Types>(args)...);
 }

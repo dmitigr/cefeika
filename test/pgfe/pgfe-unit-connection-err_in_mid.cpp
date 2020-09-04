@@ -19,7 +19,7 @@ int main(int, char* argv[])
     conn->connect();
 
     conn->perform("begin");
-    auto comp = conn->completion();
+    auto comp = conn->wait_completion();
     ASSERT(comp && comp->operation_name() == "BEGIN");
 
     conn->perform("create or replace function provoke_err_in_mid(a_i integer)"
@@ -34,19 +34,18 @@ int main(int, char* argv[])
                   " end;"
                   " $f$"
                   );
-    comp = conn->completion();
+    comp = conn->wait_completion();
     ASSERT(comp && comp->operation_name() == "CREATE FUNCTION");
 
     bool rows_processed{};
     try {
       conn->execute("select provoke_err_in_mid(n) from generate_series(1,10) n");
-      conn->for_each([&](const pgfe::Row* const row)
-                     {
-                       const auto n = pgfe::to<int>(row->data(0));
-                       ASSERT(n < 3);
-                       if (n > 1)
-                         rows_processed = true;
-                     });
+      while (const auto r = conn->wait_row()) {
+        const auto n = pgfe::to<int>(r.data());
+        ASSERT(n < 3);
+        if (n > 1)
+          rows_processed = true;
+      }
     } catch (const pgfe::Server_exception& e) {
       // ok, expected.
       ASSERT(e.code() == pgfe::Server_errc::cp0_raise_exception);

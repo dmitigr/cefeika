@@ -114,20 +114,20 @@ public:
   virtual std::optional<std::chrono::milliseconds> wait_response_timeout() const = 0;
 
   /**
-   * @brief Sets the timeout of the wait last response operation.
+   * @brief Sets the timeout of the wait completion operation.
    *
    * @param value - the value of `std::nullopt` means *eternity*.
    *
-   * @see wait_last_response_timeout(), Connection::wait_last_response().
+   * @see wait_completion_timeout(), Connection::wait_completion().
    */
-  virtual Connection_options* set_wait_last_response_timeout(std::optional<std::chrono::milliseconds> value) = 0;
+  virtual Connection_options* set_wait_completion_timeout(std::optional<std::chrono::milliseconds> value) = 0;
 
   /**
-   * @returns The current value of the wait last response timeout.
+   * @returns The current value of the wait completion timeout.
    *
-   * @see set_wait_last_response_timeout(), Connection::wait_last_response().
+   * @see set_wait_completion_timeout(), Connection::wait_completion().
    */
-  virtual std::optional<std::chrono::milliseconds> wait_last_response_timeout() const = 0;
+  virtual std::optional<std::chrono::milliseconds> wait_completion_timeout() const = 0;
 
   // ---------------------------------------------------------------------------
 

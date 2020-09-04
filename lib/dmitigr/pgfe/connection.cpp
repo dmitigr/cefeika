@@ -14,12 +14,11 @@
 #include "dmitigr/pgfe/pq.hpp"
 #include "dmitigr/pgfe/prepared_statement_impl.hpp"
 #include "dmitigr/pgfe/response_variant.hpp"
-#include "dmitigr/pgfe/row.hpp"
-#include "dmitigr/pgfe/row_info.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/util.hpp"
 #include <dmitigr/base/debug.hpp>
 
+#include <cassert>
 #include <optional>
 #include <queue>
 
@@ -170,12 +169,10 @@ public:
     using std::chrono::milliseconds;
     using std::chrono::duration_cast;
 
-    DMITIGR_REQUIRE(!timeout || timeout >= milliseconds{-1}, std::invalid_argument);
-    DMITIGR_REQUIRE(is_connected() && is_awaiting_response(), std::logic_error);
-
-    if (response())
+    if (!(is_connected() && is_awaiting_response()) || response())
       return;
 
+    assert(!timeout || timeout >= milliseconds{-1});
     if (timeout == milliseconds{-1})
       timeout = options()->wait_response_timeout();
 
@@ -195,49 +192,12 @@ public:
         break;
     }
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   void wait_response_throw(const std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) override
   {
     wait_response(timeout);
-    throw_if_error();
-  }
-
-  void wait_last_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) override
-  {
-    using std::chrono::system_clock;
-    using std::chrono::milliseconds;
-    using std::chrono::duration_cast;
-
-    DMITIGR_REQUIRE(!timeout || timeout >= milliseconds{-1}, std::invalid_argument);
-    DMITIGR_REQUIRE(is_connected() && is_awaiting_response(), std::logic_error);
-
-    if (timeout == milliseconds{-1})
-      timeout = options()->wait_last_response_timeout();
-
-    while (true) {
-      const auto timepoint1 = system_clock::now();
-
-      wait_response(timeout);
-
-      if (is_awaiting_response())
-        dismiss_response();
-      else
-        break;
-
-      if (timeout) {
-        *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
-        if (timeout <= milliseconds::zero()) // Timeout
-          throw Timed_out{"wait last response timeout"};
-      }
-    }
-    DMITIGR_ASSERT(!is_awaiting_response());
-  }
-
-  void wait_last_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) override
-  {
-    wait_last_response(timeout);
     throw_if_error();
   }
 
@@ -554,7 +514,7 @@ public:
         DMITIGR_ASSERT(op_id == Request_id::perform || op_id == Request_id::execute);
         if (!shared_field_names_)
           shared_field_names_ = Row_info::make_shared_field_names(r);
-        response_ = pq_Row{std::move(r), shared_field_names_};
+        response_ = Row{std::move(r), shared_field_names_};
         pending_results_.pop();
         return Response_status::ready;
       }
@@ -730,19 +690,45 @@ public:
     return response_.release_error();
   }
 
-  const pq_Row* row() const noexcept override
+  Row wait_row() override
   {
-    return response_.row();
-  }
-
-  std::unique_ptr<Row> release_row() override
-  {
+    wait_response_throw();
     return response_.release_row();
   }
 
-  std::optional<Completion> completion() override
+  std::pair<Row, std::optional<Completion>> wait_row_completion() override
   {
-    return response_.release_completion();
+    auto row = wait_row();
+    auto comp = wait_completion();
+    return {std::move(row), std::move(comp)};
+  }
+
+  std::optional<Completion> wait_completion(std::optional<std::chrono::milliseconds> timeout =
+    std::chrono::milliseconds{-1}) override
+  {
+    using std::chrono::system_clock;
+    using std::chrono::milliseconds;
+    using std::chrono::duration_cast;
+
+    assert(!timeout || timeout >= milliseconds{-1});
+    if (timeout == milliseconds{-1})
+      timeout = options()->wait_completion_timeout();
+
+    while (true) {
+      const auto timepoint1 = system_clock::now();
+
+      wait_response_throw(timeout);
+      if (!response_)
+        return std::nullopt;
+      else if (response_.completion())
+        return response_.release_completion();
+
+      if (timeout) {
+        *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
+        if (timeout <= milliseconds::zero()) // Timeout
+          throw Timed_out{"wait completion timeout"};
+      }
+    }
   }
 
   pq_Prepared_statement* prepared_statement() const override
@@ -921,35 +907,6 @@ public:
     return ::lo_export(conn_, oid, filename.c_str()) == 1; // lo_export returns -1 on failure
   }
 
-  void for_each(const std::function<void(const Row*)>& body) override
-  {
-    DMITIGR_REQUIRE(body, std::invalid_argument);
-
-    while (const auto* const r = row()) {
-      body(r);
-      dismiss_response();
-      wait_response_throw();
-    }
-  }
-
-  void for_each(const std::function<void(std::unique_ptr<Row>&&)>& body) override
-  {
-    DMITIGR_REQUIRE(body, std::invalid_argument);
-
-    while (auto r = release_row()) {
-      body(std::move(r));
-      wait_response_throw();
-    }
-  }
-
-  std::optional<Completion> complete() override
-  {
-    if (is_awaiting_response())
-      wait_last_response_throw();
-
-    return completion();
-  }
-
   std::string to_quoted_literal(const std::string& literal) const override
   {
     DMITIGR_REQUIRE(is_connected(), std::logic_error);
@@ -1041,7 +998,7 @@ protected:
       ((requests_.front() == Request_id::describe_prepared_statement ||
         requests_.front() == Request_id::unprepare_statement) &&
         !request_prepared_statement_ && request_prepared_statement_name_);
-    const bool shared_field_names_ok = !row() || shared_field_names_;
+    const bool shared_field_names_ok = !response_.row() || shared_field_names_;
     const bool session_start_time_ok =
       ((communication_status() == Communication_status::connected) == bool(session_start_time_));
     const bool session_data_empty =

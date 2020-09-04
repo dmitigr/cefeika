@@ -67,14 +67,14 @@ int main(int, char* argv[])
       ASSERT(is_logic_throw_works([&]{ co->set_wait_response_timeout(invalid_value); }));
     }
 
-    ASSERT(co->wait_last_response_timeout() == defaults::wait_last_response_timeout);
+    ASSERT(co->wait_completion_timeout() == defaults::wait_completion_timeout);
     {
       std::chrono::milliseconds valid_value{};
-      co->set_wait_last_response_timeout(valid_value);
-      ASSERT(co->wait_last_response_timeout() == valid_value);
+      co->set_wait_completion_timeout(valid_value);
+      ASSERT(co->wait_completion_timeout() == valid_value);
 
       std::chrono::milliseconds invalid_value{-1};
-      ASSERT(is_logic_throw_works([&]{ co->set_wait_last_response_timeout(invalid_value); }));
+      ASSERT(is_logic_throw_works([&]{ co->set_wait_completion_timeout(invalid_value); }));
     }
 
 #ifndef _WIN32

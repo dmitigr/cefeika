@@ -322,7 +322,6 @@ set(dmitigr_pgfe_implementations
   parameterizable.cpp
   prepared_statement_impl.cpp
   problem.cpp
-  row.cpp
   row_info.cpp
   sql_string.cpp
   sql_vector.cpp

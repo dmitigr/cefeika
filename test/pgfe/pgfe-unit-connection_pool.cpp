@@ -26,28 +26,34 @@ int main()
   pgfe::Connection* conn3p{};
   {
     auto conn1 = pool->connection();
-    conn1p = conn1.connection();
     ASSERT(conn1);
+    conn1p = conn1.connection();
     conn1->perform("select 1");
-    conn1->for_each([](const auto* const row)
     {
-      const int n = pgfe::to<int>(row->data(0));
+      const auto r = conn1->wait_row();
+      ASSERT(r);
+      const auto d = r.data();
+      ASSERT(d);
+      const auto n = pgfe::to<int>(d);
       ASSERT(n == 1);
-    });
+    };
 
     auto conn2 = pool->connection();
-    conn2p = conn2.connection();
     ASSERT(conn2);
+    conn2p = conn2.connection();
     conn2->perform("select 2");
-    conn2->for_each([](const auto* const row)
     {
-      const int n = pgfe::to<int>(row->data(0));
+      const auto r = conn2->wait_row();
+      ASSERT(r);
+      const auto d = r.data();
+      ASSERT(d);
+      const auto n = pgfe::to<int>(d);
       ASSERT(n == 2);
-    });
+    };
 
     auto conn3 = pool->connection();
-    conn3p = conn3.connection();
     ASSERT(conn3);
+    conn3p = conn3.connection();
 
     auto conn4 = pool->connection();
     ASSERT(!conn4);

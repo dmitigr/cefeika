@@ -49,10 +49,10 @@ int main(int, char* argv[])
       ps1->set_parameter(0, 1983);
       ps1->execute();
       ASSERT(ps1->connection());
-      ASSERT(ps1->connection()->row());
-      ASSERT(ps1->connection()->row()->data(0));
-      ASSERT(pgfe::to<int>(ps1->connection()->row()->data(0)) == 1983);
-      conn->wait_last_response_throw();
+      const auto [r, c] = ps1->connection()->wait_row_completion();
+      ASSERT(r);
+      ASSERT(r.data());
+      ASSERT(pgfe::to<int>(r.data()) == 1983);
     }
 
     static const auto ss = pgfe::Sql_string::make("SELECT 1::integer AS const,"
@@ -139,12 +139,10 @@ int main(int, char* argv[])
     //
     ps2->execute();
     int i = 1;
-    while (auto* row = conn->row()) {
-      ASSERT(std::stoi(row->data(0).bytes()) == 1);
-      ASSERT(std::stoi(row->data(1).bytes()) == i);
-      ASSERT(std::stoi(row->data(2).bytes()) == 2);
-      conn->dismiss_response();
-      conn->wait_response();
+    while (auto r = conn->wait_row()) {
+      ASSERT(std::stoi(r.data(0).bytes()) == 1);
+      ASSERT(std::stoi(r.data(1).bytes()) == i);
+      ASSERT(std::stoi(r.data(2).bytes()) == 2);
       ++i;
     }
 

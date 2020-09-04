@@ -645,7 +645,7 @@ struct Conversions<std::optional<T>> final {
   }
 
   template<typename ... Types>
-  static Type to_type(const Row* const row, Types&& ... args)
+  static Type to_type(const Row& row, Types&& ... args)
   {
     if (row)
       return Conversions<T>::to_type(row, std::forward(args)...);
@@ -654,7 +654,7 @@ struct Conversions<std::optional<T>> final {
   }
 
   template<typename ... Types>
-  static Type to_type(std::unique_ptr<Row>&& row, Types&& ... args)
+  static Type to_type(Row&& row, Types&& ... args)
   {
     if (row)
       return Conversions<T>::to_type(std::move(row), std::forward(args)...);

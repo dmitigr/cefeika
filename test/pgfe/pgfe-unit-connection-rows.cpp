@@ -24,13 +24,13 @@ void print(const Person& p)
 namespace dmitigr::pgfe {
 
 template<> struct Conversions<Person> {
-  static Person to_type(const Row* const r)
+  static Person to_type(Row&& r)
   {
     ASSERT(r);
     Person p;
-    p.id   = to<int>(r->data("id"));
-    p.name = to<std::string>(r->data("name"));
-    p.age  = to<unsigned int>(r->data("age"));
+    p.id   = to<int>(r.data("id"));
+    p.name = to<std::string>(r.data("name"));
+    p.age  = to<unsigned int>(r.data("age"));
     return p;
   }
 
@@ -67,7 +67,7 @@ int main(int, char* argv[])
     {
       std::cout << "From rows created on the server side:\n";
       conn->execute("select * from person");
-      const auto persons = conn->rows<std::vector<Person>>();
+      const auto persons = conn->wait_rows<std::vector<Person>>();
       ASSERT(persons.size() == 2);
       print(persons[0]);
       print(persons[1]);
@@ -86,7 +86,7 @@ int main(int, char* argv[])
 
       std::cout << "From rows created on the server side by function all_persons:\n";
       conn->invoke("all_persons");
-      auto persons = conn->rows<std::vector<Person>>();
+      auto persons = conn->wait_rows<std::vector<Person>>();
       ASSERT(persons.size() == 2);
       print(persons[0]);
       print(persons[1]);
@@ -109,7 +109,7 @@ int main(int, char* argv[])
 
       std::cout << "From rows created on the server side by function persons_by_name:\n";
       conn->invoke("persons_by_name", Na{"fname", "^B"});
-      auto persons = conn->rows<std::vector<Person>>();
+      auto persons = conn->wait_rows<std::vector<Person>>();
       ASSERT(persons.size() == 1);
       for (const auto& person : persons)
         print(person);

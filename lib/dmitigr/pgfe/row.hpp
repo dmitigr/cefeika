@@ -7,7 +7,9 @@
 
 #include "dmitigr/pgfe/compositional.hpp"
 #include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/response.hpp"
+#include "dmitigr/pgfe/row_info.hpp"
+
+#include <cassert>
 
 namespace dmitigr::pgfe {
 
@@ -16,15 +18,63 @@ namespace dmitigr::pgfe {
  *
  * @brief A row produced by a PostgreSQL server.
  */
-class Row : public Response, public Compositional {
+class Row final : public Response, public Compositional {
 public:
-  /// @returns The information about this row.
-  virtual const Row_info& info() const noexcept = 0;
+  /// Default-constructible.
+  Row() = default;
+
+  /// The constructor.
+  template<typename ... Types>
+  explicit Row(Types&& ... args)
+    : info_{std::forward<Types>(args)...}
+  {
+    assert(is_invariant_ok());
+  }
 
   /// @see Message::is_valid().
   bool is_valid() const noexcept override
   {
-    throw "not implemented";
+    return static_cast<bool>(info_.pq_result_);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Compositional overridings
+  // ---------------------------------------------------------------------------
+
+  std::size_t field_count() const override
+  {
+    return info_.field_count();
+  }
+
+  bool has_fields() const override
+  {
+    return info_.has_fields();
+  }
+
+  const std::string& field_name(const std::size_t index) const override
+  {
+    return info_.field_name(index);
+  }
+
+  std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset = 0) const override
+  {
+    return info_.field_index(name, offset);
+  }
+
+  std::size_t field_index_throw(const std::string& name, std::size_t offset) const override
+  {
+    return info_.field_index_throw(name, offset);
+  }
+
+  bool has_field(const std::string& name, const std::size_t offset = 0) const override
+  {
+    return info_.has_field(name, offset);
+  }
+
+  /// @returns The information about this row.
+  const Row_info& info() const noexcept
+  {
+    return info_;
   }
 
   /**
@@ -35,7 +85,11 @@ public:
    * @par Requires
    * `(index < field_count())`.
    */
-  virtual Data_view data(std::size_t index = 0) const = 0;
+  Data_view data(std::size_t index = 0) const
+  {
+    assert(index < field_count());
+    return data__(index);
+  }
 
   /**
    * @overload
@@ -48,23 +102,33 @@ public:
    *
    * @see has_field().
    */
-  virtual Data_view data(const std::string& name, std::size_t offset = 0) const = 0;
+  Data_view data(const std::string& name, std::size_t offset = 0) const
+  {
+    const auto index = field_index_throw(name, offset);
+    return data__(index);
+  }
 
 private:
-  friend detail::iRow;
+  Row_info info_; // has pq_result_
 
-  Row() = default;
-
-  virtual bool is_invariant_ok() const
+  bool is_invariant_ok() const override
   {
-    return Compositional::is_invariant_ok();
+    const bool info_ok = (info_.pq_result_.status() == PGRES_SINGLE_TUPLE);
+    return info_ok && Compositional::is_invariant_ok();;
+  }
+
+  Data_view data__(const std::size_t index) const noexcept
+  {
+    constexpr int row{};
+    const auto fld = static_cast<int>(index);
+    const auto& r = info_.pq_result_;
+    if (!r.is_data_null(row, fld))
+      return Data_view{r.data_value(row, fld), r.data_size(row, fld), r.field_format(fld)};
+    else
+      return Data_view{};
   }
 };
 
 } // namespace dmitigr::pgfe
-
-#ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/row.cpp"
-#endif
 
 #endif  // DMITIGR_PGFE_ROW_HPP

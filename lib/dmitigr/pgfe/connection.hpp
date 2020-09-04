@@ -385,30 +385,6 @@ public:
    */
   virtual void wait_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
 
-  /**
-   * @brief Waits for a Completion or an Error.
-   *
-   * @param timeout - the value of `-1` means `options()->wait_last_response_timeout()`,
-   * the value of `std::nullopt` means *eternity*.
-   *
-   * @throws An instance of type Timed_out if the expression `is_awaiting_response()`
-   * will not evaluates to `false` within the specified `timeout`.
-   *
-   * @par Requires
-   * `((!timeout || timeout->count() >= -1) && is_connected() && is_awaiting_response())`.
-   *
-   * @par Exception safety guarantee
-   * Basic.
-   */
-  virtual void wait_last_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
-
-  /**
-   * @brief Similar to wait_last_response().
-   *
-   * @throws Server_exception if `(error() != std::nullopt)` after awaiting.
-   */
-  virtual void wait_last_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
-
   /// @returns The currently available response.
   virtual const Response* response() const noexcept = 0;
 
@@ -421,8 +397,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks It's more efficienlty than error(), release_row() or
-   * completion().
+   * @remarks It's more efficienlty than error(), wait_row() or wait_completion().
    */
   virtual void dismiss_response() = 0;
 
@@ -461,37 +436,32 @@ public:
   virtual std::optional<Error> error() = 0;
 
   /**
-   * @returns The pointer to the instance of type Row if available.
+   * @brief Waits for next row.
    *
-   * @remarks This method is semantically similar to release_row() but allows
-   * the implementation to avoid extra memory allocation for the each retrieved
-   * row.
-   *
-   * @remarks The object pointed by the returned value is owned by this instance.
-   *
-   * @see release_row().
-   */
-  virtual const Row* row() const noexcept = 0;
-
-  /**
-   * @returns The released instance of type Row if available.
+   * @returns The awaited Row, or invalid instance.
    *
    * @par Exception safety guarantee
    * Strong.
    *
-   * @par Effects
-   * `(row() == nullptr)`.
-   *
-   * @remarks Each Row must be handled or dismissed explicitly. A caller should
-   * always rely upon assumption that the pointer obtained by row() becomes
-   * invalid after calling this function.
-   *
-   * @see dismiss_response(), row().
+   * @see dismiss_response(), wait_completion().
    */
-  virtual std::unique_ptr<Row> release_row() = 0;
+  virtual Row wait_row() = 0;
+
+  virtual std::pair<Row, std::optional<Completion>> wait_row_completion() = 0;
 
   /**
-   * @returns The released instance of type Completion if available.
+   * @brief Waits for Completion and throws Server_expection on Error. Skips the rows (if any).
+   *
+   * @returns The awaited Completion, or invalid instance.
+   *
+   * @param timeout - the value of `-1` means `options()->wait_completion_timeout()`,
+   * the value of `std::nullopt` means *eternity*.
+   *
+   * @throws An instance of type Timed_out if the expression `is_awaiting_response()`
+   * will not evaluates to `false` within the specified `timeout`.
+   *
+   * @par Requires
+   * `((!timeout || timeout->count() >= -1) && is_connected() && is_awaiting_response())`.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -499,7 +469,7 @@ public:
    * @remarks There is no necessity to handle Completion explicitly. It will be
    * dismissed automatically when appropriate.
    */
-  virtual std::optional<Completion> completion() = 0;
+  virtual std::optional<Completion> wait_completion(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
 
   /**
    * @returns The pointer to the instance of type Prepared_statement if available.
@@ -960,26 +930,6 @@ public:
   /// @{
 
   /**
-   * @brief Calls `body(row())` for each awaited row just after it retrieving.
-   *
-   * @param body - the callback function.
-   *
-   * @par Requires
-   * `(bool(body) == true)`.
-   *
-   * @par Exception safety guarantee
-   * Basic.
-   */
-  virtual void for_each(const std::function<void(const Row*)>& body) = 0;
-
-  /**
-   * @overload
-   *
-   * @remarks Calls body(release_row()).
-   */
-  virtual void for_each(const std::function<void(std::unique_ptr<Row>&&)>& body) = 0;
-
-  /**
    * @brief Retrieves all the rows of the connection and converts them into
    * objects of specified type.
    *
@@ -991,26 +941,14 @@ public:
    * @par Exception safety guarantee
    * Basic.
    */
-  template<class Container = std::vector<std::unique_ptr<Row>>,
-    bool Release = std::is_convertible_v<std::unique_ptr<Row>,
-      typename Container::value_type>>
-  Container rows()
+  template<class Container = std::vector<Row>>
+  Container wait_rows()
   {
     Row_collector<Container> result;
-    if constexpr (Release)
-      for_each([&result](std::unique_ptr<Row>&& row) { result.collect(std::move(row)); });
-    else
-      for_each([&result](const Row* const row) { result.collect(row); });
-    return std::move(result.container);
+    while (auto&& r = wait_row())
+      result.collect(std::move(r));
+    return result.container;
   }
-
-  /**
-   * @brief Waits for the Completion or the Error and calls.
-   *
-   * @par Exception safety guarantee
-   * Basic.
-   */
-  virtual std::optional<Completion> complete() = 0;
 
   /**
    * @brief Quotes the given string to be used as a literal in a SQL query.

@@ -78,7 +78,7 @@ public:
     : communication_mode_{communication_mode}
     , connect_timeout_{defaults::connect_timeout}
     , wait_response_timeout_{defaults::wait_response_timeout}
-    , wait_last_response_timeout_{defaults::wait_last_response_timeout}
+    , wait_completion_timeout_{defaults::wait_completion_timeout}
 #ifndef _WIN32
     , uds_directory_{defaults::uds_directory}
     , uds_require_server_process_username_{defaults::uds_require_server_process_username}
@@ -156,18 +156,18 @@ public:
     return wait_response_timeout_;
   }
 
-  iConnection_options* set_wait_last_response_timeout(std::optional<std::chrono::milliseconds> value) override
+  iConnection_options* set_wait_completion_timeout(std::optional<std::chrono::milliseconds> value) override
   {
     if (value)
       validate(is_non_negative(value->count()), "wait last response timeout");
-    wait_last_response_timeout_ = std::move(value);
+    wait_completion_timeout_ = std::move(value);
     DMITIGR_ASSERT(is_invariant_ok());
     return this;
   }
 
-  std::optional<std::chrono::milliseconds> wait_last_response_timeout() const override
+  std::optional<std::chrono::milliseconds> wait_completion_timeout() const override
   {
-    return wait_last_response_timeout_;
+    return wait_completion_timeout_;
   }
 
   // ---------------------------------------------------------------------------
@@ -538,7 +538,7 @@ private:
   Communication_mode communication_mode_;
   std::optional<std::chrono::milliseconds> connect_timeout_;
   std::optional<std::chrono::milliseconds> wait_response_timeout_;
-  std::optional<std::chrono::milliseconds> wait_last_response_timeout_;
+  std::optional<std::chrono::milliseconds> wait_completion_timeout_;
 #ifndef _WIN32
   std::filesystem::path uds_directory_;
   std::optional<std::string> uds_require_server_process_username_;

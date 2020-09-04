@@ -77,17 +77,21 @@ int main(int, char* argv[])
     conn->connect();
 
     // plus_one
-    conn->execute(plus_one, 2);
-    ASSERT(pgfe::to<int>(conn->row()->data(0)) == 2 + 1);
-    conn->complete();
+    {
+      conn->execute(plus_one, 2);
+      const auto [r, c] = conn->wait_row_completion();
+      ASSERT(pgfe::to<int>(r.data()) == 2 + 1);
+    }
 
     // digit
-    ASSERT(digit->has_parameter("cond"));
-    ASSERT(pgfe::to<std::string>(digit->extra()->data("cond")) == "n > 0\n  AND n < 2");
-    digit->replace_parameter("cond", digit->extra()->data("cond")->bytes());
-    conn->execute(digit);
-    ASSERT(pgfe::to<int>(conn->row()->data(0)) == 1);
-    conn->complete();
+    {
+      ASSERT(digit->has_parameter("cond"));
+      ASSERT(pgfe::to<std::string>(digit->extra()->data("cond")) == "n > 0\n  AND n < 2");
+      digit->replace_parameter("cond", digit->extra()->data("cond")->bytes());
+      conn->execute(digit);
+      const auto [r, c] = conn->wait_row_completion();
+      ASSERT(pgfe::to<int>(r.data()) == 1);
+    }
 
     // -------------------------------------------------------------------------
     // Modifying the SQL vector

@@ -17,7 +17,7 @@ int main(int, char* argv[])
     conn->connect();
 
     conn->perform("begin");
-    auto comp = conn->completion();
+    auto comp = conn->wait_completion();
     ASSERT(comp && comp->operation_name() == "BEGIN");
 
     conn->perform_async
@@ -37,12 +37,15 @@ int main(int, char* argv[])
      " deferrable initially deferred"
      " for each row"
      " execute procedure test_constraint()");
-    conn->wait_last_response_throw();
-    comp = conn->completion();
+    comp = conn->wait_completion();
+    ASSERT(comp && comp->operation_name() == "CREATE TABLE");
+    comp = conn->wait_completion();
+    ASSERT(comp && comp->operation_name() == "CREATE FUNCTION");
+    comp = conn->wait_completion();
     ASSERT(comp && comp->operation_name() == "CREATE TRIGGER");
 
     conn->execute("insert into test(id) values($1)", 1);
-    comp = conn->completion();
+    comp = conn->wait_completion();
     ASSERT(comp->operation_name() == "INSERT");
 
     try {

@@ -16,22 +16,10 @@ namespace dmitigr::pgfe {
 /**
  * @ingroup conversions
  *
- * @brief Full specialization of Conversions for `std::unique_ptr<Row>`.
+ * @brief Full specialization of Conversions for `Row`.
  */
-template<> struct Conversions<std::unique_ptr<Row>> {
-  static std::unique_ptr<Row>&& to_type(std::unique_ptr<Row>&& row)
-  {
-    return std::move(row);
-  }
-};
-
-/**
- * @ingroup conversions
- *
- * @brief Full specialization of Conversions for `std::shared_ptr<Row>`.
- */
-template<> struct Conversions<std::shared_ptr<Row>> {
-  static std::shared_ptr<Row> to_type(std::unique_ptr<Row>&& row)
+template<> struct Conversions<Row> {
+  static Row&& to_type(Row&& row) noexcept
   {
     return std::move(row);
   }

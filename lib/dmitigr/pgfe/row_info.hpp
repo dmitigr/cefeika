@@ -19,7 +19,7 @@ namespace dmitigr::pgfe {
  * @brief An information about the rows produced (or that will be produced)
  * by a PostgreSQL server.
  */
-class Row_info : public Compositional {
+class Row_info final : public Compositional {
 public:
   /// Default-constructible.
   Row_info() = default;
@@ -240,7 +240,7 @@ public:
   }
 
 private:
-  friend detail::pq_Row;
+  friend Row;
   friend detail::pq_Prepared_statement;
   friend detail::pq_Connection;
 

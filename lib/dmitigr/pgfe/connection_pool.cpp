@@ -19,8 +19,12 @@ public:
     : release_handler_{[](Connection* const conn)
     {
       DMITIGR_ASSERT(conn);
+      while (conn->is_awaiting_response()) {
+        conn->wait_response();
+        conn->dismiss_response();
+      }
       conn->perform("DISCARD ALL");
-      conn->complete();
+      conn->wait_completion();
     }}
   {
     DMITIGR_REQUIRE(count > 0, std::invalid_argument);
@@ -170,6 +174,8 @@ DMITIGR_PGFE_INLINE Connection_pool::Handle::~Handle()
 {
   try {
     release();
+  } catch (const std::exception& e) {
+    std::fprintf(stderr, "dmitigr::pgfe::Connection_pool::Handle::~Handle(): %s\n", e.what());
   } catch (...) {
     std::fprintf(stderr, "dmitigr::pgfe::Connection_pool::Handle::~Handle(): failure\n");
   }
