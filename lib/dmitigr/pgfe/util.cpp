@@ -2,9 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/util.hpp"
-#include <dmitigr/net/net.hpp>
 
 #include <locale>
 
@@ -36,16 +34,4 @@ DMITIGR_PGFE_INLINE std::string unquote_identifier(const std::string_view identi
   return result;
 }
 
-namespace detail {
-
-inline Socket_readiness poll_sock(const int socket, const Socket_readiness mask,
-  const std::optional<std::chrono::milliseconds> timeout)
-{
-  using Sock = net::Socket_native;
-  using Sock_readiness = net::Socket_readiness;
-  return static_cast<Socket_readiness>(net::poll(static_cast<Sock>(socket),
-      static_cast<Sock_readiness>(mask), timeout ? *timeout : std::chrono::milliseconds{-1}));
-}
-
-} // namespace detail
 } // namespace dmitigr::pgfe

@@ -15,14 +15,24 @@
 #include "dmitigr/pgfe/prepared_statement_impl.hpp"
 #include "dmitigr/pgfe/response_variant.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
-#include "dmitigr/pgfe/util.hpp"
 #include <dmitigr/base/debug.hpp>
+#include <dmitigr/net/net.hpp>
 
 #include <cassert>
 #include <optional>
 #include <queue>
 
 namespace dmitigr::pgfe::detail {
+
+/// A wrapper around net::poll().
+inline Socket_readiness poll_sock(const int socket, const Socket_readiness mask,
+  const std::optional<std::chrono::milliseconds> timeout)
+{
+  using Sock = net::Socket_native;
+  using Sock_readiness = net::Socket_readiness;
+  return static_cast<Socket_readiness>(net::poll(static_cast<Sock>(socket),
+      static_cast<Sock_readiness>(mask), timeout ? *timeout : std::chrono::milliseconds{-1}));
+}
 
 /// The base implementation of Connection.
 class iConnection : public Connection {

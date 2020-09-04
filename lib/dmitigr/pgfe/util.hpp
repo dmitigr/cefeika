@@ -8,8 +8,6 @@
 #include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
 
-#include <chrono>
-#include <optional>
 #include <string>
 
 namespace dmitigr::pgfe {
@@ -17,13 +15,6 @@ namespace dmitigr::pgfe {
 /// @returns The case-folded and double-quote processed SQL identifier.
 DMITIGR_PGFE_API std::string unquote_identifier(std::string_view identifier);
 
-namespace detail {
-
-/// A wrapper around net::poll().
-Socket_readiness poll_sock(const int socket, const Socket_readiness mask,
-  const std::optional<std::chrono::milliseconds> timeout);
-
-} // namespace detail
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
