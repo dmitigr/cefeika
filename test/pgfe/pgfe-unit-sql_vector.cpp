@@ -79,7 +79,7 @@ int main(int, char* argv[])
     // plus_one
     {
       conn->execute(plus_one, 2);
-      const auto [r, c] = conn->wait_row_completion();
+      const auto [r, c] = conn->wait_row_then_completion();
       ASSERT(pgfe::to<int>(r.data()) == 2 + 1);
     }
 
@@ -89,7 +89,7 @@ int main(int, char* argv[])
       ASSERT(pgfe::to<std::string>(digit->extra()->data("cond")) == "n > 0\n  AND n < 2");
       digit->replace_parameter("cond", digit->extra()->data("cond")->bytes());
       conn->execute(digit);
-      const auto [r, c] = conn->wait_row_completion();
+      const auto [r, c] = conn->wait_row_then_completion();
       ASSERT(pgfe::to<int>(r.data()) == 1);
     }
 

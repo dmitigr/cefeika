@@ -696,7 +696,7 @@ public:
     return response_.release_row();
   }
 
-  std::pair<Row, Completion> wait_row_completion() override
+  std::pair<Row, Completion> wait_row_then_completion() override
   {
     auto row = wait_row();
     auto comp = wait_completion();

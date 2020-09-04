@@ -454,7 +454,7 @@ public:
    *
    * @see wait_row(), wait_completion()
    */
-  virtual std::pair<Row, Completion> wait_row_completion() = 0;
+  virtual std::pair<Row, Completion> wait_row_then_completion() = 0;
 
   /**
    * @brief Waits for Completion and throws Server_expection on Error. Skips the rows (if any).
