@@ -95,8 +95,7 @@ public:
     if (offset < field_count()) {
       const auto b = cbegin(datas_);
       const auto e = cend(datas_);
-      const auto ident = unquote_identifier(name);
-      const auto i = std::find_if(b + offset, e, [&](const auto& pair) { return pair.first == ident; });
+      const auto i = std::find_if(b + offset, e, [&name](const auto& pair) { return pair.first == name; });
       return i != e ? std::make_optional(i - b) : std::nullopt;
     } else
       return std::nullopt;
