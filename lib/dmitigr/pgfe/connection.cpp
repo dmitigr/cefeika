@@ -696,14 +696,14 @@ public:
     return response_.release_row();
   }
 
-  std::pair<Row, std::optional<Completion>> wait_row_completion() override
+  std::pair<Row, Completion> wait_row_completion() override
   {
     auto row = wait_row();
     auto comp = wait_completion();
     return {std::move(row), std::move(comp)};
   }
 
-  std::optional<Completion> wait_completion(std::optional<std::chrono::milliseconds> timeout =
+  Completion wait_completion(std::optional<std::chrono::milliseconds> timeout =
     std::chrono::milliseconds{-1}) override
   {
     using std::chrono::system_clock;
@@ -719,7 +719,7 @@ public:
 
       wait_response_throw(timeout);
       if (!response_)
-        return std::nullopt;
+        return {};
       else if (response_.completion())
         return response_.release_completion();
 

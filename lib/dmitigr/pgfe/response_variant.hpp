@@ -24,7 +24,7 @@ public:
     , completion_{std::move(rhs.completion_)}
     , prepared_statement_{rhs.prepared_statement_}
   {
-    rhs.error_.reset(), rhs.completion_.reset(), rhs.prepared_statement_ = {};
+    rhs.error_.reset(), rhs.prepared_statement_ = {};
   }
 
   pq_Response_variant& operator=(pq_Response_variant&& rhs) noexcept
@@ -35,7 +35,7 @@ public:
       completion_ = std::move(rhs.completion_);
       prepared_statement_ = rhs.prepared_statement_;
 
-      rhs.error_.reset(), rhs.completion_.reset(), rhs.prepared_statement_ = {};
+      rhs.error_.reset(), rhs.prepared_statement_ = {};
     }
     return *this;
   }
@@ -59,14 +59,14 @@ public:
   pq_Response_variant& operator=(Error&& error) noexcept
   {
     error_ = std::move(error);
-    row_ = {}, completion_.reset(), prepared_statement_ = {};
+    row_ = {}, completion_ = {}, prepared_statement_ = {};
     return *this;
   }
 
   pq_Response_variant& operator=(Row&& row) noexcept
   {
     row_ = std::move(row);
-    error_.reset(), completion_.reset(), prepared_statement_ = {};
+    error_.reset(), completion_ = {}, prepared_statement_ = {};
     return *this;
   }
 
@@ -79,7 +79,7 @@ public:
 
   pq_Response_variant& operator=(pq_Prepared_statement* const prepared_statement) noexcept
   {
-    prepared_statement_ = prepared_statement, error_.reset(), row_ = {}, completion_.reset();
+    prepared_statement_ = prepared_statement, error_.reset(), row_ = {}, completion_ = {};
     return *this;
   }
 
@@ -115,21 +115,19 @@ public:
     return std::move(row_);
   }
 
-  std::optional<Completion>& completion() noexcept
+  Completion& completion() noexcept
   {
     return completion_;
   }
 
-  const std::optional<Completion>& completion() const noexcept
+  const Completion& completion() const noexcept
   {
     return completion_;
   }
 
-  std::optional<Completion> release_completion() noexcept
+  Completion release_completion() noexcept
   {
-    auto r = std::move(completion_);
-    completion_.reset();
-    return r;
+    return std::move(completion_);
   }
 
   pq_Prepared_statement* prepared_statement() const noexcept
@@ -142,7 +140,7 @@ public:
     if (row_)
       return &row_;
     else if (completion_)
-      return &*completion_;
+      return &completion_;
     else if (prepared_statement_)
       return prepared_statement_;
     else if (error_)
@@ -155,11 +153,9 @@ public:
   {
     if (auto r = release_row())
       return std::make_unique<Row>(std::move(row_));
-    else if (completion_) {
-      auto res = std::make_unique<Completion>(std::move(*completion_));
-      completion_.reset();
-      return res;
-    } else if (error_) {
+    else if (auto r = release_completion())
+      return std::make_unique<Completion>(std::move(completion_));
+    else if (error_) {
       auto res = std::make_unique<Error>(std::move(*error_));
       error_.reset();
       return res;
@@ -174,13 +170,13 @@ public:
 
   void reset() noexcept
   {
-    error_.reset(), row_ = {}, completion_.reset(), prepared_statement_ = {};
+    error_.reset(), row_ = {}, completion_ = {}, prepared_statement_ = {};
   }
 
 private:
   std::optional<Error> error_;
   Row row_;
-  std::optional<Completion> completion_;
+  Completion completion_;
   pq_Prepared_statement* prepared_statement_{};
 };
 

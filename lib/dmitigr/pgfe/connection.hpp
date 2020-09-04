@@ -447,7 +447,12 @@ public:
    */
   virtual Row wait_row() = 0;
 
-  virtual std::pair<Row, std::optional<Completion>> wait_row_completion() = 0;
+  /**
+   * @returns {wait_row(), wait_completion()}.
+   *
+   * @see wait_row(), wait_completion()
+   */
+  virtual std::pair<Row, Completion> wait_row_completion() = 0;
 
   /**
    * @brief Waits for Completion and throws Server_expection on Error. Skips the rows (if any).
@@ -469,7 +474,7 @@ public:
    * @remarks There is no necessity to handle Completion explicitly. It will be
    * dismissed automatically when appropriate.
    */
-  virtual std::optional<Completion> wait_completion(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
+  virtual Completion wait_completion(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
 
   /**
    * @returns The pointer to the instance of type Prepared_statement if available.

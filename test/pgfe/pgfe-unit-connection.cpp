@@ -125,8 +125,8 @@ int main(int, char* argv[])
         ASSERT(conn->transaction_block_status() == Transaction_block_status::uncommitted);
         const auto comp = conn->wait_completion();
         ASSERT(comp);
-        ASSERT(comp->operation_name() == "BEGIN");
-        ASSERT(!comp->affected_row_count());
+        ASSERT(comp.operation_name() == "BEGIN");
+        ASSERT(!comp.affected_row_count());
         ASSERT(!conn->response());
         conn->perform_async("END");
         conn->wait_response();
@@ -156,19 +156,19 @@ int main(int, char* argv[])
         ASSERT(conn->is_awaiting_response());
         conn->wait_response();
         auto comp = conn->wait_completion();
-        ASSERT(comp->operation_name() == "BEGIN");
+        ASSERT(comp.operation_name() == "BEGIN");
         ASSERT(!conn->response());
 
         ASSERT(conn->is_awaiting_response());
         conn->wait_response();
         comp = conn->wait_completion();
-        ASSERT(comp->operation_name() == "SAVEPOINT");
+        ASSERT(comp.operation_name() == "SAVEPOINT");
         ASSERT(!conn->response());
 
         ASSERT(conn->is_awaiting_response());
         conn->wait_response();
         comp = conn->wait_completion();
-        ASSERT(comp->operation_name() == "COMMIT");
+        ASSERT(comp.operation_name() == "COMMIT");
         ASSERT(!conn->response());
 
         ASSERT(!conn->is_awaiting_response());
@@ -206,11 +206,11 @@ int main(int, char* argv[])
         conn->perform_async("LISTEN pgfe_test; NOTIFY pgfe_test, 'yahoo'");
         conn->wait_response();
         auto comp = conn->wait_completion();
-        ASSERT(comp && comp->operation_name() == "LISTEN");
+        ASSERT(comp && comp.operation_name() == "LISTEN");
 
         conn->wait_response();
         comp = conn->wait_completion();
-        ASSERT(comp && comp->operation_name() == "NOTIFY");
+        ASSERT(comp && comp.operation_name() == "NOTIFY");
         for (int i = 0; !ok && i < 100; ++i) {
           using namespace std::chrono_literals;
           conn->collect_messages();
@@ -266,7 +266,7 @@ int main(int, char* argv[])
           ASSERT(!conn->prepared_statement("ps1"));
           ASSERT(conn->response());
           const auto comp = conn->wait_completion();
-          ASSERT(comp && (comp->operation_name() == "unprepare_statement"));
+          ASSERT(comp && (comp.operation_name() == "unprepare_statement"));
           ASSERT(!conn->is_awaiting_response());
           ASSERT(conn->is_ready_for_async_request());
           ASSERT(conn->is_ready_for_request());
@@ -278,7 +278,7 @@ int main(int, char* argv[])
           conn->perform_async("PREPARE ps2 AS SELECT generate_series(1,7);");
           conn->wait_response();
           auto comp = conn->wait_completion();
-          ASSERT(comp && comp->operation_name() == "PREPARE");
+          ASSERT(comp && comp.operation_name() == "PREPARE");
 
           // Describe
           ASSERT(!conn->prepared_statement("ps2"));
@@ -297,7 +297,7 @@ int main(int, char* argv[])
           ASSERT(!conn->prepared_statement("ps2"));
           ASSERT(conn->response());
           comp = conn->wait_completion();
-          ASSERT(comp && (comp->operation_name() == "unprepare_statement"));
+          ASSERT(comp && (comp.operation_name() == "unprepare_statement"));
           ASSERT(!conn->is_awaiting_response());
           ASSERT(conn->is_ready_for_async_request());
           ASSERT(conn->is_ready_for_request());

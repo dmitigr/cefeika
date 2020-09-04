@@ -23,6 +23,32 @@ public:
   /// Default-constructible.
   Completion() = default;
 
+  /// Non copy-constructible.
+  Completion(const Completion&) = delete;
+
+  /// Non copy-assignable.
+  Completion& operator=(const Completion&) = delete;
+
+  /// Move-constructible.
+  Completion(Completion&& rhs) noexcept
+    : affected_row_count_{rhs.affected_row_count_}
+    , operation_name_{std::move(rhs.operation_name_)}
+  {
+    rhs.affected_row_count_ = -2;
+  }
+
+  /// Move-assignable.
+  Completion& operator=(Completion&& rhs) noexcept
+  {
+    if (this != &rhs) {
+      affected_row_count_ = rhs.affected_row_count_;
+      operation_name_ = std::move(rhs.operation_name_);
+
+      rhs.affected_row_count_ = -2;
+    }
+    return *this;
+  }
+
   /// @see Message::is_valid().
   bool is_valid() const noexcept override
   {

@@ -17,10 +17,10 @@ int main(int, char* argv[])
     ASSERT(conn->is_ssl_secured());
     conn->perform("begin");
     auto comp = conn->wait_completion();
-    ASSERT(comp && comp->operation_name() == "BEGIN");
+    ASSERT(comp && comp.operation_name() == "BEGIN");
     conn->perform("commit");
     comp = conn->wait_completion();
-    ASSERT(comp && comp->operation_name() == "COMMIT");
+    ASSERT(comp && comp.operation_name() == "COMMIT");
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;
