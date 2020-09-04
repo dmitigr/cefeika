@@ -420,7 +420,7 @@ protected:
     if (!response_.error())
       return;
 
-    if (auto ei = std::make_shared<Error>(std::move(*error()))) {
+    if (auto ei = std::make_shared<Error>(error())) {
       // Attempting to throw a custom exception.
       if (const auto& eh = error_handler(); eh && eh(ei))
         return;
@@ -685,7 +685,7 @@ public:
     response_.reset();
   }
 
-  std::optional<Error> error() override
+  Error error() override
   {
     return response_.release_error();
   }

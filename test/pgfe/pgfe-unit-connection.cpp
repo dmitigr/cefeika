@@ -141,7 +141,7 @@ int main(int, char* argv[])
         conn->perform_async("PROVOKE SYNTAX ERROR");
         conn->wait_response();
         const auto e = conn->error();
-        ASSERT(e && e->code() == pgfe::Server_errc::c42_syntax_error);
+        ASSERT(e && e.code() == pgfe::Server_errc::c42_syntax_error);
         ASSERT(!conn->error());
         ASSERT(conn->transaction_block_status() == Transaction_block_status::failed);
         conn->perform_async("END");

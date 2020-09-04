@@ -406,7 +406,9 @@ public:
    *
    * Being set, this handler is called when the server responded with an error.
    * If calling of this handler doesn't throw an exception and returns `false`
-   * the instance of type Server_exception will be thrown eventually.
+   * the instance of type Server_exception will be thrown eventually. If this
+   * handler returns `true` then the error is considered handled and no further
+   * action is taken.
    */
   using Error_handler = std::function<bool(std::shared_ptr<Error>)>;
 
@@ -433,7 +435,7 @@ public:
    *
    * @remarks Useful only if using async API.
    */
-  virtual std::optional<Error> error() = 0;
+  virtual Error error() = 0;
 
   /**
    * @brief Waits for next row.

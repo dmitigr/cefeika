@@ -10,8 +10,6 @@
 #include "dmitigr/pgfe/prepared_statement_dfn.hpp"
 #include "dmitigr/pgfe/row.hpp"
 
-#include <optional>
-
 namespace dmitigr::pgfe::detail {
 
 class pq_Response_variant final {
@@ -24,7 +22,7 @@ public:
     , completion_{std::move(rhs.completion_)}
     , prepared_statement_{rhs.prepared_statement_}
   {
-    rhs.error_.reset(), rhs.prepared_statement_ = {};
+    rhs.prepared_statement_ = {};
   }
 
   pq_Response_variant& operator=(pq_Response_variant&& rhs) noexcept
@@ -35,7 +33,7 @@ public:
       completion_ = std::move(rhs.completion_);
       prepared_statement_ = rhs.prepared_statement_;
 
-      rhs.error_.reset(), rhs.prepared_statement_ = {};
+      rhs.prepared_statement_ = {};
     }
     return *this;
   }
@@ -58,46 +56,45 @@ public:
 
   pq_Response_variant& operator=(Error&& error) noexcept
   {
+    reset();
     error_ = std::move(error);
-    row_ = {}, completion_ = {}, prepared_statement_ = {};
     return *this;
   }
 
   pq_Response_variant& operator=(Row&& row) noexcept
   {
+    reset();
     row_ = std::move(row);
-    error_.reset(), completion_ = {}, prepared_statement_ = {};
     return *this;
   }
 
   pq_Response_variant& operator=(Completion&& completion) noexcept
   {
+    reset();
     completion_ = std::move(completion);
-    error_.reset(), row_ = {}, prepared_statement_ = {};
     return *this;
   }
 
   pq_Response_variant& operator=(pq_Prepared_statement* const prepared_statement) noexcept
   {
-    prepared_statement_ = prepared_statement, error_.reset(), row_ = {}, completion_ = {};
+    reset();
+    prepared_statement_ = prepared_statement;
     return *this;
   }
 
-  std::optional<Error>& error() noexcept
+  Error& error() noexcept
   {
     return error_;
   }
 
-  const std::optional<Error>& error() const noexcept
+  const Error& error() const noexcept
   {
     return error_;
   }
 
-  std::optional<Error> release_error() noexcept
+  Error release_error() noexcept
   {
-    auto r = std::move(error_);
-    error_.reset();
-    return r;
+    return std::move(error_);
   }
 
   Row& row() noexcept
@@ -144,7 +141,7 @@ public:
     else if (prepared_statement_)
       return prepared_statement_;
     else if (error_)
-      return &*error_;
+      return &error_;
     else
       return nullptr;
   }
@@ -155,11 +152,9 @@ public:
       return std::make_unique<Row>(std::move(row_));
     else if (auto r = release_completion())
       return std::make_unique<Completion>(std::move(completion_));
-    else if (error_) {
-      auto res = std::make_unique<Error>(std::move(*error_));
-      error_.reset();
-      return res;
-    } else
+    else if (auto r = release_error())
+      return std::make_unique<Error>(std::move(error_));
+    else
       return nullptr; // prepared statement cannot be released
   }
 
@@ -170,11 +165,11 @@ public:
 
   void reset() noexcept
   {
-    error_.reset(), row_ = {}, completion_ = {}, prepared_statement_ = {};
+    error_ = {}, row_ = {}, completion_ = {}, prepared_statement_ = {};
   }
 
 private:
-  std::optional<Error> error_;
+  Error error_;
   Row row_;
   Completion completion_;
   pq_Prepared_statement* prepared_statement_{};
