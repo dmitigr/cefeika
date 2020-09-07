@@ -12,7 +12,6 @@
 #include "dmitigr/pgfe/notice.hpp"
 #include "dmitigr/pgfe/notification.hpp"
 #include "dmitigr/pgfe/pq.hpp"
-#include "dmitigr/pgfe/prepared_statement_impl.hpp"
 #include "dmitigr/pgfe/response_variant.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
 #include <dmitigr/base/debug.hpp>
@@ -571,8 +570,8 @@ public:
           DMITIGR_ASSERT(request_prepared_statement_name_);
           auto* p = ps(*request_prepared_statement_name_);
           if (!p)
-            p = register_ps(pq_Prepared_statement{std::move(*request_prepared_statement_name_),
-                                                  this, static_cast<std::size_t>(r.field_count())});
+            p = register_ps(Prepared_statement{std::move(*request_prepared_statement_name_),
+              this, static_cast<std::size_t>(r.field_count())});
           p->set_description(std::move(r));
           set_response(std::move(p));
           request_prepared_statement_name_.reset();
@@ -741,12 +740,12 @@ public:
     }
   }
 
-  pq_Prepared_statement* prepared_statement() const override
+  Prepared_statement* prepared_statement() const override
   {
     return response_.prepared_statement();
   }
 
-  pq_Prepared_statement* prepared_statement(const std::string& name) const override
+  Prepared_statement* prepared_statement(const std::string& name) const override
   {
     return ps(name);
   }
@@ -800,7 +799,7 @@ private:
 
     requests_.push(Request_id::prepare_statement); // can throw
     try {
-      pq_Prepared_statement ps{name, this, preparsed};
+      Prepared_statement ps{name, this, preparsed};
       constexpr int n_params{0};
       constexpr const ::Oid* const param_types{};
       const int send_ok = ::PQsendPrepare(conn_, name, query, n_params, param_types);
@@ -1062,7 +1061,7 @@ protected:
   }
 
 private:
-  friend pq_Prepared_statement;
+  friend Prepared_statement;
 
   // ---------------------------------------------------------------------------
   // Persistent data
@@ -1093,8 +1092,8 @@ private:
   std::queue<pq::Result> pending_results_;
   mutable std::optional<Transaction_block_status> transaction_block_status_;
   mutable std::optional<std::int_fast32_t> server_pid_;
-  mutable std::list<pq_Prepared_statement> named_prepared_statements_;
-  mutable std::optional<pq_Prepared_statement> unnamed_prepared_statement_;
+  mutable std::list<Prepared_statement> named_prepared_statements_;
+  mutable std::optional<Prepared_statement> unnamed_prepared_statement_;
   std::shared_ptr<std::vector<std::string>> shared_field_names_;
 
   // ----------------------------
@@ -1110,7 +1109,7 @@ private:
   };
 
   std::queue<Request_id> requests_; // for now only 1 request can be queued
-  std::optional<pq_Prepared_statement> request_prepared_statement_;
+  std::optional<Prepared_statement> request_prepared_statement_;
   std::optional<std::string> request_prepared_statement_name_;
 
   // ---------------------------------------------------------------------------
@@ -1160,7 +1159,7 @@ private:
    *
    * @returns The pointer to the founded prepared statement, or `nullptr` if not found.
    */
-  pq_Prepared_statement* ps(const std::string& name) const
+  Prepared_statement* ps(const std::string& name) const
   {
     if (!name.empty()) {
       const auto b = begin(named_prepared_statements_);
@@ -1180,7 +1179,7 @@ private:
    *
    * @returns The pointer to the registered prepared statement.
    */
-  pq_Prepared_statement* register_ps(pq_Prepared_statement&& ps)
+  Prepared_statement* register_ps(Prepared_statement&& ps)
   {
     if (ps.name().empty()) {
       unnamed_prepared_statement_ = std::move(ps);
@@ -1197,7 +1196,7 @@ private:
     if (name.empty())
       unnamed_prepared_statement_.reset();
     else
-      named_prepared_statements_.remove_if([&](const auto& ps){ return ps.name() == name; });
+      named_prepared_statements_.remove_if([&name](const auto& ps){ return ps.name() == name; });
   }
 
   // ---------------------------------------------------------------------------

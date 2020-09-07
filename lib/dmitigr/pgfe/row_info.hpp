@@ -241,7 +241,7 @@ public:
 
 private:
   friend Row;
-  friend detail::pq_Prepared_statement;
+  friend Prepared_statement;
   friend detail::pq_Connection;
 
   detail::pq::Result pq_result_;

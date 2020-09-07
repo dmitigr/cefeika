@@ -7,7 +7,7 @@
 
 #include "dmitigr/pgfe/completion.hpp"
 #include "dmitigr/pgfe/error.hpp"
-#include "dmitigr/pgfe/prepared_statement_dfn.hpp"
+#include "dmitigr/pgfe/prepared_statement.hpp"
 #include "dmitigr/pgfe/row.hpp"
 
 namespace dmitigr::pgfe::detail {
@@ -50,7 +50,7 @@ public:
     : completion_{std::move(completion)}
   {}
 
-  pq_Response_variant(pq_Prepared_statement* const prepared_statement) noexcept
+  pq_Response_variant(Prepared_statement* const prepared_statement) noexcept
     : prepared_statement_{prepared_statement}
   {}
 
@@ -75,7 +75,7 @@ public:
     return *this;
   }
 
-  pq_Response_variant& operator=(pq_Prepared_statement* const prepared_statement) noexcept
+  pq_Response_variant& operator=(Prepared_statement* const prepared_statement) noexcept
   {
     reset();
     prepared_statement_ = prepared_statement;
@@ -127,7 +127,7 @@ public:
     return std::move(completion_);
   }
 
-  pq_Prepared_statement* prepared_statement() const noexcept
+  Prepared_statement* prepared_statement() const noexcept
   {
     return prepared_statement_;
   }
@@ -172,7 +172,7 @@ private:
   Error error_;
   Row row_;
   Completion completion_;
-  pq_Prepared_statement* prepared_statement_{};
+  Prepared_statement* prepared_statement_{};
 };
 
 } // namespace dmitigr::pgfe::detail

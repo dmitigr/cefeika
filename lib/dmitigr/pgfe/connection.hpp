@@ -7,7 +7,7 @@
 
 #include "dmitigr/pgfe/completion.hpp"
 #include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/prepared_statement_dfn.hpp"
+#include "dmitigr/pgfe/prepared_statement.hpp"
 #include "dmitigr/pgfe/row_conversions.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
@@ -1115,7 +1115,7 @@ private:
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
 #include "dmitigr/pgfe/connection.cpp"
-#include "dmitigr/pgfe/prepared_statement_impl.cpp"
+#include "dmitigr/pgfe/prepared_statement.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_CONNECTION_HPP

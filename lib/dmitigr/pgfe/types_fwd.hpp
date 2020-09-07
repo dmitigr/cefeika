@@ -85,7 +85,6 @@ class iSql_vector;
 class pq_Connection;
 class pq_Connection_options;
 class pq_Notification;
-class pq_Prepared_statement;
 
 template<typename> struct Generic_string_conversions;
 template<typename T, class StringConversions = Generic_string_conversions<T>> struct Generic_data_conversions;

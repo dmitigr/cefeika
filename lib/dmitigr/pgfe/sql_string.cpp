@@ -343,7 +343,7 @@ private:
   mutable bool is_extra_data_should_be_extracted_from_comments_{true};
   mutable std::optional<heap_data_Composite> extra_; // cache
 
-  bool is_invariant_ok() const
+  bool is_invariant_ok() const override
   {
     const bool positional_parameters_ok = ((positional_parameter_count() > 0) == has_positional_parameters());
     const bool named_parameters_ok = ((named_parameter_count() > 0) == has_named_parameters());
@@ -351,7 +351,7 @@ private:
     const bool parameters_count_ok = (parameter_count() == (positional_parameter_count() + named_parameter_count()));
     const bool empty_ok = !is_empty() || !has_parameters();
     const bool extra_ok = is_extra_data_should_be_extracted_from_comments_ || extra_;
-    const bool parameterizable_ok = detail::is_invariant_ok(*this);
+    const bool parameterizable_ok = Parameterizable::is_invariant_ok();
 
     return
       positional_parameters_ok &&

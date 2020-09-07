@@ -6,7 +6,7 @@
 
 #include <dmitigr/pgfe/conversions.hpp>
 #include <dmitigr/pgfe/exceptions.hpp>
-#include <dmitigr/pgfe/prepared_statement_dfn.hpp>
+#include <dmitigr/pgfe/prepared_statement.hpp>
 #include <dmitigr/pgfe/row.hpp>
 #include <dmitigr/pgfe/row_info.hpp>
 #include <dmitigr/pgfe/sql_string.hpp>
@@ -43,7 +43,6 @@ int main(int, char* argv[])
       ps1->describe();
       ASSERT(ps1->is_described());
       ASSERT(ps1->parameter_count() == 1);
-      ASSERT(is_logic_throw_works([&]() { ps1->set_parameter(64, 1983); }));
       ASSERT(ps1->positional_parameter_count() == 1);
       ASSERT(!ps1->parameter(0));
       ps1->set_parameter(0, 1983);

@@ -256,7 +256,7 @@ private:
 
   Composite() = default;
 
-  virtual bool is_invariant_ok() const
+  bool is_invariant_ok() const override
   {
     return Compositional::is_invariant_ok();
   }

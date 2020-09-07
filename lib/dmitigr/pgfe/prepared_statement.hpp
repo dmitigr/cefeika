@@ -2,22 +2,28 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#ifndef DMITIGR_PGFE_PREPARED_STATEMENT_DFN_HPP
-#define DMITIGR_PGFE_PREPARED_STATEMENT_DFN_HPP
+#ifndef DMITIGR_PGFE_PREPARED_STATEMENT_HPP
+#define DMITIGR_PGFE_PREPARED_STATEMENT_HPP
 
 #include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/conversions.hpp"
 #include "dmitigr/pgfe/parameterizable.hpp"
 #include "dmitigr/pgfe/response.hpp"
+#include "dmitigr/pgfe/row_info.hpp"
+#include "dmitigr/pgfe/types_fwd.hpp"
 #include <dmitigr/base/debug.hpp>
 #include <dmitigr/mem/mem.hpp>
 
+#include <cassert>
+#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <variant>
+#include <vector>
 
 namespace dmitigr::pgfe {
 
@@ -29,10 +35,10 @@ namespace dmitigr::pgfe {
 class Named_argument final {
 public:
   /// Constructs the named argument bound to NULL.
-  Named_argument(std::string name, std::nullptr_t)
+  Named_argument(std::string name, std::nullptr_t) noexcept
     : name_{std::move(name)}
   {
-    check_name(name_);
+    assert(is_invariant_ok());
   }
 
   /**
@@ -43,11 +49,11 @@ public:
    *
    * @remarks No deep copy of `data` is performed.
    */
-  Named_argument(std::string name, const Data* const data)
+  Named_argument(std::string name, const Data* const data) noexcept
     : name_{std::move(name)}
     , data_{data, Data_deletion_required{false}}
   {
-    check_name(name_);
+    assert(is_invariant_ok());
   }
 
   /**
@@ -56,11 +62,11 @@ public:
    * @par Effects
    * `(is_data_owner() == true)`.
    */
-  Named_argument(std::string name, std::unique_ptr<Data>&& data)
+  Named_argument(std::string name, std::unique_ptr<Data>&& data) noexcept
     : name_{std::move(name)}
     , data_{data.release(), Data_deletion_required{true}}
   {
-    check_name(name_);
+    assert(is_invariant_ok());
   }
 
   /**
@@ -74,26 +80,26 @@ public:
    * The `value` must be convertible to the Data.
    */
   template<typename T>
-  Named_argument(std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>, std::string> name, T&& value)
+  Named_argument(std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>, std::string> name, T&& value) noexcept
     : Named_argument{std::move(name), to_data(std::forward<T>(value))}
   {
-    check_name(name_);
+    assert(is_invariant_ok());
   }
 
   /// @returns The argument name.
-  const std::string& name() const
+  const std::string& name() const noexcept
   {
     return name_;
   }
 
   /// @returns The bound data.
-  const Data* data() const
+  const Data* data() const noexcept
   {
     return data_.get();
   }
 
   /// @returns `true` if the bound data is owned by this instance.
-  bool is_data_owner() const
+  bool is_data_owner() const noexcept
   {
     return data_.get_deleter().condition();
   }
@@ -104,7 +110,7 @@ public:
    * @returns The instance of Data if it's owned by this instance, or
    * `nullptr` otherwise.
    */
-  std::unique_ptr<Data> release()
+  std::unique_ptr<Data> release() noexcept
   {
     if (!is_data_owner()) {
       data_.reset();
@@ -117,14 +123,13 @@ private:
   using Data_deletion_required = mem::Conditional_delete<const Data>;
   using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
 
-  static void check_name(const std::string& name)
-  {
-    DMITIGR_REQUIRE(!name.empty(), std::invalid_argument,
-      "invalid name of dmitigr::pgfe::Named_argument");
-  }
-
   std::string name_;
   Data_ptr data_;
+
+  bool is_invariant_ok() const noexcept
+  {
+    return !name_.empty();
+  }
 };
 
 /**
@@ -172,12 +177,66 @@ using Na = Named_argument;
  *
  * @see Connection::prepare_statement(), Connection::unprepare_statement(), Connection::prepared_statement().
  */
-class Prepared_statement : public Response, public Parameterizable {
+class Prepared_statement final : public Response, public Parameterizable {
 public:
   /// @see Message::is_valid().
   bool is_valid() const noexcept override
   {
-    throw "not implemented";
+    return connection_;
+  }
+
+  DMITIGR_PGFE_API std::size_t positional_parameter_count() const override;
+
+  std::size_t named_parameter_count() const override
+  {
+    return parameter_count() - positional_parameter_count();
+  }
+
+  std::size_t parameter_count() const override
+  {
+    return parameters_.size();
+  }
+
+  const std::string& parameter_name(const std::size_t index) const override
+  {
+    assert((positional_parameter_count() <= index) && (index < parameter_count()));
+    return parameters_[index].name;
+  }
+
+  std::optional<std::size_t> parameter_index(const std::string& name) const override
+  {
+    if (const auto result = parameter_index__(name); result < parameter_count())
+      return result;
+    else
+      return std::nullopt;
+  }
+
+  // REMOVEME
+  std::size_t parameter_index_throw(const std::string& name) const override
+  {
+    const auto result = parameter_index__(name);
+    assert(result < parameter_count());
+    return result;
+  }
+
+  bool has_parameter(const std::string& name) const override
+  {
+    return static_cast<bool>(parameter_index(name));
+  }
+
+  bool has_positional_parameters() const override
+  {
+    return positional_parameter_count() > 0;
+  }
+
+  bool has_named_parameters() const override
+  {
+    return named_parameter_count() > 0;
+  }
+
+  bool has_parameters() const override
+  {
+    return !parameters_.empty();
   }
 
   /// @name Read-only properties
@@ -188,19 +247,25 @@ public:
    *
    * @remarks The empty name denotes the unnamed prepared statement.
    */
-  virtual const std::string& name() const = 0;
+  const std::string& name() const noexcept
+  {
+    return name_;
+  }
 
   /**
    * @returns `true` if the information inferred by the Pgfe about
    * this prepared statement is available.
    */
-  virtual bool is_preparsed() const = 0;
+  bool is_preparsed() const noexcept
+  {
+    return preparsed_;
+  }
 
   /// @returns The maximum parameter count allowed.
-  virtual std::size_t maximum_parameter_count() const = 0;
-
-  /// @returns The maximum data size allowed.
-  virtual std::size_t maximum_data_size() const = 0;
+  constexpr std::size_t maximum_parameter_count() const noexcept
+  {
+    return 65535;
+  }
 
   /// @}
 
@@ -215,7 +280,11 @@ public:
    * @par Requires
    * `(index < parameter_count())`.
    */
-  virtual const Data* parameter(std::size_t index) const = 0;
+  const Data* parameter(const std::size_t index) const noexcept
+  {
+    assert(index < parameter_count());
+    return parameters_[index].data.get();
+  }
 
   /**
    * @overload
@@ -225,7 +294,12 @@ public:
    *
    * @see has_parameter().
    */
-  virtual const Data* parameter(const std::string& name) const = 0;
+  const Data* parameter(const std::string& name) const noexcept
+  {
+    const auto idx = parameter_index(name);
+    assert(idx);
+    return parameter(*idx);
+  }
 
   /**
    * @brief Binds the parameter of the specified index with the value of type Data.
@@ -244,7 +318,11 @@ public:
    *
    * @see parameter().
    */
-  virtual void set_parameter(std::size_t index, std::unique_ptr<Data>&& value) = 0;
+  void set_parameter(const std::size_t index, std::unique_ptr<Data>&& value) noexcept
+  {
+    Data_ptr d{value.release(), Data_deletion_required{true}};
+    set_parameter(index, std::move(d));
+  }
 
   /**
    * @overload
@@ -254,21 +332,31 @@ public:
    *
    * @see parameter(), has_parameter().
    */
-  virtual void set_parameter(const std::string& name, std::unique_ptr<Data>&& value) = 0;
+  void set_parameter(const std::string& name, std::unique_ptr<Data>&& value) noexcept
+  {
+    Data_ptr d{value.release(), Data_deletion_required{true}};
+    set_parameter(parameter_index_throw(name), std::move(d));
+  }
 
   /**
    * @overload
    *
    * @brief Similar to set_parameter_no_copy(std::size_t, const Data*).
    */
-  virtual void set_parameter(std::size_t index, std::nullptr_t) = 0;
+  void set_parameter(const std::size_t index, std::nullptr_t) noexcept
+  {
+    set_parameter_no_copy(index, nullptr);
+  }
 
   /**
    * @overload
    *
    * @brief Similar to set_parameter_no_copy(const std::string&, const Data*).
    */
-  virtual void set_parameter(const std::string& name, std::nullptr_t) = 0;
+  void set_parameter(const std::string& name, std::nullptr_t) noexcept
+  {
+    set_parameter_no_copy(name, nullptr);
+  }
 
   /**
    * @overload
@@ -281,7 +369,7 @@ public:
    * The value must be convertible to the Data.
    */
   template<typename T>
-  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(std::size_t index, T&& value)
+  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(std::size_t index, T&& value) noexcept
   {
     set_parameter(index, to_data(std::forward<T>(value)));
   }
@@ -295,7 +383,7 @@ public:
    * @see has_parameter().
    */
   template<typename T>
-  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(const std::string& name, T&& value)
+  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(const std::string& name, T&& value) noexcept
   {
     set_parameter(parameter_index_throw(name), std::forward<T>(value));
   }
@@ -311,7 +399,11 @@ public:
    *
    * @see parameter().
    */
-  virtual void set_parameter_no_copy(std::size_t index, const Data* data) = 0;
+  void set_parameter_no_copy(const std::size_t index, const Data* const data) noexcept
+  {
+    Data_ptr d{data, Data_deletion_required{false}};
+    set_parameter(index, std::move(d));
+  }
 
   /**
    * @overload
@@ -321,7 +413,11 @@ public:
    *
    * @see parameter(), has_parameter().
    */
-  virtual void set_parameter_no_copy(const std::string& name, const Data* data) = 0;
+  void set_parameter_no_copy(const std::string& name, const Data* const data) noexcept
+  {
+    Data_ptr d{data, Data_deletion_required{false}};
+    set_parameter(parameter_index_throw(name), std::move(d));
+  }
 
   /**
    * @brief Binds parameters by indexes in range [0, sizeof ... (values)).
@@ -343,7 +439,7 @@ public:
    * @see set_parameter().
    */
   template<typename ... Types>
-  void set_parameters(Types&& ... values)
+  void set_parameters(Types&& ... values) noexcept
   {
     set_parameters__(std::make_index_sequence<sizeof ... (Types)>{}, std::forward<Types>(values)...);
   }
@@ -357,14 +453,21 @@ public:
    *
    * @see Connection::set_result_format().
    */
-  virtual void set_result_format(Data_format format) = 0;
+  void set_result_format(const Data_format format) noexcept
+  {
+    result_format_ = format;
+    assert(is_invariant_ok());
+  }
 
   /**
    * @returns The data format for all fields of response rows.
    *
    * @see Connection::result_format().
    */
-  virtual Data_format result_format() const = 0;
+  Data_format result_format() const noexcept
+  {
+    return result_format_;
+  }
 
   /// @}
 
@@ -386,7 +489,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void execute_async() = 0;
+  DMITIGR_PGFE_API void execute_async();
 
   /**
    * @brief Similar to execute_async() but also waits the Response.
@@ -402,22 +505,28 @@ public:
    *
    * @see Connection::execute().
    */
-  virtual void execute() = 0;
+  DMITIGR_PGFE_API void execute();
 
   /**
    * @returns The pointer to the instance of type Connection on which this
    * statement is prepared.
    */
-  virtual Connection* connection() = 0;
+  Connection* connection() noexcept
+  {
+    return reinterpret_cast<Connection*>(connection_); // FIXME: remove cast
+  }
 
   /// @overload
-  virtual const Connection* connection() const = 0;
+  const Connection* connection() const noexcept
+  {
+    return reinterpret_cast<const Connection*>(connection_); // FIXME: remove cast
+  }
 
   /// Similar to Connection::describe_prepared_statement_async().
-  virtual void describe_async() = 0;
+  DMITIGR_PGFE_API void describe_async();
 
   /// Similar to Connection::describe_prepared_statement().
-  virtual void describe() = 0;
+  DMITIGR_PGFE_API void describe();
 
   /**
    * @returns `true` if the information inferred by a PostgreSQL server
@@ -425,7 +534,10 @@ public:
    *
    * @see describe(), parameter_type_oid(), row_info().
    */
-  virtual bool is_described() const = 0;
+  bool is_described() const noexcept
+  {
+    return static_cast<bool>(description_);
+  }
 
   /**
    * @returns The object identifier of the parameter type, or
@@ -434,7 +546,7 @@ public:
    * @par Requires
    * `(index < parameter_count())`.
    */
-  virtual std::optional<std::uint_fast32_t> parameter_type_oid(std::size_t index) const = 0;
+  DMITIGR_PGFE_API std::optional<std::uint_fast32_t> parameter_type_oid(std::size_t index) const noexcept;
 
   /**
    * @overload
@@ -444,7 +556,10 @@ public:
    *
    * @see parameter(), has_parameter().
    */
-  virtual std::optional<std::uint_fast32_t> parameter_type_oid(const std::string& name) const = 0;
+  std::optional<std::uint_fast32_t> parameter_type_oid(const std::string& name) const noexcept
+  {
+    return parameter_type_oid(parameter_index_throw(name));
+  }
 
   /**
    * @returns
@@ -452,14 +567,96 @@ public:
    *   -# `nullptr` if the execution will not provoke producing the rows, or
    *   -# the Row_info that describes the rows which a server would produce.
    */
-  virtual const Row_info* row_info() const = 0;
+  DMITIGR_PGFE_API const Row_info* row_info() const noexcept;
 
   /// @}
 
+  /// Move constructible.
+  Prepared_statement(Prepared_statement&& rhs) noexcept
+    : result_format_{std::move(rhs.result_format_)}
+    , name_{std::move(rhs.name_)}
+    , preparsed_{std::move(rhs.preparsed_)}
+    , connection_{std::move(rhs.connection_)}
+    , session_start_time_{std::move(rhs.session_start_time_)}
+    , parameters_{std::move(rhs.parameters_)}
+    , description_{std::move(rhs.description_)}
+  {
+    rhs.connection_ = nullptr;
+  }
+
+  /// Move-assignable.
+  Prepared_statement& operator=(Prepared_statement&& rhs) noexcept
+  {
+    if (this != &rhs) {
+      result_format_ = std::move(rhs.result_format_);
+      name_ = std::move(rhs.name_);
+      preparsed_ = std::move(rhs.preparsed_);
+      connection_ = std::move(rhs.connection_);
+      session_start_time_ = std::move(rhs.session_start_time_);
+      parameters_ = std::move(rhs.parameters_);
+      description_ = std::move(rhs.description_);
+
+      rhs.connection_ = nullptr;
+    }
+    return *this;
+  }
+
 private:
-  friend detail::iPrepared_statement;
+  friend detail::pq_Connection;
+
+  using Data_deletion_required = mem::Conditional_delete<const Data>;
+  using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
+
+  struct Parameter final {
+    Data_ptr data;
+    std::string name;
+  };
+
+  Data_format result_format_{Data_format::text};
+  std::string name_;
+  bool preparsed_{};
+  detail::pq_Connection* connection_{};
+  std::chrono::system_clock::time_point session_start_time_;
+  std::vector<Parameter> parameters_;
+  std::optional<std::variant<detail::pq::Result, Row_info>> description_;
 
   Prepared_statement() = default;
+
+  /// Constructs when preparing.
+  Prepared_statement(std::string name, detail::pq_Connection* connection, const Sql_string* preparsed);
+
+  /// Constructs when describing.
+  Prepared_statement(std::string name, detail::pq_Connection* connection, std::size_t parameters_count);
+
+  /// Non copy-constructible.
+  Prepared_statement(const Prepared_statement&) = delete;
+
+  /// Non copy-assignable.
+  Prepared_statement& operator=(const Prepared_statement&) = delete;
+
+  void init_connection__(detail::pq_Connection* connection);
+
+  bool is_invariant_ok() const override;
+
+  // ---------------------------------------------------------------------------
+  // Parameters
+  // ---------------------------------------------------------------------------
+
+  void set_parameter(const std::size_t index, Data_ptr&& data)
+  {
+    const bool is_opaque = !is_preparsed() && !is_described();
+    assert(is_opaque || (index < parameter_count()));
+    if (is_opaque) {
+      assert(index < maximum_parameter_count());
+      if (index >= parameters_.size())
+        parameters_.resize(index + 1);
+    }
+    parameters_[index].data = std::move(data);
+
+    assert(is_invariant_ok());
+  }
+
+  std::size_t parameter_index__(const std::string& name) const noexcept;
 
   template<std::size_t ... I, typename ... Types>
   void set_parameters__(std::index_sequence<I...>, Types&& ... args)
@@ -488,8 +685,23 @@ private:
   {
     set_parameter(index, std::forward<T>(value));
   }
+
+  // ---------------------------------------------------------------------------
+
+  void set_description(detail::pq::Result&& r)
+  {
+    if (!preparsed_)
+      parameters_.resize(static_cast<std::size_t>(r.ps_param_count()));
+
+    if (r.field_count() > 0)
+      description_ = Row_info{std::move(r)};
+    else
+      description_ = std::move(r);
+
+    assert(is_invariant_ok());
+  }
 };
 
 } // namespace dmitigr::pgfe
 
-#endif  // DMITIGR_PGFE_PREPARED_STATEMENT_DFN_HPP
+#endif  // DMITIGR_PGFE_PREPARED_STATEMENT_HPP

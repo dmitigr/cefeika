@@ -291,8 +291,7 @@ set(dmitigr_pgfe_headers
   notification.hpp
   parameterizable.hpp
   pq.hpp
-  prepared_statement_dfn.hpp
-  prepared_statement_impl.hpp
+  prepared_statement.hpp
   problem.hpp
   response.hpp
   response_variant.hpp
@@ -318,8 +317,7 @@ set(dmitigr_pgfe_implementations
   large_object.cpp
   misc.cpp
   notification.cpp
-  parameterizable.cpp
-  prepared_statement_impl.cpp
+  prepared_statement.cpp
   problem.cpp
   row_info.cpp
   sql_string.cpp

@@ -67,14 +67,27 @@ public:
 private:
   friend Prepared_statement;
   friend Sql_string;
+  friend detail::iSql_string; // FIXME
 
   Parameterizable() = default;
+
+  virtual bool is_invariant_ok() const
+  {
+    const bool params_ok = !has_parameters() || (parameter_count() > 0);
+    const bool named_params_ok = [this]
+    {
+      const std::size_t pc = parameter_count();
+      for (std::size_t i = positional_parameter_count(); i < pc; ++i) {
+        if (parameter_index(parameter_name(i)) != i)
+          return false;
+      }
+      return true;
+    }();
+
+    return params_ok && named_params_ok;
+  }
 };
 
 } // namespace dmitigr::pgfe
-
-#ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/parameterizable.cpp"
-#endif
 
 #endif  // DMITIGR_PGFE_PARAMETERIZABLE_HPP

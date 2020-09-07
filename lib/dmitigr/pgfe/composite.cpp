@@ -16,7 +16,7 @@ namespace dmitigr::pgfe::detail {
 /// The base implementation of Composite.
 class iComposite : public Composite {
 protected:
-  virtual bool is_invariant_ok() const
+  bool is_invariant_ok() const override
   {
     return Composite::is_invariant_ok();
   }

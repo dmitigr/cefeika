@@ -12,6 +12,7 @@
 
 #include <libpq-fe.h>
 
+#include <cassert>
 #include <memory>
 
 namespace std {
@@ -46,23 +47,17 @@ template<> struct default_delete<::PGresult> final {
 namespace dmitigr::pgfe::detail::pq {
 
 /// @returns The integer identifier of the specified format.
-inline int to_int(const Data_format format)
+inline int to_int(const Data_format format) noexcept
 {
-  switch (format) {
-  case Data_format::text:   return 0;
-  case Data_format::binary: return 1;
-  }
-  DMITIGR_ASSERT_ALWAYS(!true);
+  assert(static_cast<int>(format) == 0 || static_cast<int>(format) == 1);
+  return static_cast<int>(format);
 }
 
 /// @returns Data_format converted from integer.
-inline Data_format to_data_format(const int format)
+inline Data_format to_data_format(const int format) noexcept
 {
-  switch (format) {
-  case 0: return Data_format::text;
-  case 1: return Data_format::binary;
-  }
-  DMITIGR_ASSERT_ALWAYS(!true);
+  assert(format == 0 || format == 1);
+  return Data_format{format};
 }
 
 /// Represents libpq's result.
