@@ -18,6 +18,7 @@
 #include <dmitigr/net/net.hpp>
 
 #include <cassert>
+#include <list>
 #include <optional>
 #include <queue>
 
@@ -542,7 +543,7 @@ public:
         if (!get_would_block) {
           set_response(Error{std::move(r)});
           shared_field_names_.reset();
-          request_prepared_statement_.reset();
+          request_prepared_statement_ = {};
           request_prepared_statement_name_.reset();
           return Response_status::ready;
         } else
@@ -562,8 +563,8 @@ public:
 
         case Request_id::prepare_statement:
           DMITIGR_ASSERT(request_prepared_statement_);
-          set_response(register_ps(std::move(*request_prepared_statement_)));
-          request_prepared_statement_.reset();
+          set_response(register_ps(std::move(request_prepared_statement_)));
+          assert(!request_prepared_statement_);
           return Response_status::ready;
 
         case Request_id::describe_prepared_statement: {
@@ -804,7 +805,7 @@ private:
       constexpr const ::Oid* const param_types{};
       const int send_ok = ::PQsendPrepare(conn_, name, query, n_params, param_types);
       if (!send_ok)
-        throw std::runtime_error(error_message());
+        throw std::runtime_error{error_message()};
       request_prepared_statement_ = std::move(ps); // cannot throw
       dismiss_response(); // cannot throw
     } catch (...) {
@@ -1093,7 +1094,7 @@ private:
   mutable std::optional<Transaction_block_status> transaction_block_status_;
   mutable std::optional<std::int_fast32_t> server_pid_;
   mutable std::list<Prepared_statement> named_prepared_statements_;
-  mutable std::optional<Prepared_statement> unnamed_prepared_statement_;
+  mutable Prepared_statement unnamed_prepared_statement_;
   std::shared_ptr<std::vector<std::string>> shared_field_names_;
 
   // ----------------------------
@@ -1109,7 +1110,7 @@ private:
   };
 
   std::queue<Request_id> requests_; // for now only 1 request can be queued
-  std::optional<Prepared_statement> request_prepared_statement_;
+  Prepared_statement request_prepared_statement_;
   std::optional<std::string> request_prepared_statement_name_;
 
   // ---------------------------------------------------------------------------
@@ -1143,10 +1144,10 @@ private:
     transaction_block_status_.reset();
     server_pid_.reset();
     named_prepared_statements_.clear();
-    unnamed_prepared_statement_.reset();
+    unnamed_prepared_statement_ = {};
     shared_field_names_.reset();
     requests_ = {};
-    request_prepared_statement_.reset();
+    request_prepared_statement_ = {};
     request_prepared_statement_name_.reset();
   }
 
@@ -1171,7 +1172,7 @@ private:
         });
       return (p != e) ? &*p : nullptr;
     } else
-      return unnamed_prepared_statement_ ? &*unnamed_prepared_statement_ : nullptr;
+      return unnamed_prepared_statement_ ? &unnamed_prepared_statement_ : nullptr;
   }
 
   /*
@@ -1183,9 +1184,10 @@ private:
   {
     if (ps.name().empty()) {
       unnamed_prepared_statement_ = std::move(ps);
-      return &*unnamed_prepared_statement_;
+      return &unnamed_prepared_statement_;
     } else {
-      named_prepared_statements_.push_front(std::move(ps));
+      named_prepared_statements_.emplace_front();
+      named_prepared_statements_.front() = std::move(ps);
       return &named_prepared_statements_.front();
     }
   }
@@ -1194,7 +1196,7 @@ private:
   void unregister_ps(const std::string& name)
   {
     if (name.empty())
-      unnamed_prepared_statement_.reset();
+      unnamed_prepared_statement_ = {};
     else
       named_prepared_statements_.remove_if([&name](const auto& ps){ return ps.name() == name; });
   }

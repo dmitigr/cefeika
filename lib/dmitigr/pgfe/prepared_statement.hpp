@@ -179,6 +179,9 @@ using Na = Named_argument;
  */
 class Prepared_statement final : public Response, public Parameterizable {
 public:
+  /// Default-constructible. (Contructs invalid instance.)
+  Prepared_statement() = default;
+
   /// @see Message::is_valid().
   bool is_valid() const noexcept override
   {
@@ -571,6 +574,37 @@ public:
 
   /// @}
 
+private:
+  friend detail::pq_Connection;
+
+  using Data_deletion_required = mem::Conditional_delete<const Data>;
+  using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
+
+  struct Parameter final {
+    Data_ptr data;
+    std::string name;
+  };
+
+  Data_format result_format_{Data_format::text};
+  std::string name_;
+  bool preparsed_{};
+  detail::pq_Connection* connection_{};
+  std::chrono::system_clock::time_point session_start_time_;
+  std::vector<Parameter> parameters_;
+  std::optional<std::variant<detail::pq::Result, Row_info>> description_;
+
+  /// Constructs when preparing.
+  Prepared_statement(std::string name, detail::pq_Connection* connection, const Sql_string* preparsed);
+
+  /// Constructs when describing.
+  Prepared_statement(std::string name, detail::pq_Connection* connection, std::size_t parameters_count);
+
+  /// Non copy-constructible.
+  Prepared_statement(const Prepared_statement&) = delete;
+
+  /// Non copy-assignable.
+  Prepared_statement& operator=(const Prepared_statement&) = delete;
+
   /// Move constructible.
   Prepared_statement(Prepared_statement&& rhs) noexcept
     : result_format_{std::move(rhs.result_format_)}
@@ -600,39 +634,6 @@ public:
     }
     return *this;
   }
-
-private:
-  friend detail::pq_Connection;
-
-  using Data_deletion_required = mem::Conditional_delete<const Data>;
-  using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
-
-  struct Parameter final {
-    Data_ptr data;
-    std::string name;
-  };
-
-  Data_format result_format_{Data_format::text};
-  std::string name_;
-  bool preparsed_{};
-  detail::pq_Connection* connection_{};
-  std::chrono::system_clock::time_point session_start_time_;
-  std::vector<Parameter> parameters_;
-  std::optional<std::variant<detail::pq::Result, Row_info>> description_;
-
-  Prepared_statement() = default;
-
-  /// Constructs when preparing.
-  Prepared_statement(std::string name, detail::pq_Connection* connection, const Sql_string* preparsed);
-
-  /// Constructs when describing.
-  Prepared_statement(std::string name, detail::pq_Connection* connection, std::size_t parameters_count);
-
-  /// Non copy-constructible.
-  Prepared_statement(const Prepared_statement&) = delete;
-
-  /// Non copy-assignable.
-  Prepared_statement& operator=(const Prepared_statement&) = delete;
 
   void init_connection__(detail::pq_Connection* connection);
 
