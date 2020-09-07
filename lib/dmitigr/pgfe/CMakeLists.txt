@@ -316,7 +316,6 @@ set(dmitigr_pgfe_implementations
   exceptions.cpp
   large_object.cpp
   misc.cpp
-  notification.cpp
   prepared_statement.cpp
   problem.cpp
   row_info.cpp

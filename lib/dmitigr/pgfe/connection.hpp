@@ -235,7 +235,7 @@ public:
    * `is_connected()`.
    *
    * @par Effects
-   * *Possible* call of notice handler, `notification()`, `response()`.
+   * *Possible* signals and/or response are available.
    *
    * @par Exception safety guarantee
    * Basic.
@@ -254,45 +254,12 @@ public:
   /// @{
 
   /**
-   * @returns The pointer to the instance of type Notification if available.
-   *
-   * @remarks The object pointed by the returned value is owned by this instance.
-   *
-   * @see pop_notification().
-   */
-  virtual const Notification* notification() const noexcept = 0;
-
-  /**
    * @returns The released instance of type Notification if available.
    *
-   * @par Effects
-   * notification() returns the pointer to a next instance in the queue, or
-   * `nullptr` if the queue is empty.
-   *
    * @par Exception safety guarantee
    * Strong.
-   *
-   * @remarks A caller should always rely upon assumption that the pointer
-   * obtained by notification() becomes invalid after calling this function.
-   *
-   * @see notification(), dismiss_notification().
    */
-  virtual std::unique_ptr<Notification> pop_notification() = 0;
-
-  /**
-   * @brief Dismissing the available instance of type Notification.
-   *
-   * @par Effects
-   * Same as pop_notification().
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   *
-   * @remarks It's more efficiently than pop_notification().
-   *
-   * @see pop_notification().
-   */
-  virtual void dismiss_notification() = 0;
+  virtual Notification pop_notification() = 0;
 
   /// An alias of a notice handler.
   using Notice_handler = std::function<void(const Notice&)>;
@@ -316,7 +283,7 @@ public:
   virtual const Notice_handler& notice_handler() const = 0;
 
   /// An alias of a notification handler.
-  using Notification_handler = std::function<void(std::unique_ptr<Notification>&&)>;
+  using Notification_handler = std::function<void(Notification&&)>;
 
   /**
    * @brief Sets the handler for notifications.

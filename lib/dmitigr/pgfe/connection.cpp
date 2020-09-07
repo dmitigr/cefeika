@@ -502,7 +502,7 @@ public:
      * Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
      */
     while (auto* const n = ::PQnotifies(conn_))
-      notifications_.push(pq_Notification{n});
+      notifications_.emplace(n);
 
     // Processing the result.
     if (!pending_results_.empty()) {
@@ -614,19 +614,14 @@ public:
     DMITIGR_ASSERT_ALWAYS(!true);
   }
 
-  const pq_Notification* notification() const noexcept override
+  Notification pop_notification() override
   {
-    return !notifications_.empty() ? &notifications_.front() : nullptr;
-  }
-
-  std::unique_ptr<Notification> pop_notification() override
-  {
-    return pop_signal(notifications_);
-  }
-
-  void dismiss_notification() override
-  {
-    notifications_.pop();
+    if (!notifications_.empty()) {
+      auto result = std::move(notifications_.front());
+      notifications_.pop();
+      return result;
+    } else
+      return {};
   }
 
   void set_error_handler(Error_handler handler) override
@@ -1073,8 +1068,8 @@ private:
 
   // Persistent data / public-modifiable data
   Error_handler error_handler_;
-  std::function<void(const Notice&)> notice_handler_;
-  std::function<void(std::unique_ptr<Notification>&&)> notification_handler_;
+  Notice_handler notice_handler_;
+  Notification_handler notification_handler_;
   Data_format default_result_format_{Data_format::text};
 
   // Persistent data / private-modifiable data
@@ -1087,7 +1082,7 @@ private:
 
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
 
-  mutable std::queue<pq_Notification> notifications_;
+  mutable std::queue<Notification> notifications_;
 
   mutable pq_Response_variant response_;
   std::queue<pq::Result> pending_results_;
@@ -1199,22 +1194,6 @@ private:
       unnamed_prepared_statement_ = {};
     else
       named_prepared_statements_.remove_if([&name](const auto& ps){ return ps.name() == name; });
-  }
-
-  // ---------------------------------------------------------------------------
-  // Server messages helpers
-  // ---------------------------------------------------------------------------
-
-  template<typename Q>
-  std::unique_ptr<typename Q::value_type> pop_signal(Q& queue)
-  {
-    if (!queue.empty()) {
-      using V = typename Q::value_type;
-      auto r = std::make_unique<V>(std::move(queue.front()));
-      queue.pop();
-      return r;
-    } else
-      return {};
   }
 
   // ---------------------------------------------------------------------------

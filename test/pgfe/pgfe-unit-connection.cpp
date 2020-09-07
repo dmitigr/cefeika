@@ -31,7 +31,6 @@ int main(int, char* argv[])
       ASSERT(!conn->is_ssl_secured());
       ASSERT(!conn->server_pid());
 
-      ASSERT(!conn->notification());
       ASSERT(!conn->pop_notification());
       ASSERT(conn->notice_handler()); // by default handler is set
       ASSERT(!conn->notification_handler());
@@ -198,10 +197,10 @@ int main(int, char* argv[])
       {
         const auto old_notification_handler = conn->notification_handler();
         bool ok{};
-        conn->set_notification_handler([&ok](std::unique_ptr<pgfe::Notification>&& notification)
+        conn->set_notification_handler([&ok](pgfe::Notification&& notification)
                                        {
                                          if (!ok)
-                                           ok = std::string(notification->payload()->bytes()) == "yahoo";
+                                           ok = std::string(notification.payload().bytes()) == "yahoo";
                                        });
         conn->perform_async("LISTEN pgfe_test; NOTIFY pgfe_test, 'yahoo'");
         conn->wait_response();

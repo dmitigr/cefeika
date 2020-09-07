@@ -76,15 +76,11 @@ class iComposite;
 class iConnection;
 class iConnection_options;
 class iConnection_pool;
-class iData;
-class iNotification;
-class iPrepared_statement;
 class iSql_string;
 class iSql_vector;
 
 class pq_Connection;
 class pq_Connection_options;
-class pq_Notification;
 
 template<typename> struct Generic_string_conversions;
 template<typename T, class StringConversions = Generic_string_conversions<T>> struct Generic_data_conversions;

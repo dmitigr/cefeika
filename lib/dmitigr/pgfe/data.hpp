@@ -146,7 +146,7 @@ protected:
  */
 class Data_view : public Data {
 public:
-  /// Default-constructible.
+  /// Default-constructible. (Constructs invalid instance.)
   Data_view() = default;
 
   /**

@@ -13,15 +13,9 @@
 
 namespace dmitigr::pgfe::detail {
 
-/// The base implementation of Data.
-class iData : public Data {
-protected:
-  using Format = Data_format;
-};
-
 /// The base implementation of Data based on containers.
 template<class Container>
-class container_Data : public iData {
+class container_Data : public Data {
 public:
   using Storage = Container;
 
@@ -77,7 +71,7 @@ public:
  * @brief The generic implementation of Data based on a custom heap storage.
  */
 template<typename T, class Deleter = std::default_delete<T>>
-class memory_Data final : public iData {
+class memory_Data final : public Data {
 public:
   using Storage = std::unique_ptr<T, Deleter>;
 
@@ -137,7 +131,7 @@ using custom_memory_Data = memory_Data<void, void(*)(void*)>;
 /**
  * @brief The implementation of empty Data.
  */
-class empty_Data final : public iData {
+class empty_Data final : public Data {
 public:
   explicit empty_Data(const Format format)
     : format_(format)
