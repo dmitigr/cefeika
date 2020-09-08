@@ -45,7 +45,7 @@ Any feedback are [welcome][dmitigr_mail]. Donations are also [welcome][dmitigr_p
 
 ## Third-party dependencies
 
-- [CMake] build system version 3.17+;
+- [CMake] build system version 3.13+;
 - C++17 compiler ([GCC] 7.4+ or [Microsoft Visual C++][Visual_Studio] 15.7+).
 
 Also:
