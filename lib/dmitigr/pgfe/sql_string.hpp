@@ -8,6 +8,7 @@
 #include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/parameterizable.hpp"
+#include "dmitigr/pgfe/types_fwd.hpp"
 
 #include <memory>
 #include <string>

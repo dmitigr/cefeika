@@ -86,7 +86,7 @@ int main(int, char* argv[])
     // digit
     {
       ASSERT(digit->has_parameter("cond"));
-      ASSERT(pgfe::to<std::string>(digit->extra()->data("cond")) == "n > 0\n  AND n < 2");
+      ASSERT(pgfe::to<std::string>(digit->extra()->data("cond").get()) == "n > 0\n  AND n < 2");
       digit->replace_parameter("cond", digit->extra()->data("cond")->bytes());
       conn->execute(digit);
       const auto [r, c] = conn->wait_row_then_completion();

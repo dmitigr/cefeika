@@ -72,7 +72,6 @@ template<typename> class Entity_vector;
 /// The implementation details.
 namespace detail {
 
-class iComposite;
 class iConnection;
 class iConnection_options;
 class iConnection_pool;

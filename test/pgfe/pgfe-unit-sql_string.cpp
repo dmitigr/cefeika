@@ -26,7 +26,7 @@ int main(int, char* argv[])
       ASSERT(s->is_query_empty());
       ASSERT(!s->extra()->has_fields());
 
-      s->extra()->append_field("description", pgfe::Data::make("This is an unknown query"));
+      s->extra()->append("description", pgfe::Data::make("This is an unknown query"));
       ASSERT(s->extra()->has_fields());
       ASSERT(s->extra()->field_count() == 1);
       ASSERT(s->extra()->has_field("description"));
@@ -36,7 +36,7 @@ int main(int, char* argv[])
       ASSERT(s->extra()->field_count() == 2);
       ASSERT(s->extra()->has_field("id"));
       ASSERT(s->extra()->data("id"));
-      ASSERT(pgfe::to<std::string>(s->extra()->data("id")) == "unknown-query");
+      ASSERT(pgfe::to<std::string>(s->extra()->data("id").get()) == "unknown-query");
     }
 
     {

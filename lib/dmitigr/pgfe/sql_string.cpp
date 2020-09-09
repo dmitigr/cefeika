@@ -297,17 +297,17 @@ public:
     return result;
   }
 
-  heap_data_Composite* extra() override
+  Composite* extra() override
   {
-    return const_cast<heap_data_Composite*>(static_cast<const iSql_string*>(this)->extra());
+    return const_cast<Composite*>(static_cast<const iSql_string*>(this)->extra());
   }
 
-  const heap_data_Composite* extra() const override
+  const Composite* extra() const override
   {
     if (!extra_)
       extra_.emplace(Extra::extract(fragments_));
     else if (is_extra_data_should_be_extracted_from_comments_)
-      extra_->append(heap_data_Composite(Extra::extract(fragments_)));
+      extra_->append(Composite(Extra::extract(fragments_)));
     is_extra_data_should_be_extracted_from_comments_ = false;
     DMITIGR_ASSERT(is_invariant_ok());
     return &*extra_;
@@ -341,7 +341,7 @@ private:
   std::vector<bool> positional_parameters_; // cache
   std::vector<Fragment_list::const_iterator> named_parameters_; // cache
   mutable bool is_extra_data_should_be_extracted_from_comments_{true};
-  mutable std::optional<heap_data_Composite> extra_; // cache
+  mutable std::optional<Composite> extra_; // cache
 
   bool is_invariant_ok() const override
   {
