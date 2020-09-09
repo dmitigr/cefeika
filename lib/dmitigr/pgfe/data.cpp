@@ -22,7 +22,9 @@ public:
   container_Data(S&& storage, const Format format)
     : format_(format)
     , storage_(std::forward<S>(storage))
-  {}
+  {
+    assert(is_invariant_ok());
+  }
 
   std::unique_ptr<Data> to_data() const override
   {
