@@ -62,7 +62,7 @@ public:
    * @returns A new instance of this class.
    */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(
-    std::string storage,
+    std::string&& storage,
     Data_format format);
 
   /**

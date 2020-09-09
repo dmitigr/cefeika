@@ -182,7 +182,7 @@ DMITIGR_PGFE_INLINE bool Data::is_invariant_ok() const
 }
 
 DMITIGR_PGFE_INLINE std::unique_ptr<Data>
-Data::make(std::string storage, const Data_format format)
+Data::make(std::string&& storage, const Data_format format)
 {
   return std::make_unique<detail::string_Data>(std::move(storage), format);
 }
