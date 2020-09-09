@@ -54,10 +54,11 @@ int main(int, char* argv[])
       ASSERT(pgfe::to<int>(r.data()) == 1983);
     }
 
-    static const auto ss = pgfe::Sql_string::make("SELECT 1::integer AS const,"
-                                                  " generate_series(:infinum::integer, :supremum::integer) AS var,"
-                                                  " 2::integer AS const");
-    auto* const ps2 = conn->prepare_statement(ss.get(), "ps2");
+    static const pgfe::Sql_string ss{
+      "SELECT 1::integer AS const,"
+        " generate_series(:infinum::integer, :supremum::integer) AS var,"
+        " 2::integer AS const"};
+    auto* const ps2 = conn->prepare_statement(ss, "ps2");
     ASSERT(ps2);
     ASSERT(ps2->is_preparsed());
     ASSERT(!ps2->is_described());

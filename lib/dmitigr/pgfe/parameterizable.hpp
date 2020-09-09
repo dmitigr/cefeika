@@ -67,11 +67,10 @@ public:
 private:
   friend Prepared_statement;
   friend Sql_string;
-  friend detail::iSql_string; // FIXME
 
   Parameterizable() = default;
 
-  virtual bool is_invariant_ok() const
+  virtual bool is_invariant_ok() const noexcept
   {
     const bool params_ok = !has_parameters() || (parameter_count() > 0);
     const bool named_params_ok = [this]

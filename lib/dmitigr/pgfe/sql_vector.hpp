@@ -177,7 +177,7 @@ public:
   template<typename ... Types>
   void set_sql_string(std::size_t index, Types&& ... args)
   {
-    set_sql_string(index, Sql_string::make(std::forward<Types>(args)...));
+    set_sql_string(index, std::make_unique<Sql_string>(std::forward<Types>(args)...));
   }
 
   /**
@@ -194,7 +194,7 @@ public:
   template<typename ... Types>
   void append_sql_string(Types&& ... args)
   {
-    append_sql_string(Sql_string::make(std::forward<Types>(args)...));
+    append_sql_string(std::make_unique<Sql_string>(std::forward<Types>(args)...));
   }
 
   /**
@@ -214,7 +214,7 @@ public:
   {
     static_assert(sizeof ... (args) != 1 || !std::is_same_v<std::tuple_element_t<0, std::tuple<Types ...>>, std::nullptr_t>,
       "A SQL string must not be null");
-    insert_sql_string(index, Sql_string::make(std::forward<Types>(args)...));
+    insert_sql_string(index, std::make_unique<Sql_string>(std::forward<Types>(args)...));
   }
 
   /**

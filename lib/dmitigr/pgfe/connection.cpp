@@ -222,16 +222,10 @@ private:
   }
 
 public:
-  Prepared_statement* prepare_statement(const Sql_string* const statement, const std::string& name = {}) override
+  Prepared_statement* prepare_statement(const Sql_string& statement, const std::string& name = {}) override
   {
-    using Prepare = void(iConnection::*)(const Sql_string*, const std::string&);
+    using Prepare = void(iConnection::*)(const Sql_string&, const std::string&);
     return prepare_statement__(static_cast<Prepare>(&iConnection::prepare_statement_async), statement, name);
-  }
-
-  Prepared_statement* prepare_statement(const std::string& statement, const std::string& name = {}) override
-  {
-    const iSql_string s{statement};
-    return prepare_statement(&s, name);
   }
 
   Prepared_statement* prepare_statement_as_is(const std::string& statement, const std::string& name = {}) override
@@ -787,7 +781,7 @@ public:
 
 private:
   // Exception safety guarantee: strong.
-  void prepare_statement_async__(const char* const query, const char* const name, const iSql_string* const preparsed)
+  void prepare_statement_async__(const char* const query, const char* const name, const Sql_string* const preparsed)
   {
     DMITIGR_ASSERT(query && name);
     DMITIGR_REQUIRE(is_ready_for_async_request(), std::logic_error);
@@ -812,18 +806,10 @@ private:
   }
 
 public:
-  void prepare_statement_async(const Sql_string* const statement, const std::string& name = {}) override
+  void prepare_statement_async(const Sql_string& statement, const std::string& name = {}) override
   {
-    DMITIGR_REQUIRE(statement && !statement->has_missing_parameters(), std::invalid_argument);
-    const auto* const s = dynamic_cast<const iSql_string*>(statement);
-    DMITIGR_ASSERT(s);
-    prepare_statement_async__(s->to_query_string().c_str(), name.c_str(), s); // can throw
-  }
-
-  void prepare_statement_async(const std::string& statement, const std::string& name = {}) override
-  {
-    const iSql_string s{statement};
-    prepare_statement_async(&s, name);
+    DMITIGR_REQUIRE(!statement.has_missing_parameters(), std::invalid_argument);
+    prepare_statement_async__(statement.to_query_string().c_str(), name.c_str(), &statement); // can throw
   }
 
   void prepare_statement_async_as_is(const std::string& statement, const std::string& name = {}) override

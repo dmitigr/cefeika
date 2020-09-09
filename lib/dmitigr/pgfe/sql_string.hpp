@@ -6,12 +6,20 @@
 #define DMITIGR_PGFE_SQL_STRING_HPP
 
 #include "dmitigr/pgfe/basics.hpp"
+#include "dmitigr/pgfe/composite.hpp"
 #include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/parameterizable.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
 
-#include <memory>
+#include <algorithm>
+#include <cassert>
+#include <cstdint>
+#include <list>
+#include <locale>
+#include <optional>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace dmitigr::pgfe {
 
@@ -37,10 +45,13 @@ namespace dmitigr::pgfe {
  *   - the SQL string with named parameter:
  *     @code{sql} WHERE :name = 'Dmitry Igrishin' @endcode
  */
-class Sql_string : public Parameterizable {
+class Sql_string final : public Parameterizable {
 public:
   /// @name Constructors
   /// @{
+
+  /// Default-constructible.
+  Sql_string() = default;
 
   /**
    * @returns A new instance of this class.
@@ -53,18 +64,100 @@ public:
    *
    * @see extra().
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Sql_string> make(const std::string& input);
+  DMITIGR_PGFE_API Sql_string(const char* const text);
 
-  /// @returns The copy of this instance.
-  virtual std::unique_ptr<Sql_string> to_sql_string() const = 0;
+  /// @overload
+  DMITIGR_PGFE_API Sql_string(const std::string& text);
+
+  /// Copy-constructible.
+  DMITIGR_PGFE_API Sql_string(const Sql_string& rhs);
+
+  /// Copy-assignable.
+  DMITIGR_PGFE_API Sql_string& operator=(const Sql_string& rhs);
+
+  /// Move-constructible.
+  DMITIGR_PGFE_API Sql_string(Sql_string&& rhs) noexcept;
+
+  /// Move-assignable.
+  DMITIGR_PGFE_API Sql_string& operator=(Sql_string&& rhs) noexcept;
+
+  /// Swaps the instances.
+  DMITIGR_PGFE_API void swap(Sql_string& rhs) noexcept;
 
   /// @}
 
+  /// @see Parameterizable::positional_parameter_count().
+  std::size_t positional_parameter_count() const override
+  {
+    return positional_parameters_.size();
+  }
+
+  /// @see Parameterizable::named_parameter_count().
+  std::size_t named_parameter_count() const override
+  {
+    return named_parameters_.size();
+  }
+
+  /// @see Parameterizable::parameter_count().
+  std::size_t parameter_count() const override
+  {
+    return (positional_parameter_count() + named_parameter_count());
+  }
+
+  /// @see Parameterizable::parameter_name().
+  const std::string& parameter_name(const std::size_t index) const override
+  {
+    assert(positional_parameter_count() <= index && index < parameter_count());
+    return (named_parameters_[index - positional_parameter_count()])->str;
+  }
+
+  /// @see Parameterizable::parameter_index().
+  std::optional<std::size_t> parameter_index(const std::string& name) const override
+  {
+    const auto idx = named_parameter_index__(name);
+    return idx < parameter_count() ? std::make_optional<std::size_t>(idx) : std::nullopt;
+  }
+
+  /// @see Parameterizable::parameter_index_throw().
+  std::size_t parameter_index_throw(const std::string& name) const override
+  {
+    const auto idx = named_parameter_index__(name);
+    assert(idx < parameter_count());
+    return idx;
+  }
+
+  /// @see Parameterizable::has_parameter().
+  bool has_parameter(const std::string& name) const override
+  {
+    return static_cast<bool>(parameter_index(name));
+  }
+
+  /// @see Parameterizable::has_positional_parameters().
+  bool has_positional_parameters() const override
+  {
+    return !positional_parameters_.empty();
+  }
+
+  /// @see Parameterizable::has_named_parameters().
+  bool has_named_parameters() const override
+  {
+    return !named_parameters_.empty();
+  }
+
+  /// @see Parameterizable::has_parameters().
+  bool has_parameters() const override
+  {
+    return (has_positional_parameters() || has_named_parameters());
+  }
+
   /// @returns `true` if this SQL string is empty.
-  virtual bool is_empty() const = 0;
+  bool is_empty() const noexcept
+  {
+    return fragments_.empty();
+  }
 
   /// @returns `true` if this SQL string is consists only from comments and blank line(-s).
-  virtual bool is_query_empty() const = 0;
+  DMITIGR_PGFE_API bool is_query_empty() const noexcept;
 
   /**
    * @returns `false` if the parameter at specified `index` is missing, or
@@ -81,7 +174,11 @@ public:
    * statement will become the following:
    * @code{sql} SELECT $2, $1, $3 @endcode
    */
-  virtual bool is_parameter_missing(std::size_t index) const = 0;
+  bool is_parameter_missing(const std::size_t index) const noexcept
+  {
+    assert(index < positional_parameter_count());
+    return !positional_parameters_[index];
+  }
 
   /**
    * @returns `true` if this SQL string has a positional parameter with an index
@@ -89,7 +186,11 @@ public:
    *
    * @see is_parameter_missing().
    */
-  virtual bool has_missing_parameters() const = 0;
+  bool has_missing_parameters() const noexcept
+  {
+    return any_of(cbegin(positional_parameters_), cend(positional_parameters_),
+      [](const auto is_present) { return !is_present; });
+  }
 
   /**
    * @brief Appends the specified SQL string to this instance.
@@ -105,10 +206,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void append(const Sql_string* appendix) = 0;
-
-  /// @overload
-  virtual void append(const std::string& appendix) = 0;
+  DMITIGR_PGFE_API void append(const Sql_string& appendix);
 
   /**
    * @brief Replaces the parameter named by the `name` with the specified
@@ -126,16 +224,13 @@ public:
    *
    * @see has_parameter().
    */
-  virtual void replace_parameter(const std::string& name, const Sql_string* replacement) = 0;
-
-  /// @overload
-  virtual void replace_parameter(const std::string& name, const std::string& replacement) = 0;
+  DMITIGR_PGFE_API void replace_parameter(const std::string& name, const Sql_string& replacement);
 
   /// @returns The result of conversion of this instance to the instance of type `std::string`.
-  virtual std::string to_string() const = 0;
+  DMITIGR_PGFE_API std::string to_string() const;
 
   /// @returns The query string that's actually passed to a PostgreSQL server.
-  virtual std::string to_query_string() const = 0;
+  DMITIGR_PGFE_API std::string to_query_string() const;
 
   /// @returns The extra data associated with this instance.
   ///
@@ -225,15 +320,154 @@ public:
   /// @endcode
   ///
   /// The content of the `text3` association is "one\n two\n three".
-  virtual Composite* extra() = 0;
+  Composite& extra() noexcept
+  {
+    return const_cast<Composite&>(static_cast<const Sql_string*>(this)->extra());
+  }
 
   /// @overload
-  virtual const Composite* extra() const = 0;
+  DMITIGR_PGFE_API const Composite& extra() const;
 
 private:
-  friend detail::iSql_string;
+  friend detail::iSql_vector; // FIXME
 
-  Sql_string() = default;
+  static std::pair<Sql_string, const char*> parse_sql_input(const char*);
+
+  constexpr static std::size_t maximum_parameter_count_{65536};
+
+  struct Fragment final {
+    enum class Type {
+      text,
+      one_line_comment,
+      multi_line_comment,
+      named_parameter,
+      positional_parameter
+    };
+
+    Fragment(const Type tp, const std::string& s)
+      : type(tp)
+      , str(s)
+    {}
+
+    Type type;
+    std::string str;
+  };
+  using Fragment_list = std::list<Fragment>;
+
+  Fragment_list fragments_;
+  std::vector<bool> positional_parameters_; // cache
+  std::vector<Fragment_list::const_iterator> named_parameters_; // cache
+  mutable bool is_extra_data_should_be_extracted_from_comments_{true};
+  mutable std::optional<Composite> extra_; // cache
+
+  bool is_invariant_ok() const noexcept override
+  {
+    const bool positional_parameters_ok = ((positional_parameter_count() > 0) == has_positional_parameters());
+    const bool named_parameters_ok = ((named_parameter_count() > 0) == has_named_parameters());
+    const bool parameters_ok = ((parameter_count() > 0) == has_parameters());
+    const bool parameters_count_ok = (parameter_count() == (positional_parameter_count() + named_parameter_count()));
+    const bool empty_ok = !is_empty() || !has_parameters();
+    const bool extra_ok = is_extra_data_should_be_extracted_from_comments_ || extra_;
+    const bool parameterizable_ok = Parameterizable::is_invariant_ok();
+
+    return
+      positional_parameters_ok &&
+      named_parameters_ok &&
+      parameters_ok &&
+      parameters_count_ok &&
+      empty_ok &&
+      extra_ok &&
+      parameterizable_ok;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Initializers
+  // ---------------------------------------------------------------------------
+
+  void push_back_fragment__(const Fragment::Type type, const std::string& str)
+  {
+    fragments_.emplace_back(type, str);
+    // The invariant should be checked by the caller.
+  }
+
+  void push_text(const std::string& str)
+  {
+    push_back_fragment__(Fragment::Type::text, str);
+    assert(is_invariant_ok());
+  }
+
+  void push_one_line_comment(const std::string& str)
+  {
+    push_back_fragment__(Fragment::Type::one_line_comment, str);
+    assert(is_invariant_ok());
+  }
+
+  void push_multi_line_comment(const std::string& str)
+  {
+    push_back_fragment__(Fragment::Type::multi_line_comment, str);
+    assert(is_invariant_ok());
+  }
+
+  void push_positional_parameter(const std::string& str);
+  void push_named_parameter(const std::string& str);
+
+  // ---------------------------------------------------------------------------
+  // Updaters
+  // ---------------------------------------------------------------------------
+
+  // Exception safety guarantee: strong.
+  void update_cache(const Sql_string& rhs);
+
+  // ---------------------------------------------------------------------------
+  // Generators
+  // ---------------------------------------------------------------------------
+
+  std::vector<Fragment_list::const_iterator> unique_fragments(Fragment::Type type) const;
+
+  std::size_t unique_fragment_index(const std::vector<Fragment_list::const_iterator>& unique_fragments,
+    const std::string& str,
+    std::size_t offset = 0) const noexcept;
+
+  std::size_t named_parameter_index__(const std::string& name) const
+  {
+    return unique_fragment_index(named_parameters_, name, positional_parameter_count());
+  }
+
+  std::vector<Fragment_list::const_iterator> named_parameters() const
+  {
+    return unique_fragments(Fragment::Type::named_parameter);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Predicates
+  // ---------------------------------------------------------------------------
+
+  static bool is_space(const char c)
+  {
+    return std::isspace(c, std::locale{});
+  }
+
+  static bool is_blank_string(const std::string& str)
+  {
+    return std::all_of(cbegin(str), cend(str), is_space);
+  };
+
+  static bool is_comment(const Fragment& f)
+  {
+    return (f.type == Fragment::Type::one_line_comment || f.type == Fragment::Type::multi_line_comment);
+  };
+
+  static bool is_text(const Fragment& f)
+  {
+    return (f.type == Fragment::Type::text);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Extra data
+  // ---------------------------------------------------------------------------
+
+  /// Represents an API for extraction the extra data from the comments.
+  struct Extra;
 };
 
 } // namespace dmitigr::pgfe

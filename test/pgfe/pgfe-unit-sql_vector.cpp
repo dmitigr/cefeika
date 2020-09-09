@@ -52,21 +52,19 @@ int main(int, char* argv[])
     const auto input = str::file_to_string(this_exe_dir_name / "pgfe-unit-sql_vector.sql");
     bunch = pgfe::Sql_vector::make(input);
     ASSERT(bunch->sql_string_count() == 2);
-    ASSERT(bunch->sql_string(0)->extra());
-    ASSERT(bunch->sql_string(0)->extra()->field_count() == 1);
-    ASSERT(bunch->sql_string(1)->extra());
-    ASSERT(bunch->sql_string(1)->extra()->field_count() == 2);
+    ASSERT(bunch->sql_string(0)->extra().field_count() == 1);
+    ASSERT(bunch->sql_string(1)->extra().field_count() == 2);
     //
     ASSERT(bunch->has_sql_string("id", "plus_one"));
     ASSERT(bunch->sql_string_index("id", "plus_one") == 0);
     ASSERT(bunch->has_sql_string("id", "digit"));
     ASSERT(bunch->sql_string_index("id", "digit") == 1);
-    ASSERT(bunch->sql_string(0)->extra()->has_field("id"));
-    ASSERT(bunch->sql_string(0)->extra()->field_index("id") == 0);
-    ASSERT(bunch->sql_string(1)->extra()->has_field("id"));
-    ASSERT(bunch->sql_string(1)->extra()->field_index("id") == 0);
-    ASSERT(bunch->sql_string(1)->extra()->has_field("cond"));
-    ASSERT(bunch->sql_string(1)->extra()->field_index("cond") == 1);
+    ASSERT(bunch->sql_string(0)->extra().has_field("id"));
+    ASSERT(bunch->sql_string(0)->extra().field_index("id") == 0);
+    ASSERT(bunch->sql_string(1)->extra().has_field("id"));
+    ASSERT(bunch->sql_string(1)->extra().field_index("id") == 0);
+    ASSERT(bunch->sql_string(1)->extra().has_field("cond"));
+    ASSERT(bunch->sql_string(1)->extra().field_index("cond") == 1);
 
     auto* const digit = bunch->sql_string("id", "digit");
     ASSERT(digit);
@@ -78,7 +76,7 @@ int main(int, char* argv[])
 
     // plus_one
     {
-      conn->execute(plus_one, 2);
+      conn->execute(*plus_one, 2);
       const auto [r, c] = conn->wait_row_then_completion();
       ASSERT(pgfe::to<int>(r.data()) == 2 + 1);
     }
@@ -86,9 +84,9 @@ int main(int, char* argv[])
     // digit
     {
       ASSERT(digit->has_parameter("cond"));
-      ASSERT(pgfe::to<std::string>(digit->extra()->data("cond").get()) == "n > 0\n  AND n < 2");
-      digit->replace_parameter("cond", digit->extra()->data("cond")->bytes());
-      conn->execute(digit);
+      ASSERT(pgfe::to<std::string>(digit->extra().data("cond").get()) == "n > 0\n  AND n < 2");
+      digit->replace_parameter("cond", digit->extra().data("cond")->bytes());
+      conn->execute(*digit);
       const auto [r, c] = conn->wait_row_then_completion();
       ASSERT(pgfe::to<int>(r.data()) == 1);
     }

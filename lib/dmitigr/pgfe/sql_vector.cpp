@@ -19,8 +19,8 @@ public:
   {
     const char* text{input.c_str()};
     while (*text != '\0') {
-      const auto parsed = parse_sql_input(text);
-      auto s = std::make_unique<iSql_string>(std::move(parsed.first));
+      const auto parsed = Sql_string::parse_sql_input(text);
+      auto s = std::make_unique<Sql_string>(std::move(parsed.first));
       storage_.push_back(std::move(s));
       text = parsed.second;
     }
@@ -39,7 +39,7 @@ public:
     : storage_(rhs.storage_.size())
   {
     std::transform(cbegin(rhs.storage_), cend(rhs.storage_), begin(storage_),
-      [](const auto& sqlstr) { return sqlstr->to_sql_string(); });
+      [](const auto& sqlstr) { return std::make_unique<Sql_string>(*sqlstr); });
     DMITIGR_ASSERT(is_invariant_ok());
   }
 
@@ -105,9 +105,9 @@ public:
         [&extra_name, &extra_value, extra_offset](const auto& sql_string)
         {
           DMITIGR_ASSERT(sql_string);
-          if (const auto* const extra = sql_string->extra(); extra && extra_offset < extra->field_count()) {
-            const auto index = extra->field_index(extra_name, extra_offset);
-            return (index && (extra->data(*index)->bytes() == extra_value));
+          if (const auto& extra = sql_string->extra(); extra_offset < extra.field_count()) {
+            const auto index = extra.field_index(extra_name, extra_offset);
+            return (index && (extra.data(*index)->bytes() == extra_value));
           } else
             return false;
         });

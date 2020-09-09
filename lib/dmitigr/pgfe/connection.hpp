@@ -562,10 +562,7 @@ public:
    *
    * @see unprepare_statement_async().
    */
-  virtual void prepare_statement_async(const Sql_string* statement, const std::string& name = {}) = 0;
-
-  /// @overload
-  virtual void prepare_statement_async(const std::string& statement, const std::string& name = {}) = 0;
+  virtual void prepare_statement_async(const Sql_string& statement, const std::string& name = {}) = 0;
 
   /**
    * @brief Same as prepare_statement_async() except the statement will be send
@@ -586,10 +583,7 @@ public:
    *
    * @see unprepare_statement().
    */
-  virtual Prepared_statement* prepare_statement(const Sql_string* statement, const std::string& name = {}) = 0;
-
-  /// @overload
-  virtual Prepared_statement* prepare_statement(const std::string& statement, const std::string& name = {}) = 0;
+  virtual Prepared_statement* prepare_statement(const Sql_string& statement, const std::string& name = {}) = 0;
 
   /**
    * @brief Same as prepare_statement() except the statement will be send as-is,
@@ -690,18 +684,11 @@ public:
    * @remarks See remarks of prepare_statement().
    */
   template<typename ... Types>
-  void execute(const Sql_string* const statement, Types&& ... parameters)
+  void execute(const Sql_string& statement, Types&& ... parameters)
   {
     auto* const ps = prepare_statement(statement);
     ps->set_parameters(std::forward<Types>(parameters)...);
     ps->execute();
-  }
-
-  /// @overload
-  template<typename ... Types>
-  void execute(const std::string& statement, Types&& ... parameters)
-  {
-    execute(Sql_string::make(statement).get(), std::forward<Types>(parameters)...);
   }
 
   /**
@@ -762,7 +749,7 @@ public:
   {
     static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
     const auto stmt = routine_query__(function, "SELECT * FROM", std::forward<Types>(arguments)...);
-    execute(Sql_string::make(stmt).get(), std::forward<Types>(arguments)...);
+    execute(stmt, std::forward<Types>(arguments)...);
   }
 
   /**
@@ -780,7 +767,7 @@ public:
   {
     static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
     const auto stmt = routine_query__(function, "SELECT", std::forward<Types>(arguments)...);
-    execute(Sql_string::make(stmt).get(), std::forward<Types>(arguments)...);
+    execute(stmt, std::forward<Types>(arguments)...);
   }
 
   /**
@@ -798,7 +785,7 @@ public:
   {
     static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
     const auto stmt = routine_query__(procedure, "CALL", std::forward<Types>(arguments)...);
-    execute(Sql_string::make(stmt).get(), std::forward<Types>(arguments)...);
+    execute(stmt, std::forward<Types>(arguments)...);
   }
 
   /**

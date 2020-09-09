@@ -105,8 +105,8 @@ int main(int, char* argv[])
 
     // text
     {
-      static const auto st = pgfe::Sql_string::make("SELECT 'dima'::text, :nm1::varchar, :nm2::text");
-      auto* const ps = conn->prepare_statement(st.get());
+      static const pgfe::Sql_string st{"SELECT 'dima'::text, :nm1::varchar, :nm2::text"};
+      auto* const ps = conn->prepare_statement(st);
       ps->set_parameter("nm1", "olga");
       ps->set_parameter("nm2", "vika");
       ps->execute();

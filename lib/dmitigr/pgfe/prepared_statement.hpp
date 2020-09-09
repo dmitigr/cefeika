@@ -637,7 +637,7 @@ private:
 
   void init_connection__(detail::pq_Connection* connection);
 
-  bool is_invariant_ok() const override;
+  bool is_invariant_ok() const noexcept override;
 
   // ---------------------------------------------------------------------------
   // Parameters
