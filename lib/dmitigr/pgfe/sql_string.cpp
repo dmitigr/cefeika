@@ -25,6 +25,8 @@ DMITIGR_PGFE_INLINE Sql_string::Sql_string(const std::string& text)
 DMITIGR_PGFE_INLINE Sql_string::Sql_string(const Sql_string& rhs)
   : fragments_{rhs.fragments_}
   , positional_parameters_{rhs.positional_parameters_}
+  , is_extra_data_should_be_extracted_from_comments_{rhs.is_extra_data_should_be_extracted_from_comments_}
+  , extra_{rhs.extra_}
 {
   named_parameters_ = named_parameters();
 }
@@ -39,6 +41,8 @@ DMITIGR_PGFE_INLINE Sql_string& Sql_string::operator=(const Sql_string& rhs)
 DMITIGR_PGFE_INLINE Sql_string::Sql_string(Sql_string&& rhs) noexcept
   : fragments_{std::move(rhs.fragments_)}
   , positional_parameters_{std::move(rhs.positional_parameters_)}
+  , is_extra_data_should_be_extracted_from_comments_{std::move(rhs.is_extra_data_should_be_extracted_from_comments_)}
+  , extra_{std::move(rhs.extra_)}
 {
   named_parameters_ = named_parameters();
 }
@@ -55,6 +59,8 @@ DMITIGR_PGFE_INLINE void Sql_string::swap(Sql_string& rhs) noexcept
   fragments_.swap(rhs.fragments_);
   positional_parameters_.swap(rhs.positional_parameters_);
   named_parameters_.swap(rhs.named_parameters_);
+  std::swap(is_extra_data_should_be_extracted_from_comments_, rhs.is_extra_data_should_be_extracted_from_comments_);
+  std::swap(extra_, rhs.extra_);
 }
 
 DMITIGR_PGFE_INLINE bool Sql_string::is_query_empty() const noexcept

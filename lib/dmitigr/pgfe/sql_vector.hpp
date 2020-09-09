@@ -9,7 +9,7 @@
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
 
-#include <memory>
+#include <cassert>
 #include <optional>
 #include <string>
 #include <type_traits>
@@ -24,16 +24,10 @@ namespace dmitigr::pgfe {
  *
  * @see Sql_string.
  */
-class Sql_vector {
+class Sql_vector final {
 public:
-  /// The destructor.
-  virtual ~Sql_vector() = default;
-
-  /// @name Constructors
-  /// @{
-
-  /// @returns A new instance of an empty SQL vector.
-  static DMITIGR_PGFE_API std::unique_ptr<Sql_vector> make();
+  /// Default-constructible. (Constructs an empty instance.)
+  Sql_vector() = default;
 
   /**
    * @brief Parses the input to make a SQL vector at once.
@@ -59,33 +53,33 @@ public:
    *
    * @returns A new instance of this class.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Sql_vector> make(const std::string& input);
+  explicit DMITIGR_PGFE_API Sql_vector(const std::string& input);
 
   /// @overload
-  static DMITIGR_PGFE_API std::unique_ptr<Sql_vector> make(std::vector<std::unique_ptr<Sql_string>>&& v);
+  explicit Sql_vector(std::vector<Sql_string>&& storage)
+    : storage_{std::move(storage)}
+  {}
 
-  /// @returns The copy of this instance.
-  virtual std::unique_ptr<Sql_vector> to_sql_vector() const = 0;
-
-  /// @}
-
-  // ===========================================================================
-
-  /// @name Observers
-  /// @{
+  /// Swaps the instances.
+  void swap(Sql_vector& rhs) noexcept
+  {
+    storage_.swap(rhs.storage_);
+  }
 
   /// @returns The count of SQL strings this vector contains.
-  virtual std::size_t sql_string_count() const = 0;
+  std::size_t size() const noexcept
+  {
+    return storage_.size();
+  }
 
   /// @returns The count of non-empty SQL query strings this vector contains.
-  virtual std::size_t non_empty_count() const = 0;
+  DMITIGR_PGFE_API std::size_t non_empty_count() const noexcept;
 
-  /// @returns `true` if this SQL vector is not empty, or `false` otherwise.
-  virtual bool has_sql_strings() const = 0;
-
-  /// @returns `true` if the SQL string with the given criterias is presents in this vector.
-  virtual bool has_sql_string(const std::string& extra_name, const std::string& extra_value,
-    const std::size_t offset = 0, const std::size_t extra_offset = 0) const = 0;
+  /// @returns `true` if this SQL vector is empty.
+  bool empty() const noexcept
+  {
+    return storage_.empty();
+  }
 
   /**
    * @returns The index of the SQL string that owns by this vector, or
@@ -99,17 +93,8 @@ public:
    *
    * @see Sql_string::extra().
    */
-  virtual std::optional<std::size_t> sql_string_index(const std::string& extra_name, const std::string& extra_value,
-    std::size_t offset = 0, std::size_t extra_offset = 0) const = 0;
-
-  /**
-   * @brief Similar to sql_string_index() except the requirement.
-   *
-   * @par Requires
-   * `has_sql_string(extra_name, extra_value, offset, extra_offset)`.
-   */
-  virtual std::size_t sql_string_index_throw(const std::string& extra_name, const std::string& extra_value,
-    std::size_t offset = 0, std::size_t extra_offset = 0) const = 0;
+  std::optional<std::size_t> index_of(const std::string& extra_name, const std::string& extra_value,
+    std::size_t offset = 0, std::size_t extra_offset = 0) const noexcept;
 
   /**
    * @returns The SQL string that owns by this vector.
@@ -117,28 +102,43 @@ public:
    * @param index - the index of SQL string to return.
    *
    * @par Requires
-   * `(index < sql_string_count())`.
+   * `(index < size())`.
    */
-  virtual Sql_string* sql_string(std::size_t index) = 0;
+  Sql_string& operator[](const std::size_t index) noexcept
+  {
+    return const_cast<Sql_string&>(static_cast<const Sql_vector&>(*this)[index]);
+  }
 
   /// @overload
-  virtual const Sql_string* sql_string(std::size_t index) const = 0;
+  const Sql_string& operator[](const std::size_t index) const noexcept
+  {
+    assert(index < size());
+    return storage_[index];
+  }
 
   /**
    * @returns The SQL string that owns by this vector, or `nullptr` if no
    * SQL strings that meets the given criterias exists in this vector.
    *
    * @par Parameters
-   * See sql_string_index().
+   * See index_of().
    *
    * @see Sql_string::extra().
    */
-  virtual Sql_string* sql_string(const std::string& extra_name, const std::string& extra_value,
-    std::size_t offset = 0, std::size_t extra_offset = 0) = 0;
+  Sql_string* find(const std::string& extra_name, const std::string& extra_value,
+    const std::size_t offset = 0, const std::size_t extra_offset = 0)
+  {
+    return const_cast<Sql_string*>(static_cast<const Sql_vector*>(this)->
+      find(extra_name, extra_value, offset, extra_offset));
+  }
 
   /// @overload
-  virtual const Sql_string* sql_string(const std::string& extra_name, const std::string& extra_value,
-    std::size_t offset = 0, std::size_t extra_offset = 0) const = 0;
+  const Sql_string* find(const std::string& extra_name, const std::string& extra_value,
+    const std::size_t offset = 0, const std::size_t extra_offset = 0) const
+  {
+    const auto index = index_of(extra_name, extra_value, offset, extra_offset);
+    return index ? &operator[](*index) : nullptr;
+  }
 
   /**
    * @returns Absolute position of the query of the speficied SQL string.
@@ -148,53 +148,23 @@ public:
    * @par Requires
    * `(index < sql_string_count())`.
    */
-  virtual std::string::size_type query_absolute_position(std::size_t index) const = 0;
-
-  /// @}
-
-  // ===========================================================================
-
-  /// @{
-  /// @name Modifiers
-
-  /**
-   * @brief Sets the SQL string at the given `index`.
-   *
-   * @param index - the index of SQL string to set;
-   * @param sql_string - the SQL string to set.
-   *
-   * @par Requires
-   * `(index < sql_string_count() && sql_string != nullptr)`.
-   */
-  virtual void set_sql_string(std::size_t index, std::unique_ptr<Sql_string>&& sql_string) = 0;
-
-  /**
-   * @overload
-   *
-   * @param index - the index of SQL string to set.
-   * @param args - the arguments to forward to Sql_string::make().
-   */
-  template<typename ... Types>
-  void set_sql_string(std::size_t index, Types&& ... args)
-  {
-    set_sql_string(index, std::make_unique<Sql_string>(std::forward<Types>(args)...));
-  }
+  DMITIGR_PGFE_API std::string::size_type query_absolute_position(std::size_t index) const;
 
   /**
    * @brief Appends the SQL string to this vector.
    *
    * @param sql_string - the SQL string to append.
-   *
-   * @par Requires
-   * `(sql_string != nullptr)`.
    */
-  virtual void append_sql_string(std::unique_ptr<Sql_string>&& sql_string) = 0;
+  void push_back(Sql_string sql_string) noexcept
+  {
+    storage_.push_back(std::move(sql_string));
+  }
 
   /// @overload
   template<typename ... Types>
-  void append_sql_string(Types&& ... args)
+  void emplace_back(Types&& ... args)
   {
-    append_sql_string(std::make_unique<Sql_string>(std::forward<Types>(args)...));
+    storage_.emplace_back(std::forward<Types>(args)...);
   }
 
   /**
@@ -204,55 +174,44 @@ public:
    * @param sql_string - the SQL string to insert.
    *
    * @par Requires
-   * `(index < sql_string_count() && sql_string != nullptr)`.
+   * `(index < size())`.
    */
-  virtual void insert_sql_string(std::size_t index, std::unique_ptr<Sql_string>&& sql_string) = 0;
-
-  /// @overload
-  template<typename ... Types>
-  void insert_sql_string(std::size_t index, Types&& ... args)
+  void insert(const std::size_t index, Sql_string sql_string)
   {
-    static_assert(sizeof ... (args) != 1 || !std::is_same_v<std::tuple_element_t<0, std::tuple<Types ...>>, std::nullptr_t>,
-      "A SQL string must not be null");
-    insert_sql_string(index, std::make_unique<Sql_string>(std::forward<Types>(args)...));
+    assert(index < size());
+    storage_.insert(begin(storage_) + index, std::move(sql_string));
   }
 
   /**
    * @brief Removes the SQL string from the vector.
    *
    * @par Requires
-   * `(index < sql_string_count())`.
+   * `(index < size())`.
    */
-  virtual void remove_sql_string(std::size_t index) = 0;
-
-  /// @}
-
-  // ===========================================================================
-
-  /// @name Conversions
-  /// @{
+  void erase(const std::size_t index) noexcept
+  {
+    assert(index < size());
+    storage_.erase(begin(storage_) + index);
+  }
 
   /// @returns The result of conversion of this instance to the instance of type `std::string`.
-  virtual std::string to_string() const = 0;
-
-  /// @returns The result of conversion of this instance to the instance of type `std::vector`.
-  virtual std::vector<std::unique_ptr<Sql_string>> to_vector() const = 0;
+  std::string to_string() const;
 
   /**
-   * @returns The result of conversion of this instance to the instance of type
-   * `std::vector`.
+   * @returns The released storage.
    *
    * @par Effects
    * `!has_sql_strings()`.
    */
-  virtual std::vector<std::unique_ptr<Sql_string>> move_to_vector() = 0;
-
-  /// @}
+  std::vector<Sql_string> release() noexcept
+  {
+    decltype(storage_) result;
+    storage_.swap(result);
+    return std::move(result);
+  }
 
 private:
-  friend detail::iSql_vector;
-
-  Sql_vector() = default;
+  mutable std::vector<Sql_string> storage_;
 };
 
 } // namespace dmitigr::pgfe

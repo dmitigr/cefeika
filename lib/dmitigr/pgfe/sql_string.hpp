@@ -329,9 +329,9 @@ public:
   DMITIGR_PGFE_API const Composite& extra() const;
 
 private:
-  friend detail::iSql_vector; // FIXME
+  friend Sql_vector;
 
-  static std::pair<Sql_string, const char*> parse_sql_input(const char*);
+  static DMITIGR_PGFE_API std::pair<Sql_string, const char*> parse_sql_input(const char*);
 
   constexpr static std::size_t maximum_parameter_count_{65536};
 

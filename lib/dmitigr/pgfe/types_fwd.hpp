@@ -75,7 +75,6 @@ namespace detail {
 class iConnection;
 class iConnection_options;
 class iConnection_pool;
-class iSql_vector;
 
 class pq_Connection;
 class pq_Connection_options;
