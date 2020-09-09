@@ -702,6 +702,13 @@ public:
     return {std::move(row), std::move(comp)};
   }
 
+  Row wait_row_then_discard() override
+  {
+    auto row = wait_row();
+    wait_completion();
+    return row;
+  }
+
   Completion wait_completion(std::optional<std::chrono::milliseconds> timeout =
     std::chrono::milliseconds{-1}) override
   {

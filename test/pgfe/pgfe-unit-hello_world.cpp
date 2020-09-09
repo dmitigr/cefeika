@@ -37,7 +37,7 @@ int main() try {
 
   // Invoking the function.
   conn->invoke("cos", .5f);
-  const auto [r, c] = conn->wait_row_then_completion();
+  const auto r = conn->wait_row_then_discard();
   std::printf("cos(%f) = %f\n", .5f, to<float>(r.data()));
 
   // Provoking the syntax error.

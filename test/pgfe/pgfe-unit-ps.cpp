@@ -48,7 +48,7 @@ int main(int, char* argv[])
       ps1->set_parameter(0, 1983);
       ps1->execute();
       ASSERT(ps1->connection());
-      const auto [r, c] = ps1->connection()->wait_row_then_completion();
+      const auto r = ps1->connection()->wait_row_then_discard();
       ASSERT(r);
       ASSERT(r.data());
       ASSERT(pgfe::to<int>(r.data()) == 1983);

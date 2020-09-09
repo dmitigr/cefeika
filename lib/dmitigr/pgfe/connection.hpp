@@ -424,6 +424,19 @@ public:
   virtual std::pair<Row, Completion> wait_row_then_completion() = 0;
 
   /**
+   * @return Waits for next Row and discards the rows followed after that returned row.
+   *
+   * @par Effects
+   * Completion response are available (if not Error generated).
+   *
+   * @par Exception safety guarantee
+   * Strong
+   *
+   * @see wait_row(), dismiss_response().
+   */
+  virtual Row wait_row_then_discard() = 0;
+
+  /**
    * @brief Waits for Completion and throws Server_expection on Error. Skips the rows (if any).
    *
    * @returns The awaited Completion, or invalid instance.
