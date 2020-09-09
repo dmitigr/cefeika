@@ -434,14 +434,14 @@ int main(int, char* argv[])
 
       // to_hex_data(), to_hex_string()
       {
-        std::string storage{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        const auto data  = pgfe::Data::make(storage, pgfe::Data_format::binary);
+        const auto data = pgfe::Data::make(std::string{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+          pgfe::Data_format::binary);
         const auto hex_data = conn->to_hex_data(data.get());
-        const auto data2 = pgfe::to_binary_data(hex_data.get());
+        const auto data2 = hex_data->to_bytea();
         ASSERT(data->size() == data2->size());
         ASSERT(!std::memcmp(data->bytes(), data2->bytes(), data->size()));
 
-        ASSERT(std::string(hex_data->bytes()) == conn->to_hex_string(data.get()));
+        ASSERT(std::string_view{hex_data->bytes()} == conn->to_hex_string(data.get()));
       }
     }
   } catch (const std::exception& e) {

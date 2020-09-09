@@ -68,21 +68,21 @@ public:
   /**
    * @overload
    *
-   * @remarks The `bytes` will be copied into the modifiable internal storage.
-   */
-  static DMITIGR_PGFE_API std::unique_ptr<Data> make(
-    std::string_view bytes,
-    Data_format format = Data_format::text);
-
-  /**
-   * @overload
-   *
    * @par Requires
    * `storage`.
    */
   static DMITIGR_PGFE_API std::unique_ptr<Data> make(
     std::unique_ptr<void, void(*)(void*)>&& storage, std::size_t size,
     Data_format format);
+
+  /**
+   * @overload
+   *
+   * @remarks The `bytes` will be copied into the modifiable internal storage.
+   */
+  static DMITIGR_PGFE_API std::unique_ptr<Data> make(
+    std::string_view bytes,
+    Data_format format = Data_format::text);
 
   /**
    * @returns A new instance of this class.
@@ -97,6 +97,24 @@ public:
    * @returns The copy of this instance.
    */
   virtual std::unique_ptr<Data> to_data() const = 0;
+
+  /**
+   * @returns The result of conversion of text representation
+   * of the PostgreSQL's Bytea data type to the plain binary data.
+   *
+   * @par Requires
+   * `(format() == Data_format::text)`.
+   *
+   * @relates Data
+   */
+  DMITIGR_PGFE_API std::unique_ptr<Data> to_bytea() const;
+
+  /**
+   * @ingroup main
+   *
+   * @brief Similar to to_bytea(const Data*).
+   */
+  static DMITIGR_PGFE_API std::unique_ptr<Data> to_bytea(const std::string& text_data);
 
   /// @}
 
@@ -205,26 +223,6 @@ private:
   int size_{};
   const char* bytes_{""};
 };
-
-/**
- * @ingroup main
- *
- * @returns The result of conversion of text representation
- * of the PostgreSQL's Bytea data type to the plain binary data.
- *
- * @par Requires
- * `(text_data && text_data->format() == Data_format::text)`.
- *
- * @relates Data
- */
-DMITIGR_PGFE_API std::unique_ptr<Data> to_binary_data(const Data* text_data);
-
-/**
- * @ingroup main
- *
- * @brief Similar to to_binary_data(const Data*).
- */
-DMITIGR_PGFE_API std::unique_ptr<Data> to_binary_data(const std::string& text_data);
 
 } // namespace dmitigr::pgfe
 
