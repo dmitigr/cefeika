@@ -28,22 +28,23 @@ namespace dmitigr::pgfe {
  *
  * @remarks Fields removing will not invalidate pointers returned by data().
  */
-struct Composite final : public Compositional {
+class Composite final : public Compositional {
+public:
   /// Default-constructible
   Composite() = default;
 
   /// See Composite::make().
   explicit Composite(std::vector<std::pair<std::string, std::unique_ptr<Data>>>&& datas) noexcept
-    : datas{std::move(datas)}
+    : datas_{std::move(datas)}
   {
     assert(is_invariant_ok());
   }
 
   /// Copy-constructible.
   Composite(const Composite& rhs)
-    : datas{rhs.datas.size()}
+    : datas_{rhs.datas_.size()}
   {
-    std::transform(cbegin(rhs.datas), cend(rhs.datas), begin(datas),
+    std::transform(cbegin(rhs.datas_), cend(rhs.datas_), begin(datas_),
       [](const auto& pair) { return std::make_pair(pair.first, pair.second->to_data()); });
 
     assert(is_invariant_ok());
@@ -66,34 +67,34 @@ struct Composite final : public Compositional {
   /// Swaps the instances.
   void swap(Composite& rhs) noexcept
   {
-    datas.swap(rhs.datas);
+    datas_.swap(rhs.datas_);
   }
 
   /// @see Composite::field_count.
   std::size_t field_count() const override
   {
-    return datas.size();
+    return datas_.size();
   }
 
   /// @see Composite::has_fields.
   bool has_fields() const override
   {
-    return !datas.empty();
+    return !datas_.empty();
   }
 
   /// @see Composite::field_name().
   const std::string& field_name(const std::size_t index) const override
   {
     assert(index < field_count());
-    return datas[index].first;
+    return datas_[index].first;
   }
 
   /// @see Composite::field_index().
   std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset = 0) const override
   {
     if (offset < field_count()) {
-      const auto b = cbegin(datas);
-      const auto e = cend(datas);
+      const auto b = cbegin(datas_);
+      const auto e = cend(datas_);
       const auto i = std::find_if(b + offset, e, [&name](const auto& pair) { return pair.first == name; });
       return (i != e) ? std::make_optional(i - b) : std::nullopt;
     } else
@@ -125,7 +126,7 @@ struct Composite final : public Compositional {
   const std::unique_ptr<Data>& data(const std::size_t index) const noexcept
   {
     assert(index < field_count());
-    return datas[index].second;
+    return datas_[index].second;
   }
 
   /**
@@ -180,7 +181,7 @@ struct Composite final : public Compositional {
    */
   void append(const std::string& name, std::unique_ptr<Data>&& data) noexcept
   {
-    datas.emplace_back(name, std::move(data));
+    datas_.emplace_back(name, std::move(data));
     assert(is_invariant_ok());
   }
 
@@ -194,7 +195,7 @@ struct Composite final : public Compositional {
   /// Appends `rhs` to the end of the instance.
   void append(Composite&& rhs)
   {
-    datas.insert(cend(datas), std::make_move_iterator(begin(rhs.datas)), std::make_move_iterator(end(rhs.datas)));
+    datas_.insert(cend(datas_), std::make_move_iterator(begin(rhs.datas_)), std::make_move_iterator(end(rhs.datas_)));
     assert(is_invariant_ok());
   }
 
@@ -214,7 +215,7 @@ struct Composite final : public Compositional {
   void insert(const std::size_t index, const std::string& name, std::unique_ptr<Data>&& data = {})
   {
     assert(index < field_count());
-    datas.insert(begin(datas) + index, std::make_pair(name, std::move(data)));
+    datas_.insert(begin(datas_) + index, std::make_pair(name, std::move(data)));
     assert(is_invariant_ok());
   }
 
@@ -259,7 +260,7 @@ struct Composite final : public Compositional {
   void remove(const std::size_t index) noexcept
   {
     assert(index < field_count());
-    datas.erase(cbegin(datas) + index);
+    datas_.erase(cbegin(datas_) + index);
     assert(is_invariant_ok());
   }
 
@@ -275,11 +276,12 @@ struct Composite final : public Compositional {
   void remove(const std::string& name, const std::size_t offset = 0) noexcept
   {
     if (const auto index = field_index(name, offset))
-      datas.erase(cbegin(datas) + *index);
+      datas_.erase(cbegin(datas_) + *index);
     assert(is_invariant_ok());
   }
 
-  std::vector<std::pair<std::string, std::unique_ptr<Data>>> datas;
+private:
+  std::vector<std::pair<std::string, std::unique_ptr<Data>>> datas_;
 };
 
 } // namespace dmitigr::pgfe
