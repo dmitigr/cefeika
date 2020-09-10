@@ -43,42 +43,24 @@ public:
   /// Non move-assignable.
   Row_info& operator=(Row_info&&) = default;
 
-  // ---------------------------------------------------------------------------
-  // Compositional overridings
-  // ---------------------------------------------------------------------------
+  /// @name Compositional overridings
+  /// @{
 
-  /// @see Compositional::field_count().
-  std::size_t field_count() const noexcept override
+  std::size_t size() const noexcept override
   {
     return shared_field_names_->size();
   }
 
-  /// @see Compositional::has_fields().
-  bool has_fields() const noexcept override
+  bool empty() const noexcept override
   {
-    return !shared_field_names_->empty();
+    return shared_field_names_->empty();
   }
 
-  /// @see Compositional::field_name().
-  DMITIGR_PGFE_API const std::string& field_name(const std::size_t index) const override;
+  DMITIGR_PGFE_API const std::string& name_of(const std::size_t index) const noexcept override;
 
-  /// @see Compositional::field_index().
-  std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset = 0) const override
-  {
-    if (const auto result = field_index__(name, offset); result < field_count())
-      return result;
-    else
-      return std::nullopt;
-  }
+  DMITIGR_PGFE_API std::size_t index_of(const std::string& name, std::size_t offset = 0) const noexcept override;
 
-  /// @see Compositional::field_index_throw().
-  DMITIGR_PGFE_API std::size_t field_index_throw(const std::string& name, const std::size_t offset = 0) const override;
-
-  /// @see Compositional::has_field().
-  bool has_field(const std::string& name, const std::size_t offset = 0) const override
-  {
-    return static_cast<bool>(field_index(name, offset));
-  }
+  /// @}
 
   /**
    * @returns The object ID of the table if the field at `index` can
@@ -87,7 +69,7 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   DMITIGR_PGFE_API std::uint_fast32_t table_oid(std::size_t index) const;
 
@@ -104,7 +86,7 @@ public:
    */
   std::uint_fast32_t table_oid(const std::string& name, std::size_t offset = 0) const
   {
-    return table_oid(field_index_throw(name, offset));
+    return table_oid(index_of(name, offset));
   }
 
   /**
@@ -114,7 +96,7 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    *
    * @remarks System columns, such as "oid", have arbitrary negative numbers.
    */
@@ -133,7 +115,7 @@ public:
    */
   std::int_fast32_t table_column_number(const std::string& name, std::size_t offset = 0) const
   {
-    return table_column_number(field_index_throw(name, offset));
+    return table_column_number(index_of(name, offset));
   }
 
   /**
@@ -142,7 +124,7 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   DMITIGR_PGFE_API std::uint_fast32_t type_oid(std::size_t index) const;
 
@@ -159,7 +141,7 @@ public:
    */
   std::uint_fast32_t type_oid(const std::string& name, std::size_t offset = 0) const
   {
-    return type_oid(field_index_throw(name, offset));
+    return type_oid(index_of(name, offset));
   }
 
   /**
@@ -171,7 +153,7 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   DMITIGR_PGFE_API std::int_fast32_t type_size(std::size_t index) const;
 
@@ -186,7 +168,7 @@ public:
    */
   std::int_fast32_t type_size(const std::string& name, std::size_t offset = 0) const
   {
-    return type_size(field_index_throw(name, offset));
+    return type_size(index_of(name, offset));
   }
 
   /**
@@ -197,7 +179,7 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   DMITIGR_PGFE_API std::int_fast32_t type_modifier(std::size_t index) const;
 
@@ -212,7 +194,7 @@ public:
    */
   std::int_fast32_t type_modifier(const std::string& name, std::size_t offset = 0) const
   {
-    return type_modifier(field_index_throw(name, offset));
+    return type_modifier(index_of(name, offset));
   }
 
   /**
@@ -221,7 +203,7 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   DMITIGR_PGFE_API Data_format data_format(std::size_t index) const;
 
@@ -236,7 +218,7 @@ public:
    */
   Data_format data_format(const std::string& name, std::size_t offset = 0) const
   {
-    return data_format(field_index_throw(name, offset));
+    return data_format(index_of(name, offset));
   }
 
 private:
@@ -254,8 +236,8 @@ private:
 
     const bool field_names_ok = [this]()
     {
-      const std::size_t fc = field_count();
-      for (std::size_t i = 0; i < fc; ++i) {
+      const std::size_t sz = size();
+      for (std::size_t i = 0; i < sz; ++i) {
         if (pq_result_.field_name(static_cast<int>(i)) != (*shared_field_names_)[i])
           return false;
       }
@@ -264,9 +246,6 @@ private:
 
     return size_ok && field_names_ok && Compositional::is_invariant_ok();
   }
-
-  /// @returns The index of the field by the given name.
-  std::size_t field_index__(const std::string& name, const std::size_t offset) const;
 
   /// @returns The shared vector of field names to use across multiple rows.
   static std::shared_ptr<std::vector<std::string>> make_shared_field_names(const detail::pq::Result& pq_result);

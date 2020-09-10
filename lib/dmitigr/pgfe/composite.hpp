@@ -70,49 +70,31 @@ public:
     datas_.swap(rhs.datas_);
   }
 
-  /// @see Composite::field_count.
-  std::size_t field_count() const override
+  std::size_t size() const noexcept override
   {
     return datas_.size();
   }
 
-  /// @see Composite::has_fields.
-  bool has_fields() const override
+  bool empty() const noexcept override
   {
-    return !datas_.empty();
+    return datas_.empty();
   }
 
-  /// @see Composite::field_name().
-  const std::string& field_name(const std::size_t index) const override
+  const std::string& name_of(const std::size_t index) const noexcept override
   {
-    assert(index < field_count());
+    assert(index < size());
     return datas_[index].first;
   }
 
-  /// @see Composite::field_index().
-  std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset = 0) const override
+  std::size_t index_of(const std::string& name, const std::size_t offset = 0) const noexcept override
   {
-    if (offset < field_count()) {
+    if (offset < size()) {
       const auto b = cbegin(datas_);
       const auto e = cend(datas_);
       const auto i = std::find_if(b + offset, e, [&name](const auto& pair) { return pair.first == name; });
-      return (i != e) ? std::make_optional(i - b) : std::nullopt;
+      return (i != e) ? (i - b) : nidx;
     } else
-      return std::nullopt;
-  }
-
-  /// @see Composite::field_index_throw().
-  std::size_t field_index_throw(const std::string& name, const std::size_t offset = 0) const override
-  {
-    const auto result = field_index(name, offset);
-    assert(result);
-    return *result;
-  }
-
-  /// @see Composite::has_field().
-  bool has_field(const std::string& name, const std::size_t offset = 0) const override
-  {
-    return static_cast<bool>(field_index(name, offset));
+      return nidx;
   }
 
   /**
@@ -121,12 +103,18 @@ public:
    * @param index - see Compositional;
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   const std::unique_ptr<Data>& data(const std::size_t index) const noexcept
   {
-    assert(index < field_count());
+    assert(index < size());
     return datas_[index].second;
+  }
+
+  /// @overload
+  std::unique_ptr<Data>& data(const std::size_t index) noexcept
+  {
+    return const_cast<std::unique_ptr<Data>&>(static_cast<const Composite*>(this)->data(index));
   }
 
   /**
@@ -138,16 +126,12 @@ public:
    * @par Requires
    * `has_field(name, offset)`.
    */
-  const std::unique_ptr<Data>& data(const std::string& name, const std::size_t offset = 0) const noexcept
+  const std::unique_ptr<Data>& data(const std::string& name, const std::size_t offset = 0) const
   {
-    return data(field_index_throw(name, offset));
+    return data(index_of(name, offset));
   }
 
-  std::unique_ptr<Data>& data(const std::size_t index) noexcept
-  {
-    return const_cast<std::unique_ptr<Data>&>(static_cast<const Composite*>(this)->data(index));
-  }
-
+  /// @overload
   std::unique_ptr<Data>& data(const std::string& name, const std::size_t offset = 0) noexcept
   {
     return const_cast<std::unique_ptr<Data>&>(static_cast<const Composite*>(this)->data(name, offset));
@@ -167,7 +151,7 @@ public:
   template<typename T>
   std::enable_if_t<!std::is_same_v<Data*, T>> set_data(const std::string& name, T&& value)
   {
-    set_data(field_index_throw(name), std::forward<T>(value));
+    set_data(index_of(name), std::forward<T>(value));
   }
 
   /**
@@ -195,7 +179,9 @@ public:
   /// Appends `rhs` to the end of the instance.
   void append(Composite&& rhs)
   {
-    datas_.insert(cend(datas_), std::make_move_iterator(begin(rhs.datas_)), std::make_move_iterator(end(rhs.datas_)));
+    datas_.insert(cend(datas_),
+      std::make_move_iterator(begin(rhs.datas_)),
+      std::make_move_iterator(end(rhs.datas_)));
     assert(is_invariant_ok());
   }
 
@@ -210,11 +196,11 @@ public:
    * Strong.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   void insert(const std::size_t index, const std::string& name, std::unique_ptr<Data>&& data = {})
   {
-    assert(index < field_count());
+    assert(index < size());
     datas_.insert(begin(datas_) + index, std::make_pair(name, std::move(data)));
     assert(is_invariant_ok());
   }
@@ -238,7 +224,7 @@ public:
    */
   void insert(const std::string& name, const std::string& new_field_name, std::unique_ptr<Data>&& data)
   {
-    insert(field_index_throw(name), new_field_name, std::move(data));
+    insert(index_of(name), new_field_name, std::move(data));
   }
 
   /// @overload
@@ -252,14 +238,14 @@ public:
    * @brief Removes field from this composite.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    *
    * @par Exception safety guarantee
    * Strong.
    */
   void remove(const std::size_t index) noexcept
   {
-    assert(index < field_count());
+    assert(index < size());
     datas_.erase(cbegin(datas_) + index);
     assert(is_invariant_ok());
   }
@@ -275,8 +261,8 @@ public:
    */
   void remove(const std::string& name, const std::size_t offset = 0) noexcept
   {
-    if (const auto index = field_index(name, offset))
-      datas_.erase(cbegin(datas_) + *index);
+    if (const auto index = index_of(name, offset); index != nidx)
+      datas_.erase(cbegin(datas_) + index);
     assert(is_invariant_ok());
   }
 

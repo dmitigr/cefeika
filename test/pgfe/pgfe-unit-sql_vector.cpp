@@ -50,19 +50,16 @@ int main(int, char* argv[])
     const auto input = str::file_to_string(this_exe_dir_name / "pgfe-unit-sql_vector.sql");
     bunch = pgfe::Sql_vector{input};
     ASSERT(bunch.size() == 2);
-    ASSERT(bunch[0].extra().field_count() == 1);
-    ASSERT(bunch[1].extra().field_count() == 2);
+    ASSERT(bunch[0].extra().size() == 1);
+    ASSERT(bunch[1].extra().size() == 2);
     //
     ASSERT(bunch.find("id", "plus_one"));
     ASSERT(bunch.index_of("id", "plus_one") == 0);
     ASSERT(bunch.find("id", "digit"));
     ASSERT(bunch.index_of("id", "digit") == 1);
-    ASSERT(bunch[0].extra().has_field("id"));
-    ASSERT(bunch[0].extra().field_index("id") == 0);
-    ASSERT(bunch[1].extra().has_field("id"));
-    ASSERT(bunch[1].extra().field_index("id") == 0);
-    ASSERT(bunch[1].extra().has_field("cond"));
-    ASSERT(bunch[1].extra().field_index("cond") == 1);
+    ASSERT(bunch[0].extra().index_of("id") == 0);
+    ASSERT(bunch[1].extra().index_of("id") == 0);
+    ASSERT(bunch[1].extra().index_of("cond") == 1);
 
     auto* const digit = bunch.find("id", "digit");
     ASSERT(digit);
@@ -96,11 +93,11 @@ int main(int, char* argv[])
     bunch.insert(1, "SELECT 2");
     assert(bunch.size() == 3);
     auto i = bunch.index_of("id", "plus_one");
-    ASSERT(i);
-    bunch.erase(*i);
+    ASSERT(i != pgfe::Composite::nidx);
+    bunch.erase(i);
     ASSERT(bunch.size() == 2); // {"SELECT 2", digit} are still here
     ASSERT(!bunch.find("id", "plus_one"));
-    ASSERT(!bunch.index_of("id", "plus_one"));
+    ASSERT(bunch.index_of("id", "plus_one") == pgfe::Composite::nidx);
     ASSERT(bunch[0].to_string() == "SELECT 2"); // SELECT 2
     ASSERT(bunch.find("id", "digit"));
     ASSERT(bunch.index_of("id", "digit") == 1);

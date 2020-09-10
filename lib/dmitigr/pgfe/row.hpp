@@ -37,39 +37,30 @@ public:
     return static_cast<bool>(info_.pq_result_);
   }
 
-  // ---------------------------------------------------------------------------
-  // Compositional overridings
-  // ---------------------------------------------------------------------------
+  /// @name Compositional overridings
+  /// @{
 
-  std::size_t field_count() const override
+  std::size_t size() const noexcept override
   {
-    return info_.field_count();
+    return info_.size();
   }
 
-  bool has_fields() const override
+  bool empty() const noexcept override
   {
-    return info_.has_fields();
+    return info_.empty();
   }
 
-  const std::string& field_name(const std::size_t index) const override
+  const std::string& name_of(const std::size_t index) const noexcept override
   {
-    return info_.field_name(index);
+    return info_.name_of(index);
   }
 
-  std::optional<std::size_t> field_index(const std::string& name, const std::size_t offset = 0) const override
+  std::size_t index_of(const std::string& name, const std::size_t offset = 0) const noexcept override
   {
-    return info_.field_index(name, offset);
+    return info_.index_of(name, offset);
   }
 
-  std::size_t field_index_throw(const std::string& name, std::size_t offset) const override
-  {
-    return info_.field_index_throw(name, offset);
-  }
-
-  bool has_field(const std::string& name, const std::size_t offset = 0) const override
-  {
-    return info_.has_field(name, offset);
-  }
+  /// @}
 
   /// @returns The information about this row.
   const Row_info& info() const noexcept
@@ -83,12 +74,17 @@ public:
    * @param index - see Compositional.
    *
    * @par Requires
-   * `(index < field_count())`.
+   * `(index < size())`.
    */
   Data_view data(std::size_t index = 0) const
   {
-    assert(index < field_count());
-    return data__(index);
+    assert(index < size());
+    constexpr int row{};
+    const auto fld = static_cast<int>(index);
+    const auto& r = info_.pq_result_;
+    return !r.is_data_null(row, fld) ?
+      Data_view{r.data_value(row, fld), r.data_size(row, fld), r.field_format(fld)} :
+      Data_view{};
   }
 
   /**
@@ -104,8 +100,7 @@ public:
    */
   Data_view data(const std::string& name, std::size_t offset = 0) const
   {
-    const auto index = field_index_throw(name, offset);
-    return data__(index);
+    return data(index_of(name, offset));
   }
 
 private:
@@ -115,17 +110,6 @@ private:
   {
     const bool info_ok = (info_.pq_result_.status() == PGRES_SINGLE_TUPLE);
     return info_ok && Compositional::is_invariant_ok();;
-  }
-
-  Data_view data__(const std::size_t index) const noexcept
-  {
-    constexpr int row{};
-    const auto fld = static_cast<int>(index);
-    const auto& r = info_.pq_result_;
-    if (!r.is_data_null(row, fld))
-      return Data_view{r.data_value(row, fld), r.data_size(row, fld), r.field_format(fld)};
-    else
-      return Data_view{};
   }
 };
 

@@ -10,7 +10,6 @@
 #include "dmitigr/pgfe/types_fwd.hpp"
 
 #include <cassert>
-#include <optional>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -26,6 +25,9 @@ namespace dmitigr::pgfe {
  */
 class Sql_vector final {
 public:
+  /// The value of invalid index.
+  static constexpr std::size_t nidx{static_cast<std::size_t>(-1)};
+
   /// Default-constructible. (Constructs an empty instance.)
   Sql_vector() = default;
 
@@ -82,9 +84,8 @@ public:
   }
 
   /**
-   * @returns The index of the SQL string that owns by this vector, or
-   * `std::nullopt` if no SQL strings that meets the given criterias
-   * exists in this vector.
+   * @returns The index of the SQL string that owns by this vector, or `nidx`
+   * if no SQL strings that meets the given criterias exists in this vector.
    *
    * @param extra_name - the name of the extra data field;
    * @param extra_value - the value of the extra data field;
@@ -93,7 +94,7 @@ public:
    *
    * @see Sql_string::extra().
    */
-  std::optional<std::size_t> index_of(const std::string& extra_name, const std::string& extra_value,
+  std::size_t index_of(const std::string& extra_name, const std::string& extra_value,
     std::size_t offset = 0, std::size_t extra_offset = 0) const noexcept;
 
   /**
@@ -137,7 +138,7 @@ public:
     const std::size_t offset = 0, const std::size_t extra_offset = 0) const
   {
     const auto index = index_of(extra_name, extra_value, offset, extra_offset);
-    return index ? &operator[](*index) : nullptr;
+    return (index != nidx) ? &operator[](index) : nullptr;
   }
 
   /**

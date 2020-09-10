@@ -20,10 +20,10 @@ int main(int, char* argv[])
     conn->perform(R"(select 1::integer theNumberOne, 1::integer "theNumberOne")");
     const auto r = conn->wait_row();
     ASSERT(r);
-    ASSERT(r.info().field_name(0) == "thenumberone");
-    ASSERT(r.info().field_name(1) == "theNumberOne");
-    ASSERT(r.info().field_index("thenumberone") == 0);
-    ASSERT(r.info().field_index("theNumberOne") == 1);
+    ASSERT(r.info().name_of(0) == "thenumberone");
+    ASSERT(r.info().name_of(1) == "theNumberOne");
+    ASSERT(r.info().index_of("thenumberone") == 0);
+    ASSERT(r.info().index_of("theNumberOne") == 1);
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

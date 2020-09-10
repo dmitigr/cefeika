@@ -19,9 +19,9 @@ int main(int argc, char* argv[])
     const auto r = conn->wait_row();
     ASSERT(r);
     {
-      const auto field_count = r.info().field_count();
-      ASSERT(field_count == 5);
-      for (std::size_t i = 0; i < field_count; ++i)
+      const auto sz = r.info().size();
+      ASSERT(sz == 5);
+      for (std::size_t i = 0; i < sz; ++i)
         output_file << pgfe::to<std::string>(r.data());
       output_file << "\n";
     }

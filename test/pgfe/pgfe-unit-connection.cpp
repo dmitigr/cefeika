@@ -344,7 +344,7 @@ int main(int, char* argv[])
         const auto r = conn->wait_row();
         conn->wait_completion();
         ASSERT(r);
-        ASSERT(r.has_field("version"));
+        ASSERT(r.index_of("version") == 0);
         std::cout << "This test runs on " << r.data("version").bytes() << std::endl;
       }
 
@@ -372,7 +372,7 @@ int main(int, char* argv[])
           const auto r = conn->wait_row();
           conn->wait_completion();
           ASSERT(r);
-          ASSERT(r.has_field("person_info"));
+          ASSERT(r.index_of("person_info") == 0);
           ASSERT(r.data("person_info").bytes() == expected_result);
         }
 
@@ -382,7 +382,7 @@ int main(int, char* argv[])
           const auto r = conn->wait_row();
           conn->wait_completion();
           ASSERT(r);
-          ASSERT(r.has_field("person_info"));
+          ASSERT(r.index_of("person_info") == 0);
           ASSERT(r.data("person_info").bytes() == expected_result);
         }
 
@@ -392,7 +392,7 @@ int main(int, char* argv[])
           const auto r = conn->wait_row();
           conn->wait_completion();
           ASSERT(r);
-          ASSERT(r.has_field("person_info"));
+          ASSERT(r.index_of("person_info") == 0);
           ASSERT(r.data("person_info").bytes() == expected_result);
         }
 
@@ -408,7 +408,7 @@ int main(int, char* argv[])
         const auto r = conn->wait_row();
         conn->wait_completion();
         ASSERT(r);
-        ASSERT(r.has_fields());
+        ASSERT(!r.empty());
         ASSERT(r.data().format() == pgfe::Data_format::binary);
         conn->set_result_format(pgfe::Data_format::text);
         ASSERT(conn->result_format() == pgfe::Data_format::text);

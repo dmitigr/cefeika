@@ -29,7 +29,7 @@ int main(int, char* argv[])
       conn->execute("SELECT 'Dima', 'i', $1::character, $2::character", 'm', "a");
       auto r = conn->wait_row();
       ASSERT(r);
-      for (std::size_t i = 0; i < r.field_count(); ++i) {
+      for (std::size_t i = 0; i < r.size(); ++i) {
         ASSERT(r.data(i));
         ASSERT(r.data(i).format() == pgfe::Data_format::binary);
       }

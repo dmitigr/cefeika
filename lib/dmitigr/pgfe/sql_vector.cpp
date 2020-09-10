@@ -27,8 +27,7 @@ DMITIGR_PGFE_INLINE std::size_t Sql_vector::non_empty_count() const noexcept
   return result;
 }
 
-DMITIGR_PGFE_INLINE std::optional<std::size_t>
-Sql_vector::index_of(const std::string& extra_name,
+DMITIGR_PGFE_INLINE std::size_t Sql_vector::index_of(const std::string& extra_name,
   const std::string& extra_value, const std::size_t offset,
   const std::size_t extra_offset) const noexcept
 {
@@ -38,15 +37,15 @@ Sql_vector::index_of(const std::string& extra_name,
     const auto i = std::find_if(b + offset, e,
       [&extra_name, &extra_value, extra_offset](const auto& sql_string)
       {
-        if (const auto& extra = sql_string.extra(); extra_offset < extra.field_count()) {
-          const auto index = extra.field_index(extra_name, extra_offset);
-          return (index && (extra.data(*index)->bytes() == extra_value));
+        if (const auto& extra = sql_string.extra(); extra_offset < extra.size()) {
+          const auto index = extra.index_of(extra_name, extra_offset);
+          return (index != Composite::nidx) && (extra.data(index)->bytes() == extra_value);
         } else
           return false;
       });
-    return i != e ? std::make_optional(i - b) : std::nullopt;
+    return i != e ? (i - b) : nidx;
   } else
-    return std::nullopt;
+    return nidx;
 }
 
 DMITIGR_PGFE_INLINE std::string::size_type Sql_vector::query_absolute_position(const std::size_t index) const
