@@ -26,7 +26,7 @@ int main(int, char* argv[])
     pgfe::Sql_vector bunch;
     ASSERT(bunch.empty());
     ASSERT(bunch.size() == 0);
-    bunch.push_back("SELECT 1");
+    bunch.emplace_back("SELECT 1");
     ASSERT(!bunch.empty());
     ASSERT(bunch.size() == 1);
     ASSERT(bunch.to_string() == "SELECT 1");
