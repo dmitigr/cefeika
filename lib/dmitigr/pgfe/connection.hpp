@@ -1305,9 +1305,8 @@ private:
   template<typename ... Types>
   std::string routine_query__(std::string_view function, std::string_view invocation, Types&& ... arguments)
   {
-    DMITIGR_REQUIRE(!function.empty(), std::invalid_argument,
-      "invalid routine name specified upon using dmitigr::pgfe::Connection instance");
-    DMITIGR_ASSERT(invocation == "SELECT * FROM" || invocation == "SELECT" || invocation == "CALL");
+    assert(!function.empty());
+    assert(invocation == "SELECT * FROM" || invocation == "SELECT" || invocation == "CALL");
     std::string result;
     if constexpr (sizeof...(arguments) > 0) {
       result.reserve(64);

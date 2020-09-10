@@ -46,7 +46,7 @@ int main(int, char* argv[])
       ASSERT(co.connect_timeout() == valid_value);
 
       ms invalid_value{-1};
-      ASSERT(is_logic_throw_works([&]{ co.connect_timeout(invalid_value); }));
+      ASSERT(is_runtime_throw_works([&]{ co.connect_timeout(invalid_value); }));
     }
 
     ASSERT(co.wait_response_timeout() == defaults::wait_response_timeout);
@@ -56,7 +56,7 @@ int main(int, char* argv[])
       ASSERT(co.wait_response_timeout() == valid_value);
 
       ms invalid_value{-1};
-      ASSERT(is_logic_throw_works([&]{ co.wait_response_timeout(invalid_value); }));
+      ASSERT(is_runtime_throw_works([&]{ co.wait_response_timeout(invalid_value); }));
     }
 
     ASSERT(co.wait_completion_timeout() == defaults::wait_completion_timeout);
@@ -66,7 +66,7 @@ int main(int, char* argv[])
       ASSERT(co.wait_completion_timeout() == valid_value);
 
       ms invalid_value{-1};
-      ASSERT(is_logic_throw_works([&]{ co.wait_completion_timeout(invalid_value); }));
+      ASSERT(is_runtime_throw_works([&]{ co.wait_completion_timeout(invalid_value); }));
     }
 
 #ifndef _WIN32
@@ -79,7 +79,7 @@ int main(int, char* argv[])
       ASSERT(co.uds_directory() == valid_value);
 
       const auto invalid_value = "invalid directory name";
-      ASSERT(is_logic_throw_works([&]{ co.uds_directory(invalid_value); }));
+      ASSERT(is_runtime_throw_works([&]{ co.uds_directory(invalid_value); }));
     }
 
     ASSERT(co.uds_require_server_process_username() == defaults::uds_require_server_process_username);
@@ -130,7 +130,7 @@ int main(int, char* argv[])
       ASSERT(co.tcp_keepalives_count() == valid_value);
 
       const auto invalid_value = -100;
-      ASSERT(is_logic_throw_works([&]() { co.tcp_keepalives_count(invalid_value); }));
+      ASSERT(is_runtime_throw_works([&]() { co.tcp_keepalives_count(invalid_value); }));
     }
 
     ASSERT(co.net_address() == defaults::net_address);
@@ -143,9 +143,9 @@ int main(int, char* argv[])
       ASSERT(co.net_address() == valid_value_ipv6);
 
       const auto invalid_value_ipv4 = "127.257.0.1";
-      ASSERT(is_logic_throw_works([&]() { co.net_address(invalid_value_ipv4); }));
+      ASSERT(is_runtime_throw_works([&]() { co.net_address(invalid_value_ipv4); }));
       const auto invalid_value_ipv6 = "::zz";
-      ASSERT(is_logic_throw_works([&]() { co.net_address(invalid_value_ipv6); }));
+      ASSERT(is_runtime_throw_works([&]() { co.net_address(invalid_value_ipv6); }));
     }
 
     ASSERT(co.net_hostname() == defaults::net_hostname);
@@ -155,7 +155,7 @@ int main(int, char* argv[])
       ASSERT(co.net_hostname() == valid_value);
 
       const auto invalid_value = "local host";
-      ASSERT(is_logic_throw_works([&]() { co.net_hostname(invalid_value); }));
+      ASSERT(is_runtime_throw_works([&]() { co.net_hostname(invalid_value); }));
     }
 
     ASSERT(co.port() == defaults::port);
@@ -165,7 +165,7 @@ int main(int, char* argv[])
       ASSERT(co.port() == valid_value);
 
       const auto invalid_value = 65536;
-      ASSERT(is_logic_throw_works([&]() { co.port(invalid_value); }));
+      ASSERT(is_runtime_throw_works([&]() { co.port(invalid_value); }));
     }
 
 #ifndef _WIN32

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
 #include "dmitigr/pgfe/connection_pool.hpp"
-#include <dmitigr/base/debug.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -118,10 +117,7 @@ DMITIGR_PGFE_INLINE bool Connection_pool::is_connected() const noexcept
 DMITIGR_PGFE_INLINE auto Connection_pool::connection() -> Handle
 {
   const std::lock_guard lg{mutex_};
-  if (!is_connected_) {
-    assert(false);
-    throw std::logic_error{"connection pool is not ready"};
-  }
+  assert(is_connected_);
   const auto b = begin(connections_);
   const auto e = end(connections_);
   const auto i = std::find_if(b, e, [](const auto& pair) { return !pair.second; });

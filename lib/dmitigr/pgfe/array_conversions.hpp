@@ -9,10 +9,10 @@
 #include "dmitigr/pgfe/conversions_api.hpp"
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/exceptions.hpp"
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/str/str.hpp>
 
 #include <algorithm>
+#include <cassert>
 #include <locale>
 #include <memory>
 #include <optional>
@@ -204,7 +204,7 @@ struct Array_data_conversions_opts<Container<Optional<T>, Allocator<Optional<T>>
   template<typename ... Types>
   static Type to_type(const Data* const data, Types&& ... args)
   {
-    DMITIGR_REQUIRE(data && data->format() == Data_format::text, std::invalid_argument);
+    assert(data && data->format() == Data_format::text);
     return to_container<Type>(data->bytes(), ',', std::forward<Types>(args)...);
   }
 
@@ -498,7 +498,7 @@ Optional<T> to_container_of_optionals(T&& element)
 template<class F, typename ... Types>
 const char* parse_array_literal(const char* literal, const char delimiter, F& handler, Types&& ... args)
 {
-  DMITIGR_ASSERT(literal);
+  assert(literal);
 
   /*
    * Syntax of the array literals:
@@ -538,7 +538,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
     }
 
     case in_dimension: {
-      DMITIGR_ASSERT(dimension > 0);
+      assert(dimension > 0);
 
       if (std::isspace(c, std::locale{})) {
         ;
@@ -591,7 +591,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
     }
     } // switch (state)
 
-    DMITIGR_ASSERT(is_element_extracted);
+    assert(is_element_extracted);
     {
       if (element.empty())
         throw Malformed_array_literal{};
@@ -651,8 +651,8 @@ template<typename T,
 const char* fill_container(Container<Optional<T>, Allocator<Optional<T>>>& result,
   const char* literal, const char delimiter, Types&& ... args)
 {
-  DMITIGR_ASSERT(result.empty());
-  DMITIGR_ASSERT(literal);
+  assert(result.empty());
+  assert(literal);
 
   /*
    * Note: On MSVS the "fatal error C1001: An internal error has occurred in the compiler."

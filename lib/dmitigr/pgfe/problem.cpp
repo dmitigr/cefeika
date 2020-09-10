@@ -71,10 +71,7 @@ DMITIGR_PGFE_INLINE int Problem::sqlstate_string_to_int(const char* const code) 
 
 DMITIGR_PGFE_INLINE std::string Problem::sqlstate_int_to_string(const int code)
 {
-  if (!(min_code().value() <= code && code <= max_code().value())) {
-    assert(false);
-    throw std::invalid_argument{"invalid SQLSTATE code"};
-  }
+  assert(min_code().value() <= code && code <= max_code().value());
   return str::to_string(code, 36);
 }
 

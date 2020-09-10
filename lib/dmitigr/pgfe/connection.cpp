@@ -84,7 +84,7 @@ DMITIGR_PGFE_INLINE void Connection::connect_async()
 
     default:
       assert(false);
-      throw std::logic_error{"invalid polling result"};
+      std::terminate();
     } // switch
   } else /* failure or disconnected */ {
     if (s == Status::failure)
@@ -120,10 +120,7 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
   using std::chrono::system_clock;
   using std::chrono::duration_cast;
 
-  if (!(!timeout || timeout >= milliseconds{-1})) {
-    assert(false);
-    throw std::invalid_argument{"timeout"};
-  }
+  assert(!timeout || timeout >= milliseconds{-1});
 
   const auto is_timeout = [&timeout]()
   {
@@ -172,7 +169,7 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
 
     case Communication_status::disconnected:
       assert(false);
-      throw std::logic_error{"disconnected state is nonsense upon connection"};
+      std::terminate();
 
     case Communication_status::failure:
       throw std::runtime_error{error_message()};
@@ -198,14 +195,10 @@ DMITIGR_PGFE_INLINE Socket_readiness Connection::wait_socket_readiness(Socket_re
   using std::chrono::system_clock;
   using std::chrono::milliseconds;
   using std::chrono::duration_cast;
+  using S = Communication_status;
 
   assert(!timeout || timeout >= milliseconds{-1});
-
-  {
-    const auto cs = communication_status();
-    DMITIGR_REQUIRE(cs != Communication_status::failure && cs != Communication_status::disconnected, std::logic_error);
-  }
-
+  assert(communication_status() != S::failure && communication_status() != S::disconnected);
   assert(socket() >= 0);
 
   while (true) {
@@ -373,7 +366,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
 
       default:
         assert(false);
-        throw std::logic_error{"unknown request ID"};
+        std::terminate();
       } // switch (op_id)
     } // PGRES_COMMAND_OK
 
@@ -393,7 +386,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
 
     default:
       assert(false);
-      throw std::logic_error{"unknown response status"};
+      std::terminate();
     } // switch (rstatus)
   } else if (get_would_block)
     return Response_status::unready;
@@ -401,7 +394,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     return Response_status::empty;
 
   assert(false);
-  throw std::logic_error{"bug"};
+  std::terminate();
 }
 
 DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::milliseconds> timeout)

@@ -13,6 +13,7 @@
 #include "dmitigr/pgfe/types_fwd.hpp"
 #include <dmitigr/net/conversions.hpp>
 
+#include <cassert>
 #include <cstring>
 #include <limits>
 #include <sstream>
@@ -59,7 +60,7 @@ struct Generic_data_conversions final {
   template<typename ... Types>
   static Type to_type(const Data* const data, Types&& ... args)
   {
-    DMITIGR_REQUIRE(data, std::invalid_argument);
+    assert(data);
     return StringConversions::to_type(std::string(data->bytes(), data->size()), std::forward<Types>(args)...);
   }
 
@@ -222,7 +223,7 @@ struct Numeric_data_conversions final {
   template<typename ... Types>
   static Type to_type(const Data* const data, Types&& ... args)
   {
-    DMITIGR_REQUIRE(data, std::invalid_argument);
+    assert(data);
     if (data->format() == Data_format::binary)
       return net::conv<Type>(data->bytes(), data->size());
     else
@@ -272,7 +273,7 @@ struct Char_string_conversions final {
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    DMITIGR_REQUIRE(text.size() == 1, std::invalid_argument);
+    assert(text.size() == 1);
     return text[0];
   }
 
@@ -290,7 +291,7 @@ struct Char_data_conversions final {
   template<typename ... Types>
   static Type to_type(const Data* const data, Types&& ...)
   {
-    DMITIGR_REQUIRE(data && (data->size() == 1), std::invalid_argument);
+    assert(data && (data->size() == 1));
     return data->bytes()[0];
   }
 
@@ -332,7 +333,7 @@ private:
 
   static Type to_type__(const char* const text, const std::size_t size)
   {
-    DMITIGR_ASSERT(text);
+    assert(text);
     if (std::strncmp(text, "t", size) == 0 ||
       std::strncmp(text, "true", size) == 0 ||
       std::strncmp(text, "TRUE", size) == 0 ||
@@ -361,9 +362,9 @@ struct Bool_data_conversions final {
   template<typename ... Types>
   static Type to_type(const Data* const data, Types&& ...)
   {
-    DMITIGR_REQUIRE(data, std::invalid_argument);
+    assert(data);
     if (data->format() == Data_format::binary) {
-      DMITIGR_REQUIRE(data->size() == 1, std::invalid_argument);
+      assert(data->size() == 1);
       return data->bytes()[0];
     } else
       return Bool_string_conversions::to_type__(data->bytes(), data->size());
@@ -393,7 +394,7 @@ struct String_view_data_conversions final {
   template<typename ... Types>
   static Type to_type(const Data* const data, Types&& ...)
   {
-    DMITIGR_REQUIRE(data, std::invalid_argument);
+    assert(data);
     return Type{data->bytes(), data->size()};
   }
 

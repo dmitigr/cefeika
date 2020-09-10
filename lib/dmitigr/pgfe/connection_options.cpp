@@ -15,20 +15,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-#define DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(mode) do {            \
-    if (!(communication_mode() == Communication_mode::mode)) {      \
-      assert(false);                                                \
-      throw std::logic_error{"incompatible communication mode"};    \
-    }                                                               \
-  } while (false)
-
-#define DMITIGR_PGFE_CHECK_SSL_ENABLED() do {           \
-    if (!is_ssl_enabled()) {                            \
-      assert(false);                                    \
-      throw std::logic_error{"SSL mode is disabled"};   \
-    }                                                   \
-  } while (false)
-
 namespace dmitigr::pgfe {
 
 inline namespace validators {
@@ -69,7 +55,7 @@ inline bool is_absolute_directory_name(const std::filesystem::path& value)
 inline void validate(const bool condition, const std::string& option_name)
 {
   if (!condition)
-    throw std::logic_error{"invalid value of \"" + option_name + "\" connection option"};
+    throw std::runtime_error{"invalid value of \"" + option_name + "\" connection option"};
 }
 
 } // namespace validators
@@ -167,7 +153,7 @@ Connection_options::port(const std::int_fast32_t value)
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::uds_directory(std::filesystem::path value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(uds);
+  assert(communication_mode() == Communication_mode::uds);
   validate(is_absolute_directory_name(value), "UDS directory");
   uds_directory_ = std::move(value);
   assert(is_invariant_ok());
@@ -177,7 +163,7 @@ Connection_options::uds_directory(std::filesystem::path value)
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::uds_require_server_process_username(std::optional<std::string> value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(uds);
+  assert(communication_mode() == Communication_mode::uds);
   if (value)
     validate(is_non_empty(*value), "UDS require server process username");
   uds_require_server_process_username_ = std::move(value);
@@ -189,7 +175,7 @@ Connection_options::uds_require_server_process_username(std::optional<std::strin
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::tcp_keepalives_enabled(const bool value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(net);
+  assert(communication_mode() == Communication_mode::net);
   tcp_keepalives_enabled_ = value;
   assert(is_invariant_ok());
   return *this;
@@ -198,7 +184,7 @@ Connection_options::tcp_keepalives_enabled(const bool value)
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::tcp_keepalives_idle(const std::optional<std::chrono::seconds> value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(net);
+  assert(communication_mode() == Communication_mode::net);
   if (value)
     validate(is_non_negative(value->count()), "TCP keepalives idle");
   tcp_keepalives_idle_ = value;
@@ -209,7 +195,7 @@ Connection_options::tcp_keepalives_idle(const std::optional<std::chrono::seconds
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::tcp_keepalives_interval(const std::optional<std::chrono::seconds> value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(net);
+  assert(communication_mode() == Communication_mode::net);
   if (value)
     validate(is_non_negative(value->count()), "TCP keepalives interval");
   tcp_keepalives_interval_ = value;
@@ -220,7 +206,7 @@ Connection_options::tcp_keepalives_interval(const std::optional<std::chrono::sec
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::tcp_keepalives_count(const std::optional<int> value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(net);
+  assert(communication_mode() == Communication_mode::net);
   if (value)
     validate(is_non_negative(*value), "TCP keepalives count");
   tcp_keepalives_count_ = value;
@@ -231,13 +217,10 @@ Connection_options::tcp_keepalives_count(const std::optional<int> value)
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::net_address(std::optional<std::string> value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(net);
+  assert(communication_mode() == Communication_mode::net);
+  assert(value || net_hostname());
   if (value)
     validate(is_ip_address(*value), "Network address");
-  else if (!net_hostname()) {
-    assert(false);
-    throw std::logic_error{"either host address or host name must be specified"};
-  }
   net_address_ = std::move(value);
   assert(is_invariant_ok());
   return *this;
@@ -246,13 +229,10 @@ Connection_options::net_address(std::optional<std::string> value)
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::net_hostname(std::optional<std::string> value)
 {
-  DMITIGR_PGFE_CHECK_COMMUNICATION_MODE(net);
+  assert(communication_mode() == Communication_mode::net);
+  assert(value || net_address());
   if (value)
     validate(is_hostname(*value), "Network host name");
-  else if (!net_address()) {
-    assert(false);
-    throw std::logic_error{"either host address or host name must be specified"};
-  }
   net_hostname_ = std::move(value);
   assert(is_invariant_ok());
   return *this;
@@ -307,7 +287,7 @@ Connection_options::ssl_enabled(const bool value)
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::ssl_compression_enabled(const bool value)
 {
-  DMITIGR_PGFE_CHECK_SSL_ENABLED();
+  assert(is_ssl_enabled());
   ssl_compression_enabled_ = value;
   assert(is_invariant_ok());
   return *this;
@@ -316,7 +296,7 @@ Connection_options::ssl_compression_enabled(const bool value)
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::ssl_certificate_file(std::optional<std::filesystem::path> value)
 {
-  DMITIGR_PGFE_CHECK_SSL_ENABLED();
+  assert(is_ssl_enabled());
   if (value)
     validate(is_non_empty(*value), "SSL certificate file");
   ssl_certificate_file_ = std::move(value);
@@ -327,7 +307,7 @@ Connection_options::ssl_certificate_file(std::optional<std::filesystem::path> va
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::ssl_private_key_file(std::optional<std::filesystem::path> value)
 {
-  DMITIGR_PGFE_CHECK_SSL_ENABLED();
+  assert(is_ssl_enabled());
   if (value)
     validate(is_non_empty(*value), "SSL private key file");
   ssl_private_key_file_ = std::move(value);
@@ -338,7 +318,7 @@ Connection_options::ssl_private_key_file(std::optional<std::filesystem::path> va
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::ssl_certificate_authority_file(std::optional<std::filesystem::path> value)
 {
-  DMITIGR_PGFE_CHECK_SSL_ENABLED();
+  assert(is_ssl_enabled());
   if (value)
     validate(is_non_empty(*value), "SSL certificate authority file");
   ssl_certificate_authority_file_ = std::move(value);
@@ -349,7 +329,7 @@ Connection_options::ssl_certificate_authority_file(std::optional<std::filesystem
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::ssl_certificate_revocation_list_file(std::optional<std::filesystem::path> value)
 {
-  DMITIGR_PGFE_CHECK_SSL_ENABLED();
+  assert(is_ssl_enabled());
   if (value)
     validate(is_non_empty(*value), "SSL certificate revocation list file");
   ssl_certificate_revocation_list_file_ = std::move(value);
@@ -360,11 +340,8 @@ Connection_options::ssl_certificate_revocation_list_file(std::optional<std::file
 DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::ssl_server_hostname_verification_enabled(const bool value)
 {
-  DMITIGR_PGFE_CHECK_SSL_ENABLED();
-  if (!ssl_certificate_authority_file()) {
-    assert(false);
-    throw std::logic_error{"SSL certificate authority file is not specified"};
-  }
+  assert(is_ssl_enabled());
+  assert(ssl_certificate_authority_file());
   ssl_server_hostname_verification_enabled_ = value;
   assert(is_invariant_ok());
   return *this;
@@ -609,7 +586,7 @@ private:
     case Keyword_count_:;
     }
     assert(false);
-    throw std::logic_error{"bug"};
+    std::terminate();
   }
 
   /**
@@ -646,6 +623,3 @@ private:
 
 } // namespace detail::pq
 } // namespace dmitigr::pgfe
-
-#undef DMITIGR_PGFE_CHECK_SSL_ENABLED
-#undef DMITIGR_PGFE_CHECK_COMMUNICATION_MODE

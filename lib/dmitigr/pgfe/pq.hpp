@@ -6,8 +6,6 @@
 #define DMITIGR_PGFE_PQ_HPP
 
 #include "dmitigr/pgfe/basics.hpp"
-
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/str/str.hpp>
 
 #include <libpq-fe.h>

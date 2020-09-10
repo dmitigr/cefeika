@@ -378,6 +378,7 @@ private:
     }
 
     assert(false);
+    std::terminate();
   }
 
   /**
@@ -517,7 +518,9 @@ private:
       switch (ft) {
       case Fragment::Type::one_line_comment: return Extra::Comment_type::one_line;
       case Fragment::Type::multi_line_comment: return Extra::Comment_type::multi_line;
-      default: assert(false);
+      default:
+        assert(false);
+        std::terminate();
       }
     };
     return std::make_pair(std::make_pair(result, comment_type(fragment_type)), i);

@@ -9,7 +9,6 @@
 #include "dmitigr/pgfe/error.hpp"
 #include "dmitigr/pgfe/std_system_error.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
-#include <dmitigr/base/debug.hpp>
 
 #include <memory>
 
@@ -108,7 +107,7 @@ public:
     : system_error(error ? error->code() : std::error_code{})
     , error_(std::move(error))
   {
-    DMITIGR_REQUIRE(error_, std::invalid_argument, "invalid Error instance");
+    assert(error_);
   }
 
   /// @returns The error response (aka error report).

@@ -2,7 +2,6 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/base/debug.hpp"
 #include "dmitigr/pgfe/connection.hpp"
 #include "dmitigr/pgfe/large_object.hpp"
 
@@ -63,34 +62,34 @@ DMITIGR_PGFE_INLINE bool Large_object::close()
 
 DMITIGR_PGFE_INLINE std::int_fast64_t Large_object::seek(const std::int_fast64_t offset, const Seek_whence whence)
 {
-  DMITIGR_REQUIRE(is_valid(), std::logic_error);
+  assert(is_valid());
   return conn_->seek(*this, offset, whence);
 }
 
 DMITIGR_PGFE_INLINE std::int_fast64_t Large_object::tell()
 {
-  DMITIGR_REQUIRE(is_valid(), std::logic_error);
+  assert(is_valid());
   return conn_->tell(*this);
 }
 
 DMITIGR_PGFE_INLINE bool Large_object::truncate(const std::int_fast64_t new_size)
 {
-  DMITIGR_REQUIRE(new_size >= 0, std::invalid_argument);
-  DMITIGR_REQUIRE(is_valid(), std::logic_error);
+  assert(is_valid());
+  assert(new_size >= 0);
   return conn_->truncate(*this, new_size);
 }
 
 int Large_object::read(char* const buf, const std::size_t size)
 {
-  DMITIGR_REQUIRE(buf && size <= std::numeric_limits<int>::max(), std::invalid_argument);
-  DMITIGR_REQUIRE(is_valid(), std::logic_error);
+  assert(is_valid());
+  assert(buf && size <= std::numeric_limits<int>::max());
   return conn_->read(*this, buf, size);
 }
 
 int Large_object::write(const char* const buf, const std::size_t size)
 {
-  DMITIGR_REQUIRE(buf && size <= std::numeric_limits<int>::max(), std::invalid_argument);
-  DMITIGR_REQUIRE(is_valid(), std::logic_error);
+  assert(is_valid());
+  assert(buf && size <= std::numeric_limits<int>::max());
   return conn_->write(*this, buf, size);
 }
 
