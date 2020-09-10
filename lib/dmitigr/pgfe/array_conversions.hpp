@@ -518,7 +518,6 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
          in_quoted_element, in_unquoted_element } state = in_beginning;
 
   int  dimension{};
-  bool is_element_extracted{};
   char previous_char{};
   char previous_nonspace_char{};
   std::string element;
@@ -571,27 +570,25 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
     case in_quoted_element: {
       if (c == '\\' && previous_char != '\\') {
         ; // The escape character '\\' must be skipped.
-      } else if (c == '"' && previous_char != '\\') {
-        is_element_extracted = true;
-        break;
-      } else
+      } else if (c == '"' && previous_char != '\\')
+        goto element_extracted;
+      else
         element += c;
 
       goto preparing_to_the_next_iteration;
     }
 
     case in_unquoted_element: {
-      if (c == delimiter || c == '{' || c == '}') {
-        is_element_extracted = true;
-        break;
-      } else
+      if (c == delimiter || c == '{' || c == '}')
+        goto element_extracted;
+      else
         element += c;
 
       goto preparing_to_the_next_iteration;
     }
     } // switch (state)
 
-    assert(is_element_extracted);
+  element_extracted:
     {
       if (element.empty())
         throw Malformed_array_literal{};
@@ -606,8 +603,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
 
       handler(std::move(element), is_element_null, dimension, std::forward<Types>(args)...);
 
-      element = std::string(); // The element was moved and must be recreated!
-      is_element_extracted = false;
+      element = std::string{}; // The element was moved and must be recreated!
 
       if (state == in_unquoted_element) {
         /*

@@ -177,9 +177,11 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
 
     if (timeout) {
       *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
-      assert(!is_timeout() || current_socket_readiness == Socket_readiness::unready);
-      if (is_timeout())
+      if (is_timeout()) {
+        assert(current_socket_readiness == Socket_readiness::unready);
+        (void)current_socket_readiness;
         throw_timeout();
+      }
     }
 
     connect_async();
@@ -195,10 +197,10 @@ DMITIGR_PGFE_INLINE Socket_readiness Connection::wait_socket_readiness(Socket_re
   using std::chrono::system_clock;
   using std::chrono::milliseconds;
   using std::chrono::duration_cast;
-  using S = Communication_status;
 
   assert(!timeout || timeout >= milliseconds{-1});
-  assert(communication_status() != S::failure && communication_status() != S::disconnected);
+  assert(communication_status() != Communication_status::failure &&
+    communication_status() != Communication_status::disconnected);
   assert(socket() >= 0);
 
   while (true) {
