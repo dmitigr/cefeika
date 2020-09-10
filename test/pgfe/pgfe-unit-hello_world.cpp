@@ -9,26 +9,23 @@ namespace pgfe = dmitigr::pgfe;
 
 int main() try {
   // Making the connection.
-  const auto conn = pgfe::Connection_options::make(pgfe::Communication_mode::net)->
-    set_net_hostname("localhost")->
-    set_database("pgfe_test")->
-    set_username("pgfe_test")->
-    set_password("pgfe_test")->
-    make_connection();
+  pgfe::Connection conn{pgfe::Connection_options{pgfe::Communication_mode::net}
+    .net_hostname("localhost").database("pgfe_test")
+    .username("pgfe_test").password("pgfe_test")};
 
   // Connecting.
-  conn->connect();
+  conn.connect();
 
   // Using Pgfe's conversion function.
   using pgfe::to;
 
   // Executing query with positional parameters.
-  conn->execute("select generate_series($1::int, $2::int)", 1, 3);
-  while (const auto r = conn->wait_row())
+  conn.execute("select generate_series($1::int, $2::int)", 1, 3);
+  while (const auto r = conn.wait_row())
     std::printf("Number %i\n", to<int>(r.data()));
 
   // Prepare and execute the statement with named parameters.
-  auto* const ps = conn->prepare_statement("select :begin b, :end e");
+  auto* const ps = conn.prepare_statement("select :begin b, :end e");
   ps->set_parameter("begin", 0);
   ps->set_parameter("end", 1);
   ps->execute();
@@ -36,12 +33,12 @@ int main() try {
     std::printf("Range [%i, %i]\n", to<int>(r.data("b")), to<int>(r.data("e")));
 
   // Invoking the function.
-  conn->invoke("cos", .5f);
-  const auto r = conn->wait_row_then_discard();
+  conn.invoke("cos", .5f);
+  const auto r = conn.wait_row_then_discard();
   std::printf("cos(%f) = %f\n", .5f, to<float>(r.data()));
 
   // Provoking the syntax error.
-  conn->perform("provoke syntax error");
+  conn.perform("provoke syntax error");
  } catch (const pgfe::c42_Syntax_error& e) {
   std::printf("Error %s is handled as expected.\n", e.error()->sqlstate());
  } catch (const std::exception& e) {

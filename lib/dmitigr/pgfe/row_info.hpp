@@ -240,9 +240,9 @@ public:
   }
 
 private:
-  friend Row;
+  friend Connection;
   friend Prepared_statement;
-  friend detail::pq_Connection;
+  friend Row;
 
   detail::pq::Result pq_result_;
   std::shared_ptr<std::vector<std::string>> shared_field_names_;

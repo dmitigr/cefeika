@@ -72,13 +72,6 @@ template<typename> class Entity_vector;
 /// The implementation details.
 namespace detail {
 
-class iConnection;
-class iConnection_options;
-class iConnection_pool;
-
-class pq_Connection;
-class pq_Connection_options;
-
 template<typename> struct Generic_string_conversions;
 template<typename T, class StringConversions = Generic_string_conversions<T>> struct Generic_data_conversions;
 template<typename> struct Numeric_string_conversions;
@@ -86,6 +79,7 @@ template<typename T, class StringConversions = Numeric_string_conversions<T>> st
 
 /// The abstraction layer over libpq.
 namespace pq {
+class Connection_options;
 class Result;
 } // namespace pq
 

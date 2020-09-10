@@ -22,7 +22,7 @@ int main(int, char* argv[])
   try {
     // General test
     {
-      auto conn = pgfe::Connection::make();
+      auto conn = std::make_unique<pgfe::Connection>();
       ASSERT(conn->communication_status() == pgfe::Communication_status::disconnected);
       ASSERT(!conn->is_connected());
       ASSERT(!conn->transaction_block_status());
@@ -44,16 +44,6 @@ int main(int, char* argv[])
       ASSERT(!conn->is_ready_for_async_request());
       ASSERT(!conn->is_ready_for_request());
       ASSERT(conn->result_format() == pgfe::Data_format::text);
-
-      std::string_view empty;
-      ASSERT(is_logic_throw_works([&]() { conn->to_quoted_literal(""); }));
-      ASSERT(is_logic_throw_works([&]() { conn->to_quoted_identifier(""); }));
-      ASSERT(is_logic_throw_works([&]() { conn->to_hex_data(nullptr); }));
-      ASSERT(is_logic_throw_works([&]() { conn->to_hex_string(nullptr); }));
-      ASSERT(is_logic_throw_works([&]() { conn->to_hex_data(pgfe::Data::make(empty, pgfe::Data_format::text).get()); }));
-      ASSERT(is_logic_throw_works([&]() { conn->to_hex_string(pgfe::Data::make(empty, pgfe::Data_format::text).get()); }));
-      ASSERT(is_logic_throw_works([&]() { conn->to_hex_data(pgfe::Data::make(empty, pgfe::Data_format::binary).get()); }));
-      ASSERT(is_logic_throw_works([&]() { conn->to_hex_string(pgfe::Data::make(empty, pgfe::Data_format::binary).get()); }));
     }
 
     using pgfe::Communication_mode;
@@ -61,18 +51,17 @@ int main(int, char* argv[])
 
     // Connect with empty connection options test
     {
-      const auto conn_opts = pgfe::Connection_options::make();
-      const auto conn = pgfe::Connection::make(conn_opts.get());
+      pgfe::Connection conn;
       try {
-        conn->connect();
-        ASSERT(conn->communication_status() == Communication_status::connected);
+        conn.connect();
+        ASSERT(conn.communication_status() == Communication_status::connected);
       } catch (const std::exception& e) {
-        ASSERT(conn->communication_status() == Communication_status::failure);
+        ASSERT(conn.communication_status() == Communication_status::failure);
         if (std::string{e.what()} != "fe_sendauth: no password supplied\n")
           throw;
       }
-      conn->disconnect();
-      ASSERT(conn->communication_status() == Communication_status::disconnected);
+      conn.disconnect();
+      ASSERT(conn.communication_status() == Communication_status::disconnected);
     }
 
     using pgfe::Transaction_block_status;

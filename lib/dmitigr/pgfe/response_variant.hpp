@@ -12,11 +12,11 @@
 
 namespace dmitigr::pgfe::detail {
 
-class pq_Response_variant final {
+class Response_variant final {
 public:
-  pq_Response_variant() = default;
+  Response_variant() = default;
 
-  pq_Response_variant(pq_Response_variant&& rhs) noexcept
+  Response_variant(Response_variant&& rhs) noexcept
     : error_{std::move(rhs.error_)}
     , row_{std::move(rhs.row_)}
     , completion_{std::move(rhs.completion_)}
@@ -25,7 +25,7 @@ public:
     rhs.prepared_statement_ = {};
   }
 
-  pq_Response_variant& operator=(pq_Response_variant&& rhs) noexcept
+  Response_variant& operator=(Response_variant&& rhs) noexcept
   {
     if (this != &rhs) {
       error_ = std::move(rhs.error_);
@@ -38,44 +38,44 @@ public:
     return *this;
   }
 
-  pq_Response_variant(Error&& error) noexcept
+  Response_variant(Error&& error) noexcept
     : error_{std::move(error)}
   {}
 
-  pq_Response_variant(Row&& row) noexcept
+  Response_variant(Row&& row) noexcept
     : row_{std::move(row)}
   {}
 
-  pq_Response_variant(Completion&& completion) noexcept
+  Response_variant(Completion&& completion) noexcept
     : completion_{std::move(completion)}
   {}
 
-  pq_Response_variant(Prepared_statement* const prepared_statement) noexcept
+  Response_variant(Prepared_statement* const prepared_statement) noexcept
     : prepared_statement_{prepared_statement}
   {}
 
-  pq_Response_variant& operator=(Error&& error) noexcept
+  Response_variant& operator=(Error&& error) noexcept
   {
     reset();
     error_ = std::move(error);
     return *this;
   }
 
-  pq_Response_variant& operator=(Row&& row) noexcept
+  Response_variant& operator=(Row&& row) noexcept
   {
     reset();
     row_ = std::move(row);
     return *this;
   }
 
-  pq_Response_variant& operator=(Completion&& completion) noexcept
+  Response_variant& operator=(Completion&& completion) noexcept
   {
     reset();
     completion_ = std::move(completion);
     return *this;
   }
 
-  pq_Response_variant& operator=(Prepared_statement* const prepared_statement) noexcept
+  Response_variant& operator=(Prepared_statement* const prepared_statement) noexcept
   {
     reset();
     prepared_statement_ = prepared_statement;

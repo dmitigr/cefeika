@@ -84,7 +84,7 @@ public:
   }
 
 private:
-  friend detail::pq_Connection;
+  friend Connection;
 
   std::unique_ptr< ::PGnotify> pgnotify_;
   Data_view payload_;

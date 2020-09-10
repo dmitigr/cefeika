@@ -5,19 +5,29 @@
 #ifndef DMITIGR_PGFE_CONNECTION_HPP
 #define DMITIGR_PGFE_CONNECTION_HPP
 
+#include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/completion.hpp"
+#include "dmitigr/pgfe/connection_options.hpp"
+#include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/dll.hpp"
+#include "dmitigr/pgfe/error.hpp"
+#include "dmitigr/pgfe/notice.hpp"
+#include "dmitigr/pgfe/notification.hpp"
+#include "dmitigr/pgfe/pq.hpp"
 #include "dmitigr/pgfe/prepared_statement.hpp"
+#include "dmitigr/pgfe/response_variant.hpp"
 #include "dmitigr/pgfe/row_conversions.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
-#include <dmitigr/base/debug.hpp>
 
+#include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <functional>
+#include <list>
 #include <memory>
 #include <optional>
+#include <queue>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -29,13 +39,10 @@ namespace dmitigr::pgfe {
  *
  * @brief A connection to a PostgreSQL server.
  */
-class Connection {
+class Connection final {
 public:
-  /// @brief The destructor.
-  virtual ~Connection() = default;
-
-  /// @name Constructors
-  /// @{
+  /// An alias of Connection_options.
+  using Options = Connection_options;
 
   /**
    * @returns A new instance of this class.
@@ -43,18 +50,22 @@ public:
    * @param options - the connection options. The value of `nullptr` means
    * default connection options.
    */
-  static DMITIGR_PGFE_API std::unique_ptr<Connection> make(const Connection_options* options = nullptr);
+  explicit Connection(Options options = {})
+    : options_{std::move(options)}
+    , notice_handler_{&default_notice_handler}
+  {}
 
-  /**
-   * @returns The copy of this instance.
-   *
-   * @remarks The communication status of a copy will be Communication_status::disconnected.
-   */
-  virtual std::unique_ptr<Connection> to_connection() const = 0;
+  /// Non copy-constructible.
+  Connection(const Connection&) = delete;
 
-  /// @}
+  /// Non copy-assignable.
+  Connection& operator=(const Connection&) = delete;
 
-  // -----------------------------------------------------------------------------
+  /// Move-constructible.
+  Connection(Connection&& rhs) = default;
+
+  /// Move-assignable.
+  Connection& operator=(Connection&& rhs) = default;
 
   /// @name General observers
   /// @{
@@ -64,17 +75,23 @@ public:
    *
    * @see is_connected().
    */
-  virtual Communication_status communication_status() const = 0;
+  DMITIGR_PGFE_API Communication_status communication_status() const noexcept;
 
   /**
    * @returns `(communication_status() == Communication_status::connected)`.
    *
    * @see communication_status().
    */
-  virtual bool is_connected() const = 0;
+  bool is_connected() const noexcept
+  {
+    return (communication_status() == Communication_status::connected);
+  }
 
   /// @returns `true` if the connection secured by SSL.
-  virtual bool is_ssl_secured() const = 0;
+  bool is_ssl_secured() const noexcept
+  {
+    return conn() ? ::PQsslInUse(conn()) : false;
+  }
 
   /**
    * @returns The last reported server transaction block status, or
@@ -82,23 +99,32 @@ public:
    *
    * @see is_transaction_block_uncommitted().
    */
-  virtual std::optional<Transaction_block_status> transaction_block_status() const = 0;
+  DMITIGR_PGFE_API std::optional<Transaction_block_status> transaction_block_status() const noexcept;
 
   /**
    * @returns `(transaction_block_status() == Transaction_block_status::uncommitted`).
    *
    * @see transaction_block_status().
    */
-  virtual bool is_transaction_block_uncommitted() const = 0;
+  bool is_transaction_block_uncommitted() const noexcept
+  {
+    return (transaction_block_status() == Transaction_block_status::uncommitted);
+  }
 
   /**
    * @returns The last registered time point when is_connected() started to return `true`, or
    * `std::nullopt` if the session wasn't started.
    */
-  virtual std::optional<std::chrono::system_clock::time_point> session_start_time() const noexcept = 0;
+  std::optional<std::chrono::system_clock::time_point> session_start_time() const noexcept
+  {
+    return session_start_time_;
+  }
 
   /// @returns The connection options of this instance.
-  virtual const Connection_options* options() const noexcept = 0;
+  const Connection_options* options() const noexcept
+  {
+    return &options_;
+  }
 
   /**
    * @returns The last reported identifier of the server process, or
@@ -106,7 +132,14 @@ public:
    *
    * @see Notification::server_pid().
    */
-  virtual std::optional<std::int_fast32_t> server_pid() const = 0;
+  std::optional<std::int_fast32_t> server_pid() const noexcept
+  {
+    if (conn()) {
+      if (const int pid = ::PQbackendPID(conn()))
+        server_pid_ = pid;
+    }
+    return server_pid_;
+  }
 
   ///@}
 
@@ -138,7 +171,7 @@ public:
    *
    * @see connect(), communication_status(), socket_readiness().
    */
-  virtual void connect_async() = 0;
+  DMITIGR_PGFE_API void connect_async();
 
   /**
    * @brief Attempts to connect to a PostgreSQL server.
@@ -162,7 +195,7 @@ public:
    *
    * @see connect_async().
    */
-  virtual void connect(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
+  DMITIGR_PGFE_API void connect(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
 
   /**
    * @brief Attempts to disconnect from a server.
@@ -173,7 +206,13 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void disconnect() = 0;
+  void disconnect() noexcept
+  {
+    reset_session();
+    conn_.reset(); // Discarding unhandled notifications btw.
+    assert(communication_status() == Communication_status::disconnected);
+    assert(is_invariant_ok());
+  }
 
   /**
    * @brief Waits for readiness of the connection socket if it is unready.
@@ -191,8 +230,8 @@ public:
    *    (communication_status() != Communication_status::failure) &&
    *    (communication_status() != Communication_status::disconnected))`.
    */
-  virtual Socket_readiness wait_socket_readiness(Socket_readiness mask,
-    std::optional<std::chrono::milliseconds> timeout = std::nullopt) const = 0;
+  DMITIGR_PGFE_API Socket_readiness wait_socket_readiness(Socket_readiness mask,
+    std::optional<std::chrono::milliseconds> timeout = std::nullopt) const;
 
   /**
    * @brief Polls the readiness of the connection socket.
@@ -203,7 +242,7 @@ public:
    *
    * @see wait_socket_readiness().
    */
-  virtual Socket_readiness socket_readiness(Socket_readiness mask) const = 0;
+  DMITIGR_PGFE_API Socket_readiness socket_readiness(Socket_readiness mask) const;
 
   ///@}
 
@@ -221,7 +260,11 @@ public:
    *
    * @see collect_messages(), socket_readiness().
    */
-  virtual void read_input() = 0;
+  void read_input()
+  {
+    if (!::PQconsumeInput(conn()))
+      throw std::runtime_error{error_message()};
+  }
 
   /**
    * @brief Collects and queue the messages of all kinds which was sent by the server.
@@ -242,7 +285,7 @@ public:
    *
    * @see read_input().
    */
-  virtual Response_status collect_messages(bool wait_response = false) = 0;
+  DMITIGR_PGFE_API Response_status collect_messages(bool wait_response = false);
 
   /// @}
 
@@ -253,13 +296,8 @@ public:
    */
   /// @{
 
-  /**
-   * @returns The released instance of type Notification if available.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
-  virtual Notification pop_notification() = 0;
+  /// @returns The released instance of type Notification if available.
+  DMITIGR_PGFE_API Notification pop_notification() noexcept;
 
   /// An alias of a notice handler.
   using Notice_handler = std::function<void(const Notice&)>;
@@ -277,10 +315,17 @@ public:
    *
    * @see handle_signals(), notice_handler().
    */
-  virtual void set_notice_handler(Notice_handler handler) = 0;
+  void set_notice_handler(Notice_handler handler) noexcept
+  {
+    notice_handler_ = std::move(handler);
+    assert(is_invariant_ok());
+  }
 
   /// @returns The current notice handler.
-  virtual const Notice_handler& notice_handler() const = 0;
+  const Notice_handler& notice_handler() const noexcept
+  {
+    return notice_handler_;
+  }
 
   /// An alias of a notification handler.
   using Notification_handler = std::function<void(Notification&&)>;
@@ -297,10 +342,17 @@ public:
    *
    * @see handle_signals().
    */
-  virtual void set_notification_handler(Notification_handler handler) = 0;
+  void set_notification_handler(Notification_handler handler) noexcept
+  {
+    notification_handler_ = std::move(handler);
+    assert(is_invariant_ok());
+  }
 
   /// @returns The current notification handler.
-  virtual const Notification_handler& notification_handler() const = 0;
+  const Notification_handler& notification_handler() const noexcept
+  {
+    return notification_handler_;
+  }
 
   /**
    * @brief Call signals handlers.
@@ -308,7 +360,15 @@ public:
    * @par Exception safety guarantee
    * Basic.
    */
-  virtual void handle_signals() = 0;
+  void handle_signals()
+  {
+    if (!notifications_.empty()) {
+      if (const auto& handle_notification = notification_handler()) {
+        while (auto n = pop_notification())
+          handle_notification(std::move(n));
+      }
+    }
+  }
 
   ///@}
 
@@ -322,7 +382,10 @@ public:
    *
    * @see wait_response().
    */
-  virtual bool is_awaiting_response() const noexcept = 0;
+  bool is_awaiting_response() const noexcept
+  {
+    return !requests_.empty();
+  }
 
   /**
    * @brief Waits a some kind of the Response if it is unavailable and awaited.
@@ -344,19 +407,29 @@ public:
    *
    * @see response().
    */
-  virtual void wait_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
+  DMITIGR_PGFE_API void wait_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
 
   /**
    * @brief Similar to wait_response(), but throws Server_exception
    * if `(error() != std::nullopt)` after awaiting.
    */
-  virtual void wait_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
+  void wait_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1})
+  {
+    wait_response(timeout);
+    throw_if_error();
+  }
 
   /// @returns The currently available response.
-  virtual const Response* response() const noexcept = 0;
+  const Response* response() const noexcept
+  {
+    return response_.response();
+  }
 
   /// Releases the currently available response.
-  virtual std::unique_ptr<Response> release_response() = 0;
+  std::unique_ptr<Response> release_response() noexcept
+  {
+    return response_.release_response();
+  }
 
   /**
    * @brief Dismissing the last available Response.
@@ -366,7 +439,10 @@ public:
    *
    * @remarks It's more efficienlty than error(), wait_row() or wait_completion().
    */
-  virtual void dismiss_response() = 0;
+  void dismiss_response() noexcept
+  {
+    response_.reset();
+  }
 
   /**
    * @brief An alias of error handler.
@@ -389,10 +465,17 @@ public:
    *
    * @see Error_handler, error_handler().
    */
-  virtual void set_error_handler(Error_handler handler) = 0;
+  void set_error_handler(Error_handler handler) noexcept
+  {
+    error_handler_ = std::move(handler);
+    assert(is_invariant_ok());
+  }
 
   /// @returns A current error handler.
-  virtual const Error_handler& error_handler() = 0;
+  const Error_handler& error_handler() noexcept
+  {
+    return error_handler_;
+  }
 
   /**
    * @returns The released instance of type Error if available.
@@ -402,7 +485,10 @@ public:
    *
    * @remarks Useful only if using async API.
    */
-  virtual Error error() = 0;
+  Error error() noexcept
+  {
+    return response_.release_error();
+  }
 
   /**
    * @brief Waits for next row.
@@ -414,14 +500,23 @@ public:
    *
    * @see dismiss_response(), wait_completion().
    */
-  virtual Row wait_row() = 0;
+  Row wait_row()
+  {
+    wait_response_throw();
+    return response_.release_row();
+  }
 
   /**
    * @returns {wait_row(), wait_completion()}.
    *
    * @see wait_row(), wait_completion()
    */
-  virtual std::pair<Row, Completion> wait_row_then_completion() = 0;
+  std::pair<Row, Completion> wait_row_then_completion()
+  {
+    auto row = wait_row();
+    auto comp = wait_completion();
+    return {std::move(row), std::move(comp)};
+  }
 
   /**
    * @return Waits for next Row and discards the rows followed after that returned row.
@@ -434,7 +529,12 @@ public:
    *
    * @see wait_row(), dismiss_response().
    */
-  virtual Row wait_row_then_discard() = 0;
+  Row wait_row_then_discard()
+  {
+    auto row = wait_row();
+    wait_completion();
+    return row;
+  }
 
   /**
    * @brief Waits for Completion and throws Server_expection on Error. Skips the rows (if any).
@@ -456,14 +556,17 @@ public:
    * @remarks There is no necessity to handle Completion explicitly. It will be
    * dismissed automatically when appropriate.
    */
-  virtual Completion wait_completion(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1}) = 0;
+  DMITIGR_PGFE_API Completion wait_completion(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
 
   /**
    * @returns The pointer to the instance of type Prepared_statement if available.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    */
-  virtual Prepared_statement* prepared_statement() const = 0;
+  Prepared_statement* prepared_statement() const noexcept
+  {
+    return response_.prepared_statement();
+  }
 
   /**
    * @returns The prepared statement by its name, or `nullptr` if prepared
@@ -477,7 +580,10 @@ public:
    *
    * @see describe_prepared_statement(), describe_prepared_statement_async().
    */
-  virtual Prepared_statement* prepared_statement(const std::string& name) const = 0;
+  Prepared_statement* prepared_statement(const std::string& name) const noexcept
+  {
+    return ps(name);
+  }
 
   ///@}
 
@@ -492,14 +598,21 @@ public:
    *
    * @see is_ready_for_request().
    */
-  virtual bool is_ready_for_async_request() const = 0;
+  bool is_ready_for_async_request() const noexcept
+  {
+    return is_connected() && requests_.empty() && (!response_ || response_.completion() || prepared_statement());
+  }
 
   /**
    * @returns `true` if the connection is ready for requesting a server.
    *
    * @see is_awaiting_response().
    */
-  virtual bool is_ready_for_request() const = 0;
+  bool is_ready_for_request() const noexcept
+  {
+    // Same as is_ready_for_async_request() at the moment.
+    return is_ready_for_async_request();
+  }
 
   /**
    * @brief Submits the SQL query(-es) to a server.
@@ -529,7 +642,7 @@ public:
    *
    * @see prepare_statement_async().
    */
-  virtual void perform_async(const std::string& queries) = 0;
+  DMITIGR_PGFE_API void perform_async(const std::string& queries);
 
   /**
    * @brief Similar to perform_async(), but waits for the first Response and
@@ -541,7 +654,12 @@ public:
    * @par Exception safety guarantee
    * Basic.
    */
-  virtual void perform(const std::string& queries) = 0;
+  void perform(const std::string& queries)
+  {
+    assert(is_ready_for_request());
+    perform_async(queries);
+    wait_response_throw();
+  }
 
   /**
    * @brief Submits a request to a server to prepare the statement.
@@ -575,13 +693,20 @@ public:
    *
    * @see unprepare_statement_async().
    */
-  virtual void prepare_statement_async(const Sql_string& statement, const std::string& name = {}) = 0;
+  void prepare_statement_async(const Sql_string& statement, const std::string& name = {})
+  {
+    assert(!statement.has_missing_parameters());
+    prepare_statement_async__(statement.to_query_string().c_str(), name.c_str(), &statement); // can throw
+  }
 
   /**
    * @brief Same as prepare_statement_async() except the statement will be send
    * as-is, i.e. without preparsing.
    */
-  virtual void prepare_statement_async_as_is(const std::string& statement, const std::string& name = {}) = 0;
+  void prepare_statement_async_as_is(const std::string& statement, const std::string& name = {})
+  {
+    prepare_statement_async__(statement.c_str(), name.c_str(), nullptr); // can throw
+  }
 
   /**
    * @returns `(prepare_statement_async(), wait_response_throw(), prepared_statement())`
@@ -596,13 +721,20 @@ public:
    *
    * @see unprepare_statement().
    */
-  virtual Prepared_statement* prepare_statement(const Sql_string& statement, const std::string& name = {}) = 0;
+  Prepared_statement* prepare_statement(const Sql_string& statement, const std::string& name = {})
+  {
+    using M = void(Connection::*)(const Sql_string&, const std::string&);
+    return prepare_statement__(static_cast<M>(&Connection::prepare_statement_async), statement, name);
+  }
 
   /**
    * @brief Same as prepare_statement() except the statement will be send as-is,
    * i.e. without preparsing.
    */
-  virtual Prepared_statement* prepare_statement_as_is(const std::string& statement, const std::string& name = {}) = 0;
+  Prepared_statement* prepare_statement_as_is(const std::string& statement, const std::string& name = {})
+  {
+    return prepare_statement__(&Connection::prepare_statement_async_as_is, statement, name);
+  }
 
   /**
    * @brief Submits a request to a PostgreSQL server to describe
@@ -626,7 +758,7 @@ public:
    *
    * @see describe_prepared_statement().
    */
-  virtual void describe_prepared_statement_async(const std::string& name) = 0;
+  DMITIGR_PGFE_API void describe_prepared_statement_async(const std::string& name);
 
   /**
    * @returns `(describe_prepared_statement_async(), wait_response_throw(), prepared_statement())`
@@ -639,7 +771,13 @@ public:
    *
    * @see unprepare_statement().
    */
-  virtual Prepared_statement* describe_prepared_statement(const std::string& name) = 0;
+  Prepared_statement* describe_prepared_statement(const std::string& name)
+  {
+    assert(is_ready_for_request());
+    describe_prepared_statement_async(name);
+    wait_response_throw();
+    return prepared_statement();
+  }
 
   /**
    * @brief Submits a request to a PostgreSQL server to close
@@ -665,7 +803,7 @@ public:
    *
    * @see unprepare_statement().
    */
-  virtual void unprepare_statement_async(const std::string& name) = 0;
+  DMITIGR_PGFE_API void unprepare_statement_async(const std::string& name);
 
   /**
    * @returns `(unprepare_statement_async(const std::string& name), wait_response_throw())`
@@ -676,7 +814,12 @@ public:
    * @par Exception safety guarantee
    * Basic.
    */
-  virtual void unprepare_statement(const std::string& name) = 0;
+  void unprepare_statement(const std::string& name)
+  {
+    assert(is_ready_for_request());
+    unprepare_statement_async(name);
+    wait_response_throw(); // Checking invariant.
+  }
 
   /**
    * @brief Submits the requests to a server to prepare and execute the unnamed
@@ -810,13 +953,20 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual void set_result_format(Data_format format) = 0;
+  void set_result_format(const Data_format format) noexcept
+  {
+    default_result_format_ = format;
+    assert(is_invariant_ok());
+  }
 
   /**
    * @returns The default data format of the result for a next prepared
    * statement execution.
    */
-  virtual Data_format result_format() const noexcept = 0;
+  Data_format result_format() const noexcept
+  {
+    return default_result_format_;
+  }
 
   ///@}
 
@@ -838,7 +988,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual Oid create_large_object(Oid oid = invalid_oid) = 0;
+  DMITIGR_PGFE_API Oid create_large_object(Oid oid = invalid_oid) noexcept;
 
   /**
    * @brief Submits a request to open the large object and waits the result.
@@ -851,7 +1001,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual Large_object open_large_object(Oid oid, Large_object_open_mode mode) = 0;
+  DMITIGR_PGFE_API Large_object open_large_object(Oid oid, Large_object_open_mode mode) noexcept;
 
   /**
    * @brief Submits a request to remove the large object and waits the result.
@@ -864,7 +1014,11 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual bool remove_large_object(Oid oid) = 0;
+  bool remove_large_object(Oid oid) noexcept
+  {
+    assert(is_ready_for_request());
+    return ::lo_unlink(conn(), oid);
+  }
 
   /**
    * @brief Submits multiple requests to import the specified file as a large
@@ -879,8 +1033,11 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual Oid import_large_object(const std::filesystem::path& filename,
-    Oid oid = invalid_oid) = 0;
+  Oid import_large_object(const std::filesystem::path& filename, Oid oid = invalid_oid) noexcept
+  {
+    assert(is_ready_for_request());
+    return ::lo_import_with_oid(conn(), filename.c_str(), oid);
+  }
 
   /**
    * @brief Submits multiple requests to export the specified large object
@@ -894,7 +1051,11 @@ public:
    * @par Exception safety guarantee
    * Strong.
    */
-  virtual bool export_large_object(Oid oid, const std::filesystem::path& filename) = 0;
+  bool export_large_object(Oid oid, const std::filesystem::path& filename) noexcept
+  {
+    assert(is_ready_for_request());
+    return ::lo_export(conn(), oid, filename.c_str()) == 1; // lo_export returns -1 on failure
+  }
 
   /// @}
 
@@ -943,7 +1104,7 @@ public:
    *
    * @see Prepared_statement.
    */
-  virtual std::string to_quoted_literal(const std::string& literal) const = 0;
+  DMITIGR_PGFE_API std::string to_quoted_literal(const std::string& literal) const;
 
   /**
    * @brief Quotes the given string to be used as an identifier in a SQL query.
@@ -961,7 +1122,7 @@ public:
    *
    * @see Prepared_statement.
    */
-  virtual std::string to_quoted_identifier(const std::string& identifier) const = 0;
+  DMITIGR_PGFE_API std::string to_quoted_identifier(const std::string& identifier) const;
 
   /**
    * @brief Encodes the binary data into the textual representation to be used
@@ -984,7 +1145,11 @@ public:
    *
    * @see Prepared_statement.
    */
-  virtual std::unique_ptr<Data> to_hex_data(const Data* binary_data) const = 0;
+  std::unique_ptr<Data> to_hex_data(const Data* binary_data) const
+  {
+    auto [storage, size] = to_hex_storage(binary_data);
+    return Data::make(std::move(storage), size, Data_format::text);
+  }
 
   /**
    * @brief Similar to to_hex_data(const Data*).
@@ -993,25 +1158,149 @@ public:
    *
    * @see to_hex_data().
    */
-  virtual std::string to_hex_string(const Data* binary_data) const = 0;
+  std::string to_hex_string(const Data* binary_data) const
+  {
+    const auto [storage, size] = to_hex_storage(binary_data);
+    return std::string{reinterpret_cast<const char*>(storage.get()), size};
+  }
 
   ///@}
 private:
-  friend detail::iConnection;
   friend Large_object;
+  friend Prepared_statement;
 
-  Connection() = default;
+  // ---------------------------------------------------------------------------
+  // Persistent data
+  // ---------------------------------------------------------------------------
 
-  // ===========================================================================
+  // Persistent data / constant data
+  Connection_options options_;
 
-  virtual bool close(Large_object& lo) = 0;
-  virtual std::int_fast64_t seek(Large_object& lo, std::int_fast64_t offset, Large_object_seek_whence whence) = 0;
-  virtual std::int_fast64_t tell(Large_object& lo) = 0;
-  virtual bool truncate(Large_object& lo, std::int_fast64_t new_size) = 0;
-  virtual int read(Large_object& lo, char* buf, std::size_t size) = 0;
-  virtual int write(Large_object& lo, const char* buf, std::size_t size) = 0;
+  // Persistent data / public-modifiable data
+  Error_handler error_handler_;
+  Notice_handler notice_handler_;
+  Notification_handler notification_handler_;
+  Data_format default_result_format_{Data_format::text};
 
-  // ===========================================================================
+  // Persistent data / private-modifiable data
+  std::unique_ptr< ::PGconn> conn_;
+  std::optional<Communication_status> polling_status_;
+  ::PGconn* conn() const noexcept { return conn_.get(); }
+
+  // ---------------------------------------------------------------------------
+  // Session data
+  // ---------------------------------------------------------------------------
+
+  std::optional<std::chrono::system_clock::time_point> session_start_time_;
+
+  mutable std::queue<Notification> notifications_;
+
+  mutable detail::Response_variant response_;
+  std::queue<detail::pq::Result> pending_results_;
+  mutable std::optional<Transaction_block_status> transaction_block_status_;
+  mutable std::optional<std::int_fast32_t> server_pid_;
+  mutable std::list<Prepared_statement> named_prepared_statements_;
+  mutable Prepared_statement unnamed_prepared_statement_;
+  std::shared_ptr<std::vector<std::string>> shared_field_names_;
+
+  // ----------------------------
+  // Session data / requests data
+  // ----------------------------
+
+  enum class Request_id {
+    perform = 1,
+    execute,
+    prepare_statement,
+    describe_prepared_statement,
+    unprepare_statement
+  };
+
+  std::queue<Request_id> requests_; // for now only 1 request can be queued
+  Prepared_statement request_prepared_statement_;
+  std::optional<std::string> request_prepared_statement_name_;
+
+  bool is_invariant_ok() const noexcept;
+
+  // ---------------------------------------------------------------------------
+  // Session data helpers
+  // ---------------------------------------------------------------------------
+
+  void reset_session() noexcept;
+
+  // ---------------------------------------------------------------------------
+  // Handlers
+  // ---------------------------------------------------------------------------
+
+  static void notice_receiver(void* const arg, const ::PGresult* const r) noexcept;
+  static void default_notice_handler(const Notice& n) noexcept;
+
+  // ---------------------------------------------------------------------------
+  // Prepared statement helpers
+  // ---------------------------------------------------------------------------
+
+  void prepare_statement_async__(const char* const query, const char* const name, const Sql_string* const preparsed);
+
+  template<typename M, typename T>
+  Prepared_statement* prepare_statement__(M&& prepare, T&& statement, const std::string& name)
+  {
+    assert(is_ready_for_request());
+    (this->*prepare)(std::forward<T>(statement), name);
+    wait_response_throw();
+    return prepared_statement();
+  }
+
+  /*
+   * Attempts to find the prepared statement.
+   *
+   * @returns The pointer to the founded prepared statement, or `nullptr` if not found.
+   */
+  Prepared_statement* ps(const std::string& name) const noexcept;
+
+  /*
+   * Register prepared statement.
+   *
+   * @returns The pointer to the registered prepared statement.
+   */
+  Prepared_statement* register_ps(Prepared_statement&& ps) noexcept;
+
+  // Unregisters the prepared statement.
+  void unregister_ps(const std::string& name) noexcept;
+
+  // ---------------------------------------------------------------------------
+  // Utilities helpers
+  // ---------------------------------------------------------------------------
+
+  int socket() const noexcept
+  {
+    return ::PQsocket(conn());
+  }
+
+  void throw_if_error();
+
+  std::string error_message() const;
+
+  bool is_out_of_memory() const
+  {
+    constexpr char msg[] = "out of memory";
+    return !std::strncmp(::PQerrorMessage(conn()), msg, sizeof(msg) - 1);
+  }
+
+  std::pair<std::unique_ptr<void, void(*)(void*)>, std::size_t> to_hex_storage(const pgfe::Data* const binary_data) const;
+
+  // ---------------------------------------------------------------------------
+  // Large Object private API
+  // ---------------------------------------------------------------------------
+
+  DMITIGR_PGFE_API bool close(Large_object& lo) noexcept;
+  DMITIGR_PGFE_API std::int_fast64_t seek(Large_object& lo, std::int_fast64_t offset, Large_object_seek_whence whence) noexcept;
+  DMITIGR_PGFE_API std::int_fast64_t tell(Large_object& lo) noexcept;
+  DMITIGR_PGFE_API bool truncate(Large_object& lo, const std::int_fast64_t new_size) noexcept;
+  DMITIGR_PGFE_API int read(Large_object& lo, char* const buf, const std::size_t size) noexcept;
+  DMITIGR_PGFE_API int write(Large_object& lo, const char* const buf, const std::size_t size) noexcept;
+
+  // ---------------------------------------------------------------------------
+  // call/invoke helpers
+  // ---------------------------------------------------------------------------
 
   template<typename ... Types>
   std::string routine_query__(std::string_view function, std::string_view invocation, Types&& ... arguments)
@@ -1054,8 +1343,6 @@ private:
   {
     return std::string{na.name()}.append("=>:").append(na.name());
   }
-
-  // ===========================================================================
 
   template<typename T = void>
   static constexpr bool is_routine_arguments_ok__()

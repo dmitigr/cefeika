@@ -41,6 +41,18 @@ template<> struct default_delete<::PGresult> final {
   }
 };
 
+/**
+ * @internal
+ *
+ * @brief The default deleter for `::PGconn`.
+ */
+template<> struct default_delete<::PGconn> final {
+  void operator()(::PGconn* const ptr) const
+  {
+    ::PQfinish(ptr);
+  }
+};
+
 } // namespace std
 
 /// The abstraction layer over libpq.

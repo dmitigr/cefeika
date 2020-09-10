@@ -55,7 +55,7 @@ DMITIGR_PGFE_INLINE const Row_info* Prepared_statement::row_info() const noexcep
 }
 
 DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(std::string name,
-  detail::pq_Connection* const connection, const Sql_string* const preparsed)
+  Connection* const connection, const Sql_string* const preparsed)
   : name_(std::move(name))
   , preparsed_(static_cast<bool>(preparsed))
 {
@@ -73,7 +73,7 @@ DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(std::string name,
 }
 
 DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(std::string name,
-  detail::pq_Connection* const connection, const std::size_t parameters_count)
+  Connection* const connection, const std::size_t parameters_count)
   : name_(std::move(name))
   , parameters_(parameters_count)
 {
@@ -81,7 +81,7 @@ DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(std::string name,
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE void Prepared_statement::init_connection__(detail::pq_Connection* const connection)
+DMITIGR_PGFE_INLINE void Prepared_statement::init_connection__(Connection* const connection)
 {
   assert(connection && connection->session_start_time());
   connection_ = connection;
@@ -108,7 +108,7 @@ DMITIGR_PGFE_INLINE void Prepared_statement::execute_async()
   std::vector<int> lengths(param_count, 0);
   std::vector<int> formats(param_count, 0);
 
-  connection_->requests_.push(detail::pq_Connection::Request_id::execute); // can throw
+  connection_->requests_.push(Connection::Request_id::execute); // can throw
   try {
     // Prepare the input for libpq.
     for (int i = 0; i < param_count; ++i) {
@@ -120,12 +120,12 @@ DMITIGR_PGFE_INLINE void Prepared_statement::execute_async()
     }
     const int result_format = detail::pq::to_int(result_format_);
 
-    const int send_ok = ::PQsendQueryPrepared(connection_->conn_, name_.c_str(),
+    const int send_ok = ::PQsendQueryPrepared(connection_->conn(), name_.c_str(),
       param_count, values.data(), lengths.data(), formats.data(), result_format);
     if (!send_ok)
       throw std::runtime_error(connection_->error_message());
 
-    const auto set_ok = ::PQsetSingleRowMode(connection_->conn_);
+    const auto set_ok = ::PQsetSingleRowMode(connection_->conn());
     if (!set_ok)
       throw std::runtime_error{"cannot switch to single-row mode"};
 

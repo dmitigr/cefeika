@@ -575,7 +575,7 @@ public:
   /// @}
 
 private:
-  friend detail::pq_Connection;
+  friend Connection;
 
   using Data_deletion_required = mem::Conditional_delete<const Data>;
   using Data_ptr = std::unique_ptr<const Data, Data_deletion_required>;
@@ -588,16 +588,16 @@ private:
   Data_format result_format_{Data_format::text};
   std::string name_;
   bool preparsed_{};
-  detail::pq_Connection* connection_{};
+  Connection* connection_{};
   std::chrono::system_clock::time_point session_start_time_;
   std::vector<Parameter> parameters_;
   std::optional<std::variant<detail::pq::Result, Row_info>> description_;
 
   /// Constructs when preparing.
-  Prepared_statement(std::string name, detail::pq_Connection* connection, const Sql_string* preparsed);
+  Prepared_statement(std::string name, Connection* connection, const Sql_string* preparsed);
 
   /// Constructs when describing.
-  Prepared_statement(std::string name, detail::pq_Connection* connection, std::size_t parameters_count);
+  Prepared_statement(std::string name, Connection* connection, std::size_t parameters_count);
 
   /// Non copy-constructible.
   Prepared_statement(const Prepared_statement&) = delete;
@@ -635,7 +635,7 @@ private:
     return *this;
   }
 
-  void init_connection__(detail::pq_Connection* connection);
+  void init_connection__(Connection* connection);
 
   bool is_invariant_ok() const noexcept override;
 
