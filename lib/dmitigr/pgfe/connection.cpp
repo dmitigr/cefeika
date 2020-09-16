@@ -287,101 +287,44 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
   // Processing the result.
   if (!pending_results_.empty()) {
     assert(!response_);
-    const auto set_response = [this, get_would_block](detail::pq::Result&& response)
-    {
-      response_ = std::move(response);
-      pending_results_.pop();
-      if (pending_results_.empty() && !get_would_block)
-        requests_.pop();
-    };
-    auto& r = pending_results_.front();
-    const auto rstatus = r.status();
+    response_ = std::move(pending_results_.front());
+    const auto rstatus = response_.status();
     assert(rstatus != PGRES_NONFATAL_ERROR);
     response_request_id_ = requests_.front();
 
-    switch (rstatus) {
-    case PGRES_SINGLE_TUPLE: {
+    if (rstatus == PGRES_SINGLE_TUPLE) {
       assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
       if (!shared_field_names_)
-        shared_field_names_ = Row_info::make_shared_field_names(r);
-      response_ = std::move(r);
+        shared_field_names_ = Row_info::make_shared_field_names(response_);
       pending_results_.pop();
       return Response_status::ready;
-    }
+    } else if (!get_would_block) {
+      // Pop pending result. If last, getting ready to next query.
+      pending_results_.pop();
+      if (pending_results_.empty())
+        requests_.pop();
 
-    case PGRES_TUPLES_OK: {
-      assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
-      if (!get_would_block) {
-        set_response(std::move(r));
+      // Cleanup.
+      if (rstatus == PGRES_TUPLES_OK) {
+        assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
         shared_field_names_.reset();
-        return Response_status::ready;
-      } else
-        return Response_status::unready;
-    }
-
-    case PGRES_FATAL_ERROR:
-      if (!get_would_block) {
-        set_response(std::move(r));
+      } else if (rstatus == PGRES_FATAL_ERROR) {
         shared_field_names_.reset();
         request_prepared_statement_ = {};
         request_prepared_statement_name_.reset();
-        return Response_status::ready;
-      } else
-        return Response_status::unready;
+      } else if (rstatus == PGRES_COMMAND_OK) {
+        assert(response_request_id_ != Request_id::prepare_statement || request_prepared_statement_);
+        assert(response_request_id_ != Request_id::describe_prepared_statement || request_prepared_statement_name_);
+        if (response_request_id_ == Request_id::unprepare_statement) {
+          assert(request_prepared_statement_name_ && !std::strcmp(response_.command_tag(), "DEALLOCATE"));
+          unregister_ps(*request_prepared_statement_name_);
+          request_prepared_statement_name_.reset();
+        }
+      }
 
-    case PGRES_COMMAND_OK: {
-      if (get_would_block)
-        return Response_status::unready;
-
-      switch (response_request_id_) {
-      case Request_id::perform:
-        [[fallthrough]];
-
-      case Request_id::execute:
-        set_response(std::move(r));
-        return Response_status::ready;
-
-      case Request_id::prepare_statement:
-        assert(request_prepared_statement_);
-        set_response(std::move(r));
-        return Response_status::ready;
-
-      case Request_id::describe_prepared_statement:
-        assert(request_prepared_statement_name_);
-        set_response(std::move(r));
-        return Response_status::ready;
-
-      case Request_id::unprepare_statement:
-        assert(request_prepared_statement_name_ && std::strcmp(r.command_tag(), "DEALLOCATE") == 0);
-        unregister_ps(*request_prepared_statement_name_);
-        set_response(std::move(r));
-        request_prepared_statement_name_.reset();
-        return Response_status::ready;
-
-      default:
-        assert(false);
-        std::terminate();
-      } // switch (response_request_id_)
-    } // PGRES_COMMAND_OK
-
-    case PGRES_EMPTY_QUERY:
-      if (!get_would_block) {
-        set_response(std::move(r));
-        return Response_status::ready;
-      } else
-        return Response_status::unready;
-
-    case PGRES_BAD_RESPONSE:
-      if (!get_would_block) {
-        set_response(std::move(r));
-        return Response_status::ready;
-      } else
-        return Response_status::unready;
-
-    default:
-      assert(false);
-      std::terminate();
-    } // switch (rstatus)
+      return Response_status::ready;
+    } else
+      return Response_status::unready;
   } else if (get_would_block)
     return Response_status::unready;
   else
