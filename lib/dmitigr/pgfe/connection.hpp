@@ -15,7 +15,6 @@
 #include "dmitigr/pgfe/notification.hpp"
 #include "dmitigr/pgfe/pq.hpp"
 #include "dmitigr/pgfe/prepared_statement.hpp"
-#include "dmitigr/pgfe/response_variant.hpp"
 #include "dmitigr/pgfe/row_conversions.hpp"
 #include "dmitigr/pgfe/sql_string.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
@@ -419,16 +418,10 @@ public:
     throw_if_error();
   }
 
-  /// @returns The currently available response.
-  const Response* response() const noexcept
+  /// @returns `true` if there is unhandled response available.
+  bool has_response() const noexcept
   {
-    return response_.response();
-  }
-
-  /// Releases the currently available response.
-  std::unique_ptr<Response> release_response() noexcept
-  {
-    return response_.release_response();
+    return static_cast<bool>(response_);
   }
 
   /**
@@ -487,7 +480,7 @@ public:
    */
   Error error() noexcept
   {
-    return response_.release_error();
+    return response_ && (response_.status() == PGRES_FATAL_ERROR) ? Error{std::move(response_)} : Error{};
   }
 
   /**
@@ -503,7 +496,7 @@ public:
   Row wait_row()
   {
     wait_response_throw();
-    return response_.release_row();
+    return response_ && (response_.status() == PGRES_SINGLE_TUPLE) ? Row{std::move(response_), shared_field_names_} : Row{};
   }
 
   /**
@@ -565,7 +558,13 @@ public:
    */
   Prepared_statement* prepared_statement() const noexcept
   {
-    return response_.prepared_statement();
+    Prepared_statement* result{};
+    if (response_ && (response_.status() == PGRES_COMMAND_OK) && (response_request_id_ == Request_id::prepare_statement)) {
+      result = register_ps(std::move(request_prepared_statement_));
+      assert(!request_prepared_statement_);
+      response_.reset();
+    }
+    return result;
   }
 
   /**
@@ -600,7 +599,10 @@ public:
    */
   bool is_ready_for_async_request() const noexcept
   {
-    return is_connected() && requests_.empty() && (!response_ || response_.completion() || prepared_statement());
+    return is_connected() && requests_.empty() && (!response_ || [s = response_.status()]
+    {
+      return s == PGRES_TUPLES_OK || s == PGRES_COMMAND_OK || s == PGRES_EMPTY_QUERY || s == PGRES_BAD_RESPONSE;
+    }());
   }
 
   /**
@@ -776,7 +778,13 @@ public:
     assert(is_ready_for_request());
     describe_prepared_statement_async(name);
     wait_response_throw();
-    return prepared_statement();
+    auto* p = ps(*request_prepared_statement_name_);
+    if (!p)
+      p = register_ps(Prepared_statement{std::move(*request_prepared_statement_name_),
+                                         this, static_cast<std::size_t>(response_.field_count())});
+    p->set_description(std::move(response_));
+    request_prepared_statement_name_.reset();
+    return p;
   }
 
   /**
@@ -1188,24 +1196,8 @@ private:
   ::PGconn* conn() const noexcept { return conn_.get(); }
 
   // ---------------------------------------------------------------------------
-  // Session data
-  // ---------------------------------------------------------------------------
-
-  std::optional<std::chrono::system_clock::time_point> session_start_time_;
-
-  mutable std::queue<Notification> notifications_;
-
-  mutable detail::Response_variant response_;
-  std::queue<detail::pq::Result> pending_results_;
-  mutable std::optional<Transaction_block_status> transaction_block_status_;
-  mutable std::optional<std::int_fast32_t> server_pid_;
-  mutable std::list<Prepared_statement> named_prepared_statements_;
-  mutable Prepared_statement unnamed_prepared_statement_;
-  std::shared_ptr<std::vector<std::string>> shared_field_names_;
-
-  // ----------------------------
   // Session data / requests data
-  // ----------------------------
+  // ---------------------------------------------------------------------------
 
   enum class Request_id {
     perform = 1,
@@ -1215,8 +1207,21 @@ private:
     unprepare_statement
   };
 
+  std::optional<std::chrono::system_clock::time_point> session_start_time_;
+
+  mutable std::queue<Notification> notifications_;
+
+  mutable detail::pq::Result response_;
+  std::queue<detail::pq::Result> pending_results_;
+  mutable std::optional<Transaction_block_status> transaction_block_status_;
+  mutable std::optional<std::int_fast32_t> server_pid_;
+  mutable std::list<Prepared_statement> named_prepared_statements_;
+  mutable Prepared_statement unnamed_prepared_statement_;
+  std::shared_ptr<std::vector<std::string>> shared_field_names_;
+
+  Request_id response_request_id_;
   std::queue<Request_id> requests_; // for now only 1 request can be queued
-  Prepared_statement request_prepared_statement_;
+  mutable Prepared_statement request_prepared_statement_;
   std::optional<std::string> request_prepared_statement_name_;
 
   bool is_invariant_ok() const noexcept;
@@ -1261,7 +1266,7 @@ private:
    *
    * @returns The pointer to the registered prepared statement.
    */
-  Prepared_statement* register_ps(Prepared_statement&& ps) noexcept;
+  Prepared_statement* register_ps(Prepared_statement&& ps) const noexcept;
 
   // Unregisters the prepared statement.
   void unregister_ps(const std::string& name) noexcept;

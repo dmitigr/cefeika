@@ -238,7 +238,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
 {
   assert(is_connected());
 
-  if (response())
+  if (response_)
     return Response_status::ready;
 
   // Optimization for case when wait_response.
@@ -287,7 +287,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
   // Processing the result.
   if (!pending_results_.empty()) {
     assert(!response_);
-    const auto set_response = [this, get_would_block](auto&& response)
+    const auto set_response = [this, get_would_block](detail::pq::Result&& response)
     {
       response_ = std::move(response);
       pending_results_.pop();
@@ -295,24 +295,24 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
         requests_.pop();
     };
     auto& r = pending_results_.front();
-    const auto op_id = requests_.front();
     const auto rstatus = r.status();
     assert(rstatus != PGRES_NONFATAL_ERROR);
+    response_request_id_ = requests_.front();
 
     switch (rstatus) {
     case PGRES_SINGLE_TUPLE: {
-      assert(op_id == Request_id::perform || op_id == Request_id::execute);
+      assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
       if (!shared_field_names_)
         shared_field_names_ = Row_info::make_shared_field_names(r);
-      response_ = Row{std::move(r), shared_field_names_};
+      response_ = std::move(r);
       pending_results_.pop();
       return Response_status::ready;
     }
 
     case PGRES_TUPLES_OK: {
-      assert(op_id == Request_id::perform || op_id == Request_id::execute);
+      assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
       if (!get_would_block) {
-        set_response(Completion{r.command_tag()});
+        set_response(std::move(r));
         shared_field_names_.reset();
         return Response_status::ready;
       } else
@@ -321,7 +321,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
 
     case PGRES_FATAL_ERROR:
       if (!get_would_block) {
-        set_response(Error{std::move(r)});
+        set_response(std::move(r));
         shared_field_names_.reset();
         request_prepared_statement_ = {};
         request_prepared_statement_name_.reset();
@@ -333,55 +333,47 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
       if (get_would_block)
         return Response_status::unready;
 
-      switch (op_id) {
+      switch (response_request_id_) {
       case Request_id::perform:
         [[fallthrough]];
 
       case Request_id::execute:
-        set_response(Completion{r.command_tag()});
+        set_response(std::move(r));
         return Response_status::ready;
 
       case Request_id::prepare_statement:
         assert(request_prepared_statement_);
-        set_response(register_ps(std::move(request_prepared_statement_)));
-        assert(!request_prepared_statement_);
+        set_response(std::move(r));
         return Response_status::ready;
 
-      case Request_id::describe_prepared_statement: {
+      case Request_id::describe_prepared_statement:
         assert(request_prepared_statement_name_);
-        auto* p = ps(*request_prepared_statement_name_);
-        if (!p)
-          p = register_ps(Prepared_statement{std::move(*request_prepared_statement_name_),
-                                             this, static_cast<std::size_t>(r.field_count())});
-        p->set_description(std::move(r));
-        set_response(std::move(p));
-        request_prepared_statement_name_.reset();
+        set_response(std::move(r));
         return Response_status::ready;
-      }
 
       case Request_id::unprepare_statement:
         assert(request_prepared_statement_name_ && std::strcmp(r.command_tag(), "DEALLOCATE") == 0);
         unregister_ps(*request_prepared_statement_name_);
-        set_response(Completion{"unprepare_statement"});
+        set_response(std::move(r));
         request_prepared_statement_name_.reset();
         return Response_status::ready;
 
       default:
         assert(false);
         std::terminate();
-      } // switch (op_id)
+      } // switch (response_request_id_)
     } // PGRES_COMMAND_OK
 
     case PGRES_EMPTY_QUERY:
       if (!get_would_block) {
-        set_response(Completion{std::string{}});
+        set_response(std::move(r));
         return Response_status::ready;
       } else
         return Response_status::unready;
 
     case PGRES_BAD_RESPONSE:
       if (!get_would_block) {
-        set_response(Completion{"invalid response"});
+        set_response(std::move(r));
         return Response_status::ready;
       } else
         return Response_status::unready;
@@ -394,9 +386,6 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     return Response_status::unready;
   else
     return Response_status::empty;
-
-  assert(false);
-  std::terminate();
 }
 
 DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::milliseconds> timeout)
@@ -405,7 +394,7 @@ DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::mi
   using std::chrono::milliseconds;
   using std::chrono::duration_cast;
 
-  if (!(is_connected() && is_awaiting_response()) || response())
+  if (!(is_connected() && is_awaiting_response()) || response_)
     return;
 
   assert(!timeout || timeout >= milliseconds{-1});
@@ -458,8 +447,34 @@ Connection::wait_completion(std::optional<std::chrono::milliseconds> timeout)
     wait_response_throw(timeout);
     if (!response_)
       return {};
-    else if (response_.completion())
-      return response_.release_completion();
+
+    switch (response_.status()) {
+    case PGRES_TUPLES_OK: {
+      Completion result{response_.command_tag()};
+      response_.reset();
+      return result;
+    }
+    case PGRES_COMMAND_OK:
+      switch (response_request_id_) {
+      case Request_id::perform:
+        [[fallthrough]];
+      case Request_id::execute: {
+        Completion result{response_.command_tag()};
+        response_.reset();
+        return result;
+      }
+      case Request_id::unprepare_statement:
+        return Completion{"unprepare_statement"};
+      default: return {};
+      }
+    case PGRES_EMPTY_QUERY:
+      return Completion{""};
+    case PGRES_BAD_RESPONSE:
+      return Completion{"invalid response"};
+    default:
+      assert(false);
+      std::terminate();
+    }
 
     if (timeout) {
       *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
@@ -593,9 +608,9 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     ((requests_.front() == Request_id::describe_prepared_statement ||
       requests_.front() == Request_id::unprepare_statement) &&
       !request_prepared_statement_ && request_prepared_statement_name_);
-  const bool shared_field_names_ok = !response_.row() || shared_field_names_;
+  const bool shared_field_names_ok = (!response_ || response_.status() != PGRES_SINGLE_TUPLE) || shared_field_names_;
   const bool session_start_time_ok =
-    ((communication_status() == Communication_status::connected) == bool(session_start_time_));
+    ((communication_status() == Communication_status::connected) == static_cast<bool>(session_start_time_));
   const bool session_data_empty =
     !session_start_time_ &&
     notifications_.empty() &&
@@ -721,7 +736,7 @@ DMITIGR_PGFE_INLINE Prepared_statement* Connection::ps(const std::string& name) 
     return unnamed_prepared_statement_ ? &unnamed_prepared_statement_ : nullptr;
 }
 
-DMITIGR_PGFE_INLINE Prepared_statement* Connection::register_ps(Prepared_statement&& ps) noexcept
+DMITIGR_PGFE_INLINE Prepared_statement* Connection::register_ps(Prepared_statement&& ps) const noexcept
 {
   if (ps.name().empty()) {
     unnamed_prepared_statement_ = std::move(ps);
@@ -743,10 +758,9 @@ DMITIGR_PGFE_INLINE void Connection::unregister_ps(const std::string& name) noex
 
 DMITIGR_PGFE_INLINE void Connection::throw_if_error()
 {
-  if (!response_.error())
-    return;
+  if (auto err = error()) {
+    auto ei = std::make_shared<Error>(std::move(err));
 
-  if (auto ei = std::make_shared<Error>(error())) {
     // Attempting to throw a custom exception.
     if (const auto& eh = error_handler(); eh && eh(ei))
       return;
