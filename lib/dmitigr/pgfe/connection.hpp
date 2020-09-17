@@ -1212,7 +1212,7 @@ private:
   mutable std::queue<Notification> notifications_;
 
   mutable detail::pq::Result response_;
-  std::queue<detail::pq::Result> pending_results_;
+  detail::pq::Result pending_response_;
   mutable std::optional<Transaction_block_status> transaction_block_status_;
   mutable std::optional<std::int_fast32_t> server_pid_;
   mutable std::list<Prepared_statement> named_prepared_statements_;

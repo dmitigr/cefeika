@@ -240,40 +240,37 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
 
   if (response_)
     return Response_status::ready;
-
-  // Optimization for case when wait_response.
-  if (wait_response) {
-    if (detail::pq::Result r{::PQgetResult(conn())}) {
-      pending_results_.push(std::move(r));
-      if (pending_results_.front().status() == PGRES_FATAL_ERROR)
-        while (detail::pq::Result{::PQgetResult(conn())})
-          continue; // getting complete error
+  else if (pending_response_)
+    response_ = std::move(pending_response_);
+  else if (wait_response) { // optimization for wait_response case
+    response_.reset(::PQgetResult(conn()));
+    if (response_ && response_.status() == PGRES_FATAL_ERROR) {
+      while (detail::pq::Result{::PQgetResult(conn())})
+        continue; // getting complete error
     }
   }
 
   // Common case.
   bool get_would_block{};
-  if (pending_results_.empty() || pending_results_.front().status() != PGRES_SINGLE_TUPLE) {
+  if (!response_ || response_.status() != PGRES_SINGLE_TUPLE) {
+    /*
+     * Checks for nonblocking result and handles notices btw.
+     * @remarks: notice_receiver() (which calls the notice handler) will be
+     * called indirectly from ::PQisBusy().
+     * @remars: ::PQisBusy() calls a routine (pqParseInput3() from fe-protocol3.c)
+     * which parses consumed input and stores notifications and notices if
+     * are available. (::PQnotifies() calls this routine as well.)
+     */
     static const auto is_get_result_would_block = [](PGconn* const conn)
     {
-      /*
-       * Checking for nonblocking result and handling notices btw.
-       * Note: notice_receiver() (which calls the notice handler) will be
-       * called indirectly from ::PQisBusy().
-       * Note: ::PQisBusy() calls a routine (pqParseInput3() from fe-protocol3.c)
-       * which parses consumed input and stores notifications and notices if
-       * are available. (::PQnotifies() calls this routine as well.)
-       */
       return ::PQisBusy(conn) == 1;
     };
 
-    while ( !(get_would_block = is_get_result_would_block(conn()))) {
-      if (detail::pq::Result r{::PQgetResult(conn())}) {
-        pending_results_.push(std::move(r));
-        if (pending_results_.front().status() == PGRES_SINGLE_TUPLE)
-          break; // optimization: skip is_get_result_would_block() here
-      } else
-        break;
+    if ( !(get_would_block = is_get_result_would_block(conn()))) {
+      if (!response_)
+        response_.reset(::PQgetResult(conn()));
+      else
+        pending_response_.reset(::PQgetResult(conn()));
     }
   }
 
@@ -285,9 +282,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     notifications_.emplace(n);
 
   // Processing the result.
-  if (!pending_results_.empty()) {
-    assert(!response_);
-    response_ = std::move(pending_results_.front());
+  if (response_) {
     const auto rstatus = response_.status();
     assert(rstatus != PGRES_NONFATAL_ERROR);
     response_request_id_ = requests_.front();
@@ -296,12 +291,10 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
       assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
       if (!shared_field_names_)
         shared_field_names_ = Row_info::make_shared_field_names(response_);
-      pending_results_.pop();
       return Response_status::ready;
     } else if (!get_would_block) {
-      // Pop pending result. If last, getting ready to next query.
-      pending_results_.pop();
-      if (pending_results_.empty())
+      // If there is no pending result, getting ready to next query.
+      if (!pending_response_)
         requests_.pop();
 
       // Cleanup.
@@ -558,7 +551,7 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     !session_start_time_ &&
     notifications_.empty() &&
     !response_ &&
-    pending_results_.empty() &&
+    !pending_response_ &&
     !transaction_block_status_ &&
     !server_pid_ &&
     named_prepared_statements_.empty() &&
@@ -607,7 +600,7 @@ DMITIGR_PGFE_INLINE void Connection::reset_session() noexcept
   session_start_time_.reset();
   notifications_ = {};
   response_.reset();
-  pending_results_ = {};
+  pending_response_.reset();
   transaction_block_status_.reset();
   server_pid_.reset();
   named_prepared_statements_.clear();
