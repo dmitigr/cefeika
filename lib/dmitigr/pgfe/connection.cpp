@@ -248,7 +248,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     response_.reset(::PQgetResult(conn()));
     if (response_) {
       if (response_.status() == PGRES_SINGLE_TUPLE)
-        goto collect_notifications; // micro-optimization (skips common case)
+        goto handle_notifications; // micro-optimization (skips common case)
       else if (response_.status() == PGRES_FATAL_ERROR)
         while (detail::pq::Result{::PQgetResult(conn())})
           continue; // getting complete error
@@ -278,13 +278,15 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     }
   }
 
- collect_notifications:
+ handle_notifications:
   /*
-   * Collecting notifications
+   * Handling notifications
    * Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
    */
-  while (auto* const n = ::PQnotifies(conn()))
-    notifications_.emplace(n);
+  if (notification_handler_) {
+    while (auto* const n = ::PQnotifies(conn()))
+      notification_handler_(Notification{n});
+  }
 
   // Processing the result.
   if (response_) {
@@ -344,7 +346,6 @@ DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::mi
 
   while (true) {
     const auto s = collect_messages(!timeout);
-    handle_signals();
     if (s == Response_status::unready) {
       const auto moment_of_wait = system_clock::now();
       if (wait_socket_readiness(Socket_readiness::read_ready, timeout) == Socket_readiness::read_ready) {
@@ -361,14 +362,10 @@ DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::mi
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE Notification Connection::pop_notification() noexcept
+DMITIGR_PGFE_INLINE Notification Connection::pop_notification()
 {
-  if (!notifications_.empty()) {
-    auto result = std::move(notifications_.front());
-    notifications_.pop();
-    return result;
-  } else
-    return {};
+  auto* const n = ::PQnotifies(conn());
+  return n ? Notification{n} : Notification{};
 }
 
 DMITIGR_PGFE_INLINE Completion
@@ -554,7 +551,6 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     ((communication_status() == Communication_status::connected) == static_cast<bool>(session_start_time_));
   const bool session_data_empty =
     !session_start_time_ &&
-    notifications_.empty() &&
     !response_ &&
     !pending_response_ &&
     !transaction_block_status_ &&
@@ -603,7 +599,6 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
 DMITIGR_PGFE_INLINE void Connection::reset_session() noexcept
 {
   session_start_time_.reset();
-  notifications_ = {};
   response_.reset();
   pending_response_.reset();
   transaction_block_status_.reset();

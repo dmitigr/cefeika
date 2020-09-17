@@ -296,7 +296,7 @@ public:
   /// @{
 
   /// @returns The released instance of type Notification if available.
-  DMITIGR_PGFE_API Notification pop_notification() noexcept;
+  DMITIGR_PGFE_API Notification pop_notification();
 
   /// An alias of a notice handler.
   using Notice_handler = std::function<void(const Notice&)>;
@@ -312,7 +312,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see handle_signals(), notice_handler().
+   * @see notice_handler().
    */
   void set_notice_handler(Notice_handler handler) noexcept
   {
@@ -338,8 +338,6 @@ public:
    *
    * @par Exception safety guarantee
    * Strong.
-   *
-   * @see handle_signals().
    */
   void set_notification_handler(Notification_handler handler) noexcept
   {
@@ -351,22 +349,6 @@ public:
   const Notification_handler& notification_handler() const noexcept
   {
     return notification_handler_;
-  }
-
-  /**
-   * @brief Call signals handlers.
-   *
-   * @par Exception safety guarantee
-   * Basic.
-   */
-  void handle_signals()
-  {
-    if (!notifications_.empty()) {
-      if (const auto& handle_notification = notification_handler()) {
-        while (auto n = pop_notification())
-          handle_notification(std::move(n));
-      }
-    }
   }
 
   ///@}
@@ -1208,8 +1190,6 @@ private:
   };
 
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
-
-  mutable std::queue<Notification> notifications_;
 
   mutable detail::pq::Result response_;
   detail::pq::Result pending_response_;
