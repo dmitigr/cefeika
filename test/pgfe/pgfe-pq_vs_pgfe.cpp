@@ -66,10 +66,8 @@ void test_pgfe()
   auto conn = test::make_connection();
   conn->connect();
   conn->perform(query);
-  while (auto r = conn->wait_row()) {
-    (void)r;
-    // std::cout << r->data()->bytes() << std::endl;
-  }
+  while (auto r = conn->wait_row())
+    r.data();
 }
 
 int main()
