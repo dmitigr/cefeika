@@ -238,20 +238,24 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
 {
   assert(is_connected());
 
+  bool get_would_block{};
+
   if (response_)
     return Response_status::ready;
   else if (pending_response_)
     response_ = std::move(pending_response_);
   else if (wait_response) { // optimization for wait_response case
     response_.reset(::PQgetResult(conn()));
-    if (response_ && response_.status() == PGRES_FATAL_ERROR) {
-      while (detail::pq::Result{::PQgetResult(conn())})
-        continue; // getting complete error
+    if (response_) {
+      if (response_.status() == PGRES_SINGLE_TUPLE)
+        goto collect_notifications; // micro-optimization (skips common case)
+      else if (response_.status() == PGRES_FATAL_ERROR)
+        while (detail::pq::Result{::PQgetResult(conn())})
+          continue; // getting complete error
     }
   }
 
   // Common case.
-  bool get_would_block{};
   if (!response_ || response_.status() != PGRES_SINGLE_TUPLE) {
     /*
      * Checks for nonblocking result and handles notices btw.
@@ -274,6 +278,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     }
   }
 
+ collect_notifications:
   /*
    * Collecting notifications
    * Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
