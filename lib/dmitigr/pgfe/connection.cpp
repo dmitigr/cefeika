@@ -336,7 +336,7 @@ DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::mi
   using std::chrono::milliseconds;
   using std::chrono::duration_cast;
 
-  if (!(is_connected() && is_awaiting_response()) || response_)
+  if (!(is_connected() && is_awaiting_response()))
     return;
 
   assert(!timeout || timeout >= milliseconds{-1});
