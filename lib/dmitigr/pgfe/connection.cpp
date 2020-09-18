@@ -246,13 +246,11 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     response_ = std::move(pending_response_);
   else if (wait_response) { // optimization for wait_response case
     response_.reset(::PQgetResult(conn()));
-    if (response_) {
-      if (response_.status() == PGRES_SINGLE_TUPLE)
-        goto handle_notifications; // micro-optimization (skips common case)
-      else if (response_.status() == PGRES_FATAL_ERROR)
-        while (detail::pq::Result{::PQgetResult(conn())})
-          continue; // getting complete error
-    }
+    if (response_.status() == PGRES_SINGLE_TUPLE)
+      goto handle_notifications; // micro-optimization (skips common case)
+    else if (response_.status() == PGRES_FATAL_ERROR)
+      while (detail::pq::Result{::PQgetResult(conn())})
+        continue; // getting complete error
   }
 
   // Common case.
@@ -271,10 +269,11 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
     };
 
     if ( !(get_would_block = is_get_result_would_block(conn()))) {
+      auto* const r = ::PQgetResult(conn());
       if (!response_)
-        response_.reset(::PQgetResult(conn()));
+        response_.reset(r);
       else
-        pending_response_.reset(::PQgetResult(conn()));
+        pending_response_.reset(r);
     }
   }
 

@@ -81,7 +81,8 @@ public:
 
   /// The constructor.
   explicit Result(::PGresult* const pgresult) noexcept
-    : pgresult_(pgresult)
+    : status_{pgresult ? ::PQresultStatus(pgresult) : static_cast<Status>(-1)}
+    , pgresult_(pgresult)
   {}
 
   /**
@@ -111,20 +112,35 @@ public:
   Result& operator=(const Result&) = delete;
 
   /// Move-constructible.
-  Result(Result&&) = default;
+  Result(Result&& rhs) noexcept
+    : status_{rhs.status_}
+    , pgresult_{std::move(rhs.pgresult_)}
+  {
+    rhs.status_ = static_cast<Status>(-1);
+  }
 
   /// Move-assignable.
-  Result& operator=(Result&&) = default;
+  Result& operator=(Result&& rhs) noexcept
+  {
+    if (this != &rhs) {
+      status_ = rhs.status_;
+      pgresult_ = std::move(rhs.pgresult_);
+
+      rhs.status_ = static_cast<Status>(-1);
+    }
+    return *this;
+  }
 
   /// @returns `true` if this instance is set to a some `::PGresult`.
   explicit operator bool() const noexcept
   {
-    return bool(pgresult_);
+    return static_cast<bool>(pgresult_);
   }
 
   /// Resets the current instance to the specified `pgresult`.
   void reset(::PGresult* const pgresult = nullptr) noexcept
   {
+    status_ = pgresult ? ::PQresultStatus(pgresult) : static_cast<Status>(-1);
     pgresult_.reset(pgresult);
   }
 
@@ -148,7 +164,7 @@ public:
    */
   Status status() const noexcept
   {
-    return ::PQresultStatus(native_handle());
+    return status_;
   }
 
   /// @returns The command status tag from a SQL command.
@@ -429,6 +445,7 @@ public:
   /// @}
 
 private:
+  Status status_{static_cast<Status>(-1)}; // optimization
   std::unique_ptr< ::PGresult> pgresult_;
 };
 

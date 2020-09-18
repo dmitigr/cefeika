@@ -462,7 +462,7 @@ public:
    */
   Error error() noexcept
   {
-    return response_ && (response_.status() == PGRES_FATAL_ERROR) ? Error{std::move(response_)} : Error{};
+    return (response_.status() == PGRES_FATAL_ERROR) ? Error{std::move(response_)} : Error{};
   }
 
   /**
@@ -478,7 +478,7 @@ public:
   Row wait_row()
   {
     wait_response_throw();
-    return response_ && (response_.status() == PGRES_SINGLE_TUPLE) ? Row{std::move(response_), shared_field_names_} : Row{};
+    return (response_.status() == PGRES_SINGLE_TUPLE) ? Row{std::move(response_), shared_field_names_} : Row{};
   }
 
   /**
@@ -541,7 +541,7 @@ public:
   Prepared_statement* prepared_statement() const noexcept
   {
     Prepared_statement* result{};
-    if (response_ && (response_.status() == PGRES_COMMAND_OK) && (response_request_id_ == Request_id::prepare_statement)) {
+    if ((response_.status() == PGRES_COMMAND_OK) && (response_request_id_ == Request_id::prepare_statement)) {
       result = register_ps(std::move(request_prepared_statement_));
       assert(!request_prepared_statement_);
       response_.reset();
