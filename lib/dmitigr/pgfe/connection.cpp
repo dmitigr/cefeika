@@ -34,17 +34,18 @@ DMITIGR_PGFE_INLINE Communication_status Connection::communication_status() cons
     return Status::disconnected;
 }
 
-DMITIGR_PGFE_INLINE std::optional<Transaction_block_status> Connection::transaction_block_status() const noexcept
+DMITIGR_PGFE_INLINE std::optional<Transaction_status> Connection::transaction_status() const noexcept
 {
-  if (conn()) {
+  if (is_connected()) {
     switch (::PQtransactionStatus(conn())) {
-    case PQTRANS_IDLE:    return (transaction_block_status_ = Transaction_block_status::unstarted);
-    case PQTRANS_INTRANS: return (transaction_block_status_ = Transaction_block_status::uncommitted);
-    case PQTRANS_INERROR: return (transaction_block_status_ = Transaction_block_status::failed);
-    default:              return transaction_block_status_; // last reported transaction status
+    case PQTRANS_IDLE:    return Transaction_status::unstarted;
+    case PQTRANS_ACTIVE:  return Transaction_status::active;
+    case PQTRANS_INTRANS: return Transaction_status::uncommitted;
+    case PQTRANS_INERROR: return Transaction_status::failed;
+    default:              return std::nullopt;
     }
   } else
-    return transaction_block_status_;
+    return std::nullopt;
 }
 
 DMITIGR_PGFE_INLINE void Connection::connect_async()
@@ -122,21 +123,14 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
 
   assert(!timeout || timeout >= milliseconds{-1});
 
-  const auto is_timeout = [&timeout]()
-  {
-    return timeout <= milliseconds::zero();
-  };
-
-  const auto throw_timeout = []()
-  {
-    throw Timed_out{"connection timeout"};
-  };
-
   if (is_connected())
     return; // No need to check invariant. Just return.
 
   if (timeout == milliseconds{-1})
-    timeout = options()->connect_timeout();
+    timeout = options().connect_timeout();
+
+  const auto is_timeout = [&timeout]{ return timeout <= milliseconds::zero(); };
+  static const auto throw_timeout = []{ throw Timed_out{"connection timeout"}; };
 
   // Stage 1: beginning.
   auto timepoint1 = system_clock::now();
@@ -238,23 +232,23 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
 {
   assert(is_connected());
 
-  bool get_would_block{};
-
-  if (response_)
-    return Response_status::ready;
-  else if (pending_response_)
-    response_ = std::move(pending_response_);
-  else if (wait_response) { // optimization for wait_response case
-    response_.reset(::PQgetResult(conn()));
-    if (response_.status() == PGRES_SINGLE_TUPLE)
-      goto handle_notifications; // micro-optimization (skips common case)
-    else if (response_.status() == PGRES_FATAL_ERROR)
-      while (detail::pq::Result{::PQgetResult(conn())})
-        continue; // getting complete error
-  }
-
-  // Common case.
-  if (!response_ || response_.status() != PGRES_SINGLE_TUPLE) {
+  if (wait_response) {
+    if (response_status_ == Response_status::unready) {
+    complete_response:
+      while (auto* const r = ::PQgetResult(conn())) ::PQclear(r);
+      response_status_ = Response_status::ready;
+    } else {
+      response_.reset(::PQgetResult(conn()));
+      if (response_.status() == PGRES_SINGLE_TUPLE)
+        response_status_ = Response_status::ready;
+      else if (response_.status() == PGRES_FATAL_ERROR || response_.status() == PGRES_TUPLES_OK)
+        goto complete_response;
+      else if (response_)
+        response_status_ = Response_status::ready;
+      else
+        response_status_ = Response_status::empty;
+    }
+  } else {
     /*
      * Checks for nonblocking result and handles notices btw.
      * @remarks: notice_receiver() (which calls the notice handler) will be
@@ -268,16 +262,31 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
       return ::PQisBusy(conn) == 1;
     };
 
-    if ( !(get_would_block = is_get_result_would_block(conn()))) {
-      auto* const r = ::PQgetResult(conn());
-      if (!response_)
-        response_.reset(r);
-      else
-        pending_response_.reset(r);
+    if (response_status_ == Response_status::unready) {
+    try_complete_response:
+      while (!is_get_result_would_block(conn())) {
+        if (auto* const r = ::PQgetResult(conn()); !r) {
+          response_status_ = Response_status::ready;
+          break;
+        } else
+          ::PQclear(r);
+      }
+    } else {
+      if (!is_get_result_would_block(conn())) {
+        response_.reset(::PQgetResult(conn()));
+        if (response_.status() == PGRES_SINGLE_TUPLE) {
+          response_status_ = Response_status::ready;
+        } else if (response_.status() == PGRES_FATAL_ERROR || response_.status() == PGRES_TUPLES_OK) {
+          response_status_ = Response_status::unready;
+          goto try_complete_response;
+        } else if (response_)
+          response_status_ = Response_status::ready;
+        else
+          response_status_ = Response_status::empty;
+      }
     }
   }
 
- handle_notifications:
   /*
    * Handling notifications
    * Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
@@ -287,61 +296,66 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
       notification_handler_(Notification{n});
   }
 
-  // Processing the result.
-  if (response_) {
+  // Preprocessing the response_.
+  if (response_status_ == Response_status::ready) {
     const auto rstatus = response_.status();
     assert(rstatus != PGRES_NONFATAL_ERROR);
-    response_request_id_ = requests_.front();
+    const auto req_id = requests_.front();
 
     if (rstatus == PGRES_SINGLE_TUPLE) {
-      assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
+      assert(req_id == Request_id::perform || req_id == Request_id::execute);
       if (!shared_field_names_)
         shared_field_names_ = Row_info::make_shared_field_names(response_);
-      return Response_status::ready;
-    } else if (!get_would_block) {
-      // If there is no pending result, getting ready to next query.
-      if (!pending_response_)
-        requests_.pop();
-
-      // Cleanup.
-      if (rstatus == PGRES_TUPLES_OK) {
-        assert(response_request_id_ == Request_id::perform || response_request_id_ == Request_id::execute);
-        shared_field_names_.reset();
-      } else if (rstatus == PGRES_FATAL_ERROR) {
-        shared_field_names_.reset();
-        request_prepared_statement_ = {};
+    } else if (rstatus == PGRES_TUPLES_OK) {
+      assert(req_id == Request_id::perform || req_id == Request_id::execute);
+      shared_field_names_.reset();
+    } else if (rstatus == PGRES_FATAL_ERROR) {
+      shared_field_names_.reset();
+      request_prepared_statement_ = {};
+      request_prepared_statement_name_.reset();
+    } else if (rstatus == PGRES_COMMAND_OK) {
+      assert(req_id != Request_id::prepare_statement || request_prepared_statement_);
+      assert(req_id != Request_id::describe_statement || request_prepared_statement_name_);
+      assert(req_id != Request_id::unprepare_statement || request_prepared_statement_name_);
+      if (req_id == Request_id::prepare_statement) {
+        last_prepared_statement_ = register_ps(std::move(request_prepared_statement_));
+        assert(!request_prepared_statement_);
+      } else if (req_id == Request_id::describe_statement) {
+        last_prepared_statement_ = ps(*request_prepared_statement_name_);
+        if (!last_prepared_statement_)
+          last_prepared_statement_ = register_ps(Prepared_statement{std::move(*request_prepared_statement_name_),
+            this, static_cast<std::size_t>(response_.field_count())});
+        last_prepared_statement_->set_description(std::move(response_));
         request_prepared_statement_name_.reset();
-      } else if (rstatus == PGRES_COMMAND_OK) {
-        assert(response_request_id_ != Request_id::prepare_statement || request_prepared_statement_);
-        assert(response_request_id_ != Request_id::describe_prepared_statement || request_prepared_statement_name_);
-        if (response_request_id_ == Request_id::unprepare_statement) {
-          assert(request_prepared_statement_name_ && !std::strcmp(response_.command_tag(), "DEALLOCATE"));
-          unregister_ps(*request_prepared_statement_name_);
-          request_prepared_statement_name_.reset();
-        }
+      } else if (req_id == Request_id::unprepare_statement) {
+        assert(request_prepared_statement_name_ && !std::strcmp(response_.command_tag(), "DEALLOCATE"));
+        unregister_ps(*request_prepared_statement_name_);
+        request_prepared_statement_name_.reset();
       }
+    }
+  } else if (response_status_ == Response_status::empty) {
+    // Getting ready to next query.
+    if (!requests_.empty())
+      requests_.pop();
+    last_prepared_statement_ = {};
+  }
 
-      return Response_status::ready;
-    } else
-      return Response_status::unready;
-  } else if (get_would_block)
-    return Response_status::unready;
-  else
-    return Response_status::empty;
+  assert(is_invariant_ok());
+  return response_status_;
 }
 
-DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::milliseconds> timeout)
+DMITIGR_PGFE_INLINE bool Connection::next_response(std::optional<std::chrono::milliseconds> timeout)
 {
   using std::chrono::system_clock;
   using std::chrono::milliseconds;
   using std::chrono::duration_cast;
 
   if (!(is_connected() && is_awaiting_response()))
-    return;
+    return false;
 
   assert(!timeout || timeout >= milliseconds{-1});
   if (timeout == milliseconds{-1})
-    timeout = options()->wait_response_timeout();
+    timeout = options().wait_response_timeout();
 
   while (true) {
     const auto s = collect_messages(!timeout);
@@ -355,10 +369,10 @@ DMITIGR_PGFE_INLINE void Connection::wait_response(std::optional<std::chrono::mi
 
       read_input();
     } else
-      break;
+      return s == Response_status::ready;
   }
 
-  assert(is_invariant_ok());
+  assert(false);
 }
 
 DMITIGR_PGFE_INLINE Notification Connection::pop_notification()
@@ -367,57 +381,42 @@ DMITIGR_PGFE_INLINE Notification Connection::pop_notification()
   return n ? Notification{n} : Notification{};
 }
 
-DMITIGR_PGFE_INLINE Completion
-Connection::wait_completion(std::optional<std::chrono::milliseconds> timeout)
+DMITIGR_PGFE_INLINE Completion Connection::completion() const noexcept
 {
-  using std::chrono::system_clock;
-  using std::chrono::milliseconds;
-  using std::chrono::duration_cast;
-
-  assert(!timeout || timeout >= milliseconds{-1});
-  if (timeout == milliseconds{-1})
-    timeout = options()->wait_completion_timeout();
-
-  while (true) {
-    const auto timepoint1 = system_clock::now();
-
-    wait_response_throw(timeout);
-    if (!response_)
-      return {};
-
-    switch (response_.status()) {
-    case PGRES_TUPLES_OK: {
+  switch (response_.status()) {
+  case PGRES_TUPLES_OK: {
+    Completion result{response_.command_tag()};
+    response_.reset();
+    return result;
+  }
+  case PGRES_COMMAND_OK:
+    switch (requests_.front()) {
+    case Request_id::perform:
+      [[fallthrough]];
+    case Request_id::execute: {
       Completion result{response_.command_tag()};
       response_.reset();
       return result;
     }
-    case PGRES_COMMAND_OK:
-      switch (response_request_id_) {
-      case Request_id::perform:
-        [[fallthrough]];
-      case Request_id::execute: {
-        Completion result{response_.command_tag()};
-        response_.reset();
-        return result;
-      }
-      case Request_id::unprepare_statement:
-        return Completion{"unprepare_statement"};
-      default: return {};
-      }
-    case PGRES_EMPTY_QUERY:
-      return Completion{""};
-    case PGRES_BAD_RESPONSE:
-      return Completion{"invalid response"};
+    case Request_id::prepare_statement:
+      [[fallthrough]];
+    case Request_id::describe_statement:
+      return {};
+    case Request_id::unprepare_statement: {
+      Completion result{"unprepare_statement"};
+      response_.reset();
+      return result;
+    }
     default:
       assert(false);
       std::terminate();
     }
-
-    if (timeout) {
-      *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
-      if (timeout <= milliseconds::zero()) // Timeout
-        throw Timed_out{"wait completion timeout"};
-    }
+  case PGRES_EMPTY_QUERY:
+    return Completion{""};
+  case PGRES_BAD_RESPONSE:
+    return Completion{"invalid response"};
+  default:
+    return {};
   }
 }
 
@@ -434,7 +433,6 @@ DMITIGR_PGFE_INLINE void Connection::perform_async(const std::string& queries)
     const auto set_ok = ::PQsetSingleRowMode(conn());
     if (!set_ok)
       throw std::runtime_error{error_message()};
-    dismiss_response(); // cannot throw
   } catch (...) {
     requests_.pop(); // rollback
     throw;
@@ -443,19 +441,18 @@ DMITIGR_PGFE_INLINE void Connection::perform_async(const std::string& queries)
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE void Connection::describe_prepared_statement_async(const std::string& name)
+DMITIGR_PGFE_INLINE void Connection::describe_statement_async(const std::string& name)
 {
   assert(is_ready_for_async_request());
   assert(!request_prepared_statement_name_);
 
-  requests_.push(Request_id::describe_prepared_statement); // can throw
+  requests_.push(Request_id::describe_statement); // can throw
   try {
     auto name_copy = name;
     const int send_ok = ::PQsendDescribePrepared(conn(), name.c_str());
     if (!send_ok)
       throw std::runtime_error{error_message()};
     request_prepared_statement_name_ = std::move(name_copy); // cannot throw
-    dismiss_response(); // cannot throw
   } catch (...) {
     requests_.pop(); // rollback
     throw;
@@ -533,27 +530,14 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     !polling_status_ ||
     (*polling_status_ == Status::establishment_reading) ||
     (*polling_status_ == Status::establishment_writing);
-  const bool requests_ok = requests_.empty() || !is_ready_for_async_request();
-  const bool request_prepared_ok =
-    requests_.empty() ||
-    (requests_.front() != Request_id::prepare_statement &&
-      requests_.front() != Request_id::describe_prepared_statement &&
-      requests_.front() != Request_id::unprepare_statement &&
-      !request_prepared_statement_ && !request_prepared_statement_name_) ||
-    (requests_.front() == Request_id::prepare_statement &&
-      request_prepared_statement_ && !request_prepared_statement_name_) ||
-    ((requests_.front() == Request_id::describe_prepared_statement ||
-      requests_.front() == Request_id::unprepare_statement) &&
-      !request_prepared_statement_ && request_prepared_statement_name_);
+  const bool requests_ok = !is_connected() || is_ready_for_async_request() || !requests_.empty();
   const bool shared_field_names_ok = (!response_ || response_.status() != PGRES_SINGLE_TUPLE) || shared_field_names_;
   const bool session_start_time_ok =
     ((communication_status() == Communication_status::connected) == static_cast<bool>(session_start_time_));
   const bool session_data_empty =
     !session_start_time_ &&
     !response_ &&
-    !pending_response_ &&
-    !transaction_block_status_ &&
-    !server_pid_ &&
+    (response_status_ == Response_status::empty) &&
     named_prepared_statements_.empty() &&
     !unnamed_prepared_statement_ &&
     !shared_field_names_ &&
@@ -563,7 +547,7 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
   const bool session_data_ok =
     session_data_empty ||
     ((communication_status() == Communication_status::failure) || (communication_status() == Communication_status::connected));
-  const bool trans_ok = !is_connected() || transaction_block_status();
+  const bool trans_ok = !is_connected() || transaction_status();
   const bool sess_time_ok = !is_connected() || session_start_time();
   const bool pid_ok = !is_connected() || server_pid();
   const bool readiness_ok = is_ready_for_async_request() || !is_ready_for_request();
@@ -571,7 +555,6 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
   // std::clog << conn_ok << " "
   //           << polling_status_ok << " "
   //           << requests_ok << " "
-  //           << request_prepared_ok << " "
   //           << shared_field_names_ok << " "
   //           << session_start_time_ok << " "
   //           << session_data_ok << " "
@@ -585,7 +568,6 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     conn_ok &&
     polling_status_ok &&
     requests_ok &&
-    request_prepared_ok &&
     shared_field_names_ok &&
     session_start_time_ok &&
     session_data_ok &&
@@ -598,13 +580,15 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
 DMITIGR_PGFE_INLINE void Connection::reset_session() noexcept
 {
   session_start_time_.reset();
+
   response_.reset();
-  pending_response_.reset();
-  transaction_block_status_.reset();
-  server_pid_.reset();
+  response_status_ = {};
+  last_prepared_statement_ = {};
+  shared_field_names_.reset();
+
   named_prepared_statements_.clear();
   unnamed_prepared_statement_ = {};
-  shared_field_names_.reset();
+
   requests_ = {};
   request_prepared_statement_ = {};
   request_prepared_statement_name_.reset();
@@ -634,7 +618,8 @@ DMITIGR_PGFE_INLINE void Connection::default_notice_handler(const Notice& n) noe
 DMITIGR_PGFE_INLINE void
 Connection::prepare_statement_async__(const char* const query, const char* const name, const Sql_string* const preparsed)
 {
-  assert(query && name);
+  assert(query);
+  assert(name);
   assert(is_ready_for_async_request());
   assert(!request_prepared_statement_);
 
@@ -647,7 +632,6 @@ Connection::prepare_statement_async__(const char* const query, const char* const
     if (!send_ok)
       throw std::runtime_error{error_message()};
     request_prepared_statement_ = std::move(ps); // cannot throw
-    dismiss_response(); // cannot throw
   } catch (...) {
     requests_.pop(); // rollback
     throw;
@@ -673,14 +657,11 @@ DMITIGR_PGFE_INLINE Prepared_statement* Connection::ps(const std::string& name) 
 
 DMITIGR_PGFE_INLINE Prepared_statement* Connection::register_ps(Prepared_statement&& ps) const noexcept
 {
-  if (ps.name().empty()) {
-    unnamed_prepared_statement_ = std::move(ps);
-    return &unnamed_prepared_statement_;
-  } else {
+  if (!ps.name().empty()) {
     named_prepared_statements_.emplace_front();
-    named_prepared_statements_.front() = std::move(ps);
-    return &named_prepared_statements_.front();
-  }
+    return &(named_prepared_statements_.front() = std::move(ps));
+  } else
+    return &(unnamed_prepared_statement_ = std::move(ps));
 }
 
 DMITIGR_PGFE_INLINE void Connection::unregister_ps(const std::string& name) noexcept

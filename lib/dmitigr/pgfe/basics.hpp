@@ -124,26 +124,29 @@ enum class Communication_status {
 /**
  * @ingroup main
  *
- * @brief A transaction block status.
+ * @brief A transaction status.
  */
-enum class Transaction_block_status {
+enum class Transaction_status {
   /**
    * A next SQL command would be executed in implicitly
    * started transaction block and then implicitly committed.
    */
   unstarted = 0,
 
+  /// A SQL command is in progress.
+  active = 100,
+
   /**
    * A next SQL command would be executed in explicitly
    * started and not yet committed transaction block.
    */
-  uncommitted = 100,
+  uncommitted = 200,
 
   /**
    * A next SQL command would be rejected with an error
    * unless that command is a kind of `ROLLBACK`.
    */
-  failed = 200
+  failed = 300
 };
 
 // =============================================================================

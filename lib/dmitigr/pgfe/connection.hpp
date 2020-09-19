@@ -93,21 +93,20 @@ public:
   }
 
   /**
-   * @returns The last reported server transaction block status, or
-   * `std::nullopt` if unavailable.
+   * @returns The transaction status.
    *
-   * @see is_transaction_block_uncommitted().
+   * @see is_transaction_uncommitted().
    */
-  DMITIGR_PGFE_API std::optional<Transaction_block_status> transaction_block_status() const noexcept;
+  DMITIGR_PGFE_API std::optional<Transaction_status> transaction_status() const noexcept;
 
   /**
-   * @returns `(transaction_block_status() == Transaction_block_status::uncommitted`).
+   * @returns `(transaction_status() == Transaction_status::uncommitted`).
    *
-   * @see transaction_block_status().
+   * @see transaction_status().
    */
-  bool is_transaction_block_uncommitted() const noexcept
+  bool is_transaction_uncommitted() const noexcept
   {
-    return (transaction_block_status() == Transaction_block_status::uncommitted);
+    return (transaction_status() == Transaction_status::uncommitted);
   }
 
   /**
@@ -120,24 +119,19 @@ public:
   }
 
   /// @returns The connection options of this instance.
-  const Connection_options* options() const noexcept
+  const Connection_options& options() const noexcept
   {
-    return &options_;
+    return options_;
   }
 
   /**
-   * @returns The last reported identifier of the server process, or
-   * `std::nullopt` if unavailable.
+   * @returns The identifier of the server process.
    *
    * @see Notification::server_pid().
    */
-  std::optional<std::int_fast32_t> server_pid() const noexcept
+  std::int_fast32_t server_pid() const noexcept
   {
-    if (conn()) {
-      if (const int pid = ::PQbackendPID(conn()))
-        server_pid_ = pid;
-    }
-    return server_pid_;
+    return is_connected() ? ::PQbackendPID(conn()) : 0;
   }
 
   ///@}
@@ -148,8 +142,7 @@ public:
   /// @{
 
   /**
-   * @brief Establishing the connection to a PostgreSQL server without blocking
-   * on I/O.
+   * @brief Establishing the connection to a PostgreSQL server without blocking on I/O.
    *
    * This function should be called repeatedly. Until communication_status()
    * becomes Communication_status::connected or Communication_status::failure loop
@@ -266,7 +259,7 @@ public:
   }
 
   /**
-   * @brief Collects and queue the messages of all kinds which was sent by the server.
+   * @brief Attempts to collects the messages from the server.
    *
    * @returns The value of type Response_status.
    *
@@ -388,35 +381,23 @@ public:
    *
    * @see response().
    */
-  DMITIGR_PGFE_API void wait_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
+  DMITIGR_PGFE_API bool next_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
 
   /**
-   * @brief Similar to wait_response(), but throws Server_exception
+   * @brief Similar to next_response(), but throws Server_exception
    * if `(error() != std::nullopt)` after awaiting.
    */
-  void wait_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1})
+  bool next_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1})
   {
-    wait_response(timeout);
+    const bool result = next_response(timeout);
     throw_if_error();
+    return result;
   }
 
   /// @returns `true` if there is unhandled response available.
   bool has_response() const noexcept
   {
     return static_cast<bool>(response_);
-  }
-
-  /**
-   * @brief Dismissing the last available Response.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   *
-   * @remarks It's more efficienlty than error(), wait_row() or wait_completion().
-   */
-  void dismiss_response() noexcept
-  {
-    response_.reset();
   }
 
   /**
@@ -460,93 +441,63 @@ public:
    *
    * @remarks Useful only if using async API.
    */
-  Error error() noexcept
+  Error error() const noexcept
   {
     return (response_.status() == PGRES_FATAL_ERROR) ? Error{std::move(response_)} : Error{};
   }
 
   /**
-   * @brief Waits for next row.
-   *
-   * @returns The awaited Row, or invalid instance.
+   * @returns Row, or invalid instance.
    *
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see dismiss_response(), wait_completion().
+   * @see next_response(), completion().
    */
-  Row wait_row()
+  Row row() const noexcept
   {
-    wait_response_throw();
     return (response_.status() == PGRES_SINGLE_TUPLE) ? Row{std::move(response_), shared_field_names_} : Row{};
   }
 
   /**
-   * @returns {wait_row(), wait_completion()}.
+   * Waits for next Row and discards the following responses after that.
    *
-   * @see wait_row(), wait_completion()
-   */
-  std::pair<Row, Completion> wait_row_then_completion()
-  {
-    auto row = wait_row();
-    auto comp = wait_completion();
-    return {std::move(row), std::move(comp)};
-  }
-
-  /**
-   * @return Waits for next Row and discards the rows followed after that returned row.
+   * @returns The Row, or invalid instance.
    *
    * @par Effects
-   * Completion response are available (if not Error generated).
+   * `!has_response()`.
    *
    * @par Exception safety guarantee
    * Strong
    *
-   * @see wait_row(), dismiss_response().
+   * @see next_response().
    */
-  Row wait_row_then_discard()
+  Row next_row_then_discard()
   {
-    auto row = wait_row();
-    wait_completion();
-    return row;
+    next_response();
+    auto result = row();
+    while (next_response()) continue;
+    return result;
   }
 
   /**
-   * @brief Waits for Completion and throws Server_expection on Error. Skips the rows (if any).
-   *
-   * @returns The awaited Completion, or invalid instance.
-   *
-   * @param timeout - the value of `-1` means `options()->wait_completion_timeout()`,
-   * the value of `std::nullopt` means *eternity*.
-   *
-   * @throws An instance of type Timed_out if the expression `is_awaiting_response()`
-   * will not evaluates to `false` within the specified `timeout`.
-   *
-   * @par Requires
-   * `((!timeout || timeout->count() >= -1) && is_connected() && is_awaiting_response())`.
+   * @returns The Completion, or invalid instance.
    *
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks There is no necessity to handle Completion explicitly. It will be
-   * dismissed automatically when appropriate.
+   * @see next_response(), row().
    */
-  DMITIGR_PGFE_API Completion wait_completion(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
+  DMITIGR_PGFE_API Completion completion() const noexcept;
 
   /**
-   * @returns The pointer to the instance of type Prepared_statement if available.
+   * @returns The prepared statement, or `nullptr` if the last operation wasn't prepare.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    */
   Prepared_statement* prepared_statement() const noexcept
   {
-    Prepared_statement* result{};
-    if ((response_.status() == PGRES_COMMAND_OK) && (response_request_id_ == Request_id::prepare_statement)) {
-      result = register_ps(std::move(request_prepared_statement_));
-      assert(!request_prepared_statement_);
-      response_.reset();
-    }
-    return result;
+    return last_prepared_statement_;
   }
 
   /**
@@ -559,7 +510,7 @@ public:
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    *
-   * @see describe_prepared_statement(), describe_prepared_statement_async().
+   * @see describe_statement(), describe_statement_async().
    */
   Prepared_statement* prepared_statement(const std::string& name) const noexcept
   {
@@ -581,10 +532,8 @@ public:
    */
   bool is_ready_for_async_request() const noexcept
   {
-    return is_connected() && requests_.empty() && (!response_ || [s = response_.status()]
-    {
-      return s == PGRES_TUPLES_OK || s == PGRES_COMMAND_OK || s == PGRES_EMPTY_QUERY || s == PGRES_BAD_RESPONSE;
-    }());
+    const auto ts = transaction_status();
+    return ts && ts != Transaction_status::active;
   }
 
   /**
@@ -640,9 +589,9 @@ public:
    */
   void perform(const std::string& queries)
   {
+    // TODO: callback
     assert(is_ready_for_request());
     perform_async(queries);
-    wait_response_throw();
   }
 
   /**
@@ -740,12 +689,12 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see describe_prepared_statement().
+   * @see describe_statement().
    */
-  DMITIGR_PGFE_API void describe_prepared_statement_async(const std::string& name);
+  DMITIGR_PGFE_API void describe_statement_async(const std::string& name);
 
   /**
-   * @returns `(describe_prepared_statement_async(), wait_response_throw(), prepared_statement())`
+   * @returns `(describe_statement_async(), wait_response_throw(), prepared_statement())`
    *
    * @par Requires
    * `is_ready_for_request()`.
@@ -755,18 +704,18 @@ public:
    *
    * @see unprepare_statement().
    */
-  Prepared_statement* describe_prepared_statement(const std::string& name)
+  Prepared_statement* describe_statement(const std::string& name)
   {
+    // TODO: share implementation with prepare_statement__().
     assert(is_ready_for_request());
-    describe_prepared_statement_async(name);
-    wait_response_throw();
-    auto* p = ps(*request_prepared_statement_name_);
-    if (!p)
-      p = register_ps(Prepared_statement{std::move(*request_prepared_statement_name_),
-                                         this, static_cast<std::size_t>(response_.field_count())});
-    p->set_description(std::move(response_));
-    request_prepared_statement_name_.reset();
-    return p;
+    describe_statement_async(name);
+    next_response_throw();
+    auto* const result = prepared_statement();
+    assert(result);
+    next_response_throw();
+    assert(response_status_ == Response_status::empty);
+    assert(!last_prepared_statement_);
+    return result;
   }
 
   /**
@@ -804,11 +753,15 @@ public:
    * @par Exception safety guarantee
    * Basic.
    */
-  void unprepare_statement(const std::string& name)
+  Completion unprepare_statement(const std::string& name)
   {
     assert(is_ready_for_request());
     unprepare_statement_async(name);
-    wait_response_throw(); // Checking invariant.
+    next_response_throw();
+    auto result = completion();
+    next_response_throw();
+    assert(response_status_ == Response_status::empty);
+    return result;
   }
 
   /**
@@ -1070,8 +1023,10 @@ public:
   Container wait_rows()
   {
     Row_collector<Container> result;
-    while (auto&& r = wait_row())
-      result.collect(std::move(r));
+    while (next_response()) {
+      if (auto&& r = row())
+        result.collect(std::move(r));
+    }
     return result.container;
   }
 
@@ -1185,21 +1140,20 @@ private:
     perform = 1,
     execute,
     prepare_statement,
-    describe_prepared_statement,
+    describe_statement,
     unprepare_statement
   };
 
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
 
   mutable detail::pq::Result response_;
-  detail::pq::Result pending_response_;
-  mutable std::optional<Transaction_block_status> transaction_block_status_;
-  mutable std::optional<std::int_fast32_t> server_pid_;
-  mutable std::list<Prepared_statement> named_prepared_statements_;
-  mutable Prepared_statement unnamed_prepared_statement_;
+  Response_status response_status_{};
+  Prepared_statement* last_prepared_statement_{};
   std::shared_ptr<std::vector<std::string>> shared_field_names_;
 
-  Request_id response_request_id_;
+  mutable std::list<Prepared_statement> named_prepared_statements_;
+  mutable Prepared_statement unnamed_prepared_statement_;
+
   std::queue<Request_id> requests_; // for now only 1 request can be queued
   mutable Prepared_statement request_prepared_statement_;
   std::optional<std::string> request_prepared_statement_name_;
@@ -1228,10 +1182,16 @@ private:
   template<typename M, typename T>
   Prepared_statement* prepare_statement__(M&& prepare, T&& statement, const std::string& name)
   {
+    // TODO: share implementation with describe_statement().
     assert(is_ready_for_request());
     (this->*prepare)(std::forward<T>(statement), name);
-    wait_response_throw();
-    return prepared_statement();
+    next_response_throw();
+    auto* const result = prepared_statement();
+    assert(result);
+    next_response_throw();
+    assert(response_status_ == Response_status::empty);
+    assert(!last_prepared_statement_);
+    return result;
   }
 
   /*

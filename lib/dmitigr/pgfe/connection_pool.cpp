@@ -46,12 +46,9 @@ DMITIGR_PGFE_INLINE Connection_pool::Handle::Handle(Connection_pool* const pool,
 DMITIGR_PGFE_INLINE Connection_pool::Connection_pool(std::size_t count, const Connection_options& options)
   : release_handler_{[](Connection& conn)
   {
-    while (conn.is_awaiting_response()) {
-      conn.wait_response();
-      conn.dismiss_response();
-    }
+    while (conn.next_response()) continue;
     conn.perform("DISCARD ALL");
-    conn.wait_completion();
+    while (conn.next_response()) continue;
   }}
 {
   for (; count > 0; --count)

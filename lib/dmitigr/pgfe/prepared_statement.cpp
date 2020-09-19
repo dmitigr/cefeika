@@ -128,8 +128,6 @@ DMITIGR_PGFE_INLINE void Prepared_statement::execute_async()
     const auto set_ok = ::PQsetSingleRowMode(connection_->conn());
     if (!set_ok)
       throw std::runtime_error{"cannot switch to single-row mode"};
-
-    connection_->dismiss_response(); // cannot throw ---- WHY THIS IS HERE???
   } catch (...) {
     connection_->requests_.pop(); // rollback
     throw;
@@ -142,19 +140,18 @@ DMITIGR_PGFE_INLINE void Prepared_statement::execute()
 {
   assert(connection()->is_ready_for_request());
   execute_async();
-  connection_->wait_response_throw();
   assert(is_invariant_ok());
 }
 
 DMITIGR_PGFE_INLINE void Prepared_statement::describe_async()
 {
-  connection_->describe_prepared_statement_async(name_);
+  connection_->describe_statement_async(name_);
   assert(is_invariant_ok());
 }
 
 DMITIGR_PGFE_INLINE void Prepared_statement::describe()
 {
-  connection_->describe_prepared_statement(name_);
+  connection_->describe_statement(name_);
   assert(is_invariant_ok());
 }
 
