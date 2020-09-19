@@ -123,7 +123,7 @@ DMITIGR_PGFE_INLINE Connection_options&
 Connection_options::wait_response_timeout(std::optional<std::chrono::milliseconds> value)
 {
   if (value)
-    validate(is_non_negative(value->count()), "wait response timeout");
+    validate(is_non_negative(value->count()), "get response timeout");
   wait_response_timeout_ = std::move(value);
   assert(is_invariant_ok());
   return *this;

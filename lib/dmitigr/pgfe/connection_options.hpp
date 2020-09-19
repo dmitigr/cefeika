@@ -74,7 +74,7 @@ public:
   }
 
   /**
-   * @brief Sets the timeout of the wait response operation.
+   * @brief Sets the timeout of the get response operation.
    *
    * @param value - the value of `std::nullopt` means *eternity*.
    *
@@ -83,7 +83,7 @@ public:
   DMITIGR_PGFE_API Connection_options& wait_response_timeout(std::optional<std::chrono::milliseconds> value);
 
   /**
-   * @returns The current value of the wait response timeout.
+   * @returns The current value of the get response timeout.
    *
    * @see Connection::wait_response().
    */
@@ -544,7 +544,6 @@ private:
   Communication_mode communication_mode_;
   std::optional<std::chrono::milliseconds> connect_timeout_;
   std::optional<std::chrono::milliseconds> wait_response_timeout_;
-  std::optional<std::chrono::milliseconds> wait_completion_timeout_;
 #ifndef _WIN32
   std::filesystem::path uds_directory_;
   std::optional<std::string> uds_require_server_process_username_;

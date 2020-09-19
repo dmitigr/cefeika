@@ -228,7 +228,7 @@ DMITIGR_PGFE_INLINE Socket_readiness Connection::socket_readiness(const Socket_r
  * "PQgetResult() must be called repeatedly until it returns a null pointer,
  * indicating that the command is done."
  */
-DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait_response)
+DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_response)
 {
   assert(is_connected());
 
@@ -344,7 +344,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
   return response_status_;
 }
 
-DMITIGR_PGFE_INLINE bool Connection::get_response(std::optional<std::chrono::milliseconds> timeout)
+DMITIGR_PGFE_INLINE bool Connection::wait_response(std::optional<std::chrono::milliseconds> timeout)
 {
   using std::chrono::system_clock;
   using std::chrono::milliseconds;
@@ -358,7 +358,7 @@ DMITIGR_PGFE_INLINE bool Connection::get_response(std::optional<std::chrono::mil
     timeout = options().wait_response_timeout();
 
   while (true) {
-    const auto s = collect_messages(!timeout);
+    const auto s = handle_input(!timeout);
     if (s == Response_status::unready) {
       assert(timeout);
 

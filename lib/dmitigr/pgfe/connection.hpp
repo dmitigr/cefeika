@@ -236,21 +236,14 @@ public:
    */
   DMITIGR_PGFE_API Socket_readiness socket_readiness(Socket_readiness mask) const;
 
-  ///@}
-
-  // ---------------------------------------------------------------------------
-
-  /// @name Messages
-  /// @{
-
   /**
    * @brief If input is available from the server, read it.
    *
    * This function should be called every time when the value returned by
-   * collect_messages() is Response_status::unready and the socket is in
+   * handle_input() is Response_status::unready and the socket is in
    * read-ready state.
    *
-   * @see collect_messages(), socket_readiness().
+   * @see handle_input(), socket_readiness().
    */
   void read_input()
   {
@@ -259,7 +252,9 @@ public:
   }
 
   /**
-   * @brief Attempts to collects the messages from the server.
+   * @brief Attempts to handle the input from the server.
+   *
+   * For every parsed notice or notification calls the corresponding handler.
    *
    * @returns The value of type Response_status.
    *
@@ -277,7 +272,7 @@ public:
    *
    * @see read_input().
    */
-  DMITIGR_PGFE_API Response_status collect_messages(bool wait_response = false);
+  DMITIGR_PGFE_API Response_status handle_input(bool wait_response = false);
 
   /// @}
 
@@ -362,7 +357,7 @@ public:
   }
 
   /**
-   * @brief Gets the next Response overwriting the current one.
+   * @brief Waits the next Response overwriting the current one.
    *
    * @returns has_response().
    *
@@ -381,19 +376,19 @@ public:
    * @remarks All signals retrieved upon waiting the Response will be handled
    * by signals handlers being set.
    *
-   * @see get_response_throw().
+   * @see wait_response_throw().
    */
-  DMITIGR_PGFE_API bool get_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
+  DMITIGR_PGFE_API bool wait_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
 
   /**
-   * @brief Similar to get_response(), but throws Server_exception
+   * @brief Similar to wait_response(), but throws Server_exception
    * if `(error() != std::nullopt)` after awaiting.
    *
-   * @see get_response().
+   * @see wait_response().
    */
-  bool get_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1})
+  bool wait_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1})
   {
-    const bool result = get_response(timeout);
+    const bool result = wait_response(timeout);
     throw_if_error();
     return result;
   }
@@ -456,7 +451,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see get_response(), completion().
+   * @see wait_response(), completion().
    */
   Row row() const noexcept
   {
@@ -464,7 +459,7 @@ public:
   }
 
   /**
-   * Gets the next Row and discards the following responses after that.
+   * Wait the next Row and discards the following responses after that.
    *
    * @returns The Row, or invalid instance.
    *
@@ -476,11 +471,11 @@ public:
    *
    * @see next_response().
    */
-  Row get_row_then_discard()
+  Row wait_row_then_discard()
   {
-    get_response_throw();
+    wait_response_throw();
     auto result = row();
-    while (get_response_throw()) continue;
+    while (wait_response_throw()) continue;
     return result;
   }
 
@@ -490,7 +485,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see get_response(), row().
+   * @see wait_response(), row().
    */
   DMITIGR_PGFE_API Completion completion() const noexcept;
 
@@ -610,7 +605,7 @@ public:
    * @par Effects
    * - `is_awaiting_response()` - just after the successful request submission;
    * - `(prepared_statement(name) != nullptr && prepared_statement(name)->is_preparsed())` - just
-   * after the successful response collection.
+   * after the successful response.
    *
    * @par Requires
    * `(statement && !statement->has_missing_parameters() && is_ready_for_async_request())`.
@@ -685,7 +680,7 @@ public:
    * @par Effects
    * - `is_awaiting_response()` - just after the successful request submission;
    * - `(prepared_statement(name) != nullptr && prepared_statement(name)->is_described())` - just
-   * after the successful response collection.
+   * after the successful response.
    *
    * @par Requires
    * `is_ready_for_async_request()`.
@@ -713,10 +708,10 @@ public:
     // TODO: share implementation with prepare_statement__().
     assert(is_ready_for_request());
     describe_statement_async(name);
-    get_response_throw();
+    wait_response_throw();
     auto* const result = prepared_statement();
     assert(result);
-    get_response_throw();
+    wait_response_throw();
     assert(response_status_ == Response_status::empty);
     assert(!last_prepared_statement_);
     return result;
@@ -733,7 +728,7 @@ public:
    *
    * @par Effects
    * - `is_awaiting_response()` - just after the successful request submission;
-   * - `(prepared_statement(name) == nullptr)` - just after the successful response collection.
+   * - `(prepared_statement(name) == nullptr)` - just after the successful response.
    *
    * @par Requires
    * `(is_ready_for_async_request() && !name.empty())`.
@@ -761,9 +756,9 @@ public:
   {
     assert(is_ready_for_request());
     unprepare_statement_async(name);
-    get_response_throw();
+    wait_response_throw();
     auto result = completion();
-    get_response_throw();
+    wait_response_throw();
     assert(response_status_ == Response_status::empty);
     return result;
   }
@@ -1027,7 +1022,7 @@ public:
   Container wait_rows()
   {
     Row_collector<Container> result;
-    while (get_response_throw()) {
+    while (wait_response_throw()) {
       if (auto&& r = row())
         result.collect(std::move(r));
     }
@@ -1189,10 +1184,10 @@ private:
     // TODO: share implementation with describe_statement().
     assert(is_ready_for_request());
     (this->*prepare)(std::forward<T>(statement), name);
-    get_response_throw();
+    wait_response_throw();
     auto* const result = prepared_statement();
     assert(result);
-    get_response_throw();
+    wait_response_throw();
     assert(response_status_ == Response_status::empty);
     assert(!last_prepared_statement_);
     return result;
