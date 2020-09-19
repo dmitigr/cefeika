@@ -232,6 +232,15 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
 {
   assert(is_connected());
 
+  const auto handle_single_tuple = [this]
+  {
+    assert(response_status_ == Response_status::ready);
+    assert(response_.status() == PGRES_SINGLE_TUPLE);
+    assert(requests_.front() == Request_id::perform || requests_.front() == Request_id::execute);
+    if (!shared_field_names_)
+      shared_field_names_ = Row_info::make_shared_field_names(response_);
+  };
+
   if (wait_response) {
     if (response_status_ == Response_status::unready) {
     complete_response:
@@ -239,9 +248,11 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
       response_status_ = Response_status::ready;
     } else {
       response_.reset(::PQgetResult(conn()));
-      if (response_.status() == PGRES_SINGLE_TUPLE)
+      if (response_.status() == PGRES_SINGLE_TUPLE) {
         response_status_ = Response_status::ready;
-      else if (response_.status() == PGRES_FATAL_ERROR || response_.status() == PGRES_TUPLES_OK)
+        handle_single_tuple();
+        goto handle_notifications;
+      } else if (response_.status() == PGRES_FATAL_ERROR || response_.status() == PGRES_TUPLES_OK)
         goto complete_response;
       else if (response_)
         response_status_ = Response_status::ready;
@@ -276,6 +287,8 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
         response_.reset(::PQgetResult(conn()));
         if (response_.status() == PGRES_SINGLE_TUPLE) {
           response_status_ = Response_status::ready;
+          handle_single_tuple();
+          goto handle_notifications;
         } else if (response_.status() == PGRES_FATAL_ERROR || response_.status() == PGRES_TUPLES_OK) {
           response_status_ = Response_status::unready;
           goto try_complete_response;
@@ -287,26 +300,13 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
     }
   }
 
-  /*
-   * Handling notifications
-   * Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
-   */
-  if (notification_handler_) {
-    while (auto* const n = ::PQnotifies(conn()))
-      notification_handler_(Notification{n});
-  }
-
   // Preprocessing the response_.
   if (response_status_ == Response_status::ready) {
     const auto rstatus = response_.status();
     assert(rstatus != PGRES_NONFATAL_ERROR);
+    assert(rstatus != PGRES_SINGLE_TUPLE);
     const auto req_id = requests_.front();
-
-    if (rstatus == PGRES_SINGLE_TUPLE) {
-      assert(req_id == Request_id::perform || req_id == Request_id::execute);
-      if (!shared_field_names_)
-        shared_field_names_ = Row_info::make_shared_field_names(response_);
-    } else if (rstatus == PGRES_TUPLES_OK) {
+    if (rstatus == PGRES_TUPLES_OK) {
       assert(req_id == Request_id::perform || req_id == Request_id::execute);
       shared_field_names_.reset();
     } else if (rstatus == PGRES_FATAL_ERROR) {
@@ -338,6 +338,19 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
     if (!requests_.empty())
       requests_.pop();
     last_prepared_statement_ = {};
+  }
+
+ handle_notifications:
+  try {
+    // Note: notifications are collected by libpq from ::PQisBusy() and ::PQgetResult().
+    if (notification_handler_) {
+      while (auto* const n = ::PQnotifies(conn()))
+        notification_handler_(Notification{n});
+    }
+  } catch (const std::exception& e) {
+    std::fprintf(stderr, "Notification handler thrown: %s\n", e.what());
+  } catch (...) {
+    std::fprintf(stderr, "Notification handler thrown unknown error\n");
   }
 
   assert(is_invariant_ok());
