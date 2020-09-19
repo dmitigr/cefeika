@@ -92,25 +92,6 @@ public:
     return wait_response_timeout_;
   }
 
-  /**
-   * @brief Sets the timeout of the wait completion operation.
-   *
-   * @param value - the value of `std::nullopt` means *eternity*.
-   *
-   * @see Connection::wait_completion().
-   */
-  DMITIGR_PGFE_API Connection_options& wait_completion_timeout(std::optional<std::chrono::milliseconds> value);
-
-  /**
-   * @returns The current value of the wait completion timeout.
-   *
-   * @see Connection::wait_completion().
-   */
-  std::optional<std::chrono::milliseconds> wait_completion_timeout() const noexcept
-  {
-    return wait_completion_timeout_;
-  }
-
   // ---------------------------------------------------------------------------
 
   /**

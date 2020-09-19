@@ -59,16 +59,6 @@ int main(int, char* argv[])
       ASSERT(is_runtime_throw_works([&]{ co.wait_response_timeout(invalid_value); }));
     }
 
-    ASSERT(co.wait_completion_timeout() == defaults::wait_completion_timeout);
-    {
-      ms valid_value{};
-      co.wait_completion_timeout(valid_value);
-      ASSERT(co.wait_completion_timeout() == valid_value);
-
-      ms invalid_value{-1};
-      ASSERT(is_runtime_throw_works([&]{ co.wait_completion_timeout(invalid_value); }));
-    }
-
 #ifndef _WIN32
     ASSERT(co.uds_directory() == defaults::uds_directory);
     {

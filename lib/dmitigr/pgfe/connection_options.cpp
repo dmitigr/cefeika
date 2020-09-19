@@ -72,7 +72,6 @@ DMITIGR_PGFE_INLINE Connection_options::Connection_options(const Communication_m
   : communication_mode_{communication_mode}
   , connect_timeout_{detail::defaults::connect_timeout}
   , wait_response_timeout_{detail::defaults::wait_response_timeout}
-  , wait_completion_timeout_{detail::defaults::wait_completion_timeout}
 #ifndef _WIN32
   , uds_directory_{detail::defaults::uds_directory}
   , uds_require_server_process_username_{detail::defaults::uds_require_server_process_username}
@@ -126,16 +125,6 @@ Connection_options::wait_response_timeout(std::optional<std::chrono::millisecond
   if (value)
     validate(is_non_negative(value->count()), "wait response timeout");
   wait_response_timeout_ = std::move(value);
-  assert(is_invariant_ok());
-  return *this;
-}
-
-DMITIGR_PGFE_INLINE Connection_options&
-Connection_options::wait_completion_timeout(std::optional<std::chrono::milliseconds> value)
-{
-  if (value)
-    validate(is_non_negative(value->count()), "wait last response timeout");
-  wait_completion_timeout_ = std::move(value);
   assert(is_invariant_ok());
   return *this;
 }
