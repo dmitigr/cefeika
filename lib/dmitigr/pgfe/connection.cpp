@@ -360,11 +360,12 @@ DMITIGR_PGFE_INLINE bool Connection::next_response(std::optional<std::chrono::mi
   while (true) {
     const auto s = collect_messages(!timeout);
     if (s == Response_status::unready) {
+      assert(timeout);
+
       const auto moment_of_wait = system_clock::now();
-      if (wait_socket_readiness(Socket_readiness::read_ready, timeout) == Socket_readiness::read_ready) {
-        if (timeout)
-          *timeout -= duration_cast<milliseconds>(system_clock::now() - moment_of_wait);
-      } else // timeout expired
+      if (wait_socket_readiness(Socket_readiness::read_ready, timeout) == Socket_readiness::read_ready)
+        *timeout -= duration_cast<milliseconds>(system_clock::now() - moment_of_wait);
+      else // timeout expired
         throw Timed_out{"wait response timeout expired"};
 
       read_input();
