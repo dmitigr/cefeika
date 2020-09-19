@@ -64,7 +64,7 @@ void test_pgfe()
       .password("pgfe_test").database("pgfe_test").connect_timeout(std::chrono::seconds{7})};
   conn.connect();
   conn.perform(query);
-  while (conn.next_response()) {
+  while (conn.get_response()) {
     if (auto r = conn.row())
       r.data();
   }

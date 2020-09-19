@@ -362,15 +362,17 @@ public:
   }
 
   /**
-   * @brief Waits a some kind of the Response if it is unavailable and awaited.
+   * @brief Gets the next Response overwriting the current one.
    *
-   * @param timeout - the value of `-1` means `options()->wait_response_timeout()`,
+   * @returns has_response().
+   *
+   * @param timeout The value of `-1` means `options().wait_response_timeout()`;
    * the value of `std::nullopt` means *eternity*.
    *
    * @par Requires
-   * `((!timeout || timeout->count() >= -1) && is_connected() && is_awaiting_response())`.
+   * `(!timeout || timeout->count() >= -1)`.
    *
-   * @throws An instance of type Timed_out if the expression `response()`
+   * @throws An instance of type Timed_out if the expression `has_response()`
    * will not evaluates to `true` within the specified `timeout`.
    *
    * @par Exception safety guarantee
@@ -379,25 +381,27 @@ public:
    * @remarks All signals retrieved upon waiting the Response will be handled
    * by signals handlers being set.
    *
-   * @see response().
+   * @see get_response_throw().
    */
-  DMITIGR_PGFE_API bool next_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
+  DMITIGR_PGFE_API bool get_response(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
 
   /**
-   * @brief Similar to next_response(), but throws Server_exception
+   * @brief Similar to get_response(), but throws Server_exception
    * if `(error() != std::nullopt)` after awaiting.
+   *
+   * @see get_response().
    */
-  bool next_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1})
+  bool get_response_throw(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1})
   {
-    const bool result = next_response(timeout);
+    const bool result = get_response(timeout);
     throw_if_error();
     return result;
   }
 
-  /// @returns `true` if there is unhandled response available.
+  /// @returns `true` if there is ready response available.
   bool has_response() const noexcept
   {
-    return static_cast<bool>(response_);
+    return static_cast<bool>(response_) && (response_status_ == Response_status::ready);
   }
 
   /**
@@ -452,7 +456,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see next_response(), completion().
+   * @see get_response(), completion().
    */
   Row row() const noexcept
   {
@@ -460,7 +464,7 @@ public:
   }
 
   /**
-   * Waits for next Row and discards the following responses after that.
+   * Gets the next Row and discards the following responses after that.
    *
    * @returns The Row, or invalid instance.
    *
@@ -472,11 +476,11 @@ public:
    *
    * @see next_response().
    */
-  Row next_row_then_discard()
+  Row get_row_then_discard()
   {
-    next_response();
+    get_response_throw();
     auto result = row();
-    while (next_response()) continue;
+    while (get_response_throw()) continue;
     return result;
   }
 
@@ -486,7 +490,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @see next_response(), row().
+   * @see get_response(), row().
    */
   DMITIGR_PGFE_API Completion completion() const noexcept;
 
@@ -709,10 +713,10 @@ public:
     // TODO: share implementation with prepare_statement__().
     assert(is_ready_for_request());
     describe_statement_async(name);
-    next_response_throw();
+    get_response_throw();
     auto* const result = prepared_statement();
     assert(result);
-    next_response_throw();
+    get_response_throw();
     assert(response_status_ == Response_status::empty);
     assert(!last_prepared_statement_);
     return result;
@@ -757,9 +761,9 @@ public:
   {
     assert(is_ready_for_request());
     unprepare_statement_async(name);
-    next_response_throw();
+    get_response_throw();
     auto result = completion();
-    next_response_throw();
+    get_response_throw();
     assert(response_status_ == Response_status::empty);
     return result;
   }
@@ -1023,7 +1027,7 @@ public:
   Container wait_rows()
   {
     Row_collector<Container> result;
-    while (next_response()) {
+    while (get_response_throw()) {
       if (auto&& r = row())
         result.collect(std::move(r));
     }
@@ -1185,10 +1189,10 @@ private:
     // TODO: share implementation with describe_statement().
     assert(is_ready_for_request());
     (this->*prepare)(std::forward<T>(statement), name);
-    next_response_throw();
+    get_response_throw();
     auto* const result = prepared_statement();
     assert(result);
-    next_response_throw();
+    get_response_throw();
     assert(response_status_ == Response_status::empty);
     assert(!last_prepared_statement_);
     return result;

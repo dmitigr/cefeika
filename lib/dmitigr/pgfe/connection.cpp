@@ -344,7 +344,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::collect_messages(const bool wait
   return response_status_;
 }
 
-DMITIGR_PGFE_INLINE bool Connection::next_response(std::optional<std::chrono::milliseconds> timeout)
+DMITIGR_PGFE_INLINE bool Connection::get_response(std::optional<std::chrono::milliseconds> timeout)
 {
   using std::chrono::system_clock;
   using std::chrono::milliseconds;
@@ -354,7 +354,7 @@ DMITIGR_PGFE_INLINE bool Connection::next_response(std::optional<std::chrono::mi
     return false;
 
   assert(!timeout || timeout >= milliseconds{-1});
-  if (timeout == milliseconds{-1})
+  if (timeout < milliseconds::zero()) // even if timeout < -1
     timeout = options().wait_response_timeout();
 
   while (true) {

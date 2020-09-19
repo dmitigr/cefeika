@@ -21,7 +21,7 @@ int main() try {
 
   // Executing query with positional parameters.
   conn.execute("select generate_series($1::int, $2::int)", 1, 3);
-  while (conn.next_response()) {
+  while (conn.get_response()) {
     if (const auto r = conn.row())
       std::printf("Number %i\n", to<int>(r.data()));
   }
@@ -31,17 +31,17 @@ int main() try {
   ps->set_parameter("begin", 0);
   ps->set_parameter("end", 1);
   ps->execute();
-  auto r = ps->connection()->next_row_then_discard();
+  auto r = ps->connection()->get_row_then_discard();
   std::printf("Range [%i, %i]\n", to<int>(r.data("b")), to<int>(r.data("e")));
 
   // Invoking the function.
   conn.invoke("cos", .5f);
-  r = conn.next_row_then_discard();
+  r = conn.get_row_then_discard();
   std::printf("cos(%f) = %f\n", .5f, to<float>(r.data()));
 
   // Provoking the syntax error.
   conn.perform("provoke syntax error");
-  conn.next_response_throw();
+  conn.get_response_throw();
  } catch (const pgfe::c42_Syntax_error& e) {
   std::printf("Error %s is handled as expected.\n", e.error()->sqlstate());
  } catch (const std::exception& e) {
