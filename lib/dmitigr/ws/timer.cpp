@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/timer.hpp"
-#include <dmitigr/base/debug.hpp>
 
 #include <libusockets.h>
 #include <uv.h> // instead of <internal/eventing/libuv.h>
 
+#include <cassert>
 #include <limits>
 #include <memory>
 
@@ -56,21 +56,21 @@ public:
 
   iTimer& set_handler(Handler handler) override
   {
-    DMITIGR_REQUIRE(handler, std::invalid_argument);
+    assert(handler);
     handler_ = std::move(handler);
     return *this;
   }
 
   void start(const std::chrono::milliseconds timeout, const std::chrono::milliseconds repeat) override
   {
-    DMITIGR_REQUIRE(0 < timeout.count() && timeout.count() <= std::numeric_limits<int>::max(), std::invalid_argument);
-    DMITIGR_REQUIRE(0 <= repeat.count() && repeat.count() <= std::numeric_limits<int>::max(), std::invalid_argument);
+    assert(0 < timeout.count() && timeout.count() <= std::numeric_limits<int>::max());
+    assert(0 <= repeat.count() && repeat.count() <= std::numeric_limits<int>::max());
 
     auto** const ext = ext__(rep_.get());
-    DMITIGR_ASSERT(ext);
+    assert(ext);
     auto* const self = *ext;
-    DMITIGR_ASSERT(self == this);
-    DMITIGR_ASSERT(self->handler_);
+    assert(self == this);
+    assert(self->handler_);
 
     us_timer_set(rep_.get(), &cb__, static_cast<int>(timeout.count()), static_cast<int>(repeat.count()));
   }
@@ -93,17 +93,17 @@ private:
 
   static void cb__(us_timer_t* const timer)
   {
-    DMITIGR_ASSERT(timer);
+    assert(timer);
     auto** const ext = ext__(timer);
     auto* const self = *ext;
-    DMITIGR_ASSERT(self);
-    DMITIGR_ASSERT(self->handler_);
+    assert(self);
+    assert(self->handler_);
     self->handler_();
   }
 
   static iTimer** ext__(us_timer_t* const timer)
   {
-    DMITIGR_ASSERT(timer);
+    assert(timer);
     return static_cast<iTimer**>(us_timer_ext(timer));
   }
 };

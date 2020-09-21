@@ -3,9 +3,10 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/http_request.hpp"
-#include <dmitigr/base/debug.hpp>
 
 #include <uwebsockets/HttpParser.h>
+
+#include <cassert>
 
 namespace dmitigr::ws::detail {
 
@@ -19,7 +20,7 @@ public:
     , remote_ip_{net::Ip_address::from_binary(remote_ip_address_binary)}
     , local_ip_{net::Ip_address::from_binary(local_ip_address_binary)}
   {
-    DMITIGR_ASSERT(rep_);
+    assert(rep_);
   }
 
   const net::Ip_address& remote_ip_address() const override

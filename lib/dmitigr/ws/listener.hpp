@@ -116,8 +116,6 @@ public:
    *
    * @par Requires
    * `(pos < timer_count())`.
-   *
-   * @throws std::out_of_range.
    */
   DMITIGR_WS_API Timer& timer(std::size_t pos) const;
 
@@ -126,8 +124,6 @@ public:
    *
    * @par Requires
    * `(pos < timer_count())`.
-   *
-   * @throws std::out_of_range.
    */
   DMITIGR_WS_API const std::string& timer_name(std::size_t pos) const;
 
@@ -154,17 +150,17 @@ private:
    * the abort handler must be set on this object.
    *
    * @par Postconditions
-   * For any handshake completion:
-   * `io->is_valid()`.
-   *
-   * For implicit handshake completion:
-   * `!io->is_response_handler_set()`.
+   *   -# For any handshake completion: `io->is_valid()`.
+   *   -# For implicit handshake completion: `!io->is_response_handler_set()`.
    *
    * @returns The result may be:
    *   - `nullptr` to reject the handshake implicitly or to denote the explicit
    *   (either deferred or not) rejection of a handshake;
    *   - a new Connection instance to complete handshake implicitly or to defer
    *   the handshake (for either rejection or completion).
+   *
+   * @throws `std::runtime_error` if postcondition 1 is violated.
+   * @throws `std::logic_error` if postcondition 2 is violated.
    *
    * @remarks The behaviour is undefined if `io` has been used for sending any
    * data from within this function in cases of implicit rejection or completion
