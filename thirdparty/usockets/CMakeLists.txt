@@ -22,15 +22,18 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
 endif()
 
 set(usockets_sources
+  src/bsd.c
   src/context.c
   src/loop.c
   src/socket.c
   src/socket_dmitigr.c
   src/eventing/libuv.c
   src/internal/internal.h
+  src/internal/internal_dmitigr.h
   src/internal/loop_data.h
   src/internal/eventing/libuv.h
   src/internal/networking/bsd.h
+  src/internal/networking/bsd_dmitigr.h
   )
 if (DMITIGR_CEFEIKA_WITH_OPENSSL)
   list(APPEND usockets_sources src/crypto/openssl.c)
