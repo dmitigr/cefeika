@@ -24,6 +24,7 @@
 #include "HttpContextData.h"
 #include "HttpResponseData.h"
 #include "AsyncSocket.h"
+#include "WebSocketData.h"
 
 #include <string_view>
 #include <iostream>
@@ -78,7 +79,7 @@ private:
         });
 
         /* Handle socket disconnections */
-        us_socket_context_on_close(SSL, getSocketContext(), [](us_socket_t *s) {
+        us_socket_context_on_close(SSL, getSocketContext(), [](us_socket_t *s, int code, void *reason) {
             /* Get socket ext */
             HttpResponseData<SSL> *httpResponseData = (HttpResponseData<SSL> *) us_socket_ext(SSL, s);
 
@@ -143,7 +144,7 @@ private:
 
                 /* Are we not ready for another request yet? Terminate the connection. */
                 if (httpResponseData->state & HttpResponseData<SSL>::HTTP_RESPONSE_PENDING) {
-                    us_socket_close(SSL, (us_socket_t *) s);
+                    us_socket_close(SSL, (us_socket_t *) s, 0, nullptr);
                     return nullptr;
                 }
 
@@ -154,7 +155,7 @@ private:
                 httpContextData->router.getUserData() = {(HttpResponse<SSL> *) s, httpRequest};
                 if (!httpContextData->router.route(httpRequest->getMethod(), httpRequest->getUrl())) {
                     /* We have to force close this socket as we have no handler for it */
-                    us_socket_close(SSL, (us_socket_t *) s);
+                    us_socket_close(SSL, (us_socket_t *) s, 0, nullptr);
                     return nullptr;
                 }
 
@@ -224,7 +225,7 @@ private:
                 return user;
             }, [](void *user) {
                  /* Close any socket on HTTP errors */
-                us_socket_close(SSL, (us_socket_t *) user);
+                us_socket_close(SSL, (us_socket_t *) user, 0, nullptr);
                 return nullptr;
             });
 
@@ -250,7 +251,16 @@ private:
                 AsyncSocket<SSL> *asyncSocket = (AsyncSocket<SSL> *) httpContextData->upgradedWebSocket;
 
                 /* Uncork here as well (note: what if we failed to uncork and we then pub/sub before we even upgraded?) */
-                /*auto [written, failed] = */asyncSocket->uncork();
+                auto [written, failed] = asyncSocket->uncork();
+
+                /* If we succeeded in uncorking, check if we have sent WebSocket FIN */
+                if (!failed) {
+                    WebSocketData *webSocketData = (WebSocketData *) asyncSocket->getAsyncSocketData();
+                    if (webSocketData->isShuttingDown) {
+                        /* In that case, also send TCP FIN (this is similar to what we have in ws drain handler) */
+                        asyncSocket->shutdown();
+                    }
+                }
 
                 /* Reset upgradedWebSocket before we return */
                 httpContextData->upgradedWebSocket = nullptr;

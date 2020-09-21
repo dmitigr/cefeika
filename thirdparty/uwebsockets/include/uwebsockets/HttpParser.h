@@ -211,6 +211,7 @@ private:
             req->headers->value = std::string_view(req->headers->value.data(), std::max<int>(0, (int) req->headers->value.length() - 9));
 
             /* Add all headers to bloom filter */
+            req->bf.reset();
             for (HttpRequest::Header *h = req->headers; (++h)->key.length(); ) {
                 req->bf.add(h->key);
             }
@@ -258,6 +259,8 @@ private:
 public:
     void *consumePostPadded(char *data, int length, void *user, void *reserved, fu2::unique_function<void *(void *, HttpRequest *)> &&requestHandler, fu2::unique_function<void *(void *, std::string_view, bool)> &&dataHandler, fu2::unique_function<void *(void *)> &&errorHandler) {
 
+        /* This resets BloomFilter by construction, but later we also reset it again.
+         * Optimize this to skip resetting twice (req could be made global) */
         HttpRequest req;
 
         if (remainingStreamingBytes) {

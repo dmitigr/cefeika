@@ -35,6 +35,11 @@ struct AsyncSocket {
     friend struct TopicTree;
 
 protected:
+    /* Returns SSL pointer or FD as pointer */
+    void *getNativeHandle() {
+        return us_socket_get_native_handle(SSL, (us_socket_t *) this);
+    }
+
     /* Get loop data for socket */
     LoopData *getLoopData() {
         return (LoopData *) us_loop_ext(us_socket_context_loop(SSL, us_socket_context(SSL, (us_socket_t *) this)));
@@ -57,7 +62,7 @@ protected:
 
     /* Immediately close socket */
     us_socket_t *close() {
-        return us_socket_close(SSL, (us_socket_t *) this);
+        return us_socket_close(SSL, (us_socket_t *) this, 0, nullptr);
     }
 
     /* Cork this socket. Only one socket may ever be corked per-loop at any given time */
@@ -91,8 +96,8 @@ protected:
     }
 
     /* Returns the user space backpressure. */
-    int getBufferedAmount() {
-        return (int) getAsyncSocketData()->buffer.size();
+    unsigned int getBufferedAmount() {
+        return (unsigned int) getAsyncSocketData()->buffer.size();
     }
 
     /* Returns the text representation of an IPv4 or IPv6 address */
