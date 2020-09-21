@@ -14,6 +14,7 @@
 #include "libusockets_dmitigr.h"
 #include "internal/internal_dmitigr.h"
 #include <stdlib.h>
+#include <string.h>
 
 void us_socket_local_address(int ssl, struct us_socket_t *s, char *buf, int *length) {
     struct bsd_addr_t addr;
