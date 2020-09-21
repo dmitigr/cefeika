@@ -165,6 +165,31 @@ constexpr double avg(const Container& data)
 }
 
 /**
+ * @returns A dispersion of values.
+ *
+ * @param data Input data
+ * @param avg An average of `data`
+ */
+template<class Container, typename A>
+constexpr double dispersion(const Container& data, const A avg)
+{
+  double result{};
+  const auto data_size = data.size();
+  for (const double num : data) {
+    const double d = num - avg;
+    result += (d * d) / static_cast<double>(data_size);
+  }
+  return result;
+}
+
+/// @overload
+template<class Container>
+constexpr double dispersion(const Container& data)
+{
+  return dispersion(data, avg(data));
+}
+
+/**
  * @returns `true` if `number` is a power of 2, or `false` otherwise.
  */
 template<typename T>
