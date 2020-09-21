@@ -44,7 +44,6 @@ public:
 
   virtual std::size_t timer_count() const = 0;
   virtual std::optional<std::size_t> timer_index(std::string_view name) const = 0;
-  virtual std::size_t timer_index_throw(std::string_view name) const = 0;
   virtual iTimer& add_timer(std::string name) = 0;
   virtual void remove_timer(std::string_view name) = 0;
   virtual iTimer* timer(std::string_view name) const = 0;
@@ -338,14 +337,6 @@ public:
     return (i != e) ? std::make_optional(i - b) : std::nullopt;
   }
 
-  std::size_t timer_index_throw(const std::string_view name) const override
-  {
-    const auto result = timer_index(name);
-    DMITIGR_REQUIRE(result, std::out_of_range,
-      "dmitigr::ws::Listener: no timer \"" + std::string{name} + "\"");
-    return *result;
-  }
-
   iTimer& add_timer(std::string name) override
   {
     DMITIGR_ASSERT(loop_);
@@ -455,11 +446,6 @@ DMITIGR_WS_INLINE std::size_t Listener::timer_count() const
 DMITIGR_WS_INLINE std::optional<std::size_t> Listener::timer_index(const std::string_view name) const
 {
   return rep_->timer_index(name);
-}
-
-DMITIGR_WS_INLINE std::size_t Listener::timer_index_throw(const std::string_view name) const
-{
-  return rep_->timer_index_throw(name);
 }
 
 DMITIGR_WS_INLINE Timer& Listener::add_timer(std::string name)

@@ -116,13 +116,6 @@ public:
   DMITIGR_WS_API std::optional<std::size_t> timer_index(std::string_view name) const;
 
   /**
-   * @returns The timer index if it has been added.
-   *
-   * @throws std::out_of_range.
-   */
-  DMITIGR_WS_API std::size_t timer_index_throw(std::string_view name) const;
-
-  /**
    * @brief Creates the timer associated with the specified `name`.
    *
    * @returns The reference to the created timer.
