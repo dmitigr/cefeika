@@ -111,14 +111,14 @@ public:
         Ws_data data{listener_->handle_handshake(request, io)};
         if (data.conn) {
           if (!io->is_valid())
-            throw std::runtime_error{"invalid dmitigr::ws::Http_io"};
+            throw std::runtime_error{"invalid instance of dmitigr::ws::Http_io"};
           const auto sec_ws_key = request.header("sec-websocket-key");
           const auto sec_ws_protocol = request.header("sec-websocket-protocol");
           const auto sec_ws_extensions = request.header("sec-websocket-extensions");
-          if (!io->is_abort_handler_set())
+          if (!io->is_abort_handler_set()) {
             if (io->is_response_handler_set())
-              throw std::logic_error{"dmitigr::ws::Http_io must not have response"
-                " handler in case of implicit handshake completion"};
+              throw std::logic_error{"attempt to complete WebSocket handshake"
+                " implicitly after setting a response handler"};
             res->upgrade(std::move(data),
               sec_ws_key,
               sec_ws_protocol,
