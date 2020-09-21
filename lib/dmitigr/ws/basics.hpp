@@ -9,14 +9,12 @@
 
 namespace dmitigr::ws {
 
-/**
- * @brief A possible data format.
- */
+/// A possible data format.
 enum class Data_format {
-  /** The text format. */
+  /// The text format.
   text = 0,
 
-  /** The binary format. */
+  /// The binary format.
   binary = 1
 };
 

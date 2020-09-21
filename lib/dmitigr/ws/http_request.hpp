@@ -13,44 +13,28 @@
 
 namespace dmitigr::ws {
 
-/**
- * @brief A HTTP request.
- */
+/// A HTTP request.
 class Http_request {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Http_request() = default;
 
-  /**
-   * @returns The textual representation of the remote IP address.
-   */
+  /// @returns The textual representation of the remote IP address.
   virtual const net::Ip_address& remote_ip_address() const = 0;
 
-  /**
-   * @returns The textual representation of the local IP address.
-   */
+  /// @returns The textual representation of the local IP address.
   virtual const net::Ip_address& local_ip_address() const = 0;
 
-  /**
-   * @returns The HTTP request method.
-   */
+  /// @returns The HTTP request method.
   virtual std::string_view method() const = 0;
 
-  /**
-   * @returns The HTTP request path.
-   */
+  /// @returns The HTTP request path.
   virtual std::string_view path() const = 0;
 
-  /**
-   * @returns The HTTP request query string.
-   */
+  /// @returns The HTTP request query string.
   virtual std::string_view query_string() const = 0;
 
-  /**
-   * @returns The value of HTTP request header named by `name`.
-   */
+  /// @returns The value of HTTP request header named by `name`.
   virtual std::string_view header(std::string_view name) const = 0;
 
 private:

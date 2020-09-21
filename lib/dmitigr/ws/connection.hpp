@@ -16,19 +16,13 @@
 
 namespace dmitigr::ws {
 
-/**
- * @brief A WebSockets connection.
- */
+/// A WebSocket connection.
 class Connection : public std::enable_shared_from_this<Connection> {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual DMITIGR_WS_API ~Connection();
 
-  /**
-   * @brief The constructor.
-   */
+  /// The default-constructible.
   DMITIGR_WS_API Connection();
 
   /// @name Event-loop related API
@@ -40,7 +34,7 @@ public:
    * @brief Attempts to schedule the `callback` to the called on the thread of
    * the event loop associated with this connection.
    *
-   * @returns `true` on success, or `false` otherwise.
+   * @returns `true` on success.
    *
    * @par Thread safety
    * Thread-safe.
@@ -48,7 +42,7 @@ public:
   DMITIGR_WS_API bool event_loop_call_soon(std::function<void()> callback);
 
   /**
-   * @returns `true` if the underlying socket is valid, or `false` otherwise.
+   * @returns `true` if the underlying socket is valid.
    *
    * @remarks The behaviour is undefined if called not on the thread of the
    * associated event loop!

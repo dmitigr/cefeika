@@ -16,43 +16,30 @@
 
 namespace dmitigr::ws {
 
-/**
- * @brief A WebSockets listener.
- */
+/// A WebSocket listener.
 class Listener {
 public:
-  /// @brief Alias of Listener_options.
+  /// Alias of Listener_options.
   using Options = Listener_options;
 
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual DMITIGR_WS_API ~Listener();
 
-  /**
-   * @brief The constructor.
-   */
+  /// Default-constructible.
   DMITIGR_WS_API Listener();
 
   /// @name Constructors
   /// @{
 
-  /**
-   * @brief Constructs an instance of Listener.
-   */
+  /// The constructor.
   explicit DMITIGR_WS_API Listener(const Options& options);
 
   /// @}
 
-  /**
-   * @returns Options of the listener.
-   */
+  /// @returns Options of the listener.
   virtual DMITIGR_WS_API const Options& options() const;
 
-  /**
-   * @returns `true` if the listener is listening for new client connections,
-   * or `false` otherwise.
-   */
+  /// @returns `true` if open for incoming connections.
   DMITIGR_WS_API bool is_listening() const;
 
   /**
@@ -105,14 +92,10 @@ public:
   /// @name Timers
   /// @{
 
-  /**
-   * @returns The number of timers.
-   */
+  /// @returns The number of timers.
   DMITIGR_WS_API std::size_t timer_count() const;
 
-  /**
-   * @returns The timer index if it has been added, or `std::nullopt` otherwise.
-   */
+  /// @returns The timer index if it has been added.
   DMITIGR_WS_API std::optional<std::size_t> timer_index(std::string_view name) const;
 
   /**
@@ -122,16 +105,10 @@ public:
    */
   DMITIGR_WS_API Timer& add_timer(std::string name);
 
-  /**
-   * @brief Removes the timer associated with the specified `name`, or do
-   * nothing if no such a timer presents.
-   */
+  /// @brief Removes the timer associated with the specified `name` if any.
   DMITIGR_WS_API void remove_timer(std::string_view name);
 
-  /**
-   * @returns The timer associated with the specified `name`, or `nullptr` if
-   * no such a timer presents.
-   */
+  /// @returns The timer associated with the specified `name`.
   DMITIGR_WS_API Timer* timer(std::string_view name) const;
 
   /**

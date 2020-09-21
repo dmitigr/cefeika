@@ -20,9 +20,7 @@
 
 namespace dmitigr::ws::detail {
 
-/**
- * @brief The abstract representation of Listener_options.
- */
+/// The abstract representation of Listener_options.
 class iConnection {
 public:
   virtual ~iConnection() = default;
@@ -38,9 +36,7 @@ public:
   virtual bool is_ssl() const noexcept = 0;
 };
 
-/**
- * @brief The representation of Listener_options.
- */
+/// The representation of Listener_options.
 template<bool IsSsl>
 class Conn final : public iConnection {
 public:

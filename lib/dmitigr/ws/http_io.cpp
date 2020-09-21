@@ -18,9 +18,7 @@ class iHttp_io : public Http_io {
   iHttp_io() = default;
 };
 
-/**
- * @brief An implementation of HTTP io.
- */
+/// The implementation of HTTP I/O.
 template<bool IsSsl>
 class iHttp_io_templ final : public iHttp_io {
 public:

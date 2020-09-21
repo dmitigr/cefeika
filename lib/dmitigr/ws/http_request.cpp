@@ -9,9 +9,7 @@
 
 namespace dmitigr::ws::detail {
 
-/**
- * @brief An implementation of HTTP request.
- */
+/// The HTTP request implementation.
 class iHttp_request final : public Http_request {
 public:
   explicit iHttp_request(uWS::HttpRequest* const rep,

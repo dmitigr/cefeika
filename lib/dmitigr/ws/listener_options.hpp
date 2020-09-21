@@ -18,14 +18,10 @@
 
 namespace dmitigr::ws {
 
-/**
- * @brief WebSockets Listener options.
- */
+/// A WebSocket Listener options.
 class Listener_options {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual DMITIGR_WS_API ~Listener_options();
 
   /// @name Constructors
@@ -42,46 +38,34 @@ public:
    */
   DMITIGR_WS_API Listener_options(std::string address, int port);
 
-  /**
-   * @brief Copy-constructible.
-   */
+  /// Copy-constructible.
   DMITIGR_WS_API Listener_options(const Listener_options& rhs);
 
-  /**
-   * @brief Copy-assignable.
-   */
+  /// Copy-assignable.
   DMITIGR_WS_API Listener_options& operator=(const Listener_options& rhs);
 
-  /**
-   * @brief Move-constructible.
-   */
+  /// Move-constructible.
   DMITIGR_WS_API Listener_options(Listener_options&& rhs);
 
-  /**
-   * @brief Move-assignable.
-   */
+  /// Move-assignable.
   DMITIGR_WS_API Listener_options& operator=(Listener_options&& rhs);
 
   /**
    * @returns A copy of this instance.
+   *
+   * @remarks This is used by Listener upon construction.
    */
   virtual DMITIGR_WS_API std::unique_ptr<Listener_options> to_listener_options() const;
 
   /// @}
 
-  /**
-   * @returns The endpoint identifier.
-   */
+  /// @returns The endpoint identifier.
   DMITIGR_WS_API const net::Endpoint& endpoint() const;
 
-  /**
-   * @brief Enables the HTTP functionality.
-   */
+  /// Enables the HTTP functionality.
   DMITIGR_WS_API Listener_options& set_http_enabled(bool value);
 
-  /**
-   * @returns `true` if the HTTP functionality is enabled, or `false` otherwise.
-   */
+  /// @returns `true` if the HTTP functionality is enabled.
   DMITIGR_WS_API bool is_http_enabled() const;
 
   /**
@@ -141,7 +125,7 @@ public:
   /// @{
 
   /**
-   * @brief Sets the SSL mode enabled if `(value == true)`, or disabled otherwise.
+   * @brief Sets the SSL mode enabled if `(value == true)`.
    *
    * @par Requires
    * The library must be compiled with DMITIGR_CEFEIKA_WITH_OPENSSL.
@@ -249,9 +233,7 @@ public:
 
   /// @}
 
-  /**
-   * @brief Swaps `*this` with `other`.
-   */
+  /// Swaps `*this` with `other`.
   DMITIGR_WS_API void swap(Listener_options& other);
 
 private:

@@ -14,6 +14,9 @@ namespace dmitigr::ws {
 
 /**
  * @brief A timer.
+ *
+ * Timers are called on the event-loop. Thus they can be used for graceful
+ * shutdown for instance.
  */
 class Timer {
 public:
@@ -24,9 +27,7 @@ public:
    */
   using Handler = std::function<void()>;
 
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Timer() = default;
 
   /**
@@ -63,7 +64,7 @@ public:
   virtual void stop() = 0;
 
   /**
-   * @returns `true` if the timer has been started, or `false` otherwise.
+   * @returns `true` if the timer has been started.
    *
    * @see start(), stop().
    */

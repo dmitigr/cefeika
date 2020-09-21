@@ -26,12 +26,11 @@
 
 namespace dmitigr::ws::detail {
 
-/**
- * @brief The abstract representation of Listener.
- */
+/// The abstract representation of Listener.
 class iListener {
 public:
   using Options = Listener_options;
+
   virtual ~iListener() = default;
   virtual const Options& options() const = 0;
   virtual bool is_listening() const = 0;
@@ -51,9 +50,7 @@ public:
   virtual const std::string& timer_name(std::size_t pos) const = 0;
 };
 
-/**
- * @brief The representation of Listener.
- */
+/// The representation of Listener.
 template<bool IsSsl>
 class Lstnr final : public iListener {
 public:

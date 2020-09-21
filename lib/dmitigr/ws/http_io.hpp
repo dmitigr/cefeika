@@ -13,9 +13,7 @@
 
 namespace dmitigr::ws {
 
-/**
- * @brief A HTTP I/O.
- */
+/// A HTTP I/O.
 class Http_io {
 public:
   /**
@@ -32,10 +30,8 @@ public:
   /**
    * @brief An alias of a function to handle the incoming data of a request body.
    *
-   * Parameters:
-   *   - `data` - portion of incoming data to consume
-   *   - `is_last` - flag which indicates whether the `data` is the last portion
-   *   of the incoming data or not.
+   * @param data Portion of incoming data to consume.
+   * @param is_last Whether the `data` is the last portion of the incoming data?
    *
    * @see set_request_handler().
    */
@@ -47,21 +43,18 @@ public:
    * The parameter `position` denotes a starting position of data to be used
    * for a next call of send_data().
    *
-   * The function must returns `true` if send operation was successful, or
-   * `false` otherwise.
+   * The function must returns `true` if send operation was successful.
    *
    * @see respond().
    */
   using Response_handler = std::function<bool(int position)>;
 
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Http_io() = default;
 
   /**
    * @returns `true` if calling of any method other than the destructor or
-   * is_valid() will not lead to the undefined behavior, or `false` otherwise.
+   * is_valid() will not lead to the undefined behavior.
    */
   virtual bool is_valid() const = 0;
 
@@ -116,8 +109,8 @@ public:
    * If no handler set by set_response_handler() then the entire data will be
    * send upon a call which may not be suitable for a large data!
    *
-   * @param data A data to send
-   * @param total_size A total size of data to send. `0` implies `data.size()`.
+   * @param data Data to send.
+   * @param total_size Total size of data to send. `0` implies `data.size()`.
    *
    * @returns A pair of two booleans:
    *   -# indicates success of send operation. If `false` then there is no
@@ -158,7 +151,7 @@ public:
   virtual void set_response_handler(Response_handler handler) = 0;
 
   /**
-   * @returns `true` if the respond handler was set, or `false` otherwise.
+   * @returns `true` if the respond handler was set.
    *
    * @see set_response_handler().
    */
@@ -188,7 +181,7 @@ public:
   virtual void set_abort_handler(Abort_handler handler) = 0;
 
   /**
-   * @returns `true` if the abort handler was set, or `false` otherwise.
+   * @returns `true` if the abort handler was set.
    *
    * @see set_abort_handler().
    */
@@ -205,7 +198,7 @@ public:
   virtual void set_request_handler(Request_handler handler) = 0;
 
   /**
-   * @returns `true` if the request handler was set, or `false` otherwise.
+   * @returns `true` if the request handler was set.
    *
    * @see set_request_handler().
    */

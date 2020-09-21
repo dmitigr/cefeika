@@ -5,9 +5,7 @@
 #ifndef DMITIGR_WS_TYPES_FWD_HPP
 #define DMITIGR_WS_TYPES_FWD_HPP
 
-/**
- * @brief The API.
- */
+/// The API.
 namespace dmitigr::ws {
 
 enum class Data_format;
@@ -19,9 +17,7 @@ class Listener;
 class Listener_options;
 class Timer;
 
-/**
- * @brief The implementation details.
- */
+/// The implementation details.
 namespace detail {
 class iConnection;
 template<bool> class Conn;

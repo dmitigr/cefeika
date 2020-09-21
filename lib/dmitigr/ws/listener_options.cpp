@@ -22,9 +22,7 @@ inline void validate(const bool condition, const std::string& option_name)
 
 } // inline namespace validators
 
-/**
- * @brief The representation of Listener_options.
- */
+/// The representation of Listener_options.
 class iListener_options final {
 public:
   iListener_options(std::string address, const int port, const int backlog)

@@ -24,9 +24,7 @@ template<> struct default_delete<us_timer_t> final {
 
 namespace dmitigr::ws::detail {
 
-/**
- * @brief An implementation of Timer.
- */
+/// The Timer implementation.
 class iTimer final : public Timer {
 public:
   explicit iTimer(us_loop_t* const loop)
