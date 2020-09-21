@@ -150,6 +150,21 @@ private:
 };
 
 /**
+ * @returns An average of values.
+ *
+ * @param data Input data
+ */
+template<class Container>
+constexpr double avg(const Container& data)
+{
+  double result{};
+  const auto data_size = data.size();
+  for (const double num : data)
+    result += (num / static_cast<double>(data_size));
+  return result;
+}
+
+/**
  * @returns `true` if `number` is a power of 2, or `false` otherwise.
  */
 template<typename T>
