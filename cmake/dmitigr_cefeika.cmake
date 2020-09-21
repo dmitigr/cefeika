@@ -4,6 +4,7 @@
 
 set(dmitigr_cefeika_libraries
   base
+  testo
 
   algo
   app
@@ -17,7 +18,6 @@ set(dmitigr_cefeika_libraries
   rajson
   rng
   str
-  testo
   ttpl
 
   net
@@ -36,6 +36,7 @@ set(dmitigr_cefeika_libraries
   )
 
 set(dmitigr_cefeika_base_deps)
+set(dmitigr_cefeika_testo_deps)
 
 set(dmitigr_cefeika_algo_deps base)
 set(dmitigr_cefeika_app_deps os base)
@@ -49,7 +50,6 @@ set(dmitigr_cefeika_os_deps base)
 set(dmitigr_cefeika_rajson_deps thirdparty_rapidjson base)
 set(dmitigr_cefeika_rng_deps base)
 set(dmitigr_cefeika_str_deps base)
-set(dmitigr_cefeika_testo_deps base)
 set(dmitigr_cefeika_ttpl_deps base)
 
 set(dmitigr_cefeika_cfg_deps str base)
