@@ -167,14 +167,15 @@ constexpr double avg(const Container& data)
 /**
  * @returns A dispersion of values.
  *
- * @param data Input data
- * @param avg An average of `data`
+ * @param data Input data.
+ * @param avg An average of `data`.
+ * @param general Is the `data` represents general population?
  */
-template<class Container, typename A>
-constexpr double dispersion(const Container& data, const A avg)
+template<class Container>
+constexpr double dispersion(const Container& data, const double avg, bool general = true)
 {
   double result{};
-  const auto data_size = data.size();
+  const auto data_size = general ? data.size() : data.size() - 1;
   for (const double num : data) {
     const double d = num - avg;
     result += (d * d) / static_cast<double>(data_size);
@@ -184,9 +185,9 @@ constexpr double dispersion(const Container& data, const A avg)
 
 /// @overload
 template<class Container>
-constexpr double dispersion(const Container& data)
+constexpr double dispersion(const Container& data, bool general = true)
 {
-  return dispersion(data, avg(data));
+  return dispersion(data, avg(data), general);
 }
 
 /**
