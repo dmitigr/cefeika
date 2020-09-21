@@ -80,7 +80,7 @@ int main(int, char* argv[])
       ASSERT(ts.second() == 0);
       ASSERT(ts.day_of_week() == Day_of_week::wed);
       ASSERT(ts.day_of_year() == 96);
-      ASSERT(ts.day_of_epoch() == 146193)
+      ASSERT(ts.day_of_epoch() == 146193);
       ASSERT(ts.to_rfc7231() == ts_str);
     }
 
