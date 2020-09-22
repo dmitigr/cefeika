@@ -170,7 +170,7 @@ constexpr double avg(const Container& data) noexcept
  * @param general Is the `data` represents general population?
  */
 template<class Container>
-constexpr double dispersion(const Container& data, const double avg, bool general = true) noexcept
+constexpr double dispersion(const Container& data, const double avg, const bool general = true) noexcept
 {
   double result{};
   const auto data_size = general ? data.size() : data.size() - 1;
@@ -183,7 +183,7 @@ constexpr double dispersion(const Container& data, const double avg, bool genera
 
 /// @overload
 template<class Container>
-constexpr double dispersion(const Container& data, bool general = true) noexcept
+constexpr double dispersion(const Container& data, const bool general = true) noexcept
 {
   return dispersion(data, avg(data), general);
 }
