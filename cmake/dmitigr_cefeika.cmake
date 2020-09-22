@@ -4,6 +4,7 @@
 
 set(dmitigr_cefeika_libraries
   base
+  math
   testo
 
   algo
@@ -11,7 +12,6 @@ set(dmitigr_cefeika_libraries
   dt
   fs
   img
-  math
   mem
   mp
   os
@@ -36,6 +36,7 @@ set(dmitigr_cefeika_libraries
   )
 
 set(dmitigr_cefeika_base_deps)
+set(dmitigr_cefeika_math_deps)
 set(dmitigr_cefeika_testo_deps)
 
 set(dmitigr_cefeika_algo_deps base)
@@ -43,7 +44,6 @@ set(dmitigr_cefeika_app_deps os base)
 set(dmitigr_cefeika_dt_deps base)
 set(dmitigr_cefeika_fs_deps base)
 set(dmitigr_cefeika_img_deps base)
-set(dmitigr_cefeika_math_deps base)
 set(dmitigr_cefeika_mem_deps base)
 set(dmitigr_cefeika_mp_deps base)
 set(dmitigr_cefeika_os_deps base)
