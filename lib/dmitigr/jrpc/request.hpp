@@ -19,6 +19,8 @@ namespace dmitigr::jrpc {
 
 /**
  * @brief A request.
+ *
+ * FIXME: replace "error_message" with type Param_info.
  */
 class Request final {
 public:
@@ -307,8 +309,12 @@ public:
     if (auto result = optional_parameter<T>(std::forward<Types>(args)...); !result) {
       const auto& last = std::get<sizeof...(args) - 1>(std::make_tuple(args...));
       using LastType = std::decay_t<decltype(last)>;
-      if constexpr (std::is_same_v<LastType, std::string>)
+      if constexpr (std::is_convertible_v<LastType, std::string>)
         throw_error(Server_errc::invalid_params, last);
+      else if constexpr (std::is_same_v<LastType, std::string_view>)
+        throw_error(Server_errc::invalid_params, std::string{last});
+      else if constexpr (std::is_convertible_v<LastType, std::string_view>)
+        throw_error(Server_errc::invalid_params, std::string{std::string_view{last}});
       else
         throw_error(Server_errc::invalid_params);
     } else

@@ -4,10 +4,12 @@
 
 #include <dmitigr/jrpc.hpp>
 #include <dmitigr/testo.hpp>
+#include <dmitigr/math.hpp>
 
 int main(int, char* argv[])
 {
   namespace jrpc = dmitigr::jrpc;
+  namespace math = dmitigr::math;
   using namespace dmitigr::testo;
 
   try {
@@ -192,6 +194,13 @@ int main(int, char* argv[])
       req.set_parameter("x", 10);
       req.set_parameter("y", 20);
       req.set_parameter("s", "foo");
+
+      {
+        const auto [z_v, all] = req.parameters("z");
+        ASSERT(!all);
+        ASSERT(!z_v);
+        const auto z = req.mandatory_parameter<int>(z_v, math::Interval{1, 2000}, "z");
+      }
 
       {
         const auto [x, s, y, all] = req.parameters("x", "s", "y");
