@@ -22,9 +22,19 @@ int main(int, char* argv[])
       ASSERT(a2 == static_cast<int>(3));
     }
 
-    // dispersion
+    // dispersion 1
     {
       constexpr auto d1 = math::dispersion(std::array<int, 5>{1,2,3,4,5});
+      static_assert(static_cast<int>(d1) == static_cast<int>(2));
+      const auto d2 = math::dispersion(std::vector<int>{1,2,3,4,5});
+      ASSERT(d2 == static_cast<int>(2));
+      constexpr auto d3 = math::dispersion(std::array<int, 5>{600,470,170,430,300});
+      static_assert(static_cast<int>(d3) == static_cast<int>(21704));
+    }
+
+    // dispersion 2
+    {
+      constexpr auto d1 = math::dispersion(std::array<int, 5>{1,2,3,4,5}, false);
       static_assert(static_cast<int>(d1) == static_cast<int>(2));
       const auto d2 = math::dispersion(std::vector<int>{1,2,3,4,5});
       ASSERT(d2 == static_cast<int>(2));
