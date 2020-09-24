@@ -29,7 +29,7 @@ public:
   virtual std::string remote_ip_address() const = 0;
   virtual std::string local_ip_address() const = 0;
   virtual std::size_t buffered_amount() const = 0;
-  virtual void send(std::string_view data, Data_format format) = 0;
+  virtual bool send(std::string_view data, Data_format format) = 0;
   virtual void close(int code, std::string_view reason) = 0;
   virtual void abort() = 0;
   virtual bool is_closed() const = 0;
@@ -81,10 +81,10 @@ public:
     return ws_->getBufferedAmount();
   }
 
-  void send(const std::string_view data, const Data_format format) override
+  bool send(const std::string_view data, const Data_format format) override
   {
     assert(!is_closed());
-    ws_->send(data, (format == Data_format::text) ? uWS::OpCode::TEXT : uWS::OpCode::BINARY);
+    return ws_->send(data, (format == Data_format::text) ? uWS::OpCode::TEXT : uWS::OpCode::BINARY);
   }
 
   void close(const int code, const std::string_view reason) override
@@ -184,16 +184,16 @@ DMITIGR_WS_INLINE void Connection::send_binary(const std::string_view data)
 
 DMITIGR_WS_INLINE void Connection::close(const int code, const std::string_view reason)
 {
-  if (rep_)
+  if (is_connected())
     rep_->close(code, reason);
-  assert(!rep_);
+  assert(!is_connected());
 }
 
 DMITIGR_WS_INLINE void Connection::abort()
 {
-  if (rep_)
+  if (is_connected())
     rep_->abort();
-  assert(!rep_);
+  assert(!is_connected());
 }
 
 } // namespace dmitigr::ws

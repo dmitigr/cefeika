@@ -92,9 +92,9 @@ public:
 
   /**
    * @brief Enqueues the specified `data` of the specified `format` to be
-   * transmitted to the remote side over the connection, increasing the value
-   * returned by `buffered_amount()` by the number of bytes needed to contain
-   * the `data`.
+   * transmitted to the remote side over the connection, possibly increasing
+   * the value returned by `buffered_amount()` by the number of bytes needed
+   * to contain the `data`.
    *
    * @par Requires
    * `is_connected()`.
@@ -117,6 +117,7 @@ public:
    *
    * @remarks The behaviour is undefined if called not on the thread of the
    * associated event loop!
+   * Has no effect if `!is_connected()`.
    *
    * @see event_loop_call_soon().
    */
@@ -127,6 +128,7 @@ public:
    *
    * @remarks The behaviour is undefined if called not on the thread of the
    * associated event loop!
+   * Has no effect if `!is_connected()`.
    *
    * @see event_loop_call_soon().
    */
