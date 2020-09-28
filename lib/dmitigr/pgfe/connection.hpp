@@ -440,7 +440,7 @@ public:
    *
    * @remarks Useful only if using async API.
    */
-  Error error() const noexcept
+  Error error() noexcept
   {
     return (response_.status() == PGRES_FATAL_ERROR) ? Error{std::move(response_)} : Error{};
   }
@@ -453,30 +453,61 @@ public:
    *
    * @see wait_response(), completion().
    */
-  Row row() const noexcept
+  Row row() noexcept
   {
     return (response_.status() == PGRES_SINGLE_TUPLE) ? Row{std::move(response_), shared_field_names_} : Row{};
   }
 
   /**
-   * Wait the next Row and discards the following responses after that.
+   * @brief Processes the responses.
    *
-   * @returns The Row, or invalid instance.
+   * @param callback A function to be called for each retrieved row. The callback:
+   *   -# can be defined with a parameter of type `Row&&`. The exception
+   *   will be thrown on error in this case.
+   *   -# can be defined with two parameters of type `Row&&` and `Error&&`.
+   *   In case of error an instance of type Error will be passed as the second
+   *   argument of the callback instead of throwing exception and method will
+   *   return an invalid instance of type Completion after the callback returns.
+   *   In case of success, an invalid instance of type Error will be passed as the
+   *   second argument of the callback.
+   *   -# can return a value convertible to `bool` to indicate should the execution
+   *   to be continued after the callback returns or not;
+   *   -# can return `void` to indicate that execution must be proceed until a
+   *   completion or an error.
    *
-   * @par Effects
-   * `!has_response()`.
-   *
-   * @par Exception safety guarantee
-   * Strong
-   *
-   * @see next_response().
+   * @returns An instance of type Completion.
    */
-  Row wait_row_then_discard()
+  template<typename F>
+  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+  process_responses(F&& callback)
   {
-    wait_response_throw();
-    auto result = row();
-    while (wait_response_throw()) continue;
-    return result;
+    using Traits = detail::Response_callback_traits<F>;
+    while (true) {
+      if constexpr (Traits::has_error_parameter) {
+        wait_response();
+        if (auto e = error()) {
+          callback(Row{}, std::move(e));
+          return Completion{};
+        } else if (auto r = row()) {
+          if constexpr (!Traits::is_result_void) {
+            if (!callback(std::move(r), Error{}))
+              return Completion{};
+          } else
+            callback(std::move(r), Error{});
+        } else
+          return completion();
+      } else {
+        wait_response_throw();
+        if (auto r = row()) {
+          if constexpr (!Traits::is_result_void) {
+            if (!callback(std::move(r)))
+              return Completion{};
+          } else
+            callback(std::move(r));
+        } else
+          return completion();
+      }
+    }
   }
 
   /**
@@ -487,7 +518,7 @@ public:
    *
    * @see wait_response(), row().
    */
-  DMITIGR_PGFE_API Completion completion() const noexcept;
+  DMITIGR_PGFE_API Completion completion() noexcept;
 
   /**
    * @returns The prepared statement, or `nullptr` if the last operation wasn't prepare.
@@ -580,17 +611,29 @@ public:
    * @brief Similar to perform_async(), but waits for the first Response and
    * throws Server_exception if awaited Response is an Error.
    *
+   * @param callback Same as for process_responses().
+   *
    * @par Requires
    * `is_ready_for_request()`.
    *
    * @par Exception safety guarantee
    * Basic.
+   *
+   * @see process_responses().
    */
-  void perform(const std::string& queries)
+  template<typename F>
+  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+  perform(F&& callback, const std::string& queries)
   {
-    // TODO: callback
     assert(is_ready_for_request());
     perform_async(queries);
+    return process_responses(std::forward<F>(callback));
+  }
+
+  /// @overload
+  Completion perform(const std::string& queries)
+  {
+    return perform([](auto&&){}, queries);
   }
 
   /**
@@ -770,6 +813,7 @@ public:
    * @par Awaited responses
    * Similar to perform_async().
    *
+   * @param callback Same as for process_responses().
    * @param statement - the *preparsed* statement to execute;
    * @param parameters - the parameters to bind with the parameterized statement.
    *
@@ -780,13 +824,23 @@ public:
    * Basic.
    *
    * @remarks See remarks of prepare_statement().
+   *
+   * @see process_responses().
    */
-  template<typename ... Types>
-  void execute(const Sql_string& statement, Types&& ... parameters)
+  template<typename F, typename ... Types>
+  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+  execute(F&& callback, const Sql_string& statement, Types&& ... parameters)
   {
     auto* const ps = prepare_statement(statement);
     ps->set_parameters(std::forward<Types>(parameters)...);
-    ps->execute();
+    return ps->execute(std::forward<F>(callback));
+  }
+
+  /// @overload
+  template<typename ... Types>
+  Completion execute(const Sql_string& statement, Types&& ... parameters)
+  {
+    return execute([](auto&&){}, statement, std::forward<Types>(parameters)...);
   }
 
   /**
@@ -827,6 +881,7 @@ public:
    * @par Awaited responses
    * Similar to execute().
    *
+   * @param callback Same as for process_responses().
    * @param function - the function name to invoke;
    * @param arguments - the function arguments.
    *
@@ -840,14 +895,22 @@ public:
    * number of parameters. A SQL query with explicit type casts should be
    * executed is such a case. See remarks of prepare_statement_async().
    *
-   * @see invoke_unexpanded(), call(), execute().
+   * @see invoke_unexpanded(), call(), execute(), process_responses().
    */
-  template<typename ... Types>
-  void invoke(std::string_view function, Types&& ... arguments)
+  template<typename F, typename ... Types>
+  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+  invoke(F&& callback, std::string_view function, Types&& ... arguments)
   {
     static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
     const auto stmt = routine_query__(function, "SELECT * FROM", std::forward<Types>(arguments)...);
-    execute(stmt, std::forward<Types>(arguments)...);
+    return execute(std::forward<F>(callback), stmt, std::forward<Types>(arguments)...);
+  }
+
+  /// @overload
+  template<typename ... Types>
+  Completion invoke(std::string_view function, Types&& ... arguments)
+  {
+    return invoke([](auto&&){}, function, std::forward<Types>(arguments)...);
   }
 
   /**
@@ -860,12 +923,20 @@ public:
    *
    * @see invoke(), call(), execute().
    */
-  template<typename ... Types>
-  void invoke_unexpanded(std::string_view function, Types&& ... arguments)
+  template<typename F, typename ... Types>
+  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+  invoke_unexpanded(F&& callback, std::string_view function, Types&& ... arguments)
   {
     static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
     const auto stmt = routine_query__(function, "SELECT", std::forward<Types>(arguments)...);
-    execute(stmt, std::forward<Types>(arguments)...);
+    return execute(std::forward<F>(callback), stmt, std::forward<Types>(arguments)...);
+  }
+
+  /// @overload
+  template<typename ... Types>
+  Completion invoke_unexpanded(std::string_view function, Types&& ... arguments)
+  {
+    return invoke_unexpanded([](auto&&){}, function, std::forward<Types>(arguments)...);
   }
 
   /**
@@ -878,12 +949,20 @@ public:
    *
    * @see invoke(), call(), execute().
    */
-  template<typename ... Types>
-  void call(std::string_view procedure, Types&& ... arguments)
+  template<typename F, typename ... Types>
+  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+  call(F&& callback, std::string_view procedure, Types&& ... arguments)
   {
     static_assert(is_routine_arguments_ok__<Types...>(), "named arguments cannot precede positional arguments");
     const auto stmt = routine_query__(procedure, "CALL", std::forward<Types>(arguments)...);
-    execute(stmt, std::forward<Types>(arguments)...);
+    return execute(std::forward<F>(callback), stmt, std::forward<Types>(arguments)...);
+  }
+
+  /// @overload
+  template<typename ... Types>
+  Completion call(std::string_view procedure, Types&& ... arguments)
+  {
+    return call([](auto&&){}, procedure, std::forward<Types>(arguments)...);
   }
 
   /**
@@ -1007,29 +1086,6 @@ public:
   /// @{
 
   /**
-   * @brief Retrieves all the rows of the connection and converts them into
-   * objects of specified type.
-   *
-   * The conversion is performed by applying the conversion routine
-   * `Conversions<typename Container::value_type>::to_type()` to each row.
-   *
-   * @returns The container of objects retrieved from the connection.
-   *
-   * @par Exception safety guarantee
-   * Basic.
-   */
-  template<class Container = std::vector<Row>>
-  Container wait_rows()
-  {
-    Row_collector<Container> result;
-    while (wait_response_throw()) {
-      if (auto&& r = row())
-        result.collect(std::move(r));
-    }
-    return result.container;
-  }
-
-  /**
    * @brief Quotes the given string to be used as a literal in a SQL query.
    *
    * @returns The suitably quoted literal.
@@ -1145,7 +1201,7 @@ private:
 
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
 
-  mutable detail::pq::Result response_;
+  detail::pq::Result response_;
   Response_status response_status_{};
   Prepared_statement* last_prepared_statement_{};
   std::shared_ptr<std::vector<std::string>> shared_field_names_;
@@ -1154,7 +1210,7 @@ private:
   mutable Prepared_statement unnamed_prepared_statement_;
 
   std::queue<Request_id> requests_; // for now only 1 request can be queued
-  mutable Prepared_statement request_prepared_statement_;
+  Prepared_statement request_prepared_statement_;
   std::optional<std::string> request_prepared_statement_name_;
 
   bool is_invariant_ok() const noexcept;
@@ -1164,6 +1220,15 @@ private:
   // ---------------------------------------------------------------------------
 
   void reset_session() noexcept;
+
+  void get_ready_to_next_query() noexcept
+  {
+    response_.reset();
+    response_status_ = Response_status::empty;
+    if (!requests_.empty())
+      requests_.pop();
+    last_prepared_statement_ = {};
+  }
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -1307,6 +1372,17 @@ private:
     return is_ok && is_routine_arguments_ok__<T2, Types...>();
   }
 };
+
+template<typename F>
+std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+Prepared_statement::execute(F&& callback)
+{
+  assert(connection_);
+  assert(connection_->is_ready_for_request());
+  execute_async();
+  assert(is_invariant_ok());
+  return connection_->process_responses(std::forward<F>(callback));
+}
 
 } // namespace dmitigr::pgfe
 

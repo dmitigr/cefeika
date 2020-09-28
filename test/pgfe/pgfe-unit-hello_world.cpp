@@ -20,28 +20,28 @@ int main() try {
   using pgfe::to;
 
   // Executing query with positional parameters.
-  conn.execute("select generate_series($1::int, $2::int)", 1, 3);
-  while (conn.wait_response()) {
-    if (const auto r = conn.row())
-      std::printf("Number %i\n", to<int>(r.data()));
-  }
+  const auto comp = conn.execute([](auto&& r)
+  {
+    std::printf("Number %i\n", to<int>(r.data()));
+  }, "select generate_series($1::int, $2::int)", 1, 3);
 
   // Prepare and execute the statement with named parameters.
   auto* const ps = conn.prepare_statement("select :begin b, :end e");
   ps->set_parameter("begin", 0);
   ps->set_parameter("end", 1);
-  ps->execute();
-  auto r = ps->connection()->wait_row_then_discard();
-  std::printf("Range [%i, %i]\n", to<int>(r.data("b")), to<int>(r.data("e")));
+  ps->execute([](auto&& r)
+  {
+    std::printf("Range [%i, %i]\n", to<int>(r.data("b")), to<int>(r.data("e")));
+  });
 
   // Invoking the function.
-  conn.invoke("cos", .5f);
-  r = conn.wait_row_then_discard();
-  std::printf("cos(%f) = %f\n", .5f, to<float>(r.data()));
+  conn.invoke([](auto&& r)
+  {
+    std::printf("cos(%f) = %f\n", .5f, to<float>(r.data()));
+  }, "cos", .5f);
 
   // Provoking the syntax error.
   conn.perform("provoke syntax error");
-  conn.wait_response_throw();
  } catch (const pgfe::c42_Syntax_error& e) {
   std::printf("Error %s is handled as expected.\n", e.error()->sqlstate());
  } catch (const std::exception& e) {

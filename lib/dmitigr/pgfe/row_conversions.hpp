@@ -30,6 +30,22 @@ template<> struct Conversions<Row> {
  *
  * @brief The generic implementation for collecting rows into any STL-compatible
  * container.
+ *
+ * The conversion is performed by applying the conversion routine
+ * `Conversions<typename Container::value_type>::to_type()` to each row.
+ *
+ * Example of usage:
+ * @code
+ * void f(Connection& conn)
+ * {
+ *   Row_collector<std::vector<Person>> persons;
+ *   conn.execute([&persons](auto&& row)
+ *   {
+ *     persons.collect(std::move(row));
+ *   }, "select * from person");
+ *   // persons now filled with instances of type Person
+ * }
+ * @endcode
  */
 template<class Container>
 struct Row_collector {

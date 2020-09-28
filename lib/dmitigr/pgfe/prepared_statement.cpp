@@ -136,13 +136,6 @@ DMITIGR_PGFE_INLINE void Prepared_statement::execute_async()
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE void Prepared_statement::execute()
-{
-  assert(connection()->is_ready_for_request());
-  execute_async();
-  assert(is_invariant_ok());
-}
-
 DMITIGR_PGFE_INLINE void Prepared_statement::describe_async()
 {
   connection_->describe_statement_async(name_);

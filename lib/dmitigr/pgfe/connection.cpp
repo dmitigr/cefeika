@@ -305,6 +305,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
     const auto rstatus = response_.status();
     assert(rstatus != PGRES_NONFATAL_ERROR);
     assert(rstatus != PGRES_SINGLE_TUPLE);
+    assert(!requests_.empty());
     const auto req_id = requests_.front();
     if (rstatus == PGRES_TUPLES_OK) {
       assert(req_id == Request_id::perform || req_id == Request_id::execute);
@@ -333,12 +334,8 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
         request_prepared_statement_name_.reset();
       }
     }
-  } else if (response_status_ == Response_status::empty) {
-    // Getting ready to next query.
-    if (!requests_.empty())
-      requests_.pop();
-    last_prepared_statement_ = {};
-  }
+  } else if (response_status_ == Response_status::empty)
+    get_ready_to_next_query();
 
  handle_notifications:
   try {
@@ -395,12 +392,12 @@ DMITIGR_PGFE_INLINE Notification Connection::pop_notification()
   return n ? Notification{n} : Notification{};
 }
 
-DMITIGR_PGFE_INLINE Completion Connection::completion() const noexcept
+DMITIGR_PGFE_INLINE Completion Connection::completion() noexcept
 {
   switch (response_.status()) {
   case PGRES_TUPLES_OK: {
     Completion result{response_.command_tag()};
-    response_.reset();
+    get_ready_to_next_query();
     return result;
   }
   case PGRES_COMMAND_OK:
@@ -409,7 +406,7 @@ DMITIGR_PGFE_INLINE Completion Connection::completion() const noexcept
       [[fallthrough]];
     case Request_id::execute: {
       Completion result{response_.command_tag()};
-      response_.reset();
+      get_ready_to_next_query();
       return result;
     }
     case Request_id::prepare_statement:
@@ -418,7 +415,7 @@ DMITIGR_PGFE_INLINE Completion Connection::completion() const noexcept
       return {};
     case Request_id::unprepare_statement: {
       Completion result{"unprepare_statement"};
-      response_.reset();
+      get_ready_to_next_query();
       return result;
     }
     default:

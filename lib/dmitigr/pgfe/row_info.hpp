@@ -234,7 +234,7 @@ private:
     const bool size_ok = shared_field_names_ &&
       (shared_field_names_->size() == static_cast<std::size_t>(pq_result_.field_count()));
 
-    const bool field_names_ok = [this]()
+    const bool field_names_ok = [this]
     {
       const std::size_t sz = size();
       for (std::size_t i = 0; i < sz; ++i) {

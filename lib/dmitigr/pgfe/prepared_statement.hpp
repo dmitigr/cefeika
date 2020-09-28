@@ -496,6 +496,8 @@ public:
   /**
    * @brief Similar to execute_async() but also waits the Response.
    *
+   * @param callback Same as for Connection::process_responses().
+   *
    * @par Responses
    * Similar to Connection::perform_async().
    *
@@ -505,9 +507,19 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @see Connection::execute().
+   * @remarks Defined in connection.hpp.
+   *
+   * @see Connection::execute(), Connection::process_responses().
    */
-  DMITIGR_PGFE_API void execute();
+  template<typename F>
+  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
+  execute(F&& callback);
+
+  /// @overload
+  Completion execute()
+  {
+    return execute([](auto&&){});
+  }
 
   /**
    * @returns The pointer to the instance of type Connection on which this
