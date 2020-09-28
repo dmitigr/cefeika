@@ -20,7 +20,7 @@ int main() try {
   using pgfe::to;
 
   // Executing query with positional parameters.
-  const auto comp = conn.execute([](auto&& r)
+  conn.execute([](auto&& r)
   {
     std::printf("Number %i\n", to<int>(r.data()));
   }, "select generate_series($1::int, $2::int)", 1, 3);
