@@ -31,6 +31,7 @@ set(dmitigr_cefeika_libraries
   http
   pgfe
   ws
+  wscl
 
   web
   )
@@ -63,6 +64,7 @@ set(dmitigr_cefeika_fcgi_deps net math base)
 set(dmitigr_cefeika_http_deps dt net str base)
 set(dmitigr_cefeika_pgfe_deps mem net str base)
 set(dmitigr_cefeika_ws_deps thirdparty_uwebsockets net base)
+set(dmitigr_cefeika_wscl_deps thirdparty_uwsc)
 
 set(dmitigr_cefeika_web_deps fcgi http jrpc mulf ttpl url base)
 
@@ -72,3 +74,6 @@ set(dmitigr_cefeika_thirdparty_rapidjson_deps)
 set(dmitigr_cefeika_thirdparty_thirdparty_uv_deps)
 set(dmitigr_cefeika_thirdparty_usockets_deps thirdparty_uv)
 set(dmitigr_cefeika_thirdparty_uwebsockets_deps thirdparty_usockets)
+
+set(dmitigr_cefeika_thirdparty_buffer_deps)
+set(dmitigr_cefeika_thirdparty_uwsc_deps thirdparty_buffer)

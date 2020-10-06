@@ -257,7 +257,9 @@ Cefeika includes the following software of third parties:
   - [RapidJSON] distributed under the following [LICENSE](thirdparty/rapidjson/license.txt);
   - [uSockets] distributed under the following [LICENSE](thirdparty/usockets/LICENSE);
   - [libuv] distributed under the following [LICENSE](thirdparty/uv/LICENSE);
-  - [uWebSockets] distributed under the following [LICENSE](thirdparty/uwebsockets/LICENSE).
+  - [uWebSockets] distributed under the following [LICENSE](thirdparty/uwebsockets/LICENSE);
+  - [buffer] distributed under the following [LICENSE](thirdparty/buffer/LICENSE);
+  - [libuwsc] distributed under the following [LICENSE](thirdparty/uwsc/LICENSE).
 
 For conditions of distribution and use, please see the corresponding license.
 

@@ -119,6 +119,11 @@ if ("ws" IN_LIST dmitigr_cefeika_libraries)
   add_subdirectory(thirdparty/uwebsockets)
 endif()
 
+if ("wscl" IN_LIST dmitigr_cefeika_libraries)
+  add_subdirectory(thirdparty/buffer)
+  add_subdirectory(thirdparty/uwsc)
+endif()
+
 # ------------------------------------------------------------------------------
 # Output settings
 # ------------------------------------------------------------------------------
