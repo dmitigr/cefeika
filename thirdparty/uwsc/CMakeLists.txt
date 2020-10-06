@@ -70,13 +70,13 @@ target_compile_options(${lib} PRIVATE ${${lib}_cflags})
 target_include_directories(${lib}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${EV_INCLUDE_DIRS}>
+  $<BUILD_INTERFACE:${Ev_INCLUDE_DIRS}>
   $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>
-  $<INSTALL_INTERFACE:${EV_INCLUDE_DIRS}>
+  $<INSTALL_INTERFACE:${Ev_INCLUDE_DIRS}>
   PRIVATE
   src)
 
-target_link_libraries(${lib} PUBLIC ${Suggested_EV_LIBRARIES} thirdparty_buffer)
+target_link_libraries(${lib} PUBLIC ${Suggested_Ev_LIBRARIES} thirdparty_buffer)
 if (DMITIGR_CEFEIKA_WITH_OPENSSL)
   target_compile_definitions(${lib} PUBLIC UWSC_SSL_SUPPORT PRIVATE UWSC_HAVE_OPENSSL)
   target_link_libraries(${lib} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
