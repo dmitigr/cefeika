@@ -25,8 +25,8 @@ class Connection final : public ws::Connection {
     send(data, format); // respond by using non-blocking IO
   }
 
-  void handle_close(int, std::string_view) override {};
-  void handle_drain() override {};
+  void handle_close(int, std::string_view) override {}
+  void handle_drain() override {}
 };
 
 class Listener final : public ws::Listener {
