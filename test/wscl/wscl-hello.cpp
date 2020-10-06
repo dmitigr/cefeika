@@ -18,6 +18,7 @@ private:
   {
     assert(is_open());
     std::cout << "Connection open!" << std::endl;
+    send_text("Hello from dmitigr::wscl!");
   }
 
   void handle_message(const std::string_view data, const bool is_binary) override
@@ -55,7 +56,7 @@ int main()
 {
   struct ev_loop* const loop = EV_DEFAULT;
   Connection conn{loop, wscl::Connection_options{}
-                  .url("ws://localhost:8080/ws")
+                  .url("ws://localhost:9001/ws")
                   .ping_interval(chrono::seconds{10})};
 
   ev_signal signal_watcher;
