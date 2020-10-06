@@ -22,18 +22,22 @@
  * SOFTWARE.
  */
 
+/*
+ * Modified by Dmitry Igrishin, 2020.
+ */
+
 #ifndef _UWSC_CONFIG_H
 #define _UWSC_CONFIG_H
 
 #define UWSC_VERSION_MAJOR	3
-#define UWSC_VERSION_MINOR 	3
-#define UWSC_VERSION_PATCH 	5
+#define UWSC_VERSION_MINOR  3
+#define UWSC_VERSION_PATCH  5
 #define UWSC_VERSION_STRING "3.3.5"
 
-#define UWSC_SSL_SUPPORT	1
+/* #define UWSC_SSL_SUPPORT	1 */
 
-#define UWSC_HAVE_OPENSSL 	1
-#define UWSC_HAVE_WOLFSSL 	0
-#define UWSC_HAVE_MBEDTLS 	0
+/* #define UWSC_HAVE_OPENSSL    1 */
+/* #define UWSC_HAVE_WOLFSSL    0 */
+/* #define UWSC_HAVE_MBEDTLS    0 */
 
 #endif
