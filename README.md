@@ -27,11 +27,13 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [url] - URL processing
   - [uuid] - UUID processing
   - [web] - Web utilities
-  - [ws] - WebSocket library
+  - [ws] - WebSocket server library
+  - [wscl] - WebSocket client library
 
 All of these libraries can be used as shared libraries, static libraries or
 header-only libraries. ([ws] requires to build some third-party libraries
-such as [libuv] and [uSockets] which are shipped with Cefeika.)
+such as [libuv] and [uSockets] which are shipped with Cefeika; [wscl] requires
+[libev] at the moment.)
 
 **Most of these libraries are in *work in progress* state! Participations and
 contributions of any kind are welcome!**
@@ -301,6 +303,7 @@ For conditions of distribution and use, please see the corresponding license.
 [GCC]: https://gcc.gnu.org/
 [GraphicsMagick]: http://www.graphicsmagick.org/
 [json-rpc2]: https://www.jsonrpc.org/specification
+[libev]: http://software.schmorp.de/pkg/libev.html
 [libpq]: https://www.postgresql.org/docs/current/static/libpq.html
 [libuv]: https://libuv.org/
 [PostgreSQL]: https://www.postgresql.org/
