@@ -44,9 +44,9 @@ private:
   }
 };
 
-void handle_signal(struct ev_loop* const loop, ev_signal* const w, const int /*revents*/)
+void handle_signal(struct ev_loop* const loop, ev_signal* const sig, const int /*revents*/) noexcept
 {
-  if (w->signum == SIGINT) {
+  if (sig->signum == SIGINT) {
     ev_break(loop, EVBREAK_ALL);
     std::clog << "Graceful shutdown by SIGINT." << std::endl;
   }

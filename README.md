@@ -297,6 +297,7 @@ For conditions of distribution and use, please see the corresponding license.
 [uuid]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/uuid
 [web]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/web
 [ws]: https://github.com/dmitigr/cefeika/tree/master/doc/ws
+[wscl]: https://github.com/dmitigr/cefeika/tree/master/doc/wscl
 
 [CMake]: https://cmake.org/
 [CMake_find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
