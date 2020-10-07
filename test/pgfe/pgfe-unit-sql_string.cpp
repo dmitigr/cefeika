@@ -73,8 +73,6 @@ int main(int, char* argv[])
         ASSERT(str.parameter_name(3) == "age");
         ASSERT(str.parameter_index("last_name") == 2);
         ASSERT(str.parameter_index("age") == 3);
-        ASSERT(str.has_parameter("last_name"));
-        ASSERT(str.has_parameter("age"));
         ASSERT(str.has_positional_parameters());
         ASSERT(str.has_named_parameters());
         ASSERT(str.has_parameters());
@@ -97,7 +95,6 @@ int main(int, char* argv[])
         ASSERT(str.parameter_index("first_name") == 3);
         ASSERT(str.parameter_index("age") == 4);
         ASSERT(str.parameter_index("p2") == 5);
-        ASSERT(str.has_parameter("p2"));
       }
 
       std::cout << "Final SQL string is: " << s_orig.to_string() << std::endl;

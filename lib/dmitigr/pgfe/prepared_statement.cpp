@@ -11,7 +11,7 @@
 
 namespace dmitigr::pgfe {
 
-DMITIGR_PGFE_INLINE std::size_t Prepared_statement::positional_parameter_count() const
+DMITIGR_PGFE_INLINE std::size_t Prepared_statement::positional_parameter_count() const noexcept
 {
   const auto b = cbegin(parameters_);
   const auto e = cend(parameters_);
@@ -19,8 +19,16 @@ DMITIGR_PGFE_INLINE std::size_t Prepared_statement::positional_parameter_count()
   return i - b;
 }
 
+DMITIGR_PGFE_INLINE std::size_t Prepared_statement::parameter_index(const std::string& name) const noexcept
+{
+  const auto b = cbegin(parameters_);
+  const auto e = cend(parameters_);
+  const auto i = std::find_if(b, e, [&name](const auto& p) { return p.name == name; });
+  return i != e ? (i - b) : nidx;
+}
+
 // std::visit is slow to compile
-DMITIGR_PGFE_INLINE std::optional<std::uint_fast32_t> Prepared_statement::parameter_type_oid(const std::size_t index) const noexcept
+DMITIGR_PGFE_INLINE std::uint_fast32_t Prepared_statement::parameter_type_oid(const std::size_t index) const noexcept
 {
   assert(index < parameter_count());
   if (is_described()) {
@@ -34,7 +42,7 @@ DMITIGR_PGFE_INLINE std::optional<std::uint_fast32_t> Prepared_statement::parame
           return descr.pq_result_.ps_param_type_oid(static_cast<int>(index));
       }, *description_);
   } else
-    return {};
+    return invalid_oid;
 }
 
 // std::visit is slow to compile
@@ -146,14 +154,6 @@ DMITIGR_PGFE_INLINE void Prepared_statement::describe()
 {
   connection_->describe_statement(name_);
   assert(is_invariant_ok());
-}
-
-DMITIGR_PGFE_INLINE std::size_t Prepared_statement::parameter_index__(const std::string& name) const noexcept
-{
-  const auto b = cbegin(parameters_);
-  const auto e = cend(parameters_);
-  const auto i = std::find_if(b, e, [&name](const auto& p) { return p.name == name; });
-  return i - b;
 }
 
 } // namespace dmitigr::pgfe

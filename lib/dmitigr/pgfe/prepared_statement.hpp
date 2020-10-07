@@ -187,62 +187,48 @@ public:
     return connection_;
   }
 
-  DMITIGR_PGFE_API std::size_t positional_parameter_count() const override;
+  /// @see Parameterizable::positional_parameter_count().
+  DMITIGR_PGFE_API std::size_t positional_parameter_count() const noexcept override;
 
-  std::size_t named_parameter_count() const override
+  /// @see Parameterizable::named_parameter_count().
+  std::size_t named_parameter_count() const noexcept override
   {
     return parameter_count() - positional_parameter_count();
   }
 
-  std::size_t parameter_count() const override
+  /// @see Parameterizable::parameter_count().
+  std::size_t parameter_count() const noexcept override
   {
     return parameters_.size();
   }
 
-  const std::string& parameter_name(const std::size_t index) const override
+  /// @see Parameterizable::has_positional_parameters().
+  bool has_positional_parameters() const noexcept override
+  {
+    return positional_parameter_count() > 0;
+  }
+
+  /// @see Parameterizable::has_named_parameters().
+  bool has_named_parameters() const noexcept override
+  {
+    return named_parameter_count() > 0;
+  }
+
+  /// @see Parameterizable::has_parameters().
+  bool has_parameters() const noexcept override
+  {
+    return !parameters_.empty();
+  }
+
+  /// @see Parameterizable::parameter_name().
+  const std::string& parameter_name(const std::size_t index) const noexcept override
   {
     assert((positional_parameter_count() <= index) && (index < parameter_count()));
     return parameters_[index].name;
   }
 
-  std::optional<std::size_t> parameter_index(const std::string& name) const override
-  {
-    if (const auto result = parameter_index__(name); result < parameter_count())
-      return result;
-    else
-      return std::nullopt;
-  }
-
-  // REMOVEME
-  std::size_t parameter_index_throw(const std::string& name) const override
-  {
-    const auto result = parameter_index__(name);
-    assert(result < parameter_count());
-    return result;
-  }
-
-  bool has_parameter(const std::string& name) const override
-  {
-    return static_cast<bool>(parameter_index(name));
-  }
-
-  bool has_positional_parameters() const override
-  {
-    return positional_parameter_count() > 0;
-  }
-
-  bool has_named_parameters() const override
-  {
-    return named_parameter_count() > 0;
-  }
-
-  bool has_parameters() const override
-  {
-    return !parameters_.empty();
-  }
-
-  /// @name Read-only properties
-  /// @{
+  /// @see Parameterizable::parameter_index().
+  DMITIGR_PGFE_API std::size_t parameter_index(const std::string& name) const noexcept override;
 
   /**
    * @returns The name of this prepared statement.
@@ -256,25 +242,24 @@ public:
 
   /**
    * @returns `true` if the information inferred by the Pgfe about
-   * this prepared statement is available.
+   * this prepared statement is available. (Every statement prepared from
+   * an instance of class Sql_string is prepared.)
+   *
+   * @see Sql_string.
    */
   bool is_preparsed() const noexcept
   {
     return preparsed_;
   }
 
+  /// @name Parameter binding
+  /// @{
+
   /// @returns The maximum parameter count allowed.
   constexpr std::size_t maximum_parameter_count() const noexcept
   {
     return 65535;
   }
-
-  /// @}
-
-  // ---------------------------------------------------------------------------
-
-  /// @name Settings
-  /// @{
 
   /**
    * @returns The parameter value.
@@ -292,15 +277,13 @@ public:
    * @overload
    *
    * @par Requries
-   * `(has_parameter(name))`
-   *
-   * @see has_parameter().
+   * `(parameter_index(name) != nidx)`.
    */
   const Data* parameter(const std::string& name) const noexcept
   {
     const auto idx = parameter_index(name);
-    assert(idx);
-    return parameter(*idx);
+    assert(idx != nidx);
+    return parameter(idx);
   }
 
   /**
@@ -330,14 +313,16 @@ public:
    * @overload
    *
    * @par Requries
-   * `(has_parameter(name))`
+   * `(parameter_index(name) != nidx)`.
    *
-   * @see parameter(), has_parameter().
+   * @see parameter().
    */
   void set_parameter(const std::string& name, std::unique_ptr<Data>&& value) noexcept
   {
+    const auto idx = parameter_index(name);
+    assert(idx != nidx);
     Data_ptr d{value.release(), Data_deletion_required{true}};
-    set_parameter(parameter_index_throw(name), std::move(d));
+    set_parameter(idx, std::move(d));
   }
 
   /**
@@ -380,14 +365,14 @@ public:
    * @overload
    *
    * @par Requries
-   * `(has_parameter(name))`
-   *
-   * @see has_parameter().
+   * `(parameter_index(name) != nidx)`.
    */
   template<typename T>
   std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(const std::string& name, T&& value) noexcept
   {
-    set_parameter(parameter_index_throw(name), std::forward<T>(value));
+    const auto idx = parameter_index(name);
+    assert(idx != nidx);
+    set_parameter(idx, std::forward<T>(value));
   }
 
   /**
@@ -411,14 +396,16 @@ public:
    * @overload
    *
    * @par Requries
-   * `(has_parameter(name))`
+   * `(parameter_index(name) != nidx)`.
    *
-   * @see parameter(), has_parameter().
+   * @see parameter().
    */
   void set_parameter_no_copy(const std::string& name, const Data* const data) noexcept
   {
+    const auto idx = parameter_index(name);
+    assert(idx != nidx);
     Data_ptr d{data, Data_deletion_required{false}};
-    set_parameter(parameter_index_throw(name), std::move(d));
+    set_parameter(idx, std::move(d));
   }
 
   /**
@@ -446,6 +433,11 @@ public:
     set_parameters__(std::make_index_sequence<sizeof ... (Types)>{}, std::forward<Types>(values)...);
   }
 
+  /// @}
+
+  /// @{
+  /// @name Connection-related
+
   /**
    * @brief Sets the data format for all fields of rows that will be produced
    * during the execution of a SQL command.
@@ -470,13 +462,6 @@ public:
   {
     return result_format_;
   }
-
-  /// @}
-
-  // ---------------------------------------------------------------------------
-
-  /// @{
-  /// @name Connection-related
 
   /**
    * @brief Submits a request to a PostgreSQL server to execute this prepared
@@ -544,7 +529,7 @@ public:
 
   /**
    * @returns `true` if the information inferred by a PostgreSQL server
-   * about this prepared statement is available, or `false` otherwise.
+   * about this prepared statement is available.
    *
    * @see describe(), parameter_type_oid(), row_info().
    */
@@ -555,24 +540,26 @@ public:
 
   /**
    * @returns The object identifier of the parameter type, or
-   * `std::nullopt` if `(is_described() == false)`.
+   * `invalid_oid` if `(is_described() == false)`.
    *
    * @par Requires
    * `(index < parameter_count())`.
    */
-  DMITIGR_PGFE_API std::optional<std::uint_fast32_t> parameter_type_oid(std::size_t index) const noexcept;
+  DMITIGR_PGFE_API std::uint_fast32_t parameter_type_oid(std::size_t index) const noexcept;
 
   /**
    * @overload
    *
    * @par Requries
-   * `(has_parameter(name))`
+   * `(parameter_index(name) != nidx)`.
    *
-   * @see parameter(), has_parameter().
+   * @see parameter().
    */
-  std::optional<std::uint_fast32_t> parameter_type_oid(const std::string& name) const noexcept
+  std::uint_fast32_t parameter_type_oid(const std::string& name) const noexcept
   {
-    return parameter_type_oid(parameter_index_throw(name));
+    const auto idx = parameter_index(name);
+    assert(idx);
+    return parameter_type_oid(idx);
   }
 
   /**
@@ -667,8 +654,6 @@ private:
 
     assert(is_invariant_ok());
   }
-
-  std::size_t parameter_index__(const std::string& name) const noexcept;
 
   template<std::size_t ... I, typename ... Types>
   void set_parameters__(std::index_sequence<I...>, Types&& ... args)

@@ -87,67 +87,53 @@ public:
   /// @}
 
   /// @see Parameterizable::positional_parameter_count().
-  std::size_t positional_parameter_count() const override
+  std::size_t positional_parameter_count() const noexcept override
   {
     return positional_parameters_.size();
   }
 
   /// @see Parameterizable::named_parameter_count().
-  std::size_t named_parameter_count() const override
+  std::size_t named_parameter_count() const noexcept override
   {
     return named_parameters_.size();
   }
 
   /// @see Parameterizable::parameter_count().
-  std::size_t parameter_count() const override
+  std::size_t parameter_count() const noexcept override
   {
     return (positional_parameter_count() + named_parameter_count());
   }
 
+  /// @see Parameterizable::has_positional_parameters().
+  bool has_positional_parameters() const noexcept override
+  {
+    return !positional_parameters_.empty();
+  }
+
+  /// @see Parameterizable::has_named_parameters().
+  bool has_named_parameters() const noexcept override
+  {
+    return !named_parameters_.empty();
+  }
+
+  /// @see Parameterizable::has_parameters().
+  bool has_parameters() const noexcept override
+  {
+    return (has_positional_parameters() || has_named_parameters());
+  }
+
   /// @see Parameterizable::parameter_name().
-  const std::string& parameter_name(const std::size_t index) const override
+  const std::string& parameter_name(const std::size_t index) const noexcept override
   {
     assert(positional_parameter_count() <= index && index < parameter_count());
     return (named_parameters_[index - positional_parameter_count()])->str;
   }
 
   /// @see Parameterizable::parameter_index().
-  std::optional<std::size_t> parameter_index(const std::string& name) const override
+  std::size_t parameter_index(const std::string& name) const noexcept override
   {
-    const auto idx = named_parameter_index__(name);
-    return idx < parameter_count() ? std::make_optional<std::size_t>(idx) : std::nullopt;
-  }
-
-  /// @see Parameterizable::parameter_index_throw().
-  std::size_t parameter_index_throw(const std::string& name) const override
-  {
-    const auto idx = named_parameter_index__(name);
-    assert(idx < parameter_count());
-    return idx;
-  }
-
-  /// @see Parameterizable::has_parameter().
-  bool has_parameter(const std::string& name) const override
-  {
-    return static_cast<bool>(parameter_index(name));
-  }
-
-  /// @see Parameterizable::has_positional_parameters().
-  bool has_positional_parameters() const override
-  {
-    return !positional_parameters_.empty();
-  }
-
-  /// @see Parameterizable::has_named_parameters().
-  bool has_named_parameters() const override
-  {
-    return !named_parameters_.empty();
-  }
-
-  /// @see Parameterizable::has_parameters().
-  bool has_parameters() const override
-  {
-    return (has_positional_parameters() || has_named_parameters());
+    const auto idx = named_parameter_index(name);
+    return idx < parameter_count() ? idx : nidx;
   }
 
   /// @returns `true` if this SQL string is empty.
@@ -424,13 +410,13 @@ private:
 
   std::vector<Fragment_list::const_iterator> unique_fragments(Fragment::Type type) const;
 
-  std::size_t unique_fragment_index(const std::vector<Fragment_list::const_iterator>& unique_fragments,
-    const std::string& str,
-    std::size_t offset = 0) const noexcept;
+  std::size_t unique_fragment_index(
+    const std::vector<Fragment_list::const_iterator>& unique_fragments,
+    const std::string& str) const noexcept;
 
-  std::size_t named_parameter_index__(const std::string& name) const
+  std::size_t named_parameter_index(const std::string& name) const
   {
-    return unique_fragment_index(named_parameters_, name, positional_parameter_count());
+    return positional_parameter_count() + unique_fragment_index(named_parameters_, name);
   }
 
   std::vector<Fragment_list::const_iterator> named_parameters() const

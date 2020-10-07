@@ -94,7 +94,7 @@ DMITIGR_PGFE_INLINE void Sql_string::append(const Sql_string& appendix)
 
 DMITIGR_PGFE_INLINE void Sql_string::replace_parameter(const std::string& name, const Sql_string& replacement)
 {
-  assert(has_parameter(name));
+  assert(parameter_index(name) != nidx);
   assert(this != &replacement);
 
   // Updating fragments
@@ -165,7 +165,7 @@ DMITIGR_PGFE_INLINE std::string Sql_string::to_query_string() const
     case Fragment::Type::multi_line_comment:
       break;
     case Fragment::Type::named_parameter: {
-      const auto idx = named_parameter_index__(fragment.str);
+      const auto idx = named_parameter_index(fragment.str);
       assert(idx < parameter_count());
       result += '$';
       result += std::to_string(idx + 1);
@@ -655,14 +655,14 @@ auto Sql_string::unique_fragments(const Fragment::Type type) const -> std::vecto
   return result;
 }
 
-std::size_t Sql_string::unique_fragment_index(const std::vector<Fragment_list::const_iterator>& unique_fragments,
-  const std::string& str,
-  const std::size_t offset) const noexcept
+std::size_t Sql_string::unique_fragment_index(
+  const std::vector<Fragment_list::const_iterator>& unique_fragments,
+  const std::string& str) const noexcept
 {
   const auto b = cbegin(unique_fragments);
   const auto e = cend(unique_fragments);
   const auto i = find_if(b, e, [&str](const auto& pi) { return (pi->str == str); });
-  return offset + (i - b);
+  return i - b;
 }
 
 // -----------------------------------------------------------------------------
