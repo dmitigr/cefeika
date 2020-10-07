@@ -7,6 +7,7 @@
 
 #include "dmitigr/pgfe/types_fwd.hpp"
 
+#include <cstdint>
 #include <string>
 
 namespace dmitigr::pgfe {
@@ -39,7 +40,7 @@ public:
   virtual const std::string& name_of(std::size_t index) const noexcept = 0;
 
   /**
-   * @returns The field index if presents, or `npos` othersize.
+   * @returns The field index if presents, or `nidx` othersize.
    *
    * @param offset For cases when several fields are named equally.
    */

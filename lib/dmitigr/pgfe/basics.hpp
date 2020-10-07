@@ -17,7 +17,7 @@ namespace pgfe {
 using Oid = unsigned int;
 
 /// Denotes invalid Oid.
-constexpr Oid invalid_oid = 0;
+constexpr Oid invalid_oid{};
 
 /**
  * @ingroup main
