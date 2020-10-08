@@ -19,8 +19,10 @@ namespace dmitigr::pgfe {
  */
 class Error final : public Response, public Problem {
 public:
+  /// Default-constructible. (Constructs invalid instance.)
   Error() = default;
 
+  /// The constructor.
   explicit Error(detail::pq::Result&& result) noexcept
     : Problem{std::move(result)}
   {
