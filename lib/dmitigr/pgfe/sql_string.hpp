@@ -50,7 +50,7 @@ public:
   /// @name Constructors
   /// @{
 
-  /// Default-constructible.
+  /// Default-constructible. (Constructs an empty instance.)
   Sql_string() = default;
 
   /**

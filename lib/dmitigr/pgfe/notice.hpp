@@ -22,13 +22,16 @@ namespace dmitigr::pgfe {
  */
 class Notice final : public Signal, public Problem {
 public:
+  /// The destructor.
   ~Notice() override
   {
     pq_result_.release(); // freed in libpq/fe-protocol3.c:pqGetErrorNotice3()
   }
 
+  /// Default-constructible. (Constructs invalid instance.)
   Notice() = default;
 
+  /// The constructor.
   explicit Notice(const ::PGresult* const result) noexcept
     : Problem{detail::pq::Result{const_cast< ::PGresult*>(result)}}
   {
@@ -56,10 +59,6 @@ private:
       (sev == Problem_severity::notice) ||
       (sev == Problem_severity::warning)) && Problem::is_invariant_ok();
   }
-
-  // TODO: copying
-  // struct Rep;
-  // std::unique_ptr<Rep> rep_;
 };
 
 } // namespace dmitigr::pgfe

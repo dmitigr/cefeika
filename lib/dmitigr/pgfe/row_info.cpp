@@ -53,37 +53,37 @@ DMITIGR_PGFE_INLINE std::size_t Row_info::index_of(const std::string& name, cons
   return result < size() ? result : nidx;
 }
 
-DMITIGR_PGFE_INLINE std::uint_fast32_t Row_info::table_oid(const std::size_t index) const
+DMITIGR_PGFE_INLINE std::uint_fast32_t Row_info::table_oid(const std::size_t index) const noexcept
 {
   assert(index < size());
   return pq_result_.field_table_oid(static_cast<int>(index));
 }
 
-DMITIGR_PGFE_INLINE std::int_fast32_t Row_info::table_column_number(const std::size_t index) const
+DMITIGR_PGFE_INLINE std::int_fast32_t Row_info::table_column_number(const std::size_t index) const noexcept
 {
   assert(index < size());
   return pq_result_.field_table_column(int(index));
 }
 
-DMITIGR_PGFE_INLINE std::uint_fast32_t Row_info::type_oid(const std::size_t index) const
+DMITIGR_PGFE_INLINE std::uint_fast32_t Row_info::type_oid(const std::size_t index) const noexcept
 {
   assert(index < size());
   return pq_result_.field_type_oid(int(index));
 }
 
-DMITIGR_PGFE_INLINE std::int_fast32_t Row_info::type_size(const std::size_t index) const
+DMITIGR_PGFE_INLINE std::int_fast32_t Row_info::type_size(const std::size_t index) const noexcept
 {
   assert(index < size());
   return pq_result_.field_type_size(int(index));
 }
 
-DMITIGR_PGFE_INLINE std::int_fast32_t Row_info::type_modifier(const std::size_t index) const
+DMITIGR_PGFE_INLINE std::int_fast32_t Row_info::type_modifier(const std::size_t index) const noexcept
 {
   assert(index < size());
   return pq_result_.field_type_modifier(int(index));
 }
 
-DMITIGR_PGFE_INLINE Data_format Row_info::data_format(const std::size_t index) const
+DMITIGR_PGFE_INLINE Data_format Row_info::data_format(const std::size_t index) const noexcept
 {
   assert(index < size());
   return pq_result_.field_format(int(index));

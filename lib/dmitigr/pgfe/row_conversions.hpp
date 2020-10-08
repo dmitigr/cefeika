@@ -53,7 +53,7 @@ struct Row_collector {
   using Underlying_type = Container;
 
   /**
-   * @brief Appends the result of conversion of `row` to the value of type
+   * Appends the result of conversion of `row` to the value of type
    * `Container::value_type` to the end of container.
    */
   template<class Row>
@@ -62,9 +62,7 @@ struct Row_collector {
     container.emplace_back(to<typename Container::value_type>(std::forward<Row>(row)));
   }
 
-  /**
-   * @brief The resulting container.
-   */
+  /// The resulting container.
   Container container;
 };
 

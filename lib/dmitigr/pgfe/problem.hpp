@@ -23,7 +23,10 @@ public:
   /// The destructor.
   virtual ~Problem() = default;
 
+  /// Move-constructible.
   Problem(Problem&&) = default;
+
+  /// Move-assignable.
   Problem& operator=(Problem&&) = default;
 
   /// @returns The object with the corresponding SQLSTATE code.

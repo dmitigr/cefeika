@@ -5,9 +5,9 @@
 #include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/misc.hpp"
 
-#include <locale>
-
 #include <libpq-fe.h>
+
+#include <locale>
 
 namespace dmitigr::pgfe {
 

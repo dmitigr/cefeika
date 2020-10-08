@@ -27,6 +27,7 @@ class Response : public Message {
 
 // -----------------------------------------------------------------------------
 // Response callback traits
+// -----------------------------------------------------------------------------
 
 namespace detail {
 template<typename F, typename = void>

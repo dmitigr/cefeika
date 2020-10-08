@@ -21,7 +21,7 @@ namespace dmitigr::pgfe {
  */
 class Row_info final : public Compositional {
 public:
-  /// Default-constructible.
+  /// Default-constructible. (Constructs invalid instance.)
   Row_info() = default;
 
   /// The constructor.
@@ -43,24 +43,23 @@ public:
   /// Non move-assignable.
   Row_info& operator=(Row_info&&) = default;
 
-  /// @name Compositional overridings
-  /// @{
-
+  /// @see Compositional::size().
   std::size_t size() const noexcept override
   {
     return shared_field_names_->size();
   }
 
+  /// @see Compositional::empty().
   bool empty() const noexcept override
   {
     return shared_field_names_->empty();
   }
 
+  /// @see Compositional::name_of().
   DMITIGR_PGFE_API const std::string& name_of(const std::size_t index) const noexcept override;
 
+  /// @see Compositional::index_of().
   DMITIGR_PGFE_API std::size_t index_of(const std::string& name, std::size_t offset = 0) const noexcept override;
-
-  /// @}
 
   /**
    * @returns The object ID of the table if the field at `index` can
@@ -71,7 +70,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  DMITIGR_PGFE_API std::uint_fast32_t table_oid(std::size_t index) const;
+  DMITIGR_PGFE_API std::uint_fast32_t table_oid(std::size_t index) const noexcept;
 
   /**
    * @overload
@@ -84,7 +83,7 @@ public:
    *
    * @see has_field().
    */
-  std::uint_fast32_t table_oid(const std::string& name, std::size_t offset = 0) const
+  std::uint_fast32_t table_oid(const std::string& name, std::size_t offset = 0) const noexcept
   {
     return table_oid(index_of(name, offset));
   }
@@ -100,7 +99,7 @@ public:
    *
    * @remarks System columns, such as "oid", have arbitrary negative numbers.
    */
-  DMITIGR_PGFE_API std::int_fast32_t table_column_number(std::size_t index) const;
+  DMITIGR_PGFE_API std::int_fast32_t table_column_number(std::size_t index) const noexcept;
 
   /**
    * @overload
@@ -113,7 +112,7 @@ public:
    *
    * @see has_field().
    */
-  std::int_fast32_t table_column_number(const std::string& name, std::size_t offset = 0) const
+  std::int_fast32_t table_column_number(const std::string& name, std::size_t offset = 0) const noexcept
   {
     return table_column_number(index_of(name, offset));
   }
@@ -126,7 +125,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  DMITIGR_PGFE_API std::uint_fast32_t type_oid(std::size_t index) const;
+  DMITIGR_PGFE_API std::uint_fast32_t type_oid(std::size_t index) const noexcept;
 
   /**
    * @overload
@@ -139,7 +138,7 @@ public:
    *
    * @see has_field().
    */
-  std::uint_fast32_t type_oid(const std::string& name, std::size_t offset = 0) const
+  std::uint_fast32_t type_oid(const std::string& name, std::size_t offset = 0) const noexcept
   {
     return type_oid(index_of(name, offset));
   }
@@ -155,7 +154,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  DMITIGR_PGFE_API std::int_fast32_t type_size(std::size_t index) const;
+  DMITIGR_PGFE_API std::int_fast32_t type_size(std::size_t index) const noexcept;
 
   /**
    * @overload
@@ -166,7 +165,7 @@ public:
    * @par Requires
    * `has_field(name, offset)`.
    */
-  std::int_fast32_t type_size(const std::string& name, std::size_t offset = 0) const
+  std::int_fast32_t type_size(const std::string& name, std::size_t offset = 0) const noexcept
   {
     return type_size(index_of(name, offset));
   }
@@ -181,7 +180,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  DMITIGR_PGFE_API std::int_fast32_t type_modifier(std::size_t index) const;
+  DMITIGR_PGFE_API std::int_fast32_t type_modifier(std::size_t index) const noexcept;
 
   /**
    * @overload
@@ -192,7 +191,7 @@ public:
    * @par Requires
    * `has_field(name, offset)`.
    */
-  std::int_fast32_t type_modifier(const std::string& name, std::size_t offset = 0) const
+  std::int_fast32_t type_modifier(const std::string& name, std::size_t offset = 0) const noexcept
   {
     return type_modifier(index_of(name, offset));
   }
@@ -205,7 +204,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  DMITIGR_PGFE_API Data_format data_format(std::size_t index) const;
+  DMITIGR_PGFE_API Data_format data_format(std::size_t index) const noexcept;
 
   /**
    * @overload
@@ -216,7 +215,7 @@ public:
    * @par Requires
    * `has_field(name, offset)`.
    */
-  Data_format data_format(const std::string& name, std::size_t offset = 0) const
+  Data_format data_format(const std::string& name, std::size_t offset = 0) const noexcept
   {
     return data_format(index_of(name, offset));
   }

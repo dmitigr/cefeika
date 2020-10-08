@@ -29,7 +29,7 @@ public:
    */
   virtual bool is_valid() const noexcept = 0;
 
-  /// @returns `true` if the instance is valid
+  /// @returns `true` if the instance is valid.
   explicit operator bool() const noexcept
   {
     return is_valid();

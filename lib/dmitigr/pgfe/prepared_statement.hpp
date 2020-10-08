@@ -178,7 +178,7 @@ using Na = Named_argument;
  */
 class Prepared_statement final : public Response, public Parameterizable {
 public:
-  /// Default-constructible. (Contructs invalid instance.)
+  /// Default-constructible. (Constructs invalid instance.)
   Prepared_statement() = default;
 
   /// @see Message::is_valid().

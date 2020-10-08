@@ -76,7 +76,7 @@ public:
   /// Denotes a result status.
   using Status = ::ExecStatusType;
 
-  /// The default constructor.
+  /// The default constructor. (Constructs invalid instance.)
   Result() = default;
 
   /// The constructor.
@@ -179,6 +179,8 @@ public:
     return ::PQcmdTuples(const_cast< ::PGresult*>(native_handle()));
   }
 
+  // ===========================================================================
+
   /// @name Error report.
   /// @{
 
@@ -224,7 +226,7 @@ public:
     return ::PQresultErrorField(native_handle(), PG_DIAG_STATEMENT_POSITION);
   }
 
-  /// @returnsof the error repor.
+  /// @returns The item of the error report.
   const char* er_internal_query_position() const noexcept
   {
     return ::PQresultErrorField(native_handle(), PG_DIAG_INTERNAL_POSITION);
@@ -397,7 +399,7 @@ public:
   /**
    * @brief Sets the value of the field's data.
    *
-   * @returns `true` on success, or `false` otherwise.
+   * @returns `true` on success.
    *
    * @remarks The `value` is copied into the private storage.
    */
@@ -435,7 +437,7 @@ public:
   /**
    * @brief Sets the attributes of this instance.
    *
-   * @returns `true` on success, or `false` otherwise.
+   * @returns `true` on success.
    */
   bool set_attributes(::PGresAttDesc* const attributes, const int attribute_count)
   {
