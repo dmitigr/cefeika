@@ -18,10 +18,7 @@ namespace dmitigr::pgfe {
 /**
  * @ingroup utilities
  *
- * @brief A pool of connections to a PostgreSQL server.
- *
- * @par Thread-safety
- * All functions except make() are thread-safe.
+ * @brief A thread-safe pool of connections to a PostgreSQL server.
  */
 class Connection_pool final {
 public:
@@ -182,7 +179,11 @@ public:
    */
   DMITIGR_PGFE_API void connect();
 
-  /// Closes the connections to the server.
+  /**
+   * Closes the connections to the server.
+   *
+   * @remarks Connections which are busy will not be affected by calling this method.
+   */
   DMITIGR_PGFE_API void disconnect() noexcept;
 
   /// @returns `true` if the pool is connected.
@@ -195,7 +196,8 @@ public:
   DMITIGR_PGFE_API Handle connection();
 
   /**
-   * @returns the connection of `handle` back to the pool.
+   * Returns the connection of `handle` back to the pool if `is_connected()`,
+   * or closes it otherwise.
    *
    * @par Effects
    *   -# `(!handle.pool() && !handle.connection())`;

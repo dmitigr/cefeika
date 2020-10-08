@@ -70,22 +70,26 @@ public:
     datas_.swap(rhs.datas_);
   }
 
+  /// @see Compositional::size().
   std::size_t size() const noexcept override
   {
     return datas_.size();
   }
 
+  /// @see Compositional::empty().
   bool empty() const noexcept override
   {
     return datas_.empty();
   }
 
+  /// @see Compositional::name_of().
   const std::string& name_of(const std::size_t index) const noexcept override
   {
     assert(index < size());
     return datas_[index].first;
   }
 
+  /// @see Compositional::index_of().
   std::size_t index_of(const std::string& name, const std::size_t offset = 0) const noexcept override
   {
     if (offset < size()) {

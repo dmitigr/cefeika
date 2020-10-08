@@ -25,16 +25,16 @@ constexpr Oid invalid_oid{};
  * @brief A socket readiness.
  */
 enum class Socket_readiness {
-  /** Any I/O operation on a socket would block. */
+  /// Any I/O operation on a socket would block.
   unready = 0,
 
-  /** Read operation on a socket would not block. */
+  /// Read operation on a socket would not block.
   read_ready = 2,
 
-  /** Write operation on a socket would not block. */
+  /// Write operation on a socket would not block.
   write_ready = 4,
 
-  /** Exceptions are available. */
+  /// Exceptions are available.
   exceptions = 8
 };
 
@@ -44,10 +44,10 @@ enum class Socket_readiness {
  * @brief An external library.
  */
 enum class External_library {
-  /** The OpenSSL library. */
+  /// The OpenSSL library.
   libssl = 2,
 
-  /** The libcrypto library. */
+  /// The libcrypto library.
   libcrypto = 4
 };
 
@@ -68,11 +68,7 @@ namespace dmitigr::pgfe {
 DMITIGR_DEFINE_ENUM_BITMASK_OPERATORS(Socket_readiness)
 DMITIGR_DEFINE_ENUM_BITMASK_OPERATORS(External_library)
 
-/**
- * @}
- */
-
-// =============================================================================
+/// @}
 
 /**
  * @ingroup main
@@ -81,11 +77,11 @@ DMITIGR_DEFINE_ENUM_BITMASK_OPERATORS(External_library)
  */
 enum class Communication_mode {
 #ifndef _WIN32
-  /** Unix-domain sockets (UDS) is used for communication. */
+  /// Unix-domain sockets (UDS) is used for communication.
   uds = 0,
 #endif
 
-  /** Network is used for communication. */
+  /// Network is used for communication.
   net = 100
 };
 
@@ -97,10 +93,10 @@ enum class Communication_mode {
  * @brief A communication status.
  */
 enum class Communication_status {
-  /** Normally disconnected. */
+  /// Normally disconnected.
   disconnected = 0,
 
-  /** Disconnected due to some kind of failure. */
+  /// Disconnected due to some kind of failure.
   failure = 100,
 
   /**
@@ -115,7 +111,7 @@ enum class Communication_status {
    */
   establishment_reading = 300,
 
-  /** Connected. */
+  /// Connected.
   connected = 400
 };
 
@@ -157,10 +153,10 @@ enum class Transaction_status {
  * @brief A possible data format.
  */
 enum class Data_format {
-  /** The text format. */
+  /// The text format.
   text = 0,
 
-  /** The binary format. */
+  /// The binary format.
   binary = 1
 };
 
@@ -200,8 +196,8 @@ enum class Problem_severity {
 /**
  * @ingroup main
  *
- * @returns The result of conversion of `str` to the value of type Problem_severity,
- * or `-1` if `str` doesn't represents the problem severity.
+ * @returns The result of conversion of `str` to the value of type
+ * Problem_severity, or `-1` if `str` doesn't represents the problem severity.
  *
  * @remarks The value of `str` is case-sensitive.
  */
@@ -235,13 +231,13 @@ inline auto to_problem_severity(const std::string_view str) noexcept
  * @brief A response status.
  */
 enum class Response_status {
-  /** No response available. */
+  /// No response available.
   empty = 0,
 
-  /** Response is available. */
+  /// Response is available.
   ready = 100,
 
-  /** Response is not ready, socket polling is required. */
+  /// Response is not ready, socket polling is required.
   unready = 200
 };
 

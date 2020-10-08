@@ -46,9 +46,8 @@ DMITIGR_PGFE_INLINE Connection_pool::Handle::Handle(Connection_pool* const pool,
 DMITIGR_PGFE_INLINE Connection_pool::Connection_pool(std::size_t count, const Connection_options& options)
   : release_handler_{[](Connection& conn)
   {
-    while (conn.wait_response()) continue;
+    conn.process_responses([](auto&&){});
     conn.perform("DISCARD ALL");
-    while (conn.wait_response()) continue;
   }}
 {
   for (; count > 0; --count)
@@ -82,7 +81,6 @@ DMITIGR_PGFE_INLINE void Connection_pool::connect()
     auto& conn = connection.first;
     conn->connect();
     if (connect_handler_)
-      // For example, a query "set application_name to 'backend'".
       connect_handler_(*conn);
   }
 
@@ -97,7 +95,6 @@ DMITIGR_PGFE_INLINE void Connection_pool::disconnect() noexcept
     return;
 
   for (const auto& connection : connections_) {
-    // If the connection is busy, the disconnection is delegated to release().
     if (!connection.second)
       connection.first->disconnect();
   }

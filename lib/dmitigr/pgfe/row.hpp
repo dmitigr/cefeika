@@ -20,7 +20,7 @@ namespace dmitigr::pgfe {
  */
 class Row final : public Response, public Compositional {
 public:
-  /// Default-constructible.
+  /// Default-constructible. (Constructs invalid instance.)
   Row() = default;
 
   /// The constructor.
