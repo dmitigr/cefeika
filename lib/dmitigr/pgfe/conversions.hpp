@@ -576,7 +576,7 @@ struct Conversions<std::optional<T>> final {
   template<typename ... Types>
   static Type to_type(const Data* const data, Types&& ... args)
   {
-    if (data)
+    if (data && *data)
       return Conversions<T>::to_type(data, std::forward(args)...);
     else
       return std::nullopt;
@@ -585,7 +585,7 @@ struct Conversions<std::optional<T>> final {
   template<typename ... Types>
   static Type to_type(std::unique_ptr<Data>&& data, Types&& ... args)
   {
-    if (data)
+    if (data && *data)
       return Conversions<T>::to_type(std::move(data), std::forward(args)...);
     else
       return std::nullopt;
