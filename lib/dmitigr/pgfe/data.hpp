@@ -162,7 +162,7 @@ protected:
  *
  * @remarks Doesn't owns the data.
  */
-class Data_view : public Data {
+class Data_view final : public Data {
 public:
   /// Default-constructible. (Constructs invalid instance.)
   Data_view() = default;
