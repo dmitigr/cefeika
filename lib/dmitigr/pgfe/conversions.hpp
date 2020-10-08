@@ -610,42 +610,6 @@ struct Conversions<std::optional<T>> final {
   }
 
   template<typename ... Types>
-  static Type to_type(const Composite* const composite, Types&& ... args)
-  {
-    if (composite)
-      return Conversions<T>::to_type(composite, std::forward(args)...);
-    else
-      return std::nullopt;
-  }
-
-  template<typename ... Types>
-  static Type to_type(std::unique_ptr<Composite>&& composite, Types&& ... args)
-  {
-    if (composite)
-      return Conversions<T>::to_type(std::move(composite), std::forward(args)...);
-    else
-      return std::nullopt;
-  }
-
-  template<typename ... Types>
-  static std::unique_ptr<Composite> to_composite(const Type& value, Types&& ... args)
-  {
-    if (value)
-      return Conversions<T>::to_composite(*value, std::forward(args)...);
-    else
-      return nullptr;
-  }
-
-  template<typename ... Types>
-  static std::unique_ptr<Composite> to_composite(Type&& value, Types&& ... args)
-  {
-    if (value)
-      return Conversions<T>::to_composite(std::move(*value), std::forward(args)...);
-    else
-      return nullptr;
-  }
-
-  template<typename ... Types>
   static Type to_type(const Row& row, Types&& ... args)
   {
     if (row)
