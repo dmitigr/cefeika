@@ -63,16 +63,12 @@ template<> struct Is_bitmask_enum<pgfe::Large_object_open_mode> final : std::tru
 
 namespace pgfe {
 
-/**
- * @addtogroup lob
- * @{
- */
+/// @addtogroup lob
+/// @{
 
 DMITIGR_DEFINE_ENUM_BITMASK_OPERATORS(Large_object_open_mode)
 
-/**
- * @}
- */
+/// @}
 
 /**
  * @ingroup lob
@@ -106,19 +102,19 @@ public:
    *
    * By default, an invalid instance is constructed.
    */
-  explicit DMITIGR_PGFE_API Large_object(Connection* conn = {}, int desc = -1);
+  explicit DMITIGR_PGFE_API Large_object(Connection* conn = {}, int desc = -1) noexcept;
 
   /// Copy-constructible.
   Large_object(const Large_object&) = default;
 
   /// Move-constructible.
-  DMITIGR_PGFE_API Large_object(Large_object&& rhs);
+  DMITIGR_PGFE_API Large_object(Large_object&& rhs) noexcept;
 
   /// Copy-assignable.
   Large_object& operator=(const Large_object&) = default;
 
   /// Move-assignable.
-  DMITIGR_PGFE_API Large_object& operator=(Large_object&& rhs);
+  DMITIGR_PGFE_API Large_object& operator=(Large_object&& rhs) noexcept;
 
   /// Swaps this instance with `rhs`.
   DMITIGR_PGFE_API void swap(Large_object& rhs) noexcept;
@@ -134,7 +130,7 @@ public:
    * @par Effects
    * If returned value is `true` then `!is_valid()`.
    */
-  DMITIGR_PGFE_API bool close();
+  DMITIGR_PGFE_API bool close() noexcept;
 
   /**
    * @brief Changes the current position associated with the underlying large
@@ -143,13 +139,13 @@ public:
    * @returns The new position, or `-1` on error.
    */
   DMITIGR_PGFE_API std::int_fast64_t seek(std::int_fast64_t offset,
-    Seek_whence whence);
+    Seek_whence whence) noexcept;
 
   /**
    * @returns The current position associated with the underlying large
    * object descriptor, or `-1` on error.
    */
-  DMITIGR_PGFE_API std::int_fast64_t tell();
+  DMITIGR_PGFE_API std::int_fast64_t tell() noexcept;
 
   /**
    * @brief Truncates the large object to size `new_size`.
@@ -157,9 +153,9 @@ public:
    * @returns `true` on success.
    *
    * @par Requires
-   * `(new_size >= 0)`
+   * `(new_size >= 0)`.
    */
-  DMITIGR_PGFE_API bool truncate(std::int_fast64_t new_size);
+  DMITIGR_PGFE_API bool truncate(std::int_fast64_t new_size) noexcept;
 
   /**
    * @brief Reads up to `size` bytes from the current position associated with
@@ -171,7 +167,7 @@ public:
    * @remarks The behavior is undefined if the actual size of `buf` is less
    * than `size`.
    */
-  DMITIGR_PGFE_API int read(char* buf, std::size_t size);
+  DMITIGR_PGFE_API int read(char* buf, std::size_t size) noexcept;
 
   /**
    * @brief Writes up to `size` bytes from the current position associated with
@@ -183,16 +179,16 @@ public:
    * @remarks The behavior is undefined if the actual size of `buf` is less
    * than `size`.
    */
-  DMITIGR_PGFE_API int write(const char* buf, std::size_t size);
+  DMITIGR_PGFE_API int write(const char* buf, std::size_t size) noexcept;
 
   /// @returns The underlying connection instance.
-  Connection* connection() const
+  Connection* connection() const noexcept
   {
     return conn_;
   }
 
   /// @returns The underlying large object descriptor.
-  int descriptor() const
+  int descriptor() const noexcept
   {
     return desc_;
   }
