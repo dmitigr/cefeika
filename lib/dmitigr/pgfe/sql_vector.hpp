@@ -46,14 +46,13 @@ public:
    *
    *   -- Comment 4 (just a footer)
    * @endcode
-   * In this case the result vector will consists of the three SQL strings: the
-   * string with only comment 1 and the string with comments 2 and 3 and the
-   * `SELECT 1` statement.
+   * In this case the result vector will consists of three SQL strings:
+   *   -# the string with only comment 1;
+   *   -# the string with comments 2 and 3;
+   *   -# the `SELECT 1` statement.
    *
-   * @param input - the SQL input, such as a content of a file with multiple SQL
-   * commands and comments.
-   *
-   * @returns A new instance of this class.
+   * @param input Any part of SQL statement, such as a content of a file with
+   * multiple SQL commands and comments.
    */
   explicit DMITIGR_PGFE_API Sql_vector(const std::string& input);
 
@@ -87,10 +86,10 @@ public:
    * @returns The index of the SQL string that owns by this vector, or `nidx`
    * if no SQL strings that meets the given criterias exists in this vector.
    *
-   * @param extra_name - the name of the extra data field;
-   * @param extra_value - the value of the extra data field;
-   * @param offset - the starting position of lookup in this vector;
-   * @param extra_offset - the starting position of lookup in the extra data.
+   * @param extra_name The name of the extra data field.
+   * @param extra_value The value of the extra data field.
+   * @param offset The starting position of lookup in this vector.
+   * @param extra_offset The starting position of lookup in the extra data.
    *
    * @see Sql_string::extra().
    */
@@ -100,7 +99,7 @@ public:
   /**
    * @returns The SQL string that owns by this vector.
    *
-   * @param index - the index of SQL string to return.
+   * @param index The index of SQL string to return.
    *
    * @par Requires
    * `(index < size())`.
@@ -122,9 +121,9 @@ public:
    * SQL strings that meets the given criterias exists in this vector.
    *
    * @par Parameters
-   * See index_of().
+   * Same as for index_of().
    *
-   * @see Sql_string::extra().
+   * @see index_of(), Sql_string::extra().
    */
   Sql_string* find(const std::string& extra_name, const std::string& extra_value,
     const std::size_t offset = 0, const std::size_t extra_offset = 0)
@@ -142,9 +141,9 @@ public:
   }
 
   /**
-   * @returns Absolute position of the query of the speficied SQL string.
+   * @returns The absolute position of the query of the speficied SQL string.
    *
-   * @param index The index of SQL string
+   * @param index The index of SQL string.
    *
    * @par Requires
    * `(index < sql_string_count())`.
@@ -154,7 +153,7 @@ public:
   /**
    * @brief Appends the SQL string to this vector.
    *
-   * @param sql_string - the SQL string to append.
+   * @param sql_string The SQL string to append.
    */
   void push_back(Sql_string sql_string) noexcept
   {
@@ -171,8 +170,8 @@ public:
   /**
    * @brief Inserts the new SQL string to this vector.
    *
-   * @param index - the index of the SQL string before which the new SQL string will be inserted;
-   * @param sql_string - the SQL string to insert.
+   * @param index The index of where to insert.
+   * @param sql_string The SQL string to insert at the specified `index`.
    *
    * @par Requires
    * `(index < size())`.

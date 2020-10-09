@@ -34,7 +34,7 @@ DMITIGR_PGFE_INLINE std::size_t Sql_vector::index_of(const std::string& extra_na
   if (offset < size()) {
     const auto b = cbegin(storage_);
     const auto e = cend(storage_);
-    const auto i = std::find_if(b + offset, e,
+    const auto i = find_if(b + offset, e,
       [&extra_name, &extra_value, extra_offset](const auto& sql_string)
       {
         if (const auto& extra = sql_string.extra(); extra_offset < extra.size()) {
