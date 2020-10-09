@@ -99,7 +99,7 @@ DMITIGR_PGFE_INLINE void Prepared_statement::init_connection__(Connection* const
 
 DMITIGR_PGFE_INLINE bool Prepared_statement::is_invariant_ok() const noexcept
 {
-  const bool params_ok = (parameter_count() <= maximum_parameter_count());
+  const bool params_ok = (parameter_count() <= max_parameter_count());
   const bool preparsed_ok = is_preparsed() || !has_named_parameters();
   const bool session_ok = (session_start_time_ == connection_->session_start_time());
   const bool parameterizable_ok = Parameterizable::is_invariant_ok();

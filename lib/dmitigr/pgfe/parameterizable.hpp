@@ -21,6 +21,12 @@ namespace dmitigr::pgfe {
  */
 class Parameterizable {
 public:
+  /// @returns The maximum parameter count allowed.
+  constexpr std::size_t max_parameter_count() const noexcept
+  {
+    return 65535;
+  }
+
   /// The destructor.
   virtual ~Parameterizable() = default;
 

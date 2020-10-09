@@ -255,12 +255,6 @@ public:
   /// @name Parameter binding
   /// @{
 
-  /// @returns The maximum parameter count allowed.
-  constexpr std::size_t maximum_parameter_count() const noexcept
-  {
-    return 65535;
-  }
-
   /**
    * @returns The parameter value.
    *
@@ -646,7 +640,7 @@ private:
     const bool is_opaque = !is_preparsed() && !is_described();
     assert(is_opaque || (index < parameter_count()));
     if (is_opaque) {
-      assert(index < maximum_parameter_count());
+      assert(index < max_parameter_count());
       if (index >= parameters_.size())
         parameters_.resize(index + 1);
     }
