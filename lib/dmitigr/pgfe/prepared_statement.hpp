@@ -506,13 +506,13 @@ public:
    */
   Connection* connection() noexcept
   {
-    return reinterpret_cast<Connection*>(connection_); // FIXME: remove cast
+    return connection_;
   }
 
   /// @overload
   const Connection* connection() const noexcept
   {
-    return reinterpret_cast<const Connection*>(connection_); // FIXME: remove cast
+    return connection_;
   }
 
   /// Similar to Connection::describe_prepared_statement_async().
