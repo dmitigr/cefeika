@@ -65,7 +65,7 @@ DMITIGR_PGFE_INLINE void Sql_string::swap(Sql_string& rhs) noexcept
 
 DMITIGR_PGFE_INLINE bool Sql_string::is_query_empty() const noexcept
 {
-  return std::all_of(cbegin(fragments_), cend(fragments_),
+  return all_of(cbegin(fragments_), cend(fragments_),
     [](const Fragment& f)
     {
       return is_comment(f) || (is_text(f) && is_blank_string(f.str));
@@ -243,9 +243,9 @@ private:
     std::string dollar_quote_leading_tag_name;
     std::string dollar_quote_trailing_tag_name;
 
-    const auto is_valid_tag_char = [](const char c)
+    const auto is_valid_tag_char = [](const char c) noexcept
     {
-      return std::isalnum(c, std::locale{}) || c == '_' || c == '-';
+      return isalnum(c, std::locale{}) || c == '_' || c == '-';
     };
 
     for (const auto current_char : input) {
@@ -317,6 +317,7 @@ private:
         variable = count;
     };
 
+    const std::locale loc;
     enum { counting, after_asterisk, after_non_asterisk, skiping } state = counting;
     std::optional<std::size_t> min_indent_to_border{};
     std::optional<std::size_t> min_indent_to_content{};
@@ -328,7 +329,7 @@ private:
           count = 0;
         else if (current_char == '*')
           state = after_asterisk;
-        else if (std::isspace(current_char, std::locale{}))
+        else if (isspace(current_char, loc))
           ++count;
         else
           state = after_non_asterisk;
@@ -472,7 +473,7 @@ private:
      * Stops lookup when either named parameter or positional parameter are found.
      * (Only fragments of type `text` can have related comments.)
      */
-    auto i = std::find_if(b, e, [&](const Fragment& f)
+    auto i = find_if(b, e, [&](const Fragment& f)
     {
       return (f.type == Fragment::Type::text && is_nearby_string(f.str) && !is_blank_string(f.str)) ||
         f.type == Fragment::Type::named_parameter ||
@@ -566,11 +567,11 @@ const Composite& Sql_string::extra() const
 
 void Sql_string::push_positional_parameter(const std::string& str)
 {
-  push_back_fragment__(Fragment::Type::positional_parameter, str);
+  push_back_fragment(Fragment::Type::positional_parameter, str);
 
   using Size = std::vector<bool>::size_type;
-  const decltype (maximum_parameter_count_) position = stoi(str);
-  if (position < 1 || position > maximum_parameter_count_ - 1)
+  const std::size_t position = stoi(str);
+  if (position < 1 || position > max_parameter_count())
     throw std::runtime_error{"invalid parameter position \"" + str + "\""};
   else if (Size(position) > positional_parameters_.size())
     positional_parameters_.resize(position, false);
@@ -582,8 +583,8 @@ void Sql_string::push_positional_parameter(const std::string& str)
 
 void Sql_string::push_named_parameter(const std::string& str)
 {
-  if (parameter_count() < maximum_parameter_count_) {
-    push_back_fragment__(Fragment::Type::named_parameter, str);
+  if (parameter_count() < max_parameter_count()) {
+    push_back_fragment(Fragment::Type::named_parameter, str);
     if (none_of(cbegin(named_parameters_), cend(named_parameters_),
         [&str](const auto& i) { return (i->str == str); })) {
       auto e = cend(fragments_);
@@ -591,7 +592,7 @@ void Sql_string::push_named_parameter(const std::string& str)
       named_parameters_.push_back(e);
     }
   } else
-    throw std::runtime_error{"maximum parameters count (" + std::to_string(maximum_parameter_count_) + ") exceeded"};
+    throw std::runtime_error{"maximum parameters count (" + std::to_string(max_parameter_count()) + ") exceeded"};
 
   assert(is_invariant_ok());
 }
@@ -618,9 +619,9 @@ void Sql_string::update_cache(const Sql_string& rhs)
 
     // Check the new parameter count.
     const auto new_parameter_count = new_pos_params_size + new_named_parameters.size();
-    if (new_parameter_count > maximum_parameter_count_)
+    if (new_parameter_count > max_parameter_count())
       throw std::runtime_error{"parameter count (" + std::to_string(new_parameter_count) + ") "
-        "exceeds the maximum (" + std::to_string(maximum_parameter_count_) + ")"};
+        "exceeds the maximum (" + std::to_string(max_parameter_count()) + ")"};
 
     // Merging positional parameters (cannot throw).
     for (std::size_t i = 0; i < rhs_pos_params_size; ++i) {
@@ -641,7 +642,8 @@ void Sql_string::update_cache(const Sql_string& rhs)
 // Generators
 // ---------------------------------------------------------------------------
 
-auto Sql_string::unique_fragments(const Fragment::Type type) const -> std::vector<Fragment_list::const_iterator>
+auto Sql_string::unique_fragments(const Fragment::Type type) const
+  -> std::vector<Fragment_list::const_iterator>
 {
   std::vector<Fragment_list::const_iterator> result;
   result.reserve(8);
@@ -737,7 +739,7 @@ namespace {
 /// @returns `true` if `c` is a valid character of unquoted SQL identifier.
 inline bool is_ident_char(const char c) noexcept
 {
-  return (std::isalnum(c, std::locale{}) || c == '_' || c == '$');
+  return isalnum(c, std::locale{}) || c == '_' || c == '$';
 }
 
 } // namespace
@@ -775,6 +777,7 @@ DMITIGR_PGFE_INLINE std::pair<Sql_string, const char*> Sql_string::parse_sql_inp
     multi_line_comment_star
   } state = top;
 
+  const std::locale loc;
   Sql_string result;
   int depth{};
   char current_char{*text};
@@ -853,7 +856,7 @@ DMITIGR_PGFE_INLINE std::pair<Sql_string, const char*> Sql_string::parse_sql_inp
 
     case dollar:
       assert(previous_char == '$');
-      if (std::isdigit(current_char, std::locale{})) {
+      if (isdigit(current_char, loc)) {
         state = positional_parameter;
         result.push_text(fragment);
         fragment.clear();
@@ -875,8 +878,8 @@ DMITIGR_PGFE_INLINE std::pair<Sql_string, const char*> Sql_string::parse_sql_inp
       continue;
 
     case positional_parameter:
-      assert(std::isdigit(previous_char, std::locale{}));
-      if (!std::isdigit(current_char, std::locale{})) {
+      assert(isdigit(previous_char, loc));
+      if (!isdigit(current_char, loc)) {
         state = top;
         result.push_positional_parameter(fragment);
         fragment.clear();

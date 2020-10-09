@@ -28,11 +28,10 @@ namespace dmitigr::pgfe {
  *
  * @brief A preparsed SQL strings.
  *
- * A dollar sign ("$") followed by digits is used to denote a parameter
- * with explicitly specified position. A colon (":") followed by alphanumerics
- * is used to denote a named parameter with automatically assignable position.
- * Currently the valid parameter positions are in range [1, 65535] and the
- * parameter_count() is always less than or equal to 65536.
+ * A dollar sign ("$") followed by digits is used to denote a parameter with
+ * explicitly specified position. A colon (":") followed by alphanumerics is
+ * used to denote a named parameter with automatically assignable position.
+ * The valid parameter positions range is [1, max_parameter_count()].
  *
  * Examples of valid SQL strings:
  *
@@ -56,11 +55,11 @@ public:
   /**
    * @returns A new instance of this class.
    *
-   * @param input - the normal SQL input, which may contain multiple
+   * @param input Any part of SQL statement, which may contain multiple
    * commands and comments. Comments can contain an associated extra data.
    *
    * @remarks While the SQL input may contain multiple commands, the parser
-   * stops on either semicolon or zero character.
+   * stops on either first top-level semicolon or zero character.
    *
    * @see extra().
    */
@@ -142,23 +141,25 @@ public:
     return fragments_.empty();
   }
 
-  /// @returns `true` if this SQL string is consists only from comments and blank line(-s).
+  /// @returns `true` if this SQL string is consists only of comments and blank line(-s).
   DMITIGR_PGFE_API bool is_query_empty() const noexcept;
 
   /**
-   * @returns `false` if the parameter at specified `index` is missing, or
-   * `true` otherwise. For example, the SQL string
+   * @returns `false` if the parameter at specified `index` is missing. For
+   * example, the SQL string
    * @code{sql} SELECT :p, $3 @endcode
    * has two missing parameters at indexes `0` and `1`.
    *
    * @par Requires
    * `(index < positional_parameter_count())`.
    *
-   * @remarks Missing parameters can only be eliminated by using append()
+   * @remarks Missing parameters can only be eliminated by using methods append()
    * or replace_parameter(). Thus, by replacing the parameter `p` with `$2, $1`
    * in the example above, missing parameters will be eliminated because the
    * statement will become the following:
    * @code{sql} SELECT $2, $1, $3 @endcode
+   *
+   * @see append(), replace_parameter().
    */
   bool is_parameter_missing(const std::size_t index) const noexcept
   {
@@ -167,8 +168,8 @@ public:
   }
 
   /**
-   * @returns `true` if this SQL string has a positional parameter with an index
-   * `i` such that `(is_parameter_missing(i) == false)`.
+   * @returns `true` if this SQL string has a positional parameter with the
+   * index `i` such that `(is_parameter_missing(i) == false)`.
    *
    * @see is_parameter_missing().
    */
@@ -179,10 +180,7 @@ public:
   }
 
   /**
-   * @brief Appends the specified SQL string to this instance.
-   *
-   * @par Requires
-   * `(appendix != nullptr)`.
+   * @brief Appends the specified SQL string.
    *
    * @par Effects
    * This instance contains the given `appendix`. If `(is_query_empty() == true)`
@@ -199,7 +197,7 @@ public:
    * `replacement`.
    *
    * @par Requires
-   * `(has_parameter(name) && replacement && replacement != this)`.
+   * `(has_parameter(name) && &replacement != this)`.
    *
    * @par Effects
    * This instance contains the given `replacement` instead of the parameter
@@ -250,7 +248,7 @@ public:
   /// constants tagged as `id` and `where`. The valid characters of the tags
   /// are: alphanumerics, the underscore character and the dash.
   /// Please, note, that the content in between the named tags might consist to
-  /// multiple lines. In such a cases there are rules of the content formatting:
+  /// multiple lines. There are rules of the content formatting in such cases:
   ///   1. The leading and trailing newline characters are always ignored and other
   ///   newline characters are always preserved;
   ///   2. If the content begins with non newline character, then the content is
@@ -319,8 +317,6 @@ private:
 
   static DMITIGR_PGFE_API std::pair<Sql_string, const char*> parse_sql_input(const char*);
 
-  constexpr static std::size_t maximum_parameter_count_{65536};
-
   struct Fragment final {
     enum class Type {
       text,
@@ -370,28 +366,25 @@ private:
   // Initializers
   // ---------------------------------------------------------------------------
 
-  void push_back_fragment__(const Fragment::Type type, const std::string& str)
+  void push_back_fragment(const Fragment::Type type, const std::string& str)
   {
     fragments_.emplace_back(type, str);
-    // The invariant should be checked by the caller.
+    assert(is_invariant_ok());
   }
 
   void push_text(const std::string& str)
   {
-    push_back_fragment__(Fragment::Type::text, str);
-    assert(is_invariant_ok());
+    push_back_fragment(Fragment::Type::text, str);
   }
 
   void push_one_line_comment(const std::string& str)
   {
-    push_back_fragment__(Fragment::Type::one_line_comment, str);
-    assert(is_invariant_ok());
+    push_back_fragment(Fragment::Type::one_line_comment, str);
   }
 
   void push_multi_line_comment(const std::string& str)
   {
-    push_back_fragment__(Fragment::Type::multi_line_comment, str);
-    assert(is_invariant_ok());
+    push_back_fragment(Fragment::Type::multi_line_comment, str);
   }
 
   void push_positional_parameter(const std::string& str);
@@ -414,7 +407,7 @@ private:
     const std::vector<Fragment_list::const_iterator>& unique_fragments,
     const std::string& str) const noexcept;
 
-  std::size_t named_parameter_index(const std::string& name) const
+  std::size_t named_parameter_index(const std::string& name) const noexcept
   {
     return positional_parameter_count() + unique_fragment_index(named_parameters_, name);
   }
@@ -428,22 +421,22 @@ private:
   // Predicates
   // ---------------------------------------------------------------------------
 
-  static bool is_space(const char c)
+  static bool is_space(const char c) noexcept
   {
-    return std::isspace(c, std::locale{});
+    return isspace(c, std::locale{});
   }
 
-  static bool is_blank_string(const std::string& str)
+  static bool is_blank_string(const std::string& str) noexcept
   {
-    return std::all_of(cbegin(str), cend(str), is_space);
+    return all_of(cbegin(str), cend(str), is_space);
   };
 
-  static bool is_comment(const Fragment& f)
+  static bool is_comment(const Fragment& f) noexcept
   {
     return (f.type == Fragment::Type::one_line_comment || f.type == Fragment::Type::multi_line_comment);
   };
 
-  static bool is_text(const Fragment& f)
+  static bool is_text(const Fragment& f) noexcept
   {
     return (f.type == Fragment::Type::text);
   }
