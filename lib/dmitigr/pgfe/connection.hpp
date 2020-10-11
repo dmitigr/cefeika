@@ -44,10 +44,9 @@ public:
   using Options = Connection_options;
 
   /**
-   * @returns A new instance of this class.
+   * The constructor.
    *
-   * @param options - the connection options. The value of `nullptr` means
-   * default connection options.
+   * @param options The default connection options are used if not specified.
    */
   explicit Connection(Options options = {})
     : options_{std::move(options)}
@@ -168,7 +167,7 @@ public:
   /**
    * @brief Attempts to connect to a PostgreSQL server.
    *
-   * @param timeout - the value of `-1` means `options()->connect_timeout()`,
+   * @param timeout The value of `-1` means `options()->connect_timeout()`,
    * the value of `std::nullopt` means *eternity*.
    *
    * @par Effects
@@ -211,11 +210,10 @@ public:
    *
    * @returns The bit mask indicating the readiness of the connection socket.
    *
-   * @param mask - the bit mask specifying the requested readiness of the
-   * connection socket;
-   *
-   * @param timeout - the maximum amount of time to wait before return. The
-   * value of `std::nullopt` denotes *eternity*.
+   * @param mask A bit mask specifying the requested readiness of the
+   * connection socket.
+   * @param timeout A maximum amount of time to wait before return. The
+   * value of `std::nullopt` *eternity*.
    *
    * @par Requires
    * `((!timeout || timeout->count() >= -1) &&
@@ -228,7 +226,7 @@ public:
   /**
    * @brief Polls the readiness of the connection socket.
    *
-   * @param mask - similar to wait_socket_readiness().
+   * @param mask Similar to wait_socket_readiness().
    *
    * @returns wait_socket_readiness(mask, std::chrono::milliseconds{});
    *
@@ -259,7 +257,7 @@ public:
    * @returns The value of type Response_status.
    *
    * @param wait_response Indicates whether to wait for response (which assumes
-   * the possible thread block).
+   * possible thread block).
    *
    * @par Requires
    * `is_connected()`.
@@ -295,7 +293,7 @@ public:
    * By default, the notice handler just prints notices to the standard error
    * and never throws.
    *
-   * @param handler - the handler to set.
+   * @param handler A handler to set.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -322,7 +320,7 @@ public:
    *
    * By default, a notification handler isn't set.
    *
-   * @param handler - the handler to set.
+   * @param handler A handler to set.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -536,7 +534,7 @@ public:
    * when the statement is prepared by using the SQL command `PREPARE`. Such a
    * statement must be described before using this method.)
    *
-   * @param name - the name of the prepared statement.
+   * @param name A name of prepared statement.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    *
@@ -586,7 +584,7 @@ public:
    *   - if the query provokes producing rows: the set of Row (if any), and
    *     finally the Completion.
    *
-   * @param queries - the string, containing the SQL query(-es). Adjacent
+   * @param queries A string, containing the SQL query(-es). Adjacent
    * queries must be separated by a semicolon.
    *
    * @par Effects
@@ -642,8 +640,8 @@ public:
    * @par Awaited responses
    * Prepared_statement
    *
-   * @param statement - the preparsed SQL string;
-   * @param name - the name of the statement to be prepared.
+   * @param statement A preparsed SQL string.
+   * @param name A name of statement to be prepared.
    *
    * @par Effects
    * - `is_awaiting_response()` - just after the successful request submission;
@@ -718,7 +716,7 @@ public:
    * @par Awaiting responses
    * Prepared_statement
    *
-   * @param name - the name of the prepared statement.
+   * @param name A name of prepared statement.
    *
    * @par Effects
    * - `is_awaiting_response()` - just after the successful request submission;
@@ -767,7 +765,7 @@ public:
    * @par Awaited responses
    * Completion
    *
-   * @param name - the name of the prepared statement.
+   * @param name A name of prepared statement.
    *
    * @par Effects
    * - `is_awaiting_response()` - just after the successful request submission;
@@ -814,8 +812,8 @@ public:
    * Similar to perform_async().
    *
    * @param callback Same as for process_responses().
-   * @param statement - the *preparsed* statement to execute;
-   * @param parameters - the parameters to bind with the parameterized statement.
+   * @param statement A *preparsed* statement to execute.
+   * @param parameters Parameters to bind with a parameterized statement.
    *
    * @par Requires
    * `(statement && !statement->has_missing_parameters() && is_ready_for_request())`.
@@ -882,8 +880,8 @@ public:
    * Similar to execute().
    *
    * @param callback Same as for process_responses().
-   * @param function - the function name to invoke;
-   * @param arguments - the function arguments.
+   * @param function A function name to invoke.
+   * @param arguments Function arguments.
    *
    * @par Requires
    * `(!function.empty() && is_ready_for_request())`.
@@ -969,8 +967,6 @@ public:
    * @brief Sets the default data format of the result for a next prepared
    * statement execution.
    *
-   * @param format - the data format to set.
-   *
    * @par Exception safety guarantee
    * Strong.
    */
@@ -999,7 +995,7 @@ public:
   /**
    * @brief Submits a request to create the large object and waits the result.
    *
-   * @param oid A desired oid. If `invalid_oid` assumes unused oid.
+   * @param oid A desired oid. `invalid_oid` means *unused oid*.
    *
    * @returns A valid oid if successful, or `invalid_oid` otherwise.
    *
@@ -1090,7 +1086,7 @@ public:
    *
    * @returns The suitably quoted literal.
    *
-   * @param literal - the literal to quote.
+   * @param literal A literal to quote.
    *
    * @par Requires
    * `is_connected()`.
@@ -1109,7 +1105,7 @@ public:
   /**
    * @brief Quotes the given string to be used as an identifier in a SQL query.
    *
-   * @param identifier - the identifier to quote.
+   * @param identifier An identifier to quote.
    *
    * @returns The suitably quoted identifier.
    *
@@ -1128,7 +1124,7 @@ public:
    * @brief Encodes the binary data into the textual representation to be used
    * in a SQL query.
    *
-   * @param binary_data - the Data of the binary format to escape.
+   * @param binary_data A binary Data to escape.
    *
    * @returns The encoded data in the hex format.
    *

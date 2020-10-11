@@ -124,8 +124,8 @@ public:
   /**
    * @returns New instance of the pool.
    *
-   * @param count The number of connections in the pool.
-   * @param options The connection options to be used for connections of pool.
+   * @param count A number of connections in the pool.
+   * @param options A connection options to be used for connections of pool.
    */
   explicit DMITIGR_PGFE_API Connection_pool(std::size_t count, const Connection_options& options = {});
 

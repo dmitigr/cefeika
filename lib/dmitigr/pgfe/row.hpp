@@ -71,7 +71,7 @@ public:
   /**
    * @returns The field data of this row, or invalid instance if NULL.
    *
-   * @param index - see Compositional.
+   * @param index See Compositional.
    *
    * @par Requires
    * `(index < size())`.
@@ -90,8 +90,8 @@ public:
   /**
    * @overload
    *
-   * @param name - see Compositional;
-   * @param offset - see Compositional.
+   * @param name See Compositional.
+   * @param offset See Compositional.
    *
    * @par Requires
    * `has_field(name, offset)`.

@@ -231,8 +231,8 @@ private:
    *
    * @returns Extracted data as key/value pairs.
    *
-   * @param input - the input string with comments.
-   * @param comment_type - the type of comments in the `input`.
+   * @param input An input string with comments.
+   * @param comment_type A type of comments in the `input`.
    */
   static std::vector<std::pair<Key, Value>> extract(const std::string& input, const Comment_type comment_type)
   {

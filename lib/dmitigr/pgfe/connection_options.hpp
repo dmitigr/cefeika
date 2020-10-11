@@ -57,7 +57,7 @@ public:
   /**
    * @brief Sets the timeout of the connect operation.
    *
-   * @param value - the value of `std::nullopt` means *eternity*.
+   * @param value A value of timeout. `std::nullopt` means *eternity*.
    *
    * @see Connection::connect().
    */
@@ -76,7 +76,7 @@ public:
   /**
    * @brief Sets the timeout of the get response operation.
    *
-   * @param value - the value of `std::nullopt` means *eternity*.
+   * @param value A value of timeout. `std::nullopt` means *eternity*.
    *
    * @see Connection::wait_response().
    */
@@ -146,7 +146,7 @@ public:
    * process is running under the specified username for successful
    * authentication.
    *
-   * @param value - the value of `std::nullopt` means *disabled*.
+   * @param value `std::nullopt` means *disabled*.
    *
    * @par Requires
    * `(communication_mode() == Communication_mode::uds && (!value || !value->empty()))`.
@@ -187,7 +187,7 @@ public:
   /**
    * @brief Sets the interval (in seconds) after which to start the keepalives.
    *
-   * @param value - the value of `std::nullopt` means *system default*.
+   * @param value `std::nullopt` means *system default*.
    *
    * @par Requires
    * `(communication_mode() == Communication_mode::net)`.
@@ -211,7 +211,7 @@ public:
   /**
    * @brief Sets the interval (in seconds) between the keepalives.
    *
-   * @param value - the value of `std::nullopt` means *system default*.
+   * @param value `std::nullopt` means *system default*.
    *
    * @par Requires
    * `(communication_mode() == Communication_mode::net)`.
@@ -235,7 +235,7 @@ public:
   /**
    * @brief Sets the number of keepalives before connection lost.
    *
-   * @param value - the value of `std::nullopt` means *system default*.
+   * @param value `std::nullopt` means *system default*.
    *
    * @par Requires
    * `(communication_mode() == Communication_mode::net)`.
@@ -260,7 +260,7 @@ public:
    * @brief Sets the numeric IP address of a PostgreSQL server
    * to avoid hostname lookup.
    *
-   * @param value - the valid IPv4 or IPv6 address.
+   * @param value A valid IPv4 or IPv6 address.
    *
    * @par Requires
    * `((communication_mode() == Communication_mode::net) && (value || net_hostname()))`.
@@ -292,7 +292,7 @@ public:
   /**
    * @brief Sets the name of the host to connect to.
    *
-   * @param value - must be a valid host name.
+   * @param value A valid host name.
    *
    * @par Requires
    * `((communication_mode() == Communication_mode::net) && (value || net_address()))`.

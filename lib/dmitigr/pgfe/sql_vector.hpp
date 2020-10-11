@@ -86,10 +86,10 @@ public:
    * @returns The index of the SQL string that owns by this vector, or `nidx`
    * if no SQL strings that meets the given criterias exists in this vector.
    *
-   * @param extra_name The name of the extra data field.
-   * @param extra_value The value of the extra data field.
-   * @param offset The starting position of lookup in this vector.
-   * @param extra_offset The starting position of lookup in the extra data.
+   * @param extra_name A name of the extra data field.
+   * @param extra_value A value of the extra data field.
+   * @param offset A starting position of lookup in this vector.
+   * @param extra_offset A starting position of lookup in the extra data.
    *
    * @see Sql_string::extra().
    */
@@ -99,7 +99,7 @@ public:
   /**
    * @returns The SQL string that owns by this vector.
    *
-   * @param index The index of SQL string to return.
+   * @param index An index of SQL string to return.
    *
    * @par Requires
    * `(index < size())`.
@@ -143,7 +143,7 @@ public:
   /**
    * @returns The absolute position of the query of the speficied SQL string.
    *
-   * @param index The index of SQL string.
+   * @param index An index of SQL string.
    *
    * @par Requires
    * `(index < sql_string_count())`.
@@ -153,7 +153,7 @@ public:
   /**
    * @brief Appends the SQL string to this vector.
    *
-   * @param sql_string The SQL string to append.
+   * @param sql_string A SQL string to append.
    */
   void push_back(Sql_string sql_string) noexcept
   {
@@ -170,8 +170,8 @@ public:
   /**
    * @brief Inserts the new SQL string to this vector.
    *
-   * @param index The index of where to insert.
-   * @param sql_string The SQL string to insert at the specified `index`.
+   * @param index An index of where to insert.
+   * @param sql_string A SQL string to insert at the specified `index`.
    *
    * @par Requires
    * `(index < size())`.

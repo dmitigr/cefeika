@@ -98,9 +98,9 @@ template<typename> struct Conversions;
  * @brief Converts the value of type Data to the value of type `T` by using
  * the specialization of struct template Conversions.
  *
- * @param data - the object to convert.
- * @param args - the optional arguments to be passed to the conversion routines.
- * @tparam T - the destination data type of the conversion.
+ * @param data An object to convert.
+ * @param args Optional arguments to be passed to the conversion routines.
+ * @tparam T A destination data type of the conversion.
  *
  * @par Requires
  * `(data != nullptr)`.
@@ -144,9 +144,9 @@ inline T to(const Data& data, Types&& ... args)
  * @brief Converts the value of type Row to the value of type `T` by using
  * the specialization of struct template Conversions.
  *
- * @param row - the object to convert.
- * @param args - the optional arguments to be passed to the conversion routines.
- * @tparam T - the destination data type of the conversion.
+ * @param row An object to convert.
+ * @param args Optional arguments to be passed to the conversion routines.
+ * @tparam T A destination data type of the conversion.
  *
  * @par Requires
  * `(row)`.
@@ -179,9 +179,9 @@ inline T to(Row&& row, Types&& ... args)
  * @brief Converts the value of type `T` to the value of type Data by using
  * the specialization of the struct template Conversions.
  *
- * @param value - the value of the type T to convert;
- * @param args - the optional arguments to be passed to the conversion routines;
- * @tparam T - the destination data type of the conversion.
+ * @param value A value of the type T to convert.
+ * @param args Optional arguments to be passed to the conversion routines.
+ * @tparam T A destination data type of the conversion.
  */
 template<typename T, typename ... Types>
 inline std::unique_ptr<Data> to_data(T&& value, Types&& ... args)

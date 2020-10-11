@@ -104,7 +104,7 @@ public:
   /**
    * @returns The field data of this composite, or `nullptr` if NULL.
    *
-   * @param index - see Compositional;
+   * @param index See Compositional.
    *
    * @par Requires
    * `(index < size())`.
@@ -124,8 +124,8 @@ public:
   /**
    * @overload
    *
-   * @param name - see Compositional;
-   * @param offset - see Compositional.
+   * @param name See Compositional.
+   * @param offset See Compositional.
    *
    * @par Requires
    * `has_field(name, offset)`.
@@ -161,8 +161,8 @@ public:
   /**
    * @brief Appends the field to this composite.
    *
-   * @param name - see Compositional.
-   * @param data - the data to set.
+   * @param name See Compositional.
+   * @param data A data to set.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -192,9 +192,10 @@ public:
   /**
    * @brief Inserts new field to this composite.
    *
-   * @param index - the index of the field before which the new field will be inserted;
-   * @param name - the name of the new field;
-   * @param data - the data to set to the new field.
+   * @param index An index of a field before which
+   * a new field will be inserted.
+   * @param name A name of a new field.
+   * @param data A data of a new field.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -219,9 +220,9 @@ public:
   /**
    * @overload
    *
-   * @param name - the name of the field before which the new field will be inserted;
-   * @param new_field_name - the name of the new field;
-   * @param data - the data to set to the new field.
+   * @param name A name of a field before which a new field will be inserted.
+   * @param new_field_name A name of a new field.
+   * @param data A data of a new field.
    *
    * @par Requires
    * `has_field(name, 0)`.
@@ -257,8 +258,8 @@ public:
   /**
    * @overload
    *
-   * @param name - see Compositional;
-   * @param offset - see Compositional.
+   * @param name See Compositional.
+   * @param offset See Compositional.
    *
    * @par Effects
    * `!has_field(name, offset)`.
