@@ -109,8 +109,8 @@ public:
   }
 
   /**
-   * @returns The last registered time point when is_connected() started to return `true`, or
-   * `std::nullopt` if the session wasn't started.
+   * @returns The last registered time point when is_connected() started to
+   * return `true`, or `std::nullopt` if the session wasn't started.
    */
   std::optional<std::chrono::system_clock::time_point> session_start_time() const noexcept
   {
@@ -124,7 +124,7 @@ public:
   }
 
   /**
-   * @returns The identifier of the server process.
+   * @returns The PID of server.
    *
    * @see Notification::server_pid().
    */
@@ -424,7 +424,7 @@ public:
     assert(is_invariant_ok());
   }
 
-  /// @returns A current error handler.
+  /// @returns The current error handler.
   const Error_handler& error_handler() noexcept
   {
     return error_handler_;
@@ -460,8 +460,8 @@ public:
    * @brief Processes the responses.
    *
    * @param callback A function to be called for each retrieved row. The callback:
-   *   -# can be defined with a parameter of type `Row&&`. The exception
-   *   will be thrown on error in this case.
+   *   -# can be defined with a parameter of type `Row&&`. An exception will be
+   *   thrown on error in this case.
    *   -# can be defined with two parameters of type `Row&&` and `Error&&`.
    *   In case of error an instance of type Error will be passed as the second
    *   argument of the callback instead of throwing exception and method will
@@ -473,7 +473,7 @@ public:
    *   -# can return `void` to indicate that execution must be proceed until a
    *   completion or an error.
    *
-   * @returns An instance of type Completion.
+   * @returns The instance of type Completion.
    */
   template<typename F>
   std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
@@ -519,7 +519,8 @@ public:
   DMITIGR_PGFE_API Completion completion() noexcept;
 
   /**
-   * @returns The prepared statement, or `nullptr` if the last operation wasn't prepare.
+   * @returns The pointer to a last prepared statement, or `nullptr` if the last
+   * operation wasn't prepare.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    */
@@ -529,10 +530,11 @@ public:
   }
 
   /**
-   * @returns The prepared statement by its name, or `nullptr` if prepared
-   * statement with the given name is unknown by Connection. (This is possible
-   * when the statement is prepared by using the SQL command `PREPARE`. Such a
-   * statement must be described before using this method.)
+   * @returns The pointer to a prepared statement by its name, or `nullptr` if
+   * prepared statement with the given name is unknown by this instance. (This
+   * is possible, for example, when the statement is prepared by using the SQL
+   * command `PREPARE`. Such a statement must be described first in order to be
+   * accessible by this method.)
    *
    * @param name A name of prepared statement.
    *
@@ -976,10 +978,7 @@ public:
     assert(is_invariant_ok());
   }
 
-  /**
-   * @returns The default data format of the result for a next prepared
-   * statement execution.
-   */
+  /// @returns The default data format of a prepared statement execution result.
   Data_format result_format() const noexcept
   {
     return default_result_format_;
@@ -995,9 +994,9 @@ public:
   /**
    * @brief Submits a request to create the large object and waits the result.
    *
-   * @param oid A desired oid. `invalid_oid` means *unused oid*.
+   * @param oid A desired OID. `invalid_oid` means *unused oid*.
    *
-   * @returns A valid oid if successful, or `invalid_oid` otherwise.
+   * @returns The valid OID if successful, or `invalid_oid` otherwise.
    *
    * @par Requires
    * `(is_ready_for_request())`.
@@ -1010,7 +1009,7 @@ public:
   /**
    * @brief Submits a request to open the large object and waits the result.
    *
-   * @returns A valid instance if successful, or invalid instance otherwise.
+   * @returns The valid instance if successful.
    *
    * @par Requires
    * `(is_ready_for_request())`.
@@ -1041,7 +1040,7 @@ public:
    * @brief Submits multiple requests to import the specified file as a large
    * object.
    *
-   * @returns The OID of the new large object on success, or `invalid_oid`
+   * @returns The OID of a new large object on success, or `invalid_oid`
    * otherwise.
    *
    * @par Requires
@@ -1257,12 +1256,13 @@ private:
   /*
    * Attempts to find the prepared statement.
    *
-   * @returns The pointer to the founded prepared statement, or `nullptr` if not found.
+   * @returns The pointer to a prepared statement, or `nullptr` if no statement
+   * with the given `name` known by this instance.
    */
   Prepared_statement* ps(const std::string& name) const noexcept;
 
   /*
-   * Register prepared statement.
+   * Registers a prepared statement.
    *
    * @returns The pointer to the registered prepared statement.
    */

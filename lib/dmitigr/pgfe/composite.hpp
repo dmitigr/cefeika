@@ -24,8 +24,6 @@ namespace dmitigr::pgfe {
  *
  * @brief A composite type.
  *
- * The implementation of Composite that stores the data as a vector.
- *
  * @remarks Fields removing will not invalidate pointers returned by data().
  */
 class Composite final : public Compositional {

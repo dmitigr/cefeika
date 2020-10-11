@@ -31,7 +31,7 @@ template<> struct Conversions<Row> {
  * @brief The generic implementation for collecting rows into any STL-compatible
  * container.
  *
- * The conversion is performed by applying the conversion routine
+ * Conversion is performed by applying the conversion routine
  * `Conversions<typename Container::value_type>::to_type()` to each row.
  *
  * Example of usage:

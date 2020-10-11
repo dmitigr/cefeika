@@ -32,7 +32,7 @@ public:
   virtual bool empty() const noexcept = 0;
 
   /**
-   * @returns The name of the field by the `index`.
+   * @returns The name of the field.
    *
    * @par Requires
    * `(index < size())`.

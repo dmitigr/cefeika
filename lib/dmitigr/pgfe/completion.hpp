@@ -60,13 +60,13 @@ public:
 
   /**
    * @returns The operation name which may be:
-   *   - the empty string that denotes a response to an empty query request;
-   *   - the string "invalid response" that denotes an ununderstood response;
-   *   - a word in uppercase that identifies the completed SQL command;
-   *   - a word in lowercase that identifies the completed operation.
+   *   -# an empty string that denotes a response to an empty query request;
+   *   -# the string "invalid response" that denotes an ununderstood response;
+   *   -# a word in uppercase that identifies the completed SQL command;
+   *   -# a word in lowercase that identifies the completed operation.
    *
-   * @remarks The operation name is not always matches to the SQL command name.
-   * For example, the operation name for `END` command is "COMMIT", the
+   * @remarks The operation name is not always matches a SQL command name. For
+   * example, the operation name for `END` command is "COMMIT", the
    * operation name for `CREATE TABLE AS` command is "SELECT" etc.
    */
   const std::string& operation_name() const noexcept

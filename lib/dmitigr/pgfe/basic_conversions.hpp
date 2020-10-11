@@ -25,7 +25,7 @@ struct Basic_conversions {
   using Type = T;
 
   /**
-   * @returns The object of the type `Type` converted from the object of the type Data.
+   * @returns The object of type `Type` converted from the `data`.
    *
    * @par Requires
    * `(data != nullptr)`.

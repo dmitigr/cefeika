@@ -31,9 +31,7 @@ public:
   /// An alias of Data_format.
   using Format = Data_format;
 
-  /**
-   * The destructor.
-   */
+  /// The destructor.
   virtual ~Data() = default;
 
   /**
@@ -93,14 +91,12 @@ public:
     std::string_view bytes,
     Data_format format = Data_format::text);
 
-  /**
-   * @returns The copy of this instance.
-   */
+  /// @returns The copy of this instance.
   virtual std::unique_ptr<Data> to_data() const = 0;
 
   /**
-   * @returns The result of conversion of text representation
-   * of the PostgreSQL's Bytea data type to the plain binary data.
+   * @returns The result of conversion of text representation of the PostgreSQL's
+   * Bytea data type to a plain binary data.
    *
    * @par Requires
    * `(format() == Data_format::text)`.
@@ -123,23 +119,17 @@ public:
   /// @name Observers and modifiers
   /// @{
 
-  /**
-   * @returns The data format.
-   */
+  /// @returns The data format.
   virtual Data_format format() const noexcept = 0;
 
-  /**
-   * @returns The data size in bytes.
-   */
+  /// @returns The data size in bytes.
   virtual std::size_t size() const noexcept = 0;
 
-  /**
-   * @returns `(size() == 0)`.
-   */
+  /// @returns `(size() == 0)`.
   virtual bool is_empty() const noexcept = 0;
 
   /**
-   * @returns The pointer to the unmodifiable character array.
+   * @returns The pointer to a unmodifiable character array.
    *
    * @remarks The result is not guaranteed to be zero-terminated.
    * @remarks Any bits stored in the array shall not be altered!

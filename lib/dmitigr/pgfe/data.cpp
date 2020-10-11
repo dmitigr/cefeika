@@ -56,16 +56,12 @@ protected:
   Storage storage_;
 };
 
-/**
- * @brief Alias of container_Data<std::string>.
- */
+/// The alias of container_Data<std::string>.
 using string_Data = container_Data<std::string>;
 
 // =============================================================================
 
-/**
- * @brief The generic implementation of Data based on a custom heap storage.
- */
+/// The generic implementation of Data based on a custom heap storage.
 template<typename T, class Deleter = std::default_delete<T>>
 class memory_Data final : public Data {
 public:
@@ -110,21 +106,15 @@ private:
   std::unique_ptr<T, Deleter> storage_;
 };
 
-/**
- * @brief Alias of memory_Data<char[]>.
- */
+/// The alias of memory_Data<char[]>.
 using array_memory_Data = memory_Data<char[]>;
 
-/**
- * @brief Alias of memory_Data<void, void(*)(void*)>.
- */
+/// The alias of memory_Data<void, void(*)(void*)>.
 using custom_memory_Data = memory_Data<void, void(*)(void*)>;
 
 // =============================================================================
 
-/**
- * @brief The implementation of empty Data.
- */
+/// The implementation of empty Data.
 class empty_Data final : public Data {
 public:
   explicit empty_Data(const Format format)

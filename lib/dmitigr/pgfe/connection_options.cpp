@@ -377,7 +377,7 @@ namespace detail::pq {
 // Connection_options
 // -----------------------------------------------------------------------------
 
-/// The generator of connection options for libpq from Connection_options.
+/// Connection options for libpq from Connection_options.
 class Connection_options final {
 public:
   /// The constructor.
@@ -493,7 +493,7 @@ public:
   }
 
   /**
-   * @returns The libpq parameter keywords.
+   * @returns Parameter keywords for libpq.
    *
    * @see https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-PARAMKEYWORDS
    */
@@ -503,7 +503,7 @@ public:
   }
 
   /**
-   * @returns The libpq parameter values.
+   * @returns Parameter values for libpq.
    *
    * @see keywords().
    */
@@ -523,7 +523,7 @@ private:
    * @brief A libpq keyword.
    *
    * @remarks The keyword "host" is used in update_cache() as the initial value
-   * in for-loop. Thus, it must be 0!
+   * in for-loop. Thus, it must be `0`!
    */
   enum Keyword : std::size_t {
     host = 0, hostaddr, port,
@@ -537,11 +537,11 @@ private:
     gsslib, passfile, connect_timeout, client_encoding, options,
     application_name, fallback_application_name, service, target_session_attrs,
 
-    // The last member is special - it denotes keyword count
+    // The last member is special - it denotes keyword count.
     Keyword_count_
   };
 
-  /// @returns The libpq keyword literal.
+  /// @returns The keyword literal for libpq.
   static const char* to_literal(const Keyword keyword)
   {
     switch (keyword) {

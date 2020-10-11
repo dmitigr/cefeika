@@ -62,8 +62,8 @@ public:
   DMITIGR_PGFE_API std::size_t index_of(const std::string& name, std::size_t offset = 0) const noexcept override;
 
   /**
-   * @returns The object ID of the table if the field at `index` can
-   * be identified as a column of a specific table, or `0` otherwise.
+   * @returns The OID of the table if a field at `index` can be identified as a
+   * column of a specific table, or `0` otherwise.
    *
    * @param index See Compositional.
    *
@@ -118,7 +118,7 @@ public:
   }
 
   /**
-   * @returns The object identifier of the field's data type.
+   * @returns The OID of the field's data type.
    *
    * @param index See Compositional.
    *

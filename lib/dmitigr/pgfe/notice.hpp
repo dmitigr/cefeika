@@ -13,10 +13,11 @@ namespace dmitigr::pgfe {
 /**
  * @ingroup main
  *
- * @brief An unprompted (asynchronous) notice from a PostgreSQL server.
+ * @brief An unprompted (asynchronous) information about an activity
+ * from a PostgreSQL server.
  *
- * The notice is an information about an activity of the PostgreSQL server.
- * (For example, it might be the database administrator's commands.)
+ * In particular, notice might represents the information about the database
+ * administrator's commands.
  *
  * @remarks It should not be confused with the Notification signal.
  */

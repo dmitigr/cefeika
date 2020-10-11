@@ -196,10 +196,10 @@ enum class Problem_severity {
 /**
  * @ingroup main
  *
- * @returns The result of conversion of `str` to the value of type
- * Problem_severity, or `-1` if `str` doesn't represents the problem severity.
+ * @param str The string that denotes a problem severity. Must be in uppercase.
  *
- * @remarks The value of `str` is case-sensitive.
+ * @returns The result of conversion of `str` to a value of type Problem_severity,
+ * or `-1` if `str` doesn't represents a problem severity.
  */
 inline auto to_problem_severity(const std::string_view str) noexcept
 {

@@ -420,7 +420,7 @@ namespace dmitigr::pgfe {
  *
  * @brief The basic implementation of the conversion algorithms for numerics.
  *
- * The support of the following data formats is implemented:
+ * Support of the following data formats is implemented:
  *   - for input data  - Data_format::text, Data_format::binary;
  *   - for output data - Data_format::text.
  *
@@ -452,7 +452,7 @@ struct Conversions final : public Basic_conversions<T, detail::Generic_string_co
  *
  * @brief Full specialization of Conversions for `std::string`.
  *
- * The support of the following data formats is implemented:
+ * Support of the following data formats is implemented:
  *   - instances of the type `std::string` can be created from both Data_format::text
  *     and Data_format::binary formats;
  *   - instances of the type Data can only be created in Data_format::text format.
@@ -466,7 +466,7 @@ struct Conversions<std::string> final : public Basic_conversions<std::string,
  *
  * @brief Full specialization of Conversions for `std::string_view`.
  *
- * The support of the following data formats is implemented:
+ * Support of the following data formats is implemented:
  *   - instances of the type `std::string_view` can be created from both Data_format::text
  *     and Data_format::binary formats;
  *   - instances of the type Data can only be created in Data_format::text format.
@@ -536,7 +536,7 @@ struct Conversions<long double> final : public Numeric_conversions<long double>{
  *
  * @brief Full specialization of Conversions for `char`.
  *
- * The support of the following data formats is implemented:
+ * Support of the following data formats is implemented:
  *   - for input data  - Data_format::text, Data_format::binary;
  *   - for output data - Data_format::text.
  *
@@ -552,7 +552,7 @@ struct Conversions<char> final : public Basic_conversions<char,
  *
  * @brief Full specialization of Conversions for `bool`.
  *
- * The support of the following data formats is implemented:
+ * Support of the following data formats is implemented:
  *   - for input data  - Data_format::text, Data_format::binary;
  *   - for output data - Data_format::text.
  *

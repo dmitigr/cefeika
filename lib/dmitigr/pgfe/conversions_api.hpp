@@ -72,14 +72,13 @@ namespace dmitigr::pgfe {
  *
  * Variadic arguments (args) are *optional* and may be used in cases when
  * some extra information (for example, a server version) need to be passed into
- * the conversion routine. The absence of these arguments for conversion
- * routines means *the latest default*. In particular it means that there is no
- * guarantee that conversion will work properly with data from PostgreSQL
- * servers of older versions than the latest one. If the application works with
- * multiple PostgreSQL servers of the same (latest) versions these arguments can
- * be just ignored.
+ * the conversion routine. Absence of these arguments for conversion routines
+ * means *the latest default*. In particular it means that there is no guarantee
+ * that conversion will work properly with data from PostgreSQL servers of older
+ * versions than the latest one. If the application works with multiple PostgreSQL
+ * servers of the same (latest) versions these arguments can be just ignored.
  *
- * @remarks The implementation of generic conversions will throw exceptions of
+ * @remarks An implementation of generic conversions will throw exceptions of
  * type `std::runtime_error` if the following is not fulfilled:
  *   - effect of `operator>>` must be `(stream.eof() == true)`;
  *   - effect of `operator<<` must be `(stream.fail() == false)`.

@@ -171,7 +171,7 @@ using Na = Named_argument;
  *     query for performing or statement for preparing is submitted to the server.
  *
  * Maximum allowable size of the data for binding with parameters of prepared
- * statements depends on the PostgreSQL server version. The exception will be
+ * statements depends on the PostgreSQL server version. An exception will be
  * thrown if the mentioned maximum exceeds.
  *
  * @see Connection::prepare_statement(), Connection::unprepare_statement(), Connection::prepared_statement().
@@ -284,9 +284,9 @@ public:
    * @brief Binds the parameter of the specified index with the value of type Data.
    *
    * @par Requires
-   * - The `index` requirements:
+   * - `index` requirements:
    *   `((index < maximum_parameter_count() && ! is_preparsed() && ! is_described()) || index < parameter_count())`.
-   * - The `data` requirements:
+   * - `data` requirements:
    *   `(!data || data->size() <= maximum_data_size())`.
    *
    * @par Effects
@@ -347,7 +347,7 @@ public:
    * converted to the Data by using to_data().
    *
    * @par Requires
-   * The value must be convertible to the Data.
+   * `T` must be convertible to `Data`.
    */
   template<typename T>
   std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(std::size_t index, T&& value) noexcept
