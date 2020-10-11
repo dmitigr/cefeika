@@ -19,7 +19,7 @@ namespace dmitigr::pgfe {
 /**
  * @ingroup utilities
  *
- * @brief A container of SQL strings and useful operations on it.
+ * @brief A container of SQL strings and operations on it.
  *
  * @see Sql_string.
  */
@@ -32,7 +32,7 @@ public:
   Sql_vector() = default;
 
   /**
-   * @brief Parses the input to make a SQL vector at once.
+   * @brief Parses the input to make the SQL vector at once.
    *
    * For example, consider the following input:
    *   @code{sql}
