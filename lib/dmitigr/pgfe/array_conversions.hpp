@@ -769,9 +769,9 @@ auto to_container_of_optionals(Container<T, Allocator<T>>&& container)
  * @endparblock
  *
  * @tparam T The type of the elements of the Container (which may be a container
- * of optionals);
- * @tparam Optional The optional template class, such as `std::optional`;
- * @tparam Container The container template class, such as `std::vector`;
+ * of optionals).
+ * @tparam Optional The optional template class, such as `std::optional`.
+ * @tparam Container The container template class, such as `std::vector`.
  * @tparam Allocator The allocator template class, such as `std::allocator`.
  *
  * The support of the following data formats is implemented:
@@ -799,8 +799,8 @@ struct Conversions<Container<Optional<T>, Allocator<Optional<T>>>> final
  *   - convertible (there shall be a suitable specialization of Conversions).
  * @endparblock
  *
- * @tparam T The type of the elements of the Container (which may be a container);
- * @tparam Container The container template class, such as `std::vector`;
+ * @tparam T The type of the elements of the Container (which may be a container).
+ * @tparam Container The container template class, such as `std::vector`.
  * @tparam Allocator The allocator template class, such as `std::allocator`.
  *
  * @throws An instance of type Improper_value_type_of_container when converting
