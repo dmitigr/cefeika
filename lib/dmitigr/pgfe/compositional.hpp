@@ -29,7 +29,7 @@ public:
   virtual std::size_t size() const noexcept = 0;
 
   /// @returns `(size() > 0)`
-  virtual bool empty() const noexcept = 0;
+  virtual bool is_empty() const noexcept = 0;
 
   /**
    * @returns The name of the field.
@@ -55,7 +55,7 @@ private:
 
   virtual bool is_invariant_ok() const
   {
-    const bool fields_ok = empty() || size() > 0;
+    const bool fields_ok = is_empty() || size() > 0;
     const bool field_names_ok = [this]
     {
       const std::size_t sz = size();

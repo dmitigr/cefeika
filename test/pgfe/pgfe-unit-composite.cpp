@@ -14,12 +14,12 @@ int main(int, char* argv[])
   try {
     pgfe::Composite composite;
     ASSERT(composite.size() == 0);
-    ASSERT(composite.empty());
+    ASSERT(composite.is_empty());
     // Modifying the composite.
     ASSERT(composite.size() == 0);
     composite.append("foo", {});
     ASSERT(composite.size() == 1);
-    ASSERT(!composite.empty());
+    ASSERT(!composite.is_empty());
     ASSERT(composite.name_of(0) == "foo");
     ASSERT(composite.index_of("foo") == 0);
     ASSERT(composite.data(0) == nullptr);
@@ -31,7 +31,7 @@ int main(int, char* argv[])
     ASSERT(composite.size() == 1);
     composite.append("bar", "bar data");
     ASSERT(composite.size() == 2);
-    ASSERT(!composite.empty());
+    ASSERT(!composite.is_empty());
     ASSERT(composite.name_of(1) == "bar");
     ASSERT(composite.index_of("bar") == 1);
     ASSERT(pgfe::to<std::string_view>(composite.data(1).get()) == "bar data");

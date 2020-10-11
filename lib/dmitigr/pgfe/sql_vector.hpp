@@ -77,7 +77,7 @@ public:
   DMITIGR_PGFE_API std::size_t non_empty_count() const noexcept;
 
   /// @returns `true` if this SQL vector is empty.
-  bool empty() const noexcept
+  bool is_empty() const noexcept
   {
     return storage_.empty();
   }

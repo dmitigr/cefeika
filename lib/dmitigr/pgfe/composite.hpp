@@ -74,8 +74,8 @@ public:
     return datas_.size();
   }
 
-  /// @see Compositional::empty().
-  bool empty() const noexcept override
+  /// @see Compositional::is_empty().
+  bool is_empty() const noexcept override
   {
     return datas_.empty();
   }

@@ -45,9 +45,9 @@ public:
     return info_.size();
   }
 
-  bool empty() const noexcept override
+  bool is_empty() const noexcept override
   {
-    return info_.empty();
+    return info_.is_empty();
   }
 
   const std::string& name_of(const std::size_t index) const noexcept override
