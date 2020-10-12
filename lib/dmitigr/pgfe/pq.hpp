@@ -10,6 +10,7 @@
 
 #include <libpq-fe.h>
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 
@@ -154,6 +155,14 @@ public:
   const ::PGresult* native_handle() const noexcept
   {
     return pgresult_.get();
+  }
+
+  /// Swaps this instance with `rhs`.
+  void swap(Result& rhs) noexcept
+  {
+    using std::swap;
+    swap(status_, rhs.status_);
+    swap(pgresult_, rhs.pgresult_);
   }
 
   /**
@@ -450,6 +459,12 @@ private:
   Status status_{static_cast<Status>(-1)}; // optimization
   std::unique_ptr< ::PGresult> pgresult_;
 };
+
+/// Overload of Result::swap().
+inline void swap(Result& lhs, Result& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
 
 } // namespace dmitigr::pgfe::detail::pq
 
