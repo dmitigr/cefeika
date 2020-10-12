@@ -22,7 +22,6 @@
 #include <string>
 #include <type_traits>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace dmitigr::pgfe {
@@ -530,7 +529,7 @@ public:
    */
   bool is_described() const noexcept
   {
-    return static_cast<bool>(description_);
+    return static_cast<bool>(description_.pq_result_);
   }
 
   /**
@@ -584,7 +583,7 @@ private:
   Connection* connection_{};
   std::chrono::system_clock::time_point session_start_time_;
   std::vector<Parameter> parameters_;
-  std::optional<std::variant<detail::pq::Result, Row_info>> description_;
+  Row_info description_; // may be invalid, see set_description()
 
   /// Constructs when preparing.
   Prepared_statement(std::string name, Connection* connection, const Sql_string* preparsed);
@@ -688,14 +687,25 @@ private:
 
   void set_description(detail::pq::Result&& r)
   {
+    assert(r);
+    assert(!is_described());
+
     if (!preparsed_)
       parameters_.resize(static_cast<std::size_t>(r.ps_param_count()));
 
-    if (r.field_count() > 0)
+    /*
+     * If result contains fields info, initialize Row_info.
+     * Otherwise, just set description_.pq_result_.
+     */
+    if (r.field_count() > 0) {
       description_ = Row_info{std::move(r)};
-    else
-      description_ = std::move(r);
+      assert(description_);
+    } else {
+      description_.pq_result_ = std::move(r);
+      assert(!description_);
+    }
 
+    assert(is_described());
     assert(is_invariant_ok());
   }
 };

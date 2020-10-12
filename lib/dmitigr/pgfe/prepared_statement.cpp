@@ -27,39 +27,15 @@ DMITIGR_PGFE_INLINE std::size_t Prepared_statement::parameter_index(const std::s
   return i - b;
 }
 
-// FIXME: std::visit is slow to compile
 DMITIGR_PGFE_INLINE std::uint_fast32_t Prepared_statement::parameter_type_oid(const std::size_t index) const noexcept
 {
   assert(index < parameter_count());
-  if (is_described()) {
-    return std::visit(
-      [index](const auto& descr) -> std::uint_fast32_t
-      {
-        using T = std::decay_t<decltype (descr)>;
-        if constexpr (std::is_same_v<T, detail::pq::Result>)
-          return descr.ps_param_type_oid(static_cast<int>(index));
-        else if constexpr (std::is_same_v<T, Row_info>)
-          return descr.pq_result_.ps_param_type_oid(static_cast<int>(index));
-      }, *description_);
-  } else
-    return invalid_oid;
+  return is_described() ? description_.pq_result_.ps_param_type_oid(static_cast<int>(index)) : invalid_oid;
 }
 
-// std::visit is slow to compile
 DMITIGR_PGFE_INLINE const Row_info* Prepared_statement::row_info() const noexcept
 {
-  if (is_described()) {
-    return std::visit(
-      [](const auto& descr) -> const Row_info*
-      {
-        using T = std::decay_t<decltype (descr)>;
-        if constexpr (std::is_same_v<T, detail::pq::Result>)
-          return nullptr;
-        else if constexpr (std::is_same_v<T, Row_info>)
-          return &descr;
-      }, *description_);
-  } else
-    return nullptr;
+  return description_ ? &description_ : nullptr;
 }
 
 DMITIGR_PGFE_INLINE Prepared_statement::Prepared_statement(std::string name,

@@ -43,6 +43,25 @@ public:
   /// Move-assignable.
   Row_info& operator=(Row_info&&) = default;
 
+  /**
+   * @returns `true` if the instance is valid.
+   *
+   * @warning The behavior is undefined if any method other than this one, the
+   * destructor or the move-assignment operator is called on an instance for
+   * which `(is_valid() == false)`. It's okay to move an instance for which
+   * `(is_valid() == false)`.
+   */
+  bool is_valid() const noexcept
+  {
+    return static_cast<bool>(pq_result_ && shared_field_names_);
+  }
+
+  /// @returns `true` if the instance is valid
+  explicit operator bool() const noexcept
+  {
+    return is_valid();
+  }
+
   /// @see Compositional::size().
   std::size_t size() const noexcept override
   {
