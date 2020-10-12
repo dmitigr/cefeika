@@ -6,13 +6,13 @@
 
 namespace dmitigr::pgfe {
 
-DMITIGR_PGFE_INLINE Sql_vector::Sql_vector(const std::string& input)
+DMITIGR_PGFE_INLINE Sql_vector::Sql_vector(std::string_view input)
 {
-  const char* text{input.c_str()};
-  while (*text != '\0') {
-    auto [str, ptr] = Sql_string::parse_sql_input(text);
+  while (!input.empty()) {
+    auto [str, pos] = Sql_string::parse_sql_input(input);
     storage_.emplace_back(std::move(str));
-    text = ptr;
+    assert(pos <= input.size());
+    input = input.substr(pos);
   }
 }
 

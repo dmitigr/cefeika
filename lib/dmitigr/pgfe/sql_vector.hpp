@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -54,7 +55,7 @@ public:
    * @param input Any part of SQL statement, such as a content of a file with
    * multiple SQL commands and comments.
    */
-  explicit DMITIGR_PGFE_API Sql_vector(const std::string& input);
+  explicit DMITIGR_PGFE_API Sql_vector(std::string_view input);
 
   /// @overload
   explicit Sql_vector(std::vector<Sql_string>&& storage)

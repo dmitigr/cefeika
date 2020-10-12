@@ -18,6 +18,7 @@
 #include <locale>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -63,10 +64,13 @@ public:
    *
    * @see extra().
    */
-  DMITIGR_PGFE_API Sql_string(const char* const text);
+  DMITIGR_PGFE_API Sql_string(std::string_view text);
 
   /// @overload
   DMITIGR_PGFE_API Sql_string(const std::string& text);
+
+  /// @overload
+  DMITIGR_PGFE_API Sql_string(const char* text);
 
   /// Copy-constructible.
   DMITIGR_PGFE_API Sql_string(const Sql_string& rhs);
@@ -315,7 +319,8 @@ public:
 private:
   friend Sql_vector;
 
-  static DMITIGR_PGFE_API std::pair<Sql_string, const char*> parse_sql_input(const char*);
+  static DMITIGR_PGFE_API std::pair<Sql_string, std::string_view::size_type>
+  parse_sql_input(std::string_view);
 
   struct Fragment final {
     enum class Type {

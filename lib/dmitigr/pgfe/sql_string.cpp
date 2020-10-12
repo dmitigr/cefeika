@@ -6,21 +6,24 @@
 #include "dmitigr/pgfe/sql_string.hpp"
 
 #include <memory>
+#include <cstring>
 #include <stdexcept>
 
 namespace dmitigr::pgfe {
 
-DMITIGR_PGFE_INLINE Sql_string::Sql_string(const char* const text) // FIXME: string_view
+DMITIGR_PGFE_INLINE Sql_string::Sql_string(const std::string_view text)
   : Sql_string{parse_sql_input(text).first}
 {
   assert(is_invariant_ok());
 }
 
 DMITIGR_PGFE_INLINE Sql_string::Sql_string(const std::string& text)
-  : Sql_string{text.c_str()}
-{
-  assert(is_invariant_ok());
-}
+  : Sql_string{std::string_view{text}}
+{}
+
+DMITIGR_PGFE_INLINE Sql_string::Sql_string(const char* const text)
+  : Sql_string{std::string_view{text, std::strlen(text)}}
+{}
 
 DMITIGR_PGFE_INLINE Sql_string::Sql_string(const Sql_string& rhs)
   : fragments_{rhs.fragments_}
@@ -748,10 +751,9 @@ inline bool is_ident_char(const char c) noexcept
  * @returns Preparsed SQL string in pair with the pointer to a character
  * that follows returned SQL string.
  */
-DMITIGR_PGFE_INLINE std::pair<Sql_string, const char*> Sql_string::parse_sql_input(const char* text)
+DMITIGR_PGFE_INLINE std::pair<Sql_string, std::string_view::size_type>
+Sql_string::parse_sql_input(const std::string_view text)
 {
-  assert(text);
-
   enum {
     top,
 
@@ -780,13 +782,16 @@ DMITIGR_PGFE_INLINE std::pair<Sql_string, const char*> Sql_string::parse_sql_inp
   const std::locale loc;
   Sql_string result;
   int depth{};
-  char current_char{*text};
+  char current_char{};
   char previous_char{};
   char quote_char{};
   std::string fragment;
   std::string dollar_quote_leading_tag_name;
   std::string dollar_quote_trailing_tag_name;
-  for (; current_char; previous_char = current_char, current_char = *++text) {
+  const auto b = cbegin(text);
+  auto i = b;
+  for (const auto e = cend(text); i != e; previous_char = current_char, ++i) {
+    current_char = *i;
     switch (state) {
     case top:
       switch (current_char) {
@@ -1072,7 +1077,7 @@ DMITIGR_PGFE_INLINE std::pair<Sql_string, const char*> Sql_string::parse_sql_inp
   switch (state) {
   case top:
     if (current_char == ';')
-      ++text;
+      ++i;
     if (!fragment.empty())
       result.push_text(fragment);
     break;
@@ -1097,7 +1102,7 @@ DMITIGR_PGFE_INLINE std::pair<Sql_string, const char*> Sql_string::parse_sql_inp
   }
   }
 
-  return std::make_pair(result, text);
+  return std::make_pair(result, i - b);
 }
 
 } // namespace dmitigr::pgfe
