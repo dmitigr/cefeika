@@ -748,16 +748,9 @@ public:
    */
   Prepared_statement* describe_statement(const std::string& name)
   {
-    // TODO: share implementation with prepare_statement__().
     assert(is_ready_for_request());
     describe_statement_async(name);
-    wait_response_throw();
-    auto* const result = prepared_statement();
-    assert(result);
-    wait_response_throw();
-    assert(response_status_ == Response_status::empty);
-    assert(!last_prepared_statement_);
-    return result;
+    return wait_prepared_statement__();
   }
 
   /**
@@ -1241,9 +1234,13 @@ private:
   template<typename M, typename T>
   Prepared_statement* prepare_statement__(M&& prepare, T&& statement, const std::string& name)
   {
-    // TODO: share implementation with describe_statement().
     assert(is_ready_for_request());
     (this->*prepare)(std::forward<T>(statement), name);
+    return wait_prepared_statement__();
+  }
+
+  Prepared_statement* wait_prepared_statement__()
+  {
     wait_response_throw();
     auto* const result = prepared_statement();
     assert(result);
