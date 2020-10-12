@@ -59,11 +59,11 @@ public:
   /// Non copy-assignable.
   Connection& operator=(const Connection&) = delete;
 
-  /// Move-constructible.
-  Connection(Connection&& rhs) = default;
+  /// Non move-constructible.
+  Connection(Connection&& rhs) = delete;
 
-  /// Move-assignable.
-  Connection& operator=(Connection&& rhs) = default;
+  /// Non move-assignable.
+  Connection& operator=(Connection&& rhs) = delete;
 
   /// @name General observers
   /// @{
