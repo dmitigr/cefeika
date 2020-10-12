@@ -454,6 +454,12 @@ private:
   struct Extra;
 };
 
+/// Overload of Sql_string::swap().
+inline void swap(Sql_string& lhs, Sql_string& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
+
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY

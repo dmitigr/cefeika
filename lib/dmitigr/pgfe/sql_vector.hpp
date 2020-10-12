@@ -215,6 +215,12 @@ private:
   mutable std::vector<Sql_string> storage_;
 };
 
+/// Overload of Sql_vector::swap().
+inline void swap(Sql_vector& lhs, Sql_vector& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
+
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY

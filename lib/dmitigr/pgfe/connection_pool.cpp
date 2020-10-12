@@ -56,18 +56,14 @@ DMITIGR_PGFE_INLINE Connection_pool::Connection_pool(std::size_t count, const Co
 
 DMITIGR_PGFE_INLINE void Connection_pool::set_connect_handler(std::function<void(Connection&)> handler) noexcept
 {
-  assert(is_valid());
   const std::lock_guard lg{mutex_};
   connect_handler_ = std::move(handler);
-  assert(is_invariant_ok());
 }
 
 DMITIGR_PGFE_INLINE void Connection_pool::set_release_handler(std::function<void(Connection&)> handler) noexcept
 {
-  assert(is_valid());
   const std::lock_guard lg{mutex_};
   release_handler_ = std::move(handler);
-  assert(is_invariant_ok());
 }
 
 DMITIGR_PGFE_INLINE void Connection_pool::connect()
@@ -84,7 +80,7 @@ DMITIGR_PGFE_INLINE void Connection_pool::connect()
       connect_handler_(*conn);
   }
 
-  is_connected_ = true;
+  is_connected_ = is_valid();
 }
 
 DMITIGR_PGFE_INLINE void Connection_pool::disconnect() noexcept
@@ -111,7 +107,8 @@ DMITIGR_PGFE_INLINE bool Connection_pool::is_connected() const noexcept
 DMITIGR_PGFE_INLINE auto Connection_pool::connection() -> Handle
 {
   const std::lock_guard lg{mutex_};
-  assert(is_connected_);
+  if (!is_connected_)
+    return {};
   const auto b = begin(connections_);
   const auto e = end(connections_);
   const auto i = std::find_if(b, e, [](const auto& pair) { return !pair.second; });

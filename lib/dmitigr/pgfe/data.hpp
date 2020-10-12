@@ -214,6 +214,12 @@ private:
   const char* bytes_{""};
 };
 
+/// Overload of Data_view::swap().
+inline void swap(Data_view& lhs, Data_view& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
+
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY

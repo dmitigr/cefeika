@@ -13,6 +13,7 @@
 #include "dmitigr/pgfe/types_fwd.hpp"
 #include <dmitigr/mem/mem.hpp>
 
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <cstdint>
@@ -614,17 +615,23 @@ private:
   Prepared_statement& operator=(Prepared_statement&& rhs) noexcept
   {
     if (this != &rhs) {
-      result_format_ = std::move(rhs.result_format_);
-      name_ = std::move(rhs.name_);
-      preparsed_ = std::move(rhs.preparsed_);
-      connection_ = std::move(rhs.connection_);
-      session_start_time_ = std::move(rhs.session_start_time_);
-      parameters_ = std::move(rhs.parameters_);
-      description_ = std::move(rhs.description_);
-
-      rhs.connection_ = nullptr;
+      Prepared_statement tmp{std::move(rhs)};
+      swap(tmp);
     }
     return *this;
+  }
+
+  /// Swaps this instance with `rhs`.
+  void swap(Prepared_statement& rhs) noexcept
+  {
+    using std::swap;
+    swap(result_format_, rhs.result_format_);
+    swap(name_, rhs.name_);
+    swap(preparsed_, rhs.preparsed_);
+    swap(connection_, rhs.connection_);
+    swap(session_start_time_, rhs.session_start_time_);
+    swap(parameters_, rhs.parameters_);
+    swap(description_, rhs.description_);
   }
 
   void init_connection__(Connection* connection);

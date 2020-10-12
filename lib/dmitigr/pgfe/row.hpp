@@ -40,21 +40,25 @@ public:
   /// @name Compositional overridings
   /// @{
 
+  /// @see Compositional::size().
   std::size_t size() const noexcept override
   {
     return info_.size();
   }
 
+  /// @see Compositional::is_empty().
   bool is_empty() const noexcept override
   {
     return info_.is_empty();
   }
 
+  /// @see Compositional::name_of().
   const std::string& name_of(const std::size_t index) const noexcept override
   {
     return info_.name_of(index);
   }
 
+  /// @see Compositional::index_of().
   std::size_t index_of(const std::string& name, const std::size_t offset = 0) const noexcept override
   {
     return info_.index_of(name, offset);

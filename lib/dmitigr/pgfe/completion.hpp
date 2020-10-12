@@ -41,12 +41,18 @@ public:
   Completion& operator=(Completion&& rhs) noexcept
   {
     if (this != &rhs) {
-      affected_row_count_ = rhs.affected_row_count_;
-      operation_name_ = std::move(rhs.operation_name_);
-
-      rhs.affected_row_count_ = -2;
+      Completion tmp{std::move(rhs)};
+      swap(tmp);
     }
     return *this;
+  }
+
+  /// Swaps this instance with `rhs`.
+  void swap(Completion& rhs) noexcept
+  {
+    using std::swap;
+    swap(affected_row_count_, rhs.affected_row_count_);
+    swap(operation_name_, rhs.operation_name_);
   }
 
   /// @see Message::is_valid().
@@ -97,6 +103,12 @@ private:
     return ((affected_row_count_ < 0) || !operation_name_.empty());
   }
 };
+
+/// Overload of Completion::swap().
+inline void swap(Completion& lhs, Completion& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
 
 } // namespace dmitigr::pgfe
 

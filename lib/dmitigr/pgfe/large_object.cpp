@@ -33,15 +33,18 @@ DMITIGR_PGFE_INLINE Large_object::Large_object(Large_object&& rhs) noexcept
 
 DMITIGR_PGFE_INLINE Large_object& Large_object::operator=(Large_object&& rhs) noexcept
 {
-  Large_object tmp{std::move(rhs)};
-  swap(tmp);
+  if (this != &rhs) {
+    Large_object tmp{std::move(rhs)};
+    swap(tmp);
+  }
   return *this;
 }
 
 DMITIGR_PGFE_INLINE void Large_object::swap(Large_object& rhs) noexcept
 {
-  std::swap(conn_, rhs.conn_);
-  std::swap(desc_, rhs.desc_);
+  using std::swap;
+  swap(conn_, rhs.conn_);
+  swap(desc_, rhs.desc_);
 }
 
 DMITIGR_PGFE_INLINE bool Large_object::is_valid() const noexcept

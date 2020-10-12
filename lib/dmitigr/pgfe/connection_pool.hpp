@@ -8,6 +8,7 @@
 #include "dmitigr/pgfe/connection.hpp"
 #include "dmitigr/pgfe/dll.hpp"
 
+#include <cassert>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -43,10 +44,10 @@ public:
     Handle& operator=(const Handle&) = delete;
 
     /// Move-constructible.
-    Handle(Handle&& rhs) noexcept = default;
+    Handle(Handle&& rhs) = default;
 
     /// Move-assignable.
-    Handle& operator=(Handle&& rhs) noexcept = default;
+    Handle& operator=(Handle&& rhs) = default;
 
     /// @returns The Connection.
     Connection& operator*()
@@ -57,6 +58,7 @@ public:
     /// @overload
     const Connection& operator*() const
     {
+      assert(is_valid());
       return *connection_;
     }
 
@@ -69,6 +71,7 @@ public:
     /// @overload
     const Connection* operator->() const
     {
+      assert(is_valid());
       return connection_.get();
     }
 
@@ -135,6 +138,12 @@ public:
     return !connections_.empty();
   }
 
+  /// @returns `is_valid()`.
+  explicit operator bool() const noexcept
+  {
+    return is_valid();
+  }
+
   /**
    * @brief Sets the handler which will be called just after connecting to the
    * PostgreSQL server.
@@ -174,8 +183,8 @@ public:
   /**
    * @brief Opens the connections to the server.
    *
-   * @par Requires
-   * `is_connected()`.
+   * @par Effects
+   * `(is_connected() == is_valid())` on success.
    */
   DMITIGR_PGFE_API void connect();
 
@@ -190,8 +199,8 @@ public:
   DMITIGR_PGFE_API bool is_connected() const noexcept;
 
   /**
-   * @returns The connection handle `h`. If there is no free connections
-   * in the pool at the time of call then `h.is_valid() == false`.
+   * @returns The connection handle `h`. If `!is_connected()` or there is no free
+   * connections in the pool at the time of call then `(h.is_valid() == false)`.
    */
   DMITIGR_PGFE_API Handle connection();
 
@@ -218,11 +227,6 @@ private:
   std::vector<std::pair<std::unique_ptr<Connection>, bool>> connections_;
   std::function<void(Connection&)> connect_handler_;
   std::function<void(Connection&)> release_handler_;
-
-  bool is_invariant_ok() const noexcept
-  {
-    return connections_.size() > 0;
-  }
 };
 
 } // namespace dmitigr::pgfe

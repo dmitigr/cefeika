@@ -34,13 +34,13 @@ public:
   /// Non copy-constructible.
   Row_info(const Row_info&) = delete;
 
-  /// Move-constructible.
-  Row_info(Row_info&&) = default;
-
   /// Non copy-assignable.
   Row_info& operator=(const Row_info&) = delete;
 
-  /// Non move-assignable.
+  /// Move-constructible.
+  Row_info(Row_info&&) = default;
+
+  /// Move-assignable.
   Row_info& operator=(Row_info&&) = default;
 
   /// @see Compositional::size().

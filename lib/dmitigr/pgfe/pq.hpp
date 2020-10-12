@@ -124,10 +124,8 @@ public:
   Result& operator=(Result&& rhs) noexcept
   {
     if (this != &rhs) {
-      status_ = rhs.status_;
-      pgresult_ = std::move(rhs.pgresult_);
-
-      rhs.status_ = static_cast<Status>(-1);
+      Result tmp{std::move(rhs)};
+      swap(tmp);
     }
     return *this;
   }

@@ -36,8 +36,10 @@ DMITIGR_PGFE_INLINE Sql_string::Sql_string(const Sql_string& rhs)
 
 DMITIGR_PGFE_INLINE Sql_string& Sql_string::operator=(const Sql_string& rhs)
 {
-  Sql_string tmp{rhs};
-  swap(tmp);
+  if (this != &rhs) {
+    Sql_string tmp{rhs};
+    swap(tmp);
+  }
   return *this;
 }
 
@@ -52,8 +54,10 @@ DMITIGR_PGFE_INLINE Sql_string::Sql_string(Sql_string&& rhs) noexcept
 
 DMITIGR_PGFE_INLINE Sql_string& Sql_string::operator=(Sql_string&& rhs) noexcept
 {
-  Sql_string tmp{std::move(rhs)};
-  swap(tmp);
+  if (this != &rhs) {
+    Sql_string tmp{std::move(rhs)};
+    swap(tmp);
+  }
   return *this;
 }
 

@@ -9,6 +9,7 @@
 #include "dmitigr/pgfe/dll.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
 
+#include <algorithm>
 #include <cstdint>
 
 namespace dmitigr {
@@ -197,6 +198,12 @@ private:
   Connection* conn_{};
   int desc_{-1};
 };
+
+/// Overload of Large_object::swap().
+inline void swap(Large_object& lhs, Large_object& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
 
 } // namespace pgfe
 } // namespace dmitigr

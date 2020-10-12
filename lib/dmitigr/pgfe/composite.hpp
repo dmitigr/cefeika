@@ -51,15 +51,17 @@ public:
   /// Copy-assignable.
   Composite& operator=(const Composite& rhs)
   {
-    Composite tmp{rhs};
-    swap(tmp);
+    if (this != &rhs) {
+      Composite tmp{rhs};
+      swap(tmp);
+    }
     return *this;
   }
 
   /// Move-constructible.
   Composite(Composite&& rhs) = default;
 
-  /// Move-assignable operator.
+  /// Move-assignable.
   Composite& operator=(Composite&& rhs) = default;
 
   /// Swaps the instances.
@@ -272,6 +274,12 @@ public:
 private:
   std::vector<std::pair<std::string, std::unique_ptr<Data>>> datas_;
 };
+
+/// Overload of Composite::swap().
+inline void swap(Composite& lhs, Composite& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
 
 } // namespace dmitigr::pgfe
 

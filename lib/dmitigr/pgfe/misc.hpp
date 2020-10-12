@@ -18,9 +18,9 @@ namespace dmitigr::pgfe {
  * @brief Sets the obligation of the initialization of the external libraries
  * when needed.
  *
- * @remarks This function must be called with the value of `false` if the
- * OpenSSL library is initialized yet before first connection to a PostgreSQL
- * server.
+ * @remarks This function must be called with the value of
+ * `(library & External_library::libssl) == false` if the OpenSSL library is
+ * initialized yet before first connection to a PostgreSQL server.
  */
 DMITIGR_PGFE_API void set_initialization(External_library library);
 
