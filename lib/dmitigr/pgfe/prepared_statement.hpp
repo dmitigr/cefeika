@@ -256,12 +256,12 @@ public:
   /// @{
 
   /**
-   * @returns The parameter value.
+   * @returns The value bound to parameter.
    *
    * @par Requires
    * `(index < parameter_count())`.
    */
-  const Data* parameter(const std::size_t index) const noexcept
+  const Data* bound(const std::size_t index) const noexcept
   {
     assert(index < parameter_count());
     return parameters_[index].data.get();
@@ -273,11 +273,11 @@ public:
    * @par Requries
    * `(parameter_index(name) < parameter_count())`.
    */
-  const Data* parameter(const std::string& name) const noexcept
+  const Data* bound(const std::string& name) const noexcept
   {
     const auto idx = parameter_index(name);
     assert(idx < parameter_count());
-    return parameter(idx);
+    return bound(idx);
   }
 
   /**
@@ -295,12 +295,12 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @see parameter().
+   * @see bound().
    */
-  void set_parameter(const std::size_t index, std::unique_ptr<Data>&& value) noexcept
+  Prepared_statement& bind(const std::size_t index, std::unique_ptr<Data>&& value) noexcept
   {
     Data_ptr d{value.release(), Data_deletion_required{true}};
-    set_parameter(index, std::move(d));
+    return bind(index, std::move(d));
   }
 
   /**
@@ -309,40 +309,40 @@ public:
    * @par Requries
    * `(parameter_index(name) < parameter_count())`.
    *
-   * @see parameter().
+   * @see bound().
    */
-  void set_parameter(const std::string& name, std::unique_ptr<Data>&& value) noexcept
+  Prepared_statement& bind(const std::string& name, std::unique_ptr<Data>&& value) noexcept
   {
     const auto idx = parameter_index(name);
     assert(idx < parameter_count());
     Data_ptr d{value.release(), Data_deletion_required{true}};
-    set_parameter(idx, std::move(d));
+    return bind(idx, std::move(d));
   }
 
   /**
    * @overload
    *
-   * @brief Similar to set_parameter_no_copy(std::size_t, const Data*).
+   * @brief Similar to bind_no_copy(std::size_t, const Data*).
    */
-  void set_parameter(const std::size_t index, std::nullptr_t) noexcept
+  Prepared_statement& bind(const std::size_t index, std::nullptr_t) noexcept
   {
-    set_parameter_no_copy(index, nullptr);
+    return bind_no_copy(index, nullptr);
   }
 
   /**
    * @overload
    *
-   * @brief Similar to set_parameter_no_copy(const std::string&, const Data*).
+   * @brief Similar to bind_no_copy(const std::string&, const Data*).
    */
-  void set_parameter(const std::string& name, std::nullptr_t) noexcept
+  Prepared_statement& bind(const std::string& name, std::nullptr_t) noexcept
   {
-    set_parameter_no_copy(name, nullptr);
+    return bind_no_copy(name, nullptr);
   }
 
   /**
    * @overload
    *
-   * Similar to set_parameter(std::size_t, std::unique_ptr<Data>&&) but binds
+   * Similar to bind(std::size_t, std::unique_ptr<Data>&&) but binds
    * the parameter of the specified index with the value of type `T`, implicitly
    * converted to the Data by using to_data().
    *
@@ -350,9 +350,10 @@ public:
    * `T` must be convertible to `Data`.
    */
   template<typename T>
-  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(std::size_t index, T&& value) noexcept
+  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>, Prepared_statement&>
+  bind(std::size_t index, T&& value) noexcept
   {
-    set_parameter(index, to_data(std::forward<T>(value)));
+    return bind(index, to_data(std::forward<T>(value)));
   }
 
   /**
@@ -362,15 +363,16 @@ public:
    * `(parameter_index(name) < parameter_count())`.
    */
   template<typename T>
-  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(const std::string& name, T&& value) noexcept
+  std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>, Prepared_statement&>
+  bind(const std::string& name, T&& value) noexcept
   {
     const auto idx = parameter_index(name);
     assert(idx < parameter_count());
-    set_parameter(idx, std::forward<T>(value));
+    return bind(idx, std::forward<T>(value));
   }
 
   /**
-   * @brief Similar to set_parameter(std::size_t, std::unique_ptr<Data>&&) but
+   * @brief Similar to bind(std::size_t, std::unique_ptr<Data>&&) but
    * binds the parameter of the specified index with a view to the data.
    *
    * @par Exception safety guarantee
@@ -378,12 +380,12 @@ public:
    *
    * @remarks No deep copy of `data` is performed.
    *
-   * @see parameter().
+   * @see bound().
    */
-  void set_parameter_no_copy(const std::size_t index, const Data* const data) noexcept
+  Prepared_statement& bind_no_copy(const std::size_t index, const Data* const data) noexcept
   {
     Data_ptr d{data, Data_deletion_required{false}};
-    set_parameter(index, std::move(d));
+    return bind(index, std::move(d));
   }
 
   /**
@@ -392,23 +394,23 @@ public:
    * @par Requries
    * `(parameter_index(name) < parameter_count())`.
    *
-   * @see parameter().
+   * @see bound().
    */
-  void set_parameter_no_copy(const std::string& name, const Data* const data) noexcept
+  Prepared_statement& bind_no_copy(const std::string& name, const Data* const data) noexcept
   {
     const auto idx = parameter_index(name);
     assert(idx < parameter_count());
     Data_ptr d{data, Data_deletion_required{false}};
-    set_parameter(idx, std::move(d));
+    return bind(idx, std::move(d));
   }
 
   /**
    * @brief Binds parameters by indexes in range [0, sizeof ... (values)).
    *
    * In other words:
-   * @code set_parameters(value1, value2, value3) @endcode
+   * @code binds(value1, value2, value3) @endcode
    * equivalently to
-   * @code (set_parameter(0, value1), set_parameter(1, value1), set_parameter(2, value2)) @endcode
+   * @code (bind(0, value1), bind(1, value1), bind(2, value2)) @endcode
    *
    * @par Requires
    * -# Each value of `values` must be Data-convertible.
@@ -419,12 +421,12 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @see set_parameter().
+   * @see bind().
    */
   template<typename ... Types>
-  void set_parameters(Types&& ... values) noexcept
+  Prepared_statement& bind_many(Types&& ... values) noexcept
   {
-    set_parameters__(std::make_index_sequence<sizeof ... (Types)>{}, std::forward<Types>(values)...);
+    return bind_many__(std::make_index_sequence<sizeof ... (Types)>{}, std::forward<Types>(values)...);
   }
 
   /// @}
@@ -547,7 +549,7 @@ public:
    * @par Requries
    * `(parameter_index(name) < parameter_count())`.
    *
-   * @see parameter().
+   * @see bound().
    */
   std::uint_fast32_t parameter_type_oid(const std::string& name) const noexcept
   {
@@ -641,7 +643,7 @@ private:
   // Parameters
   // ---------------------------------------------------------------------------
 
-  void set_parameter(const std::size_t index, Data_ptr&& data)
+  Prepared_statement& bind(const std::size_t index, Data_ptr&& data)
   {
     const bool is_opaque = !is_preparsed() && !is_described();
     assert(is_opaque || (index < parameter_count()));
@@ -653,34 +655,35 @@ private:
     parameters_[index].data = std::move(data);
 
     assert(is_invariant_ok());
+    return *this;
   }
 
   template<std::size_t ... I, typename ... Types>
-  void set_parameters__(std::index_sequence<I...>, Types&& ... args)
+  Prepared_statement& bind_many__(std::index_sequence<I...>, Types&& ... args)
   {
-    (set_parameter__(I, std::forward<Types>(args)), ...);
+    return (bind__(I, std::forward<Types>(args)), ...);
   }
 
-  void set_parameter__(const std::size_t, Named_argument&& na)
+  Prepared_statement& bind__(const std::size_t, Named_argument&& na)
   {
     if (na.is_data_owner())
-      set_parameter(na.name(), na.release());
+      return bind(na.name(), na.release());
     else
-      set_parameter_no_copy(na.name(), na.data());
+      return bind_no_copy(na.name(), na.data());
   }
 
-  void set_parameter__(const std::size_t, const Named_argument& na)
+  Prepared_statement& bind__(const std::size_t, const Named_argument& na)
   {
     if (na.is_data_owner())
-      set_parameter(na.name(), na.data()->to_data());
+      return bind(na.name(), na.data()->to_data());
     else
-      set_parameter_no_copy(na.name(), na.data());
+      return bind_no_copy(na.name(), na.data());
   }
 
   template<typename T>
-  void set_parameter__(const std::size_t index, T&& value)
+  Prepared_statement& bind__(const std::size_t index, T&& value)
   {
-    set_parameter(index, std::forward<T>(value));
+    return bind(index, std::forward<T>(value));
   }
 
   // ---------------------------------------------------------------------------

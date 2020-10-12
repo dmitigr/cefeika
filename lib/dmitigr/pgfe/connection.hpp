@@ -825,7 +825,7 @@ public:
   execute(F&& callback, const Sql_string& statement, Types&& ... parameters)
   {
     auto* const ps = prepare_statement(statement);
-    ps->set_parameters(std::forward<Types>(parameters)...);
+    ps->bind_many(std::forward<Types>(parameters)...);
     return ps->execute(std::forward<F>(callback));
   }
 

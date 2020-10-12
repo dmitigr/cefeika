@@ -26,10 +26,8 @@ int main() try {
   }, "select generate_series($1::int, $2::int)", 1, 3);
 
   // Prepare and execute the statement with named parameters.
-  auto* const ps = conn.prepare_statement("select :begin b, :end e");
-  ps->set_parameter("begin", 0);
-  ps->set_parameter("end", 1);
-  ps->execute([](auto&& r)
+  conn.prepare_statement("select :begin b, :end e")->
+    bind("begin", 0).bind("end", 1).execute([](auto&& r)
   {
     std::printf("Range [%i, %i]\n", to<int>(r.data("b")), to<int>(r.data("e")));
   });

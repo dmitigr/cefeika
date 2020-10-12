@@ -96,7 +96,7 @@ DMITIGR_PGFE_INLINE void Prepared_statement::execute_async()
   try {
     // Prepare the input for libpq.
     for (int i = 0; i < param_count; ++i) {
-      if (const Data* const d = parameter(i)) {
+      if (const Data* const d = bound(i)) {
         values[i] = d->bytes();
         lengths[i] = static_cast<int>(d->size());
         formats[i] = detail::pq::to_int(d->format());
