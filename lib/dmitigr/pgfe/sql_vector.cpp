@@ -11,7 +11,7 @@ DMITIGR_PGFE_INLINE Sql_vector::Sql_vector(const std::string& input)
   const char* text{input.c_str()};
   while (*text != '\0') {
     auto [str, ptr] = Sql_string::parse_sql_input(text);
-    storage_.push_back(std::move(str));
+    storage_.emplace_back(std::move(str));
     text = ptr;
   }
 }
