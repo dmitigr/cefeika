@@ -99,6 +99,36 @@ DMITIGR_PGFE_INLINE Connection_options::Connection_options(const Communication_m
     throw std::logic_error{"invalid connection options defaults (dmitigr::pgfe must be recompiled)"};
 }
 
+DMITIGR_PGFE_INLINE void Connection_options::swap(Connection_options& rhs) noexcept
+{
+  using std::swap;
+  swap(communication_mode_, rhs.communication_mode_);
+  swap(connect_timeout_, rhs.connect_timeout_);
+  swap(wait_response_timeout_, rhs.wait_response_timeout_);
+#ifndef _WIN32
+  swap(uds_directory_, rhs.uds_directory_);
+  swap(uds_require_server_process_username_, rhs.uds_require_server_process_username_);
+#endif
+  swap(tcp_keepalives_enabled_, rhs.tcp_keepalives_enabled_);
+  swap(tcp_keepalives_idle_, rhs.tcp_keepalives_idle_);
+  swap(tcp_keepalives_interval_, rhs.tcp_keepalives_interval_);
+  swap(tcp_keepalives_count_, rhs.tcp_keepalives_count_);
+  swap(net_address_, rhs.net_address_);
+  swap(net_hostname_, rhs.net_hostname_);
+  swap(port_, rhs.port_);
+  swap(username_, rhs.username_);
+  swap(database_, rhs.database_);
+  swap(password_, rhs.password_);
+  swap(kerberos_service_name_, rhs.kerberos_service_name_);
+  swap(is_ssl_enabled_, rhs.is_ssl_enabled_);
+  swap(ssl_compression_enabled_, rhs.ssl_compression_enabled_);
+  swap(ssl_certificate_file_, rhs.ssl_certificate_file_);
+  swap(ssl_private_key_file_, rhs.ssl_private_key_file_);
+  swap(ssl_certificate_authority_file_, rhs.ssl_certificate_authority_file_);
+  swap(ssl_certificate_revocation_list_file_, rhs.ssl_certificate_revocation_list_file_);
+  swap(ssl_server_hostname_verification_enabled_, rhs.ssl_server_hostname_verification_enabled_);
+}
+
 DMITIGR_PGFE_INLINE Connection_options& Connection_options::communication_mode(const Communication_mode value) noexcept
 {
 #ifdef _WIN32
@@ -476,7 +506,7 @@ public:
   Connection_options& operator=(Connection_options&& rhs)
   {
     if (this != &rhs) {
-      Connection_options tmp(std::move(rhs));
+      Connection_options tmp{std::move(rhs)};
       swap(tmp);
     }
     return *this;
@@ -485,10 +515,11 @@ public:
   /// Swaps the instances.
   void swap(Connection_options& rhs) noexcept
   {
+    using std::swap;
     for (decltype (+Keyword_count_) i = host; i < Keyword_count_; ++i) {
-      std::swap(pq_keywords_[i], rhs.pq_keywords_[i]);
-      std::swap(pq_values_[i], rhs.pq_values_[i]);
-      std::swap(values_[i], rhs.values_[i]);
+      swap(pq_keywords_[i], rhs.pq_keywords_[i]);
+      swap(pq_values_[i], rhs.pq_values_[i]);
+      swap(values_[i], rhs.values_[i]);
     }
   }
 

@@ -34,6 +34,9 @@ public:
    */
   DMITIGR_PGFE_API Connection_options(Communication_mode value);
 
+  /// Swaps this instance with `rhs`.
+  DMITIGR_PGFE_API void swap(Connection_options& rhs) noexcept;
+
   /// @name General options
   /// @{
 
@@ -569,6 +572,12 @@ private:
 
   bool is_invariant_ok() const noexcept;
 };
+
+/// Overload of Connection_options::swap().
+inline void swap(Connection_options& lhs, Connection_options& rhs) noexcept
+{
+  lhs.swap(rhs);
+}
 
 } // namespace dmitigr::pgfe
 
