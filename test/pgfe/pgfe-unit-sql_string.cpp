@@ -14,7 +14,6 @@ int main(int, char* argv[])
   namespace pgfe = dmitigr::pgfe;
   using namespace dmitigr::testo;
   try {
-    const auto nidx = pgfe::Compositional::nidx;
     {
       pgfe::Sql_string str;
       ASSERT(str.is_empty());
@@ -29,12 +28,12 @@ int main(int, char* argv[])
 
       str.extra().append("description", pgfe::Data::make("This is an unknown query"));
       ASSERT(str.extra().size() == 1);
-      ASSERT(str.extra().index_of("description") != nidx);
+      ASSERT(str.extra().index_of("description") != str.extra().size());
       ASSERT(str.extra().data("description"));
 
       str.append("SELECT 1");
       ASSERT(str.extra().size() == 2);
-      ASSERT(str.extra().index_of("id") != nidx);
+      ASSERT(str.extra().index_of("id") != str.extra().size());
       ASSERT(str.extra().data("id"));
       ASSERT(pgfe::to<std::string>(str.extra().data("id").get()) == "unknown-query");
     }

@@ -42,11 +42,11 @@ int main(int, char* argv[])
     ASSERT(pgfe::to<int>(composite.data("baz").get()) == 1983);
     composite.remove("foo");
     ASSERT(composite.size() == 2);
-    ASSERT(composite.index_of("foo") == pgfe::Composite::nidx);
+    ASSERT(composite.index_of("foo") == composite.size());
     composite.remove("bar");
     ASSERT(composite.size() == 1);
-    ASSERT(composite.index_of("bar") == pgfe::Composite::nidx);
-    ASSERT(composite.index_of("baz") != pgfe::Composite::nidx);
+    ASSERT(composite.index_of("bar") == composite.size());
+    ASSERT(composite.index_of("baz") != composite.size());
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
     return 1;

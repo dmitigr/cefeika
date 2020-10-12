@@ -101,7 +101,7 @@ DMITIGR_PGFE_INLINE void Sql_string::append(const Sql_string& appendix)
 
 DMITIGR_PGFE_INLINE void Sql_string::replace_parameter(const std::string& name, const Sql_string& replacement)
 {
-  assert(parameter_index(name) != nidx);
+  assert(parameter_index(name) < parameter_count());
   assert(this != &replacement);
 
   // Updating fragments

@@ -135,8 +135,7 @@ public:
   /// @see Parameterizable::parameter_index().
   std::size_t parameter_index(const std::string& name) const noexcept override
   {
-    const auto idx = named_parameter_index(name);
-    return idx < parameter_count() ? idx : nidx;
+    return named_parameter_index(name);
   }
 
   /// @returns `true` if this SQL string is empty.

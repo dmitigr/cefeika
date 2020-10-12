@@ -4,8 +4,8 @@
 
 #include "dmitigr/pgfe/row_info.hpp"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 #include <vector>
 
 namespace dmitigr::pgfe {
@@ -45,12 +45,11 @@ DMITIGR_PGFE_INLINE const std::string& Row_info::name_of(const std::size_t index
 
 DMITIGR_PGFE_INLINE std::size_t Row_info::index_of(const std::string& name, const std::size_t offset) const noexcept
 {
-  assert(offset < size());
-  const auto b = cbegin(*shared_field_names_);
-  const auto e = cend(*shared_field_names_);
-  const auto i = std::find(b + offset, e, name);
-  const std::size_t result = i - b;
-  return result < size() ? result : nidx;
+  const auto sz = shared_field_names_->size();
+  const auto b = shared_field_names_->cbegin();
+  const auto e = shared_field_names_->cend();
+  const auto i = std::find(std::min(b + offset, b + sz), e, name);
+  return i - b;
 }
 
 DMITIGR_PGFE_INLINE std::uint_fast32_t Row_info::table_oid(const std::size_t index) const noexcept

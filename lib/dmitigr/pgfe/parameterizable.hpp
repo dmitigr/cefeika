@@ -30,9 +30,6 @@ public:
   /// The destructor.
   virtual ~Parameterizable() = default;
 
-   /// The value of invalid index.
-  static constexpr std::size_t nidx{static_cast<std::size_t>(-1)};
-
   /// @returns The number of positional parameters.
   virtual std::size_t positional_parameter_count() const noexcept = 0;
 
@@ -59,7 +56,7 @@ public:
    */
   virtual const std::string& parameter_name(std::size_t index) const noexcept = 0;
 
-  /// @returns The parameter index if presents, or `nidx` othersize.
+  /// @returns The parameter index if presents, or `parameter_count()` othersize.
   virtual std::size_t parameter_index(const std::string& name) const noexcept = 0;
 
 private:

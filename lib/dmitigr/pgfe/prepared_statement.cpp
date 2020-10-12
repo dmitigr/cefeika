@@ -24,10 +24,10 @@ DMITIGR_PGFE_INLINE std::size_t Prepared_statement::parameter_index(const std::s
   const auto b = cbegin(parameters_);
   const auto e = cend(parameters_);
   const auto i = std::find_if(b, e, [&name](const auto& p) { return p.name == name; });
-  return i != e ? (i - b) : nidx;
+  return i - b;
 }
 
-// std::visit is slow to compile
+// FIXME: std::visit is slow to compile
 DMITIGR_PGFE_INLINE std::uint_fast32_t Prepared_statement::parameter_type_oid(const std::size_t index) const noexcept
 {
   assert(index < parameter_count());

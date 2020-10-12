@@ -22,9 +22,6 @@ public:
   /// The destructor.
   virtual ~Compositional() = default;
 
-  /// The value of invalid index.
-  static constexpr std::size_t nidx{static_cast<std::size_t>(-1)};
-
   /// @returns The number of fields.
   virtual std::size_t size() const noexcept = 0;
 
@@ -40,7 +37,7 @@ public:
   virtual const std::string& name_of(std::size_t index) const noexcept = 0;
 
   /**
-   * @returns The field index if presents, or `nidx` othersize.
+   * @returns The field index if presents, or `size()` othersize.
    *
    * @param offset For cases when several fields are named equally.
    */

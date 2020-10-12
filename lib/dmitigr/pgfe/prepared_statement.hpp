@@ -272,12 +272,12 @@ public:
    * @overload
    *
    * @par Requries
-   * `(parameter_index(name) != nidx)`.
+   * `(parameter_index(name) < parameter_count())`.
    */
   const Data* parameter(const std::string& name) const noexcept
   {
     const auto idx = parameter_index(name);
-    assert(idx != nidx);
+    assert(idx < parameter_count());
     return parameter(idx);
   }
 
@@ -308,14 +308,14 @@ public:
    * @overload
    *
    * @par Requries
-   * `(parameter_index(name) != nidx)`.
+   * `(parameter_index(name) < parameter_count())`.
    *
    * @see parameter().
    */
   void set_parameter(const std::string& name, std::unique_ptr<Data>&& value) noexcept
   {
     const auto idx = parameter_index(name);
-    assert(idx != nidx);
+    assert(idx < parameter_count());
     Data_ptr d{value.release(), Data_deletion_required{true}};
     set_parameter(idx, std::move(d));
   }
@@ -360,13 +360,13 @@ public:
    * @overload
    *
    * @par Requries
-   * `(parameter_index(name) != nidx)`.
+   * `(parameter_index(name) < parameter_count())`.
    */
   template<typename T>
   std::enable_if_t<!std::is_same_v<Data*, std::decay_t<T>>> set_parameter(const std::string& name, T&& value) noexcept
   {
     const auto idx = parameter_index(name);
-    assert(idx != nidx);
+    assert(idx < parameter_count());
     set_parameter(idx, std::forward<T>(value));
   }
 
@@ -391,14 +391,14 @@ public:
    * @overload
    *
    * @par Requries
-   * `(parameter_index(name) != nidx)`.
+   * `(parameter_index(name) < parameter_count())`.
    *
    * @see parameter().
    */
   void set_parameter_no_copy(const std::string& name, const Data* const data) noexcept
   {
     const auto idx = parameter_index(name);
-    assert(idx != nidx);
+    assert(idx < parameter_count());
     Data_ptr d{data, Data_deletion_required{false}};
     set_parameter(idx, std::move(d));
   }
@@ -546,14 +546,14 @@ public:
    * @overload
    *
    * @par Requries
-   * `(parameter_index(name) != nidx)`.
+   * `(parameter_index(name) < parameter_count())`.
    *
    * @see parameter().
    */
   std::uint_fast32_t parameter_type_oid(const std::string& name) const noexcept
   {
     const auto idx = parameter_index(name);
-    assert(idx);
+    assert(idx < parameter_count());
     return parameter_type_oid(idx);
   }
 

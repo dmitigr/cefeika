@@ -92,13 +92,12 @@ public:
   /// @see Compositional::index_of().
   std::size_t index_of(const std::string& name, const std::size_t offset = 0) const noexcept override
   {
-    if (offset < size()) {
-      const auto b = cbegin(datas_);
-      const auto e = cend(datas_);
-      const auto i = std::find_if(b + offset, e, [&name](const auto& pair) { return pair.first == name; });
-      return (i != e) ? (i - b) : nidx;
-    } else
-      return nidx;
+    const auto sz = size();
+    const auto b = cbegin(datas_);
+    const auto e = cend(datas_);
+    const auto i = std::find_if(std::min(b + offset, b + sz), e,
+      [&name](const auto& pair) { return pair.first == name; });
+    return i - b;
   }
 
   /**
@@ -266,7 +265,7 @@ public:
    */
   void remove(const std::string& name, const std::size_t offset = 0) noexcept
   {
-    if (const auto index = index_of(name, offset); index != nidx)
+    if (const auto index = index_of(name, offset); index != size())
       datas_.erase(cbegin(datas_) + index);
     assert(is_invariant_ok());
   }

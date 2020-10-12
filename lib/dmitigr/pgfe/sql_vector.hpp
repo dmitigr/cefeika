@@ -26,9 +26,6 @@ namespace dmitigr::pgfe {
  */
 class Sql_vector final {
 public:
-  /// The value of invalid index.
-  static constexpr std::size_t nidx{static_cast<std::size_t>(-1)};
-
   /// Default-constructible. (Constructs an empty instance.)
   Sql_vector() = default;
 
@@ -84,7 +81,7 @@ public:
   }
 
   /**
-   * @returns The index of the SQL string that owns by this vector, or `nidx`
+   * @returns The index of the SQL string that owns by this vector, or `size()`
    * if no SQL strings that meets the given criterias exists in this vector.
    *
    * @param extra_name A name of the extra data field.
@@ -138,7 +135,7 @@ public:
     const std::size_t offset = 0, const std::size_t extra_offset = 0) const
   {
     const auto index = index_of(extra_name, extra_value, offset, extra_offset);
-    return (index != nidx) ? &operator[](index) : nullptr;
+    return (index < size()) ? &operator[](index) : nullptr;
   }
 
   /**
