@@ -17,9 +17,7 @@
 #include <optional>
 #include <string>
 
-/**
- * @brief Defaults which are sets at build time.
- */
+/// Defaults which are sets at build time.
 namespace dmitigr::pgfe::detail::defaults {
 
 constexpr const Communication_mode communication_mode{Communication_mode::uds};
