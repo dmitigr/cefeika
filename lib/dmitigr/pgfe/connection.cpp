@@ -48,7 +48,7 @@ DMITIGR_PGFE_INLINE std::optional<Transaction_status> Connection::transaction_st
     return std::nullopt;
 }
 
-DMITIGR_PGFE_INLINE void Connection::connect_async()
+DMITIGR_PGFE_INLINE void Connection::connect_nio()
 {
   using Status = Communication_status;
 
@@ -135,7 +135,7 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
   // Stage 1: beginning.
   auto timepoint1 = system_clock::now();
 
-  connect_async();
+  connect_nio();
   auto current_status = communication_status();
 
   if (timeout) {
@@ -178,7 +178,7 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
       }
     }
 
-    connect_async();
+    connect_nio();
     current_status = communication_status();
   } // while
 
@@ -431,9 +431,9 @@ DMITIGR_PGFE_INLINE Completion Connection::completion() noexcept
   }
 }
 
-DMITIGR_PGFE_INLINE void Connection::perform_async(const std::string& queries)
+DMITIGR_PGFE_INLINE void Connection::perform_nio(const std::string& queries)
 {
-  assert(is_ready_for_async_request());
+  assert(is_ready_for_nio_request());
 
   requests_.push(Request_id::perform); // can throw
   try {
@@ -452,9 +452,9 @@ DMITIGR_PGFE_INLINE void Connection::perform_async(const std::string& queries)
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE void Connection::describe_statement_async(const std::string& name)
+DMITIGR_PGFE_INLINE void Connection::describe_statement_nio(const std::string& name)
 {
-  assert(is_ready_for_async_request());
+  assert(is_ready_for_nio_request());
   assert(!request_prepared_statement_name_);
 
   requests_.push(Request_id::describe_statement); // can throw
@@ -472,7 +472,7 @@ DMITIGR_PGFE_INLINE void Connection::describe_statement_async(const std::string&
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE void Connection::unprepare_statement_async(const std::string& name)
+DMITIGR_PGFE_INLINE void Connection::unprepare_statement_nio(const std::string& name)
 {
   assert(!name.empty());
   assert(!request_prepared_statement_name_);
@@ -480,7 +480,7 @@ DMITIGR_PGFE_INLINE void Connection::unprepare_statement_async(const std::string
   auto name_copy = name; // can throw
   const auto query = "DEALLOCATE " + to_quoted_identifier(name); // can throw
 
-  perform_async(query); // can throw
+  perform_nio(query); // can throw
   assert(requests_.front() == Request_id::perform);
   requests_.front() = Request_id::unprepare_statement; // cannot throw
   request_prepared_statement_name_ = std::move(name_copy); // cannot throw
@@ -541,7 +541,7 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     !polling_status_ ||
     (*polling_status_ == Status::establishment_reading) ||
     (*polling_status_ == Status::establishment_writing);
-  const bool requests_ok = !is_connected() || is_ready_for_async_request() || !requests_.empty();
+  const bool requests_ok = !is_connected() || is_ready_for_nio_request() || !requests_.empty();
   const bool shared_field_names_ok = (!response_ || response_.status() != PGRES_SINGLE_TUPLE) || shared_field_names_;
   const bool session_start_time_ok =
     ((communication_status() == Communication_status::connected) == static_cast<bool>(session_start_time_));
@@ -561,7 +561,7 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
   const bool trans_ok = !is_connected() || transaction_status();
   const bool sess_time_ok = !is_connected() || session_start_time();
   const bool pid_ok = !is_connected() || server_pid();
-  const bool readiness_ok = is_ready_for_async_request() || !is_ready_for_request();
+  const bool readiness_ok = is_ready_for_nio_request() || !is_ready_for_request();
 
   // std::clog << conn_ok << " "
   //           << polling_status_ok << " "
@@ -627,11 +627,11 @@ DMITIGR_PGFE_INLINE void Connection::default_notice_handler(const Notice& n) noe
 }
 
 DMITIGR_PGFE_INLINE void
-Connection::prepare_statement_async__(const char* const query, const char* const name, const Sql_string* const preparsed)
+Connection::prepare_statement_nio__(const char* const query, const char* const name, const Sql_string* const preparsed)
 {
   assert(query);
   assert(name);
-  assert(is_ready_for_async_request());
+  assert(is_ready_for_nio_request());
   assert(!request_prepared_statement_);
 
   requests_.push(Request_id::prepare_statement); // can throw

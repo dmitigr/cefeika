@@ -82,9 +82,9 @@ DMITIGR_PGFE_INLINE bool Prepared_statement::is_invariant_ok() const noexcept
   return params_ok && preparsed_ok && session_ok && parameterizable_ok;
 }
 
-DMITIGR_PGFE_INLINE void Prepared_statement::execute_async()
+DMITIGR_PGFE_INLINE void Prepared_statement::execute_nio()
 {
-  assert(connection()->is_ready_for_async_request());
+  assert(connection()->is_ready_for_nio_request());
 
   // All values are NULLs. (Can throw.)
   const int param_count = static_cast<int>(parameter_count());
@@ -120,9 +120,9 @@ DMITIGR_PGFE_INLINE void Prepared_statement::execute_async()
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE void Prepared_statement::describe_async()
+DMITIGR_PGFE_INLINE void Prepared_statement::describe_nio()
 {
-  connection_->describe_statement_async(name_);
+  connection_->describe_statement_nio(name_);
   assert(is_invariant_ok());
 }
 

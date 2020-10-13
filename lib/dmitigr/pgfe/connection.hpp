@@ -146,9 +146,9 @@ public:
    * This function should be called repeatedly. Until communication_status()
    * becomes Communication_status::connected or Communication_status::failure loop
    * thus: if communication_status() returned Communication_status::establishment_reading,
-   * wait until the socket is ready to read, then call connect_async() again; if
+   * wait until the socket is ready to read, then call connect_nio() again; if
    * communication_status() returned Communication_status::establishment_writing, wait
-   * until the socket ready to write, then call connect_async() again. To determine
+   * until the socket ready to write, then call connect_nio() again. To determine
    * the socket readiness use the socket_readiness() function.
    *
    * @par Effects
@@ -162,7 +162,7 @@ public:
    *
    * @see connect(), communication_status(), socket_readiness().
    */
-  DMITIGR_PGFE_API void connect_async();
+  DMITIGR_PGFE_API void connect_nio();
 
   /**
    * @brief Attempts to connect to a PostgreSQL server.
@@ -184,7 +184,7 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @see connect_async().
+   * @see connect_nio().
    */
   DMITIGR_PGFE_API void connect(std::optional<std::chrono::milliseconds> timeout = std::chrono::milliseconds{-1});
 
@@ -436,7 +436,7 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks Useful only if using async API.
+   * @remarks Useful only if using non-blocking IO API.
    */
   Error error() noexcept
   {
@@ -540,7 +540,7 @@ public:
    *
    * @remarks The object pointed by the returned value is owned by this instance.
    *
-   * @see describe_statement(), describe_statement_async().
+   * @see describe_statement(), describe_statement_nio().
    */
   Prepared_statement* prepared_statement(const std::string& name) const noexcept
   {
@@ -560,7 +560,7 @@ public:
    *
    * @see is_ready_for_request().
    */
-  bool is_ready_for_async_request() const noexcept
+  bool is_ready_for_nio_request() const noexcept
   {
     const auto ts = transaction_status();
     return ts && ts != Transaction_status::active;
@@ -573,8 +573,8 @@ public:
    */
   bool is_ready_for_request() const noexcept
   {
-    // Same as is_ready_for_async_request() at the moment.
-    return is_ready_for_async_request();
+    // Same as is_ready_for_nio_request() at the moment.
+    return is_ready_for_nio_request();
   }
 
   /**
@@ -593,7 +593,7 @@ public:
    * `is_awaiting_response()`.
    *
    * @par Requires
-   * `is_ready_for_async_request()`.
+   * `is_ready_for_nio_request()`.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -603,12 +603,12 @@ public:
    * if one of them provokes an Error, then the transaction will be aborted and
    * the queries which were not yet executed will be rejected.
    *
-   * @see prepare_statement_async().
+   * @see prepare_statement_nio().
    */
-  DMITIGR_PGFE_API void perform_async(const std::string& queries);
+  DMITIGR_PGFE_API void perform_nio(const std::string& queries);
 
   /**
-   * @brief Similar to perform_async(), but waits for the first Response and
+   * @brief Similar to perform_nio(), but waits for the first Response and
    * throws Server_exception if awaited Response is an Error.
    *
    * @param callback Same as for process_responses().
@@ -626,7 +626,7 @@ public:
   perform(F&& callback, const std::string& queries)
   {
     assert(is_ready_for_request());
-    perform_async(queries);
+    perform_nio(queries);
     return process_responses(std::forward<F>(callback));
   }
 
@@ -651,7 +651,7 @@ public:
    * after the successful response.
    *
    * @par Requires
-   * `(statement && !statement->has_missing_parameters() && is_ready_for_async_request())`.
+   * `(statement && !statement->has_missing_parameters() && is_ready_for_nio_request())`.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -666,25 +666,25 @@ public:
    * This forces parameters `$1` and `$2` to be treated as of type `integer`
    * and thus the corresponding overload will be used in this case.
    *
-   * @see unprepare_statement_async().
+   * @see unprepare_statement_nio().
    */
-  void prepare_statement_async(const Sql_string& statement, const std::string& name = {})
+  void prepare_statement_nio(const Sql_string& statement, const std::string& name = {})
   {
     assert(!statement.has_missing_parameters());
-    prepare_statement_async__(statement.to_query_string().c_str(), name.c_str(), &statement); // can throw
+    prepare_statement_nio__(statement.to_query_string().c_str(), name.c_str(), &statement); // can throw
   }
 
   /**
-   * @brief Same as prepare_statement_async() except the statement will be send
+   * @brief Same as prepare_statement_nio() except the statement will be send
    * as-is, i.e. without preparsing.
    */
-  void prepare_statement_async_as_is(const std::string& statement, const std::string& name = {})
+  void prepare_statement_nio_as_is(const std::string& statement, const std::string& name = {})
   {
-    prepare_statement_async__(statement.c_str(), name.c_str(), nullptr); // can throw
+    prepare_statement_nio__(statement.c_str(), name.c_str(), nullptr); // can throw
   }
 
   /**
-   * @returns `(prepare_statement_async(), wait_response_throw(), prepared_statement())`
+   * @returns `(prepare_statement_nio(), wait_response_throw(), prepared_statement())`
    *
    * @par Requires
    * `(statement && !statement->has_missing_parameters() && is_ready_for_request())`.
@@ -692,14 +692,14 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @remarks See remarks of prepare_statement_async().
+   * @remarks See remarks of prepare_statement_nio().
    *
    * @see unprepare_statement().
    */
   Prepared_statement* prepare_statement(const Sql_string& statement, const std::string& name = {})
   {
     using M = void(Connection::*)(const Sql_string&, const std::string&);
-    return prepare_statement__(static_cast<M>(&Connection::prepare_statement_async), statement, name);
+    return prepare_statement__(static_cast<M>(&Connection::prepare_statement_nio), statement, name);
   }
 
   /**
@@ -708,7 +708,7 @@ public:
    */
   Prepared_statement* prepare_statement_as_is(const std::string& statement, const std::string& name = {})
   {
-    return prepare_statement__(&Connection::prepare_statement_async_as_is, statement, name);
+    return prepare_statement__(&Connection::prepare_statement_nio_as_is, statement, name);
   }
 
   /**
@@ -726,17 +726,17 @@ public:
    * after the successful response.
    *
    * @par Requires
-   * `is_ready_for_async_request()`.
+   * `is_ready_for_nio_request()`.
    *
    * @par Exception safety guarantee
    * Strong.
    *
    * @see describe_statement().
    */
-  DMITIGR_PGFE_API void describe_statement_async(const std::string& name);
+  DMITIGR_PGFE_API void describe_statement_nio(const std::string& name);
 
   /**
-   * @returns `(describe_statement_async(), wait_response_throw(), prepared_statement())`
+   * @returns `(describe_statement_nio(), wait_response_throw(), prepared_statement())`
    *
    * @par Requires
    * `is_ready_for_request()`.
@@ -749,7 +749,7 @@ public:
   Prepared_statement* describe_statement(const std::string& name)
   {
     assert(is_ready_for_request());
-    describe_statement_async(name);
+    describe_statement_nio(name);
     return wait_prepared_statement__();
   }
 
@@ -767,7 +767,7 @@ public:
    * - `(prepared_statement(name) == nullptr)` - just after the successful response.
    *
    * @par Requires
-   * `(is_ready_for_async_request() && !name.empty())`.
+   * `(is_ready_for_nio_request() && !name.empty())`.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -777,10 +777,10 @@ public:
    *
    * @see unprepare_statement().
    */
-  DMITIGR_PGFE_API void unprepare_statement_async(const std::string& name);
+  DMITIGR_PGFE_API void unprepare_statement_nio(const std::string& name);
 
   /**
-   * @returns `(unprepare_statement_async(const std::string& name), wait_response_throw())`
+   * @returns `(unprepare_statement_nio(const std::string& name), wait_response_throw())`
    *
    * @par Requires
    * `is_ready_for_request()`.
@@ -791,7 +791,7 @@ public:
   Completion unprepare_statement(const std::string& name)
   {
     assert(is_ready_for_request());
-    unprepare_statement_async(name);
+    unprepare_statement_nio(name);
     wait_response_throw();
     auto result = completion();
     wait_response_throw();
@@ -804,7 +804,7 @@ public:
    * statement from the preparsed SQL string, and waits for a response.
    *
    * @par Awaited responses
-   * Similar to perform_async().
+   * Similar to perform_nio().
    *
    * @param callback Same as for process_responses().
    * @param statement A *preparsed* statement to execute.
@@ -886,7 +886,7 @@ public:
    *
    * @remarks It may be problematic to invoke overloaded functions with same
    * number of parameters. A SQL query with explicit type casts should be
-   * executed is such a case. See remarks of prepare_statement_async().
+   * executed is such a case. See remarks of prepare_statement_nio().
    *
    * @see invoke_unexpanded(), call(), execute(), process_responses().
    */
@@ -1229,7 +1229,7 @@ private:
   // Prepared statement helpers
   // ---------------------------------------------------------------------------
 
-  void prepare_statement_async__(const char* const query, const char* const name, const Sql_string* const preparsed);
+  void prepare_statement_nio__(const char* const query, const char* const name, const Sql_string* const preparsed);
 
   template<typename M, typename T>
   Prepared_statement* prepare_statement__(M&& prepare, T&& statement, const std::string& name)
@@ -1372,7 +1372,7 @@ Prepared_statement::execute(F&& callback)
 {
   assert(connection_);
   assert(connection_->is_ready_for_request());
-  execute_async();
+  execute_nio();
   assert(is_invariant_ok());
   return connection_->process_responses(std::forward<F>(callback));
 }

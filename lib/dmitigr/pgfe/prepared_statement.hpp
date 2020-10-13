@@ -155,7 +155,7 @@ using Na = Named_argument;
  *   -# a <a href="https://www.postgresql.org/docs/current/static/sql-prepare.html">PREPARE</a> SQL command.
  *
  * In the first case the prepared statement **must** be deallocated via
- * Connection::unprepare_statement() or Connection::unprepare_statement_async().
+ * Connection::unprepare_statement() or Connection::unprepare_statement_nio().
  * The behaviour is undefined if such a prepared statement is deallocated by using
  * <a href="https://www.postgresql.org/docs/current/static/sql-deallocate.html">DEALLOCATE</a>
  * SQL command.
@@ -464,23 +464,23 @@ public:
    * statement.
    *
    * @par Responses
-   * Similar to Connection::perform_async().
+   * Similar to Connection::perform_nio().
    *
    * @par Requires
-   * `connection()->is_ready_for_async_request()`.
+   * `connection()->is_ready_for_nio_request()`.
    *
    * @par Exception safety guarantee
    * Strong.
    */
-  DMITIGR_PGFE_API void execute_async();
+  DMITIGR_PGFE_API void execute_nio();
 
   /**
-   * @brief Similar to execute_async() but also waits the Response.
+   * @brief Similar to execute_nio() but also waits the Response.
    *
    * @param callback Same as for Connection::process_responses().
    *
    * @par Responses
-   * Similar to Connection::perform_async().
+   * Similar to Connection::perform_nio().
    *
    * @par Requires
    * `connection()->is_ready_for_request()`.
@@ -517,8 +517,8 @@ public:
     return connection_;
   }
 
-  /// Similar to Connection::describe_prepared_statement_async().
-  DMITIGR_PGFE_API void describe_async();
+  /// Similar to Connection::describe_prepared_statement_nio().
+  DMITIGR_PGFE_API void describe_nio();
 
   /// Similar to Connection::describe_prepared_statement().
   DMITIGR_PGFE_API void describe();
