@@ -37,84 +37,66 @@ public:
     return Request{input, int{}};
   }
 
-  /**
-   * @brief Constructs an instance that represents a normal request.
-   */
+  /// Constructs an instance that represents a normal request.
   Request(const Null /*id*/, std::string_view method)
   {
     init_request__(rapidjson::Value{}, method);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   Request(const int id, const std::string_view method)
   {
     init_request__(rapidjson::Value{id}, method);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   Request(const std::string_view id, const std::string_view method)
   {
     // Attention: calling allocator() assumes constructed rep_!
     init_request__(rapidjson::Value{id.data(), id.size(), allocator()}, method);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @brief Constructs an instance that represents a notification.
-   */
+  /// Constructs an instance that represents a notification.
   explicit Request(const std::string_view method)
   {
     init_notification__(method);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @brief Copy-constructable.
-   */
+  /// Copy-constructible.
   Request(const Request& rhs)
   {
     rep_.CopyFrom(rhs.rep_, allocator(), true);
   }
 
-  /**
-   * @brief Copy-assignable.
-   */
+  /// Copy-assignable.
   Request& operator=(const Request& rhs)
   {
-    Request tmp{rhs};
-    swap(tmp);
+    if (this != &rhs) {
+      Request tmp{rhs};
+      swap(tmp);
+    }
     return *this;
   }
 
-  /**
-   * @brief Move-constructable.
-   */
+  /// Move-constructible.
   Request(Request&& rhs) = default;
 
-  /**
-   * @brief Move-assignable.
-   */
+  /// Move-assignable.
   Request& operator=(Request&& rhs) = default;
 
   /// @}
 
-  /**
-   * @brief Exchange the contents of this request with `other`.
-   */
-  void swap(Request& other)
+  /// Swaps this instance with `rhs`.
+  void swap(Request& rhs) noexcept
   {
-    rep_.Swap(other.rep_);
+    rep_.Swap(rhs.rep_);
   }
 
-  /**
-   * @returns A String specifying the version of the JSON-RPC protocol.
-   */
+  /// @returns A String specifying the version of the JSON-RPC protocol.
   std::string_view jsonrpc() const
   {
     return rajson::to<std::string_view>(rep_.FindMember("jsonrpc")->value);
@@ -124,14 +106,14 @@ public:
    * @returns A request identifier which can be either a String, Number or NULL,
    * or `nullptr` if this instance represents a notification.
    */
-  const rapidjson::Value* id() const
+  const rapidjson::Value* id() const noexcept
   {
     const auto i = rep_.FindMember("id");
     return i != rep_.MemberEnd() ? &i->value : nullptr;
   }
 
   /**
-   * @returns A String containing the name of the method to be invoked.
+   * @returns A String containing the name of the method.
    *
    * @remarks Method names that begin with the word "rpc" followed by a period
    * character (U+002E or ASCII 46) are reserved for rpc-internal methods and
@@ -146,7 +128,7 @@ public:
    * @returns A Structured value that holds the parameter values to be
    * used during the invocation of the method, or `nullptr` if no parameters.
    */
-  const rapidjson::Value* params() const
+  const rapidjson::Value* params() const noexcept
   {
     const auto i = rep_.FindMember("params");
     return i != rep_.MemberEnd() ? &i->value : nullptr;
@@ -154,20 +136,21 @@ public:
 
   /**
    * @returns The parameter value, or `nullptr` if no parameter at `position`.
+   *
+   * @par Requires
+   * `(!params() || position < params()->Size())`.
    */
-  const rapidjson::Value* parameter(const std::size_t position) const
+  const rapidjson::Value* parameter(const std::size_t position) const noexcept
   {
     if (const auto* const p = params(); p && p->IsArray()) {
-      DMITIGR_REQUIRE(position < p->Size(), std::invalid_argument);
+      assert(position < p->Size());
       return &(*p)[position];
     } else
       return nullptr;
   }
 
-  /**
-   * @returns The parameter value, or `nullptr` if no parameter with name `name`.
-   */
-  const rapidjson::Value* parameter(const std::string_view name) const
+  /// @returns The parameter value, or `nullptr` if no parameter with name `name`.
+  const rapidjson::Value* parameter(const std::string_view name) const noexcept
   {
     if (const auto* const p = params(); p && p->IsObject()) {
       const auto nr = rajson::to<rapidjson::Value::StringRefType>(name);
@@ -361,23 +344,20 @@ public:
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kArrayType}, alloc);
       p = params__();
       p->Reserve(8, alloc);
-      DMITIGR_ASSERT(p && p->IsArray());
-    } else
-      DMITIGR_REQUIRE(p->IsArray(), std::logic_error);
+    }
+    assert(p && p->IsArray());
 
     if (position >= p->Size()) {
       const auto count = position - p->Size();
       for (std::size_t i = 0; i < count; ++i)
         p->PushBack(rapidjson::Value{}, alloc);
       p->PushBack(std::move(value), alloc);
-      DMITIGR_ASSERT(position < p->Size());
+      assert(position < p->Size());
     } else
       (*p)[position] = std::move(value);
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   void set_parameter(std::size_t position, T&& value)
   {
@@ -396,16 +376,15 @@ public:
    */
   void set_parameter(const std::string_view name, rapidjson::Value value)
   {
-    DMITIGR_REQUIRE(!name.empty(), std::invalid_argument);
+    assert(!name.empty());
 
     auto& alloc = allocator();
     rapidjson::Value* p = params__();
     if (!p) {
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kObjectType}, alloc);
       p = params__();
-      DMITIGR_ASSERT(p && p->IsObject());
-    } else
-      DMITIGR_REQUIRE(p->IsObject(), std::logic_error);
+    }
+    assert(p && p->IsObject());
 
     const auto nr = rajson::to<rapidjson::Value::StringRefType>(name);
     if (auto m = p->FindMember(nr); m != p->MemberEnd())
@@ -414,28 +393,22 @@ public:
       p->AddMember(rapidjson::Value{std::string{name}, alloc}, std::move(value), alloc);
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   void set_parameter(std::string_view name, T&& value)
   {
     set_parameter(name, rajson::to<rapidjson::Value>(std::forward<T>(value), allocator()));
   }
 
-  /**
-   * @returns The parameter count. Returns 0 if `(params() == nullptr)`.
-   */
-  std::size_t parameter_count() const
+  /// @returns The parameter count. Returns 0 if `(params() == nullptr)`.
+  std::size_t parameter_count() const noexcept
   {
     const auto* const p = params();
     return p ? (p->IsArray() ? p->Size() : p->MemberCount()) : 0;
   }
 
-  /**
-   * @returns `(params() && parameter_count() > 0)`.
-   */
-  bool has_parameters() const
+  /// @returns `(params() && parameter_count() > 0)`.
+  bool has_parameters() const noexcept
   {
     return parameter_count() > 0;
   }
@@ -465,7 +438,7 @@ public:
     else
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kObjectType}, allocator());
 
-    DMITIGR_ASSERT(params() && parameter_count() == 0);
+    assert(params() && parameter_count() == 0);
   }
 
   /**
@@ -479,25 +452,21 @@ public:
     rep_.RemoveMember("params");
   }
 
-  /**
-   * @returns The result of serialization of this instance to a JSON string.
-   */
+  /// @returns The result of serialization of this instance to a JSON string.
   std::string to_string() const
   {
     return rajson::to_stringified(rep_);
   }
 
-  /**
-   * @return The allocator.
-   */
+  /// @return The allocator.
   rapidjson::Value::AllocatorType& allocator() const
   {
     return rep_.GetAllocator();
   }
 
   /**
-   * @brief Throws an instance of type Error with specified `code`, ID borrowed
-   * from this instance and specified error `message`.
+   * @throws An instance of type Error with the specified `code`,
+   * ID borrowed from this instance and specified error `message`.
    */
   [[noreturn]] void throw_error(const std::error_code code, const std::string& message = {}) const
   {
@@ -508,8 +477,8 @@ public:
   }
 
   /**
-   * @returns An instance of type Error with specified `code`, ID borrowed
-   * from this instance and specified error `message`.
+   * @returns An instance of type Error with the specified `code`,
+   * ID borrowed from this instance and specified error `message`.
    */
   Error make_error(const std::error_code code, const std::string& message = {}) const
   {
@@ -519,10 +488,7 @@ public:
       return Error{code, Null{}, message};
   }
 
-  /**
-   * @returns An instance of type Result with ID borrowed
-   * from this instance.
-   */
+  /// @returns An instance of type Result with ID borrowed from this instance.
   Result make_result() const
   {
     if (const auto* const ident = id())
@@ -561,7 +527,7 @@ private:
       (ii == e || ii->value.IsInt() || ii->value.IsString() || ii->value.IsNull());
   }
 
-  rapidjson::Value* params__()
+  rapidjson::Value* params__() noexcept
   {
     return const_cast<rapidjson::Value*>(static_cast<const Request*>(this)->params());
   }
@@ -583,7 +549,7 @@ private:
     return result;
   }
 
-  // for from_json
+  // Used by from_json().
   Request(const std::string_view input, int)
     : rep_{rajson::to_document(input)}
   {
@@ -604,7 +570,7 @@ private:
     const auto throw_invalid_request = [this, idi, e](const std::string& message)
     {
       throw Error{Server_errc::invalid_request,
-          (idi != e) ? rapidjson::Value{idi->value, allocator()} : rapidjson::Value{}, message};
+        (idi != e) ? rapidjson::Value{idi->value, allocator()} : rapidjson::Value{}, message};
     };
 
     // Checking jsonrpc member.
@@ -639,7 +605,7 @@ private:
     if (rep_.MemberCount() != expected_member_count)
       throw_invalid_request("unexpected member count");
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   void init_notification__(const std::string_view method)

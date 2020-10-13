@@ -54,7 +54,7 @@ set(dmitigr_cefeika_str_deps base)
 set(dmitigr_cefeika_ttpl_deps base)
 
 set(dmitigr_cefeika_cfg_deps str base)
-set(dmitigr_cefeika_jrpc_deps rajson math str base)
+set(dmitigr_cefeika_jrpc_deps rajson math str)
 set(dmitigr_cefeika_mulf_deps str base)
 set(dmitigr_cefeika_net_deps os base)
 set(dmitigr_cefeika_url_deps str base)

@@ -9,38 +9,30 @@
 #include "dmitigr/jrpc/std_system_error.hpp"
 #include "dmitigr/jrpc/types_fwd.hpp"
 
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/rajson/conversions.hpp>
 
+#include <cassert>
 #include <memory>
 #include <string>
 #include <string_view>
 
 namespace dmitigr::jrpc {
 
-/**
- * @brief A response.
- */
+/// A response.
 class Response {
 public:
-  /**
-   * @brief The destructor.
-   */
+  /// The destructor.
   virtual ~Response() = default;
 
   /// @name Constructors
   /// @{
 
-  /**
-   * @returns A new instance of Response.
-   */
+  /// @returns A new instance of Response.
   static std::unique_ptr<Response> make(std::string_view input);
 
   /// @}
 
-  /**
-   * @returns A String specifying the version of the JSON-RPC protocol.
-   */
+  /// @returns A String specifying the version of the JSON-RPC protocol.
   virtual std::string_view jsonrpc() const = 0;
 
   /**
@@ -50,14 +42,10 @@ public:
    */
   virtual const rapidjson::Value& id() const = 0;
 
-  /**
-   * @returns The result of serialization of this instance to a JSON string.
-   */
+  /// @returns The result of serialization of this instance to a JSON string.
   virtual std::string to_string() const = 0;
 
-  /**
-   * @return The allocator.
-   */
+  /// @return The allocator.
   virtual rapidjson::Value::AllocatorType& allocator() const = 0;
 
 private:
@@ -69,60 +57,50 @@ private:
 
 // =============================================================================
 
-/**
- * @brief An error response.
- */
+/// An error response.
 class Error final : public Response, public std::system_error {
 public:
   /**
-   * @brief Constructs an instance with code of Server_errc::generic_error,
+   * Constructs an instance with code of Server_errc::generic_error,
    * with null ID, and empty message.
    */
   Error()
     : Error{Server_errc::generic_error, std::string{}}
   {
     init__(rapidjson::Value{}, std::string{});
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @brief The constructor.
-   */
+  /// The constructor.
   Error(const std::error_code code, const Null /*id*/, const std::string& message = {})
     : Error{code, message}
   {
     init__(rapidjson::Value{}, message);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   Error(const std::error_code code, const int id, const std::string& message = {})
     : Error{code, message}
   {
     init__(rapidjson::Value{id}, message);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   Error(const std::error_code code,
     const std::string_view id, const std::string& message = {})
     : Error{code, message}
   {
     // Attention: calling allocator() assumes constructed rep_!
     init__(rapidjson::Value{id.data(), id.size(), allocator()}, message);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @brief Exchange the contents of this request with `other`.
-   */
-  void swap(Error& other)
+  /// Swaps this instance with `rhs`.
+  void swap(Error& rhs) noexcept
   {
-    rep_.swap(other.rep_);
+    rep_.swap(rhs.rep_);
   }
 
   /**
@@ -133,19 +111,15 @@ public:
     return std::string_view{"2.0", 3};
   }
 
-  /**
-   * @see Response::id().
-   */
+  /// @see Response::id().
   const rapidjson::Value& id() const override
   {
     const auto i = rep_->FindMember("id");
-    DMITIGR_ASSERT(i != rep_->MemberEnd());
+    assert(i != rep_->MemberEnd());
     return i->value;
   }
 
-  /**
-   * @see Response::to_string().
-   */
+  /// @see Response::to_string().
   std::string to_string() const override
   {
     return rajson::to_stringified(*rep_);
@@ -162,9 +136,7 @@ public:
     return i != e.MemberEnd() ? &i->value : nullptr;
   }
 
-  /**
-   * @brief Sets the additional information about the error.
-   */
+  /// Sets the additional information about the error.
   void set_data(rapidjson::Value value)
   {
     auto& err = error();
@@ -174,18 +146,14 @@ public:
       i->value = std::move(value);
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   void set_data(T&& value)
   {
     set_data(rajson::to<rapidjson::Value>(std::forward<T>(value), allocator()));
   }
 
-  /**
-   * @see Response::allocator().
-   */
+  /// @see Response::allocator().
   rapidjson::Value::AllocatorType& allocator() const override
   {
     return rep_->GetAllocator();
@@ -243,7 +211,7 @@ private:
   const rapidjson::Value& error() const
   {
     const auto i = rep_->FindMember("error");
-    DMITIGR_ASSERT(i != rep_->MemberEnd());
+    assert(i != rep_->MemberEnd());
     return i->value;
   }
 
@@ -252,28 +220,28 @@ private:
     return const_cast<rapidjson::Value&>(static_cast<const Error*>(this)->error());
   }
 
-  // Used by Request
+  // Used by Request.
   Error(const std::error_code code, rapidjson::Value&& id, const std::string& message = {})
     : Error{code, message}
   {
     init__(std::move(id), message);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  // Used by Request
+  // Used by Request.
   Error(const std::error_code code, const rapidjson::Value& id, const std::string& message = {})
     : Error{code, message}
   {
     init__(rapidjson::Value{id, allocator()}, message);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  // Used by Response
+  // Used by Response.
   Error(const std::error_code code, const std::string& message, std::shared_ptr<rapidjson::Document> rep)
     : system_error{code, message}
     , rep_{std::move(rep)}
   {
-    DMITIGR_ASSERT(rep_ != nullptr);
+    assert(rep_ != nullptr);
     // Maybe uninitialized, so invariant *maybe* invalid here!
   }
 
@@ -302,130 +270,100 @@ private:
 
 // =============================================================================
 
-/**
- * @brief Represents success of a server method invocation.
- */
+/// Represents success of a server method invocation.
 class Result final : public Response {
 public:
-  /**
-   * @brief The default constructor.
-   */
+  /// The default constructor.
   Result()
   {
     init__(rapidjson::Value{});
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns A new instance of result.
-   */
+  /// The constructor.
   explicit Result(const int id)
   {
     init__(rapidjson::Value{id});
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   explicit Result(const std::string_view id)
   {
     // Attention: calling allocator() assumes constructed rep_!
     init__(rapidjson::Value{id.data(), id.size(), allocator()});
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @brief Copy-constructable.
-   */
+  /// Copy-constructible.
   Result(const Result& rhs)
   {
     rep_.CopyFrom(rhs.rep_, allocator(), true);
   }
 
-  /**
-   * @brief Copy-assignable.
-   */
+  /// Copy-assignable.
   Result& operator=(const Result& rhs)
   {
-    Result tmp{rhs};
-    swap(tmp);
+    if (this != &rhs) {
+      Result tmp{rhs};
+      swap(tmp);
+    }
     return *this;
   }
 
-  /**
-   * @brief Move-constructable.
-   */
+  /// Move-constructible.
   Result(Result&& rhs) = default;
 
-  /**
-   * @brief Move-assignable.
-   */
+  /// Move-assignable.
   Result& operator=(Result&& rhs) = default;
 
-  /**
-   * @brief Exchange the contents of this request with `other`.
-   */
-  void swap(Result& other)
+  /// Swaps this instance with `rhs`.
+  void swap(Result& rhs) noexcept
   {
-    rep_.Swap(other.rep_);
+    rep_.Swap(rhs.rep_);
   }
 
-  /**
-   * @see Response::jsonrpc()
-   */
+  /// @see Response::jsonrpc()
   std::string_view jsonrpc() const override
   {
     return std::string_view{"2.0", 3};
   }
 
-  /**
-   * @see Response::id()
-   */
+  /// @see Response::id()
   const rapidjson::Value& id() const override
   {
     const auto i = rep_.FindMember("id");
-    DMITIGR_ASSERT(i != rep_.MemberEnd());
+    assert(i != rep_.MemberEnd());
     return i->value;
   }
 
-  /**
-   * @see Response::to_string()
-   */
+  /// @see Response::to_string()
   std::string to_string() const override
   {
     return rajson::to_stringified(rep_);
   }
 
-  /**
-   * @see Response::allocator()
-   */
+  /// @see Response::allocator()
   rapidjson::Value::AllocatorType& allocator() const override
   {
     return rep_.GetAllocator();
   }
 
-  /**
-   * @returns The value determined by the method invoked on the server.
-   */
+  /// @returns The value determined by the method invoked on the server.
   const rapidjson::Value& data() const
   {
     const auto i = rep_.FindMember("result");
-    DMITIGR_ASSERT(i != rep_.MemberEnd());
+    assert(i != rep_.MemberEnd());
     return i->value;
   }
 
-  /**
-   * @brief Sets the mandatory information about the success.
-   */
+  /// Sets the mandatory information about the success.
   void set_data(rapidjson::Value value)
   {
     data__() = std::move(value);
   }
 
-  /**
-   * @overload
-   */
+  /// @overload
   template<typename T>
   void set_data(T&& value)
   {
@@ -456,18 +394,18 @@ private:
     return const_cast<rapidjson::Value&>(static_cast<const Result*>(this)->data());
   }
 
-  // Used by Request
+  // Used by Request.
   explicit Result(const rapidjson::Value& id)
   {
     init__(rapidjson::Value{id, allocator()});
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  // Used by Response
+  // Used by Response.
   explicit Result(rapidjson::Document&& rep)
     : rep_{std::move(rep)}
   {
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   void init__(rapidjson::Value&& id)
@@ -484,7 +422,7 @@ private:
 inline std::unique_ptr<Response> Response::make(const std::string_view input)
 {
   rapidjson::Document rep{rajson::to_document(input)};
-  if (rep.HasParseError())
+  if (rep.HasParseError() || !rep.IsObject())
     throw std::runtime_error{"dmitigr::jrpc: response parse error"};
 
   if (rep.MemberCount() != 3)

@@ -7,30 +7,24 @@
 
 namespace dmitigr::jrpc {
 
-/**
- * @brief Represents null.
- */
+/// Represents null.
 struct Null final {};
 
-/**
- * @brief A constant of type `Null` that is used to indicate null state.
- */
+/// A constant of type `Null` that is used to indicate null state.
 inline constexpr Null null;
 
-/**
- * @brief Parameters notation.
- */
+/// Parameters notation.
 enum class Parameters_notation {
-  /** Positional notation. */
+  /// Positional notation.
   positional,
 
-  /** Named notation. */
+  /// Named notation.
   named
 };
 
 /**
- * @returns The literal representation of the `value`, or `nullptr`
- * if `value` does not corresponds to any value defined by Parameters_notation.
+ * @returns The literal representation of the `value`, or `nullptr` if
+ * `value` does not corresponds to any value defined by Parameters_notation.
  */
 constexpr const char* to_literal(const Parameters_notation value)
 {
