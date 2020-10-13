@@ -6,8 +6,8 @@
 #define DMITIGR_RAJSON_VALUE_VIEW_HPP
 
 #include "dmitigr/rajson/conversions.hpp"
-#include <dmitigr/base/debug.hpp>
 
+#include <cassert>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -16,16 +16,14 @@
 
 namespace dmitigr::rajson {
 
-/**
- * @brief A value view.
- */
+/// A value view.
 template<class GenericValue>
 class Value_view final {
 public:
-  /// @brief An alias of underlying type.
+  /// An alias of underlying type.
   using Underlying_type = GenericValue;
 
-  /// @brief The constructor.
+  /// The constructor.
   Value_view(GenericValue& value)
     : value_{value}
   {}
@@ -124,7 +122,7 @@ private:
   template<class Value>
   static auto optional_iterator__(Value& value, const std::string_view name)
   {
-    DMITIGR_REQUIRE(!name.empty(), std::invalid_argument);
+    assert(!name.empty());
     if (const auto m = value.FindMember(rapidjson::StringRef(name.data(), name.size())),
                    e = value.MemberEnd(); m != e)
       return m;

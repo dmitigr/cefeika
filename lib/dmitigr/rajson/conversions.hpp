@@ -21,25 +21,18 @@
 
 namespace dmitigr::rajson {
 
-/**
- * @returns The result of conversion of `value` to a JSON string.
- */
+/// @returns The result of conversion of `value` to a JSON string.
 template<class Encoding, class Allocator>
 std::string to_stringified(const rapidjson::GenericValue<Encoding, Allocator>& value)
 {
-  /*
-   * Note: The template parameter of rapidjson::Writer specified explicitly for GCC 7.
-   */
-  rapidjson::StringBuffer buffer;
-  rapidjson::Writer<rapidjson::StringBuffer> writer{buffer};
+  rapidjson::StringBuffer buf;
+  rapidjson::Writer<decltype(buf)> writer{buf}; // decltype() required for GCC 7
   if (!value.Accept(writer))
     throw std::runtime_error{"dmitigr::rajson: to_stringified_json() accept error"};
-  return std::string{buffer.GetString(), buffer.GetSize()};
+  return std::string{buf.GetString(), buf.GetSize()};
 }
 
-/**
- * @returns The instance of JSON document constructed by parsing the `input`.
- */
+/// @returns The instance of JSON document constructed by parsing the `input`.
 inline rapidjson::Document to_document(const std::string_view input)
 {
   rapidjson::Document result;
@@ -47,9 +40,7 @@ inline rapidjson::Document to_document(const std::string_view input)
   return result;
 }
 
-/**
- * @brief The centralized "namespace" for conversion algorithms implementations.
- */
+/// The centralized "namespace" for conversion algorithms implementations.
 template<typename> struct Conversions;
 
 /**
@@ -63,23 +54,19 @@ Destination to(Source&& value, Types&& ... args)
   return Conversions<Destination>::from(std::forward<Source>(value), std::forward<Types>(args)...);
 }
 
-/**
- * @brief Full specialization of Conversions for `bool`.
- */
+/// Full specialization for `bool`.
 template<> struct Conversions<bool> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsBool())
       return value.GetBool();
-    else
-      throw std::invalid_argument{"invalid bool"};
+
+    throw std::invalid_argument{"invalid source for bool"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::uint8_t`.
- */
+/// Full specialization for `std::uint8_t`.
 template<> struct Conversions<std::uint8_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
@@ -89,13 +76,11 @@ template<> struct Conversions<std::uint8_t> final {
       if (result <= std::numeric_limits<std::uint8_t>::max())
         return static_cast<std::uint8_t>(result);
     }
-    throw std::invalid_argument{"invalid std::uint8_t"};
+    throw std::invalid_argument{"invalid source for std::uint8_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::uint16_t`.
- */
+/// Full specialization for `std::uint16_t`.
 template<> struct Conversions<std::uint16_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
@@ -105,13 +90,11 @@ template<> struct Conversions<std::uint16_t> final {
       if (result <= std::numeric_limits<std::uint16_t>::max())
         return static_cast<std::uint16_t>(result);
     }
-    throw std::invalid_argument{"invalid std::uint16_t"};
+    throw std::invalid_argument{"invalid source for std::uint16_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::uint32_t`.
- */
+/// Full specialization for `std::uint32_t`.
 template<> struct Conversions<std::uint32_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
@@ -121,117 +104,104 @@ template<> struct Conversions<std::uint32_t> final {
       if (result <= std::numeric_limits<std::uint32_t>::max())
         return static_cast<std::uint32_t>(result);
     }
-    throw std::invalid_argument{"invalid std::uint32_t"};
+    throw std::invalid_argument{"invalid source for std::uint32_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::uint64_t`.
- */
+/// Full specialization for `std::uint64_t`.
 template<> struct Conversions<std::uint64_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsUint64())
       return static_cast<std::uint64_t>(value.GetUint64());
-    else
-      throw std::invalid_argument{"invalid std::uint64_t"};
+
+    throw std::invalid_argument{"invalid source for std::uint64_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::int8_t`.
- */
+/// Full specialization for `std::int8_t`.
 template<> struct Conversions<std::int8_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsInt()) {
       const auto result = value.GetInt();
-      if (std::numeric_limits<std::int8_t>::min() <= result && result <= std::numeric_limits<std::int8_t>::max())
+      if (std::numeric_limits<std::int8_t>::min() <= result &&
+        result <= std::numeric_limits<std::int8_t>::max())
         return static_cast<std::int8_t>(result);
     }
-    throw std::invalid_argument{"invalid std::int8_t"};
+    throw std::invalid_argument{"invalid source for std::int8_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::int16_t`.
- */
-template<> struct Conversions<short> final {
+/// Full specialization for `std::int16_t`.
+template<> struct Conversions<std::int16_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsInt()) {
       const auto result = value.GetInt();
-      if (std::numeric_limits<std::int16_t>::min() <= result && result <= std::numeric_limits<std::int16_t>::max())
+      if (std::numeric_limits<std::int16_t>::min() <= result &&
+        result <= std::numeric_limits<std::int16_t>::max())
         return static_cast<std::int16_t>(result);
     }
-    throw std::invalid_argument{"invalid std::int16_t"};
+    throw std::invalid_argument{"invalid source for std::int16_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::int32_t`.
- */
+/// Full specialization for `std::int32_t`.
 template<> struct Conversions<std::int32_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsInt()) {
       const auto result = value.GetInt();
-      if (std::numeric_limits<std::int32_t>::min() <= result && result <= std::numeric_limits<std::int32_t>::max())
+      if (std::numeric_limits<std::int32_t>::min() <= result &&
+        result <= std::numeric_limits<std::int32_t>::max())
         return static_cast<std::int32_t>(result);
     }
-    throw std::invalid_argument{"invalid std::int32_t"};
+    throw std::invalid_argument{"invalid source for std::int32_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::int64_t`.
- */
+/// Full specialization for `std::int64_t`.
 template<> struct Conversions<std::int64_t> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsInt64())
       return static_cast<std::int64_t>(value.GetInt64());
-    else
-      throw std::invalid_argument{"invalid std::int64_t"};
+
+    throw std::invalid_argument{"invalid source for std::int64_t"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `float`.
- */
+/// Full specialization for `float`.
 template<> struct Conversions<float> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsFloat() || value.IsLosslessFloat())
       return value.GetFloat();
-    else
-      throw std::invalid_argument{"invalid float"};
+
+    throw std::invalid_argument{"invalid source for float"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `double`.
- */
+/// Full specialization for `double`.
 template<> struct Conversions<double> final {
   template<class Encoding, class Allocator>
   static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
   {
     if (value.IsDouble() || value.IsLosslessDouble())
       return value.GetDouble();
-    else
-      throw std::invalid_argument{"invalid double"};
+
+    throw std::invalid_argument{"invalid source for double"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::string`.
- */
+/// Full specialization for `std::string`.
 template<>
 struct Conversions<std::string> final {
   template<class Encoding, class Allocator>
@@ -239,13 +209,12 @@ struct Conversions<std::string> final {
   {
     if (value.IsString())
       return std::string{value.GetString(), value.GetStringLength()};
-    throw std::invalid_argument{"invalid std::string"};
+
+    throw std::invalid_argument{"invalid source for std::string"};
   }
 };
 
-/**
- * @brief Full specialization of Conversions for `std::string_view`.
- */
+/// Full specialization for `std::string_view`.
 template<>
 struct Conversions<std::string_view> final {
   template<class Encoding, class Allocator>
@@ -253,13 +222,12 @@ struct Conversions<std::string_view> final {
   {
     if (value.IsString())
       return std::string_view{value.GetString(), value.GetStringLength()};
-    throw std::invalid_argument{"invalid std::string_view"};
+
+    throw std::invalid_argument{"invalid source for std::string_view"};
   }
 };
 
-/**
- * @brief Partial specialization of Conversions for `rapidjson::StringRef`.
- */
+/// Partial specialization for `rapidjson::StringRef`.
 template<class CharType>
 struct Conversions<rapidjson::GenericStringRef<CharType>> final {
   static auto from(const std::string_view value)
@@ -268,9 +236,7 @@ struct Conversions<rapidjson::GenericStringRef<CharType>> final {
   }
 };
 
-/**
- * @brief Partial specialization of Conversions for `rapidjson::GenericValue`.
- */
+/// Partial specialization for `rapidjson::GenericValue`.
 template<class Encoding, class Allocator>
 struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
   template<typename T>
