@@ -27,20 +27,20 @@ int main(int, char* argv[])
       ASSERT(req.id()->GetInt() == 1);
 
       ASSERT(req.parameter(0));
-      ASSERT(req.parameter(0)->IsInt());
-      ASSERT(req.parameter(0)->GetInt() == 42);
+      ASSERT(req.parameter(0).value()->IsInt());
+      ASSERT(req.parameter(0).value()->GetInt() == 42);
       ASSERT(req.parameter(1));
-      ASSERT(req.parameter(1)->IsInt());
-      ASSERT(req.parameter(1)->GetInt() == 23);
+      ASSERT(req.parameter(1).value()->IsInt());
+      ASSERT(req.parameter(1).value()->GetInt() == 23);
       ASSERT(req.to_string() == R"({"jsonrpc":"2.0","method":"subtract","params":[42,23],"id":1})");
 
       req.set_parameter(3, 7);
       ASSERT(req.parameter_count() == 3 + 1);
       ASSERT(req.parameter(2));
-      ASSERT(req.parameter(2)->IsNull());
+      ASSERT(req.parameter(2).value()->IsNull());
       ASSERT(req.parameter(3));
-      ASSERT(req.parameter(3)->IsInt());
-      ASSERT(req.parameter(3)->GetInt() == 7);
+      ASSERT(req.parameter(3).value()->IsInt());
+      ASSERT(req.parameter(3).value()->GetInt() == 7);
       ASSERT(req.to_string() == R"({"jsonrpc":"2.0","method":"subtract","params":[42,23,null,7],"id":1})");
 
       req.reset_parameters(jrpc::Parameters_notation::positional);
@@ -62,11 +62,11 @@ int main(int, char* argv[])
       ASSERT(req.has_parameters());
       ASSERT(req.parameter_count() == 2);
       ASSERT(req.parameter(0));
-      ASSERT(req.parameter(0)->IsInt());
-      ASSERT(req.parameter(0)->GetInt() == 10);
+      ASSERT(req.parameter(0).value()->IsInt());
+      ASSERT(req.parameter(0).value()->GetInt() == 10);
       ASSERT(req.parameter(1));
-      ASSERT(req.parameter(1)->IsFloat());
-      ASSERT(req.parameter(1)->GetFloat() == 5.5);
+      ASSERT(req.parameter(1).value()->IsFloat());
+      ASSERT(req.parameter(1).value()->GetFloat() == 5.5);
       ASSERT(req.to_string() == R"({"jsonrpc":"2.0","method":"subtract","id":1,"params":[10,5.5]})");
     }
 
@@ -184,8 +184,8 @@ int main(int, char* argv[])
       ASSERT(req.params());
       ASSERT(req.params()->IsObject());
       ASSERT(req.parameter_count() == 2);
-      ASSERT(req.parameter("x") && req.parameter("x")->IsInt() && req.parameter("x")->GetInt() == 10);
-      ASSERT(req.parameter("y") && req.parameter("y")->IsInt() && req.parameter("y")->GetInt() == 20);
+      ASSERT(req.parameter("x") && req.parameter("x").value()->IsInt() && req.parameter("x").value()->GetInt() == 10);
+      ASSERT(req.parameter("y") && req.parameter("y").value()->IsInt() && req.parameter("y").value()->GetInt() == 20);
     }
 
     // Convenient methods.
@@ -196,10 +196,15 @@ int main(int, char* argv[])
       req.set_parameter("s", "foo");
 
       {
-        const auto [z_v, all] = req.parameters("z");
+        const auto [zr, all] = req.parameters("z");
         ASSERT(!all);
-        ASSERT(!z_v);
-        const auto z = req.mandatory_parameter<int>(z_v, math::Interval{1, 2000}, "z");
+        ASSERT(!zr);
+        try {
+          const auto z = zr.mandatory<int>(math::Interval{1, 2000});
+          (void)z;
+        } catch (const jrpc::Error& e) {
+          ASSERT(e.code() == jrpc::Server_errc::invalid_params);
+        }
       }
 
       {
@@ -218,18 +223,18 @@ int main(int, char* argv[])
       }
 
       {
-        const auto x = req.mandatory_parameter<int>("x");
-        const auto y = req.mandatory_parameter<std::int8_t>("y");
-        const auto z = req.optional_parameter<int>("z");
+        const auto x = req.parameter("x").mandatory<int>();
+        const auto y = req.parameter("y").mandatory<std::int8_t>();
+        const auto z = req.parameter("z").optional<int>();
         ASSERT(x == 10);
         ASSERT(y == 20);
         ASSERT(!z);
       }
 
       {
-        const auto x = req.mandatory_parameter<int>("x", {10,20});
+        const auto x = req.parameter("x").mandatory<int>({10,20});
         (void)x;
-        const auto s = req.mandatory_parameter<std::string_view>("s", {"bar","baz", "foo"}, "not foo!");
+        const auto s = req.parameter("s").mandatory<std::string_view>({"bar","baz", "foo"});
         (void)s;
       }
     }

@@ -9,6 +9,7 @@
 #include <dmitigr/math/math.hpp>
 #include <dmitigr/str/str.hpp>
 
+#include <algorithm>
 #include <functional>
 #include <initializer_list>
 #include <optional>
@@ -17,13 +18,190 @@
 
 namespace dmitigr::jrpc {
 
-/**
- * @brief A request.
- *
- * FIXME: replace "error_message" with type Param_info.
- */
+/// A request.
 class Request final {
 public:
+  /// A parameter reference.
+  class Paramref final {
+  public:
+    /// @returns `true` if the instance references a parameter.
+    explicit operator bool() const noexcept
+    {
+      return static_cast<bool>(value_);
+    }
+
+    /// @returns The request of this parameter.
+    const Request& request() const noexcept
+    {
+      return request_;
+    }
+
+    /**
+     * @returns The pointer to the value of this parameter, or `nullptr` if
+     * this instance doesn't references a parameter.
+     */
+    const rapidjson::Value* value() const noexcept
+    {
+      return value_;
+    }
+
+    /**
+     * @returns The position or name of this parameter, or empty string if
+     * this instance doesn't references a parameter.
+     */
+    const std::string& namepos() const noexcept
+    {
+      return namepos_;
+    }
+
+    /**
+     * @returns The result of conversion of `value()` to a value of type `T`, or
+     * `std::nullopt` if `(!value() || value()->IsNull())`.
+     *
+     * @throws Error if `value()` cannot be converted to a value of type `T`.
+     */
+    template<typename T>
+    std::optional<T> optional() const
+    {
+      try {
+        if (!value_ || value_->IsNull())
+          return std::nullopt;
+        else
+          return rajson::to<T>(*value_);
+      } catch (...) {
+        throw_invalid_params();
+      }
+    }
+
+    /**
+     * @returns The result of conversion of `value()` to a value of type `T`, or
+     * `std::nullopt` if `(!value() || value()->IsNull())`.
+     *
+     * @param pred An unary predicate that returns `true` if a value of type
+     * `T` is valid.
+     *
+     * @throws Error if `value()` cannot be converted to a value of type `T`,
+     * or if `!pred(T)`.
+     */
+    template<typename T, typename Predicate>
+    std::enable_if_t<std::is_invocable_r_v<bool, Predicate, const T&>, std::optional<T>>
+    optional(Predicate&& pred) const
+    {
+      if (auto result = optional<T>()) {
+        if (pred(*result))
+          return result;
+        else
+          throw_invalid_params();
+      } else
+        return std::nullopt;
+    }
+
+    /**
+     * @overload
+     *
+     * @param valid_set A container of acceptable values.
+     */
+    template<typename T, typename U, typename A, template<class, class> class Container>
+    std::optional<T> optional(const Container<U, A>& valid_set) const
+    {
+      return optional<T>([&valid_set](const T& v)
+      {
+        return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const T& e){return v == e;});
+      });
+    }
+
+    /// @overload
+    template<typename T, typename U>
+    std::optional<T> optional(const std::initializer_list<U>& valid_set) const
+    {
+      return optional<T>([&valid_set](const T& v)
+      {
+        return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const auto& e)
+        {
+          return v == e;
+        });
+      });
+    }
+
+    /**
+     * @overload
+     *
+     * @param interval An interval of acceptable values.
+     */
+    template<typename T, typename U>
+    std::optional<T> optional(const math::Interval<U>& interval) const
+    {
+      return optional<T>(std::bind(&math::Interval<U>::has, &interval, std::placeholders::_1));
+    }
+
+    /**
+     * @returns The result of conversion of `value()` to a value of type `T`.
+     *
+     * @params args The same arguments as for optional() methods.
+     *
+     * @throws Error if `!value() || value()->IsNull()`.
+     */
+    template<typename T, typename ... Types>
+    T mandatory(Types&& ... args) const
+    {
+      if (auto result = optional<T>(std::forward<Types>(args)...))
+        return std::move(*result);
+      else
+        throw_invalid_params();
+    }
+
+    /// @overload
+    template<typename T, typename U>
+    T mandatory(const std::initializer_list<U>& valid_set) const
+    {
+      if (auto result = optional<T>(valid_set))
+        return std::move(*result);
+      else
+        throw_invalid_params();
+    }
+
+    [[noreturn]] void throw_invalid_params() const
+    {
+      request_.throw_error(Server_errc::invalid_params, namepos_);
+    }
+
+  private:
+    friend Request;
+
+    const Request& request_;
+    const rapidjson::Value* value_{};
+    std::string namepos_;
+
+  public:
+    explicit Paramref(const Request& request)
+      : request_{request}
+    {}
+
+    Paramref(const Request& request, const std::size_t pos, const rapidjson::Value* const value)
+      : request_{request}
+      , value_{value}
+      , namepos_{std::to_string(pos)}
+    {}
+
+    Paramref(const Request& request, std::string name, const rapidjson::Value* const value)
+      : request_{request}
+      , value_{value}
+      , namepos_{std::move(name)}
+    {}
+
+    /// Non copy-constructible.
+    Paramref(const Paramref& rhs) = delete;
+
+    /// Non copy-assignable.
+    Paramref& operator=(const Paramref& rhs) = delete;
+
+    /// Move-constructible.
+    Paramref(Paramref&& rhs) = default;
+
+    /// Move-assignable.
+    Paramref& operator=(Paramref&& rhs) = default;
+  };
+
   /// @name Constructors
   /// @{
 
@@ -103,8 +281,8 @@ public:
   }
 
   /**
-   * @returns A request identifier which can be either a String, Number or NULL,
-   * or `nullptr` if this instance represents a notification.
+   * @returns A request identifier which can be either a String, Number
+   * or NULL, or `nullptr` if this instance represents a notification.
    */
   const rapidjson::Value* id() const noexcept
   {
@@ -125,8 +303,8 @@ public:
   }
 
   /**
-   * @returns A Structured value that holds the parameter values to be
-   * used during the invocation of the method, or `nullptr` if no parameters.
+   * @returns A Structured value that holds the parameter values to be used
+   * during the invocation of the method, or `nullptr` if no parameters.
    */
   const rapidjson::Value* params() const noexcept
   {
@@ -135,195 +313,41 @@ public:
   }
 
   /**
-   * @returns The parameter value, or `nullptr` if no parameter at `position`.
+   * @returns The parameter reference, or invalid instance if no parameter `position`.
    *
    * @par Requires
    * `(!params() || position < params()->Size())`.
    */
-  const rapidjson::Value* parameter(const std::size_t position) const noexcept
+  Paramref parameter(const std::size_t position) const noexcept
   {
     if (const auto* const p = params(); p && p->IsArray()) {
       assert(position < p->Size());
-      return &(*p)[position];
+      return {*this, position, &(*p)[position]};
     } else
-      return nullptr;
+      return Paramref{*this};
   }
 
-  /// @returns The parameter value, or `nullptr` if no parameter with name `name`.
-  const rapidjson::Value* parameter(const std::string_view name) const noexcept
+  /// @returns The parameter reference, or invalid instance if no parameter `name`.
+  Paramref parameter(const std::string_view name) const noexcept
   {
     if (const auto* const p = params(); p && p->IsObject()) {
       const auto nr = rajson::to<rapidjson::Value::StringRefType>(name);
       const auto i = p->FindMember(nr);
-      return i != p->MemberEnd() ? &i->value : nullptr;
+      return i != p->MemberEnd() ? Paramref{*this, std::string{name}, &i->value} : Paramref{*this};
     } else
-      return nullptr;
+      return Paramref{*this};
   }
 
   /**
-   * @returns The result of conversion of `p` to a value of type `T`, or
-   * `std::nullopt` if `(!p || p->IsNull())`.
-   *
-   * @throws Error if `p` cannot be converted to `T`.
-   */
-  template<typename T>
-  std::optional<T> optional_parameter(const rapidjson::Value* const p,
-    const std::string& error_message = {}) const
-  {
-    try {
-      if (!p || p->IsNull())
-        return std::nullopt;
-      else
-        return rajson::to<T>(*p);
-    } catch (...) {
-      throw_error(Server_errc::invalid_params, error_message);
-    }
-  }
-
-  /// @overload
-  template<typename T>
-  std::optional<T> optional_parameter(const std::string_view name,
-    const std::string& error_message = {}) const
-  {
-    return optional_parameter<T>(parameter(name), error_message);
-  }
-
-  /**
-   * @returns The result of conversion of `p` to a value of type `T`, or
-   * `std::nullopt` if `(!p || p->IsNull())`.
-   *
-   * @param is_valid An unary predicate that returns `true` if a value of type
-   * `T` is valid, or `false` otherwise.
-   *
-   * @throws Error if `p` cannot be converted to `T`, or if `!is_valid(T)`.
-   */
-  template<typename T, typename Predicate>
-  std::enable_if_t<std::is_invocable_r_v<bool, Predicate, const T&>, std::optional<T>>
-  optional_parameter(const rapidjson::Value* const p,
-    Predicate&& is_valid, const std::string& error_message = {}) const
-  {
-    if (auto result = optional_parameter<T>(p, error_message)) {
-      if (is_valid(*result))
-        return result;
-      else
-        throw_error(Server_errc::invalid_params, error_message);
-    } else
-      return std::nullopt;
-  }
-
-  /// @overload
-  template<typename T, typename Predicate>
-  std::enable_if_t<std::is_invocable_r_v<bool, Predicate, const T&>, std::optional<T>>
-  optional_parameter(const std::string_view name,
-    Predicate&& is_valid, const std::string& error_message = {}) const
-  {
-    return optional_parameter<T>(parameter(name), std::forward<Predicate>(is_valid), error_message);
-  }
-
-  /**
-   * @overload
-   *
-   * @param valid_set A container of acceptable values.
-   */
-  template<typename T, typename U, typename A, template<class, class> class Container>
-  std::optional<T> optional_parameter(const rapidjson::Value* const p,
-    const Container<U, A>& valid_set, const std::string& error_message = {}) const
-  {
-    return optional_parameter<T>(p, [&valid_set](const T& v)
-    {
-      return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const T& e){return v == e;});
-    }, error_message);
-  }
-
-  /// @overload
-  template<typename T, typename U, typename A, template<class, class> class Container>
-  std::optional<T> optional_parameter(const std::string_view name,
-    const Container<U, A>& valid_set, const std::string& error_message = {}) const
-  {
-    return optional_parameter<T>(parameter(name), valid_set, error_message);
-  }
-
-  /// @overload
-  template<typename T, typename P, typename U>
-  std::optional<T> optional_parameter(P&& p,
-    const std::initializer_list<U>& valid_set, const std::string& error_message = {}) const
-  {
-    static_assert(!std::is_pointer_v<T>);
-    return optional_parameter<T>(std::forward<P>(p), [&valid_set](const T& v)
-    {
-      return std::any_of(begin(valid_set), end(valid_set), [&v](const auto& e)
-      {
-        return v == e;
-      });
-    }, error_message);
-  }
-
-  /**
-   * @overload
-   *
-   * @param interval An interval of acceptable values.
-   */
-  template<typename T, typename U>
-  std::optional<T> optional_parameter(const rapidjson::Value* const p,
-    const math::Interval<U>& interval, const std::string& error_message = {}) const
-  {
-    return optional_parameter<T>(p, std::bind(&math::Interval<U>::has, &interval, std::placeholders::_1), error_message);
-  }
-
-  /// @overload
-  template<typename T, typename U>
-  std::optional<T> optional_parameter(const std::string_view name,
-    const math::Interval<U>& interval, const std::string& error_message = {}) const
-  {
-    return optional_parameter<T>(parameter(name), interval, error_message);
-  }
-
-  /**
-   * @returns The result of conversion of parameter denoted by the first
-   * argument to a value of type `T`.
-   *
-   * @params args The same arguments as for optional_parameter() methods.
-   *
-   * @throws Error if parameter is `nullptr` or represents Null.
-   */
-  template<typename T, typename ... Types>
-  T mandatory_parameter(Types&& ... args) const
-  {
-    if (auto result = optional_parameter<T>(std::forward<Types>(args)...); !result) {
-      const auto& last = std::get<sizeof...(args) - 1>(std::make_tuple(args...));
-      using LastType = std::decay_t<decltype(last)>;
-      if constexpr (std::is_convertible_v<LastType, std::string>)
-        throw_error(Server_errc::invalid_params, last);
-      else if constexpr (std::is_same_v<LastType, std::string_view>)
-        throw_error(Server_errc::invalid_params, std::string{last});
-      else if constexpr (std::is_convertible_v<LastType, std::string_view>)
-        throw_error(Server_errc::invalid_params, std::string{std::string_view{last}});
-      else
-        throw_error(Server_errc::invalid_params);
-    } else
-      return std::move(*result);
-  }
-
-  /// @overload
-  template<typename T, typename P, typename U>
-  T mandatory_parameter(P&& p,
-    const std::initializer_list<U>& valid_set, const std::string& error_message = {}) const
-  {
-    if (auto result = optional_parameter<T>(std::forward<P>(p), valid_set, error_message); !result)
-      throw_error(Server_errc::invalid_params, error_message);
-    else
-      return std::move(*result);
-  }
-
-  /**
-   * @returns A value of type `std::tuple<rapidjson::Value*, ..., bool>`. The
-   * last value of returned tuple indicates whether the all parameters of
-   * request specified in `names` or not.
+   * @returns A value of type `std::tuple<Paramref, ..., bool>`. The last
+   * value of returned tuple indicates whether the all parameters of request
+   * are specified in the `names` or not.
    */
   template<class ... Types>
   auto parameters(Types&& ... names) const
   {
-    return parameters__(std::make_index_sequence<sizeof ... (Types)>{}, std::forward<Types>(names)...);
+    return parameters__(std::make_index_sequence<sizeof ... (Types)>{},
+      std::forward<Types>(names)...);
   }
 
   /**
@@ -536,7 +560,7 @@ private:
   auto parameters__(std::index_sequence<I...>, Types&& ... names) const
   {
     static_assert(sizeof...(I) == sizeof...(names));
-    static const auto incf = [](std::size_t& count, const auto* const param)
+    static const auto incf = [](std::size_t& count, const auto& param)
     {
       if (param)
         ++count;
