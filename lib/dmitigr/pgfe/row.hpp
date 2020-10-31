@@ -105,6 +105,18 @@ public:
     return data(index_of(name, offset));
   }
 
+  /// @returns `data(index)`.
+  Data_view operator[](const std::size_t index) const noexcept
+  {
+    return data(index);
+  }
+
+  /// @overload
+  Data_view operator[](const std::string& name) const noexcept
+  {
+    return data(name);
+  }
+
 private:
   Row_info info_; // has pq_result_
 
