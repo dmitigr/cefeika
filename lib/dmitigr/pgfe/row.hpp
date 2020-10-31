@@ -80,7 +80,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  Data_view data(std::size_t index = 0) const noexcept
+  Data_view data(const std::size_t index = 0) const noexcept
   {
     assert(index < size());
     constexpr int row{};
