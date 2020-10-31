@@ -234,7 +234,7 @@ Data::make_no_copy(const std::string_view bytes, const Data_format format)
 // Data_view
 // -----------------------------------------------------------------------------
 
-DMITIGR_PGFE_INLINE Data_view::Data_view(const char* const bytes, const int size, const Format format)
+DMITIGR_PGFE_INLINE Data_view::Data_view(const char* const bytes, const int size, const Format format) noexcept
   : format_(format)
   , size_(size)
   , bytes_(bytes)
@@ -245,7 +245,7 @@ DMITIGR_PGFE_INLINE Data_view::Data_view(const char* const bytes, const int size
   assert(is_invariant_ok());
 }
 
-DMITIGR_PGFE_INLINE Data_view::Data_view(Data_view&& rhs)
+DMITIGR_PGFE_INLINE Data_view::Data_view(Data_view&& rhs) noexcept
   : format_{rhs.format_}
   , size_{rhs.size_}
   , bytes_{rhs.bytes_}
@@ -255,7 +255,7 @@ DMITIGR_PGFE_INLINE Data_view::Data_view(Data_view&& rhs)
   rhs.bytes_ = "";
 }
 
-DMITIGR_PGFE_INLINE Data_view& Data_view::operator=(Data_view&& rhs)
+DMITIGR_PGFE_INLINE Data_view& Data_view::operator=(Data_view&& rhs) noexcept
 {
   if (this != &rhs) {
     Data_view tmp{std::move(rhs)};

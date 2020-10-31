@@ -80,7 +80,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  Data_view data(std::size_t index = 0) const
+  Data_view data(std::size_t index = 0) const noexcept
   {
     assert(index < size());
     constexpr int row{};
@@ -98,11 +98,9 @@ public:
    * @param offset See Compositional.
    *
    * @par Requires
-   * `has_field(name, offset)`.
-   *
-   * @see has_field().
+   * `index_of(name, offset) < size()`.
    */
-  Data_view data(const std::string& name, std::size_t offset = 0) const
+  Data_view data(const std::string& name, std::size_t offset = 0) const noexcept
   {
     return data(index_of(name, offset));
   }

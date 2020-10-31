@@ -155,7 +155,7 @@ protected:
 class Data_view final : public Data {
 public:
   /// Default-constructible. (Constructs invalid instance.)
-  Data_view() = default;
+  Data_view() noexcept = default;
 
   /**
    * @brief The constructor.
@@ -164,19 +164,19 @@ public:
    * `bytes`.
    */
   DMITIGR_PGFE_API Data_view(const char* bytes, int size = 0,
-    Format format = Format::text);
+    Format format = Format::text) noexcept;
 
   /// Copy-constructible.
-  Data_view(const Data_view&) = default;
+  Data_view(const Data_view&) noexcept = default;
 
   /// Move-constructible.
-  DMITIGR_PGFE_API Data_view(Data_view&& rhs);
+  DMITIGR_PGFE_API Data_view(Data_view&& rhs) noexcept;
 
   /// Copy-assignable.
-  Data_view& operator=(const Data_view&) = default;
+  Data_view& operator=(const Data_view&) noexcept = default;
 
   /// Move-assignable.
-  DMITIGR_PGFE_API Data_view& operator=(Data_view&& rhs);
+  DMITIGR_PGFE_API Data_view& operator=(Data_view&& rhs) noexcept;
 
   /// @see Data::to_data().
   DMITIGR_PGFE_API std::unique_ptr<Data> to_data() const override;
