@@ -24,11 +24,12 @@ DMITIGR_PGFE_INLINE std::string unquote_identifier(const std::string_view identi
 
   std::string result;
   const std::string_view::size_type sz = identifier.size();
+  const std::locale loc;
   for (std::string_view::size_type i = 0; i < sz; ++i) {
     const char c = identifier[i];
     if (state == top) {
       if (c != '"')
-        result += std::tolower(c, std::locale{});
+        result += std::tolower(c, loc);
       else
         state = double_quote;
     } else if (state == double_quote) {

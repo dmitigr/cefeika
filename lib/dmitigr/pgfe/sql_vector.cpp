@@ -10,8 +10,9 @@ namespace dmitigr::pgfe {
 
 DMITIGR_PGFE_INLINE Sql_vector::Sql_vector(std::string_view input)
 {
+  const std::locale loc;
   while (!input.empty()) {
-    auto [str, pos] = Sql_string::parse_sql_input(input);
+    auto [str, pos] = Sql_string::parse_sql_input(input, loc);
     storage_.emplace_back(std::move(str));
     assert(pos <= input.size());
     input = input.substr(pos);

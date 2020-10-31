@@ -474,6 +474,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
   char previous_char{};
   char previous_nonspace_char{};
   std::string element;
+  const std::locale loc;
   while (const char c = *literal) {
     switch (state) {
     case in_beginning: {
@@ -481,7 +482,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
         handler(dimension);
         dimension = 1;
         state = in_dimension;
-      } else if (std::isspace(c, std::locale{})) {
+      } else if (std::isspace(c, loc)) {
         ;
       } else
         throw Malformed_array_literal{};
@@ -492,7 +493,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
     case in_dimension: {
       assert(dimension > 0);
 
-      if (std::isspace(c, std::locale{})) {
+      if (std::isspace(c, loc)) {
         ;
       } else if (c == delimiter) {
         if (previous_nonspace_char == delimiter || previous_nonspace_char == '{')
@@ -571,7 +572,7 @@ const char* parse_array_literal(const char* literal, const char delimiter, F& ha
     } // extracted element processing
 
   preparing_to_the_next_iteration:
-    if (!std::isspace(c, std::locale{}))
+    if (!std::isspace(c, loc))
       previous_nonspace_char = c;
     previous_char = c;
     ++literal;

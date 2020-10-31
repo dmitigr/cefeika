@@ -319,7 +319,7 @@ private:
   friend Sql_vector;
 
   static DMITIGR_PGFE_API std::pair<Sql_string, std::string_view::size_type>
-  parse_sql_input(std::string_view);
+  parse_sql_input(std::string_view, const std::locale& loc);
 
   struct Fragment final {
     enum class Type {
@@ -340,6 +340,7 @@ private:
   };
   using Fragment_list = std::list<Fragment>;
 
+  std::locale loc_;
   Fragment_list fragments_;
   std::vector<bool> positional_parameters_; // cache
   std::vector<Fragment_list::const_iterator> named_parameters_; // cache
@@ -425,14 +426,14 @@ private:
   // Predicates
   // ---------------------------------------------------------------------------
 
-  static bool is_space(const char c) noexcept
+  static bool is_space(const char c, const std::locale& loc) noexcept
   {
-    return isspace(c, std::locale{});
+    return isspace(c, loc);
   }
 
-  static bool is_blank_string(const std::string& str) noexcept
+  static bool is_blank_string(const std::string& str, const std::locale& loc) noexcept
   {
-    return all_of(cbegin(str), cend(str), is_space);
+    return all_of(cbegin(str), cend(str), [&loc](const auto& c){return is_space(c, loc);});
   };
 
   static bool is_comment(const Fragment& f) noexcept

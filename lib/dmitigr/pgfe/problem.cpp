@@ -50,14 +50,14 @@ DMITIGR_PGFE_INLINE int Problem::sqlstate_string_to_int(const char* const code) 
     return -1;
   }
 
-  const std::locale l{};
+  const std::locale loc;
   const std::string_view cod{code};
   if (!(cod.size() == 5 &&
-      std::isalnum(cod[0], l) &&
-      std::isalnum(cod[1], l) &&
-      std::isalnum(cod[2], l) &&
-      std::isalnum(cod[3], l) &&
-      std::isalnum(cod[4], l))) {
+      std::isalnum(cod[0], loc) &&
+      std::isalnum(cod[1], loc) &&
+      std::isalnum(cod[2], loc) &&
+      std::isalnum(cod[3], loc) &&
+      std::isalnum(cod[4], loc))) {
     assert(false);
     return -1;
   }
