@@ -94,8 +94,8 @@ struct Numeric_string_conversions_base {
   }
 
 protected:
-  template<typename Converter>
-  static Type to_numeric__(const std::string& text, Converter converter)
+  template<typename R, typename ... ArgTypes>
+  static Type to_numeric__(const std::string& text, R(*converter)(const std::string&, std::size_t*, ArgTypes ...))
   {
     Type result;
     std::size_t idx;
@@ -119,12 +119,12 @@ struct Numeric_string_conversions<short int> final
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    const int result = to_numeric__(text, [](auto txt, auto* idx) { return std::stoi(txt, idx); });
+    const int result = to_numeric__(text, &std::stoi);
     constexpr auto max = std::numeric_limits<short int>::max();
     if (result > max)
       throw std::runtime_error("numeric value " + text + " > " + std::to_string(max));
 
-    return Type(result);
+    return static_cast<Type>(result);
   }
 };
 
@@ -138,7 +138,7 @@ struct Numeric_string_conversions<int> final
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    return to_numeric__(text, [](auto txt, auto* idx) { return std::stoi(txt, idx); });
+    return to_numeric__(text, &std::stoi);
   }
 };
 
@@ -152,7 +152,7 @@ struct Numeric_string_conversions<long int> final
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    return to_numeric__(text, [](auto txt, auto* idx) { return std::stol(txt, idx); });
+    return to_numeric__(text, &std::stol);
   }
 };
 
@@ -166,7 +166,7 @@ struct Numeric_string_conversions<long long int> final
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    return to_numeric__(text, [](auto txt, auto* idx) { return std::stoll(txt, idx); });
+    return to_numeric__(text, &std::stoll);
   }
 };
 
@@ -180,7 +180,7 @@ struct Numeric_string_conversions<float> final
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    return to_numeric__(text, [](auto txt, auto* idx) { return std::stof(txt, idx); });
+    return to_numeric__(text, &std::stof);
   }
 };
 
@@ -194,7 +194,7 @@ struct Numeric_string_conversions<double> final
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    return to_numeric__(text, [](auto txt, auto* idx) { return std::stod(txt, idx); });
+    return to_numeric__(text, &std::stod);
   }
 };
 
@@ -208,7 +208,7 @@ struct Numeric_string_conversions<long double> final
   template<typename ... Types>
   static Type to_type(const std::string& text, Types&& ...)
   {
-    return to_numeric__(text, [](auto txt, auto* idx) { return std::stold(txt, idx); });
+    return to_numeric__(text, &std::stold);
   }
 };
 
