@@ -205,11 +205,11 @@ constexpr bool is_power_of_two(const T number) noexcept
  * `is_power_of_two(alignment)`.
  */
 template<typename T, typename U>
-constexpr T padding(const T size, const U alignment) noexcept
+constexpr auto padding(const T size, const U alignment) noexcept
 {
   assert(is_power_of_two(alignment));
-  const T a = alignment;
-  return (static_cast<T>(0) - size) & (a - 1);
+  const auto a = alignment;
+  return (static_cast<T>(0) - size) & static_cast<T>(a - 1);
 }
 
 /**

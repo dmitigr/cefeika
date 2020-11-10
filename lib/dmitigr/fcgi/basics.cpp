@@ -123,7 +123,7 @@ struct Header final {
   {
     DMITIGR_ASSERT(io);
 
-    const std::size_t count = io->read(reinterpret_cast<char*>(this), sizeof(*this));
+    const auto count = io->read(reinterpret_cast<char*>(this), sizeof(*this));
     if (count != sizeof(*this))
       throw std::runtime_error{"dmitigr::fcgi: protocol violation"};
     check_validity();
