@@ -9,6 +9,7 @@
 #include "dmitigr/pgfe/basic_conversions.hpp"
 #include "dmitigr/pgfe/basics.hpp"
 #include "dmitigr/pgfe/data.hpp"
+#include "dmitigr/pgfe/row.hpp"
 #include "dmitigr/pgfe/exceptions.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
 #include <dmitigr/net/conversions.hpp>
