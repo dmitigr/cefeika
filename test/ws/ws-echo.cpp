@@ -1,13 +1,12 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or ws.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/ws.hpp>
 
 #include <atomic>
 #include <chrono>
 #include <csignal>
-
 #include <iostream>
 
 namespace ws = dmitigr::ws;

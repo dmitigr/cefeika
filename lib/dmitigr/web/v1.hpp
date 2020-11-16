@@ -8,12 +8,13 @@
 #include <dmitigr/fcgi/fcgi.hpp>
 #include <dmitigr/http/http.hpp>
 #include <dmitigr/jrpc/jrpc.hpp>
-#include <dmitigr/mulf/mulf.hpp>
-#include <dmitigr/str/str.hpp>
-#include <dmitigr/ttpl/ttpl.hpp>
-#include <dmitigr/util/debug.hpp>
 #include <dmitigr/util/filesystem.hpp>
+#include <dmitigr/util/mulf.hpp>
+#include <dmitigr/util/read.hpp>
+#include <dmitigr/util/str.hpp>
+#include <dmitigr/util/ttpl.hpp>
 
+#include <cassert>
 #include <functional>
 #include <map>
 #include <optional>
@@ -39,7 +40,7 @@ make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::p
     referenced.push_back(tplfile);
 
   if (std::filesystem::exists(tplfile)) {
-    ttpl::Logic_less_template result{str::file_to_string(tplfile)};
+    ttpl::Logic_less_template result{read::file_to_string(tplfile)};
     for (std::size_t i = 0, pcount = result.parameter_count(); i < pcount;) {
       const auto& pname = result.parameter(i).name();
       if (auto t = make_expanded_llt(tplroot / pname, tplroot, referenced)) {
@@ -96,7 +97,7 @@ make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::p
  */
 inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& opts)
 {
-  DMITIGR_REQUIRE(fcgi, std::invalid_argument);
+  assert(fcgi);
 
   const auto location = fcgi->parameter("SCRIPT_NAME")->value();
   const auto method = fcgi->parameter("REQUEST_METHOD")->value();
@@ -112,7 +113,8 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
         const std::filesystem::path locpath{location};
         const std::filesystem::path tplfile = opts.docroot / locpath.relative_path() / opts.index;
         if (auto tpl = make_expanded_llt(tplfile, opts.tplroot)) {
-          DMITIGR_REQUIRE(i->second, std::logic_error, hins("htmler"));
+          if (!i->second)
+            throw std::logic_error{hins("htmler")};
           auto& t = *tpl;
           i->second(fcgi, t);
           const auto o = t.to_output();
@@ -126,10 +128,11 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
       const std::string content_type{fcgi->parameter("CONTENT_TYPE")->value()};
       if (content_type == "application/json") {
         if (const auto i = opts.callers.find(location); i != opts.callers.cend()) {
-          DMITIGR_REQUIRE(i->second, std::logic_error, hins("caller"));
+          if (!i->second)
+            throw std::logic_error{hins("caller")};
           std::string o;
           try {
-            const jrpc::Request request{str::read_to_string(fcgi->in())};
+            const jrpc::Request request{read::to_string(fcgi->in())};
             const auto result = i->second(fcgi, request);
             o = result.to_string();
           } catch (const jrpc::Error& e) {
@@ -147,11 +150,12 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
           std::regex::icase | std::regex::optimize};
         std::smatch sm;
         if (std::regex_search(content_type, sm, mpfdre)) {
-          DMITIGR_ASSERT(sm.size() >= 2);
+          assert(sm.size() >= 2);
           if (const auto i = opts.formers.find(location); i != opts.formers.cend()) {
-            DMITIGR_REQUIRE(i->second, std::logic_error, hins("former"));
+            if (!i->second)
+              throw std::logic_error{hins("former")};
             const auto boundary = sm.str(1);
-            const mulf::Form_data form{str::read_to_string(fcgi->in()), boundary};
+            const mulf::Form_data form{read::to_string(fcgi->in()), boundary};
             return i->second(fcgi, form);
           }
         }
@@ -163,9 +167,10 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
     else
       fcgi->out() << "Status: 404" << fcgi::crlfcrlf;
   } catch (const http::Server_exception& e) {
-    DMITIGR_REQUIRE(!fcgi->out().tellp(), std::logic_error,
-      "http::Server_exception thrown but some data is already sent");
-    fcgi->out() << "Status: " << e.code().value() << fcgi::crlfcrlf;
+    if (!fcgi->out().tellp())
+      fcgi->out() << "Status: " << e.code().value() << fcgi::crlfcrlf;
+    else
+      throw std::logic_error{"http::Server_exception thrown but some data is already sent"};
   }
 }
 

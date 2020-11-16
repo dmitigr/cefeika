@@ -1,9 +1,9 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or ws.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/rng.hpp>
-#include <dmitigr/testo.hpp>
+#include <dmitigr/util/rng.hpp>
+#include <dmitigr/util/testo.hpp>
 #include <dmitigr/ws.hpp>
 
 #include <chrono>
@@ -113,5 +113,4 @@ int main(int, char* argv[])
     report_failure(argv[0]);
     return 2;
   }
-  return 0;
 }

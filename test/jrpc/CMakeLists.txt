@@ -3,5 +3,5 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 set(dmitigr_jrpc_tests request response)
-set(dmitigr_jrpc_tests_target_link_libraries dmitigr::math dmitigr::str)
+set(dmitigr_jrpc_tests_target_link_libraries)
 dmitigr_propagate_tests_settings(jrpc)

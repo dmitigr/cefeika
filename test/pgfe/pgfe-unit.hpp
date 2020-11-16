@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #ifndef DMITIGR_CEFEIKA_TESTS_PGFE_UNIT_HPP
 #define DMITIGR_CEFEIKA_TESTS_PGFE_UNIT_HPP
@@ -8,8 +8,7 @@
 #include <dmitigr/os/env.hpp>
 #include <dmitigr/pgfe/connection.hpp>
 #include <dmitigr/pgfe/connection_options.hpp>
-#include <dmitigr/testo.hpp>
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/util/testo.hpp>
 
 #include <chrono>
 #include <cstdlib>

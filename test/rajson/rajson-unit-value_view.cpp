@@ -1,11 +1,11 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or rajson.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/rajson.hpp>
-#include <dmitigr/str.hpp>
-#include <dmitigr/testo.hpp>
 #include <dmitigr/util/filesystem.hpp>
+#include <dmitigr/util/read.hpp>
+#include <dmitigr/util/testo.hpp>
 
 #include <iostream>
 
@@ -32,13 +32,13 @@ template<> struct Conversions<Db_params> final {
 int main(int, char* argv[])
 {
   namespace rajson = dmitigr::rajson;
-  namespace str = dmitigr::str;
+  namespace read = dmitigr::read;
   using namespace dmitigr::testo;
 
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
-    const auto input = str::file_to_string(this_exe_dir_name / "rajson-unit-value_view.json");
+    const auto input = read::file_to_string(this_exe_dir_name / "rajson-unit-value_view.json");
     auto document = rajson::to_document(input);
 
     {

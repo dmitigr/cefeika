@@ -2,30 +2,16 @@
 
 Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 
-  - [algo] - algorithms library
-  - [app] - application support library
-  - [base] - basics (every library of Cefeika depends on it)
-  - [cfg] - library to work with configuration files
   - [dt] - library to work with date and time
   - [fcgi] - powerful FastCGI implementation (server)
-  - [fs] - filesystem miscellaneous
   - [http] - HTTP library
   - [img] - image processing library
   - [jrpc] - [JSON-RPC 2.0][json-rpc2] implementation
-  - [math] - mathematical stuff
-  - [mem] - memory management stuff
-  - [mp] - multiprocessing stuff
-  - [mulf] - multipart/form-data library
   - [net] - networking library
   - [os] - OS interaction
   - [pgfe] - powerful client API for [PostgreSQL]
   - [rajson] - [RapidJSON] wrapper
-  - [rng] - random number generators
-  - [str] - string miscellaneous
-  - [testo] - testing stuff
-  - [ttpl] - text templates library
-  - [url] - URL processing
-  - [uuid] - UUID processing
+  - [util] - various utilities (basics, including URL and text templates and much more)
   - [web] - Web utilities
   - [ws] - WebSocket server library
   - [wscl] - WebSocket client library
@@ -271,30 +257,16 @@ For conditions of distribution and use, please see the corresponding license.
 [dmitigr_fcgi]: https://github.com/dmitigr/fcgi.git
 [dmitigr_pgfe]: https://github.com/dmitigr/pgfe.git
 
-[algo]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/algo
-[app]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/app
-[base]: https://github.com/dmitigr/cefeika/tree/master/doc/base
-[cfg]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/cfg
 [dt]: https://github.com/dmitigr/cefeika/tree/master/doc/dt
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
-[fs]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/fs
 [http]: https://github.com/dmitigr/cefeika/tree/master/doc/http
 [img]: https://github.com/dmitigr/cefeika/tree/master/doc/img
 [jrpc]: https://github.com/dmitigr/cefeika/tree/master/doc/jrpc
-[math]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/math
-[mem]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/mem
-[mp]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/mp
-[mulf]: https://github.com/dmitigr/cefeika/tree/master/doc/mulf
 [net]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/net
 [os]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/os
 [pgfe]: https://github.com/dmitigr/cefeika/tree/master/doc/pgfe
 [rajson]: https://github.com/dmitigr/cefeika/tree/master/doc/rajson
-[rng]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/rng
-[str]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/str
-[testo]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/testo
-[ttpl]: https://github.com/dmitigr/cefeika/tree/master/doc/ttpl
-[url]: https://github.com/dmitigr/cefeika/tree/master/doc/url
-[uuid]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/uuid
+[util]: https://github.com/dmitigr/cefeika/tree/master/doc/util
 [web]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/web
 [ws]: https://github.com/dmitigr/cefeika/tree/master/doc/ws
 [wscl]: https://github.com/dmitigr/cefeika/tree/master/doc/wscl

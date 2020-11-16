@@ -9,9 +9,9 @@
 #include "dmitigr/http/syntax.hpp"
 #include <dmitigr/dt/timestamp.hpp>
 #include <dmitigr/net/util.hpp>
-#include <dmitigr/str/str.hpp>
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/util/str.hpp>
 
+#include <cassert>
 #include <locale>
 #include <optional>
 #include <stdexcept>
@@ -99,7 +99,7 @@ public:
       if (str.empty())
         throw std::runtime_error{"dmitigr::http: empty values of attribute are not allowed"};
 
-      DMITIGR_ASSERT(attr_type != "secure" && attr_type != "httponly");
+      assert(attr_type != "secure" && attr_type != "httponly");
       if (attr_type == "expires") {
         expires_ = dt::Timestamp::from_rfc7231(str);
       } else if (attr_type == "max-age") {
@@ -234,7 +234,7 @@ public:
       throw std::runtime_error{"dmitigr::http: invalid input (set-cookie-string)"};
     }
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
@@ -247,8 +247,8 @@ public:
     : name_{std::move(name)}
     , value_{std::move(value)}
   {
-    DMITIGR_REQUIRE(is_valid_cookie_name(name_) && is_valid_cookie_value(value_), std::invalid_argument);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_valid_cookie_name(name_) && is_valid_cookie_value(value_));
+    assert(is_invariant_ok());
   }
 
   /// @brief Swaps this instance with `other`.
@@ -313,9 +313,6 @@ public:
   /**
    * @brief Sets the name of cookie.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `is_valid_cookie_name(name)`.
    *
@@ -323,12 +320,10 @@ public:
    */
   void set_name(std::string name)
   {
-    DMITIGR_REQUIRE(is_valid_cookie_name(name), std::invalid_argument);
-    require_consistency<std::invalid_argument>(name, is_secure_, domain_, path_);
-
+    assert(is_valid_cookie_name(name));
+    check_consistency(name, is_secure_, domain_, path_);
     name_ = std::move(name);
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
@@ -344,9 +339,6 @@ public:
   /**
    * @brief Sets the value of cookie.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `is_valid_cookie_value(value)`.
    *
@@ -354,11 +346,9 @@ public:
    */
   void set_value(std::string value)
   {
-    DMITIGR_REQUIRE(is_valid_cookie_value(value), std::invalid_argument);
-
+    assert(is_valid_cookie_value(value));
     value_ = std::move(value);
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
@@ -371,24 +361,16 @@ public:
     return expires_;
   }
 
-  /**
-   * @brief Sets the "Expires" attribute of cookie.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
+  /// Sets the "Expires" attribute of cookie.
   void set_expires(std::optional<dt::Timestamp> ts)
   {
     expires_ = std::move(ts);
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
    * @overload
-   *
-   * @par Exception safety guarantee
-   * Strong.
    *
    * @see Date.
    */
@@ -396,141 +378,89 @@ public:
   {
     expires_ = dt::Timestamp::from_rfc7231(input);
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns The value of "MaxAge" attribute of cookie.
-   */
+  /// @returns The value of "MaxAge" attribute of cookie.
   std::optional<int> max_age() const noexcept
   {
     return max_age_;
   }
 
-  /**
-   * @brief Sets the "Max-Age" attribute of cookie.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
+  /// Sets the "Max-Age" attribute of cookie.
   void set_max_age(std::optional<int> ma)
   {
     max_age_ = ma;
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns The value of "Domain" attribute of cookie.
-   */
+  /// @returns The value of "Domain" attribute of cookie.
   const std::optional<std::string>& domain() const noexcept
   {
     return domain_;
   }
 
-  /**
-   * @brief Sets the "Domain" attribute of cookie.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
+  /// Sets the "Domain" attribute of cookie.
   void set_domain(std::optional<std::string> domain)
   {
-    require_consistency<std::invalid_argument>(name_, is_secure_, domain, path_);
-
+    check_consistency(name_, is_secure_, domain, path_);
     domain_ = std::move(domain);
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns The value of "Path" attribute of cookie.
-   */
+  /// @returns The value of "Path" attribute of cookie.
   const std::optional<std::string>& path() const noexcept
   {
     return path_;
   }
 
-  /**
-   * @brief Sets the "Path" attribute of cookie.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
+  /// Sets the "Path" attribute of cookie.
   void set_path(std::optional<std::string> path)
   {
-    require_consistency<std::invalid_argument>(name_, is_secure_, domain_, path);
-
+    check_consistency(name_, is_secure_, domain_, path);
     path_ = std::move(path);
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns `true` if the "Secure" attribute is presents in cookie, or
-   * `false` otherwise.
-   */
+  /// @returns `true` if the "Secure" attribute is presents in cookie.
   bool is_secure() const noexcept
   {
     return is_secure_;
   }
 
-  /**
-   * @brief Sets the "Secure" attribute of cookie.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
+  /// Sets the "Secure" attribute of cookie.
   void set_secure(const bool secure)
   {
-    require_consistency<std::invalid_argument>(name_, secure, domain_, path_);
-
+    check_consistency(name_, secure, domain_, path_);
     is_secure_ = secure;
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns `true` if the "HttpOnly" attribute is presents in cookie, or
-   * `false` otherwise.
-   */
+  /// @returns `true` if the "HttpOnly" attribute is presents in cookie.
   bool is_http_only() const noexcept
   {
     return is_http_only_;
   }
 
-  /**
-   * @brief Sets the "HttpOnly" attribute of cookie.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
+  /// Sets the "HttpOnly" attribute of cookie.
   void set_http_only(const bool http_only)
   {
     is_http_only_ = http_only;
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @return The value of "SameSite" attribute of cookie.
-   */
+  /// @returns The value of "SameSite" attribute of cookie.
   std::optional<Same_site> same_site() const noexcept
   {
     return same_site_;
   }
 
-  /**
-   * @brief Sets the "SameSite" attribute of cookie.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   */
+  /// Sets the "SameSite" attribute of cookie.
   void set_same_site(std::optional<Same_site> same_site)
   {
     same_site_ = std::move(same_site);
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
 private:
@@ -554,12 +484,7 @@ private:
 
   // ===========================================================================
 
-  /**
-   * @internal
-   *
-   * @returns The string literal with a requirement violation info, or
-   * `nullptr` if the requirement met.
-   */
+  /// @returns The string literal with a requirement violation info.
   static const char* requirement_violation_details(const std::string& name, const bool is_secure,
     const std::optional<std::string>& domain, const std::optional<std::string>& path)
   {
@@ -585,15 +510,14 @@ private:
    *
    * @brief Checks the consistency of the arguments.
    *
-   * @throws The instance of the specified type `E`
-   * if the specified arguments are not consistent.
+   * @throws `std::invalid_argument` if the specified arguments are not consistent.
    */
-  template<class E>
-  static void require_consistency(const std::string& name, const bool is_secure,
+  static void check_consistency(const std::string& name, const bool is_secure,
     const std::optional<std::string>& domain, const std::optional<std::string>& path)
   {
     const char* const details = requirement_violation_details(name, is_secure, domain, path);
-    DMITIGR_REQUIRE(!details, E);
+    if (details)
+      throw std::invalid_argument{details};
   }
 };
 

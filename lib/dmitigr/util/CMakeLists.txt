@@ -32,6 +32,14 @@ set(dmitigr_util_implementations
 
 dmitigr_append_cppfs(dmitigr_util_target_link_libraries_interface)
 
+#
+# System
+#
+
+if (UNIX)
+  list(APPEND dmitigr_util_target_link_libraries_interface pthread)
+endif()
+
 # ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------

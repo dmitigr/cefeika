@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #include "pgfe-unit.hpp"
 
@@ -10,7 +10,7 @@
 #include <dmitigr/pgfe/sql_string.hpp>
 #include <dmitigr/pgfe/sql_vector.hpp>
 
-#include <dmitigr/str.hpp>
+#include <dmitigr/util/str.hpp>
 
 int main(int, char* argv[])
 {

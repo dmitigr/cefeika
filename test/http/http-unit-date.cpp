@@ -1,10 +1,10 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or http.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/dt.hpp>
 #include <dmitigr/http.hpp>
-#include <dmitigr/testo.hpp>
+#include <dmitigr/util/testo.hpp>
 
 int main(int, char* argv[])
 {

@@ -1,11 +1,11 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/pgfe/composite.hpp>
 #include <dmitigr/pgfe/exceptions.hpp>
 #include <dmitigr/pgfe/sql_string.hpp>
-#include <dmitigr/testo.hpp>
+#include <dmitigr/util/testo.hpp>
 
 #include <functional>
 

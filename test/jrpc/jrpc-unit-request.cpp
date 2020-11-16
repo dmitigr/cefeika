@@ -1,10 +1,10 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or jrpc.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/jrpc.hpp>
-#include <dmitigr/testo.hpp>
-#include <dmitigr/math.hpp>
+#include <dmitigr/util/math.hpp>
+#include <dmitigr/util/testo.hpp>
 
 int main(int, char* argv[])
 {
@@ -88,7 +88,7 @@ int main(int, char* argv[])
       {
         jrpc::Request::from_json(R"({"jsonrpc": "2.1", "method": "subtract", "params": [42, 23], "id": 1})");
       };
-      ASSERT(is_runtime_throw_works(f));
+      ASSERT(is_throw_works<std::runtime_error>(f));
       try {
         f();
       } catch (const jrpc::Error& e) {
@@ -106,7 +106,7 @@ int main(int, char* argv[])
       {
         jrpc::Request::from_json(R"({"excess": 0, "jsonrpc": "2.0", "method": "subtract", "params": [2, 1], "id": 1})");
       };
-      ASSERT(is_runtime_throw_works(f));
+      ASSERT(is_throw_works<std::runtime_error>(f));
       try {
         f();
       } catch (const jrpc::Error& e) {
@@ -124,7 +124,7 @@ int main(int, char* argv[])
       {
         jrpc::Request::from_json(R"({"jsonrpc": "2.0", "METHOD": "subtract", "params": [42, 23]})");
       };
-      ASSERT(is_runtime_throw_works(f));
+      ASSERT(is_throw_works<std::runtime_error>(f));
       try {
         f();
       } catch (const jrpc::Error& e) {

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Copyright (C) Dmitry Igrishin
-// For conditions of distribution and use, see files LICENSE.txt or ws.hpp
+// For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/ws.hpp>
 
@@ -50,5 +50,4 @@ int main()
   lo.set_idle_timeout(std::chrono::seconds{10})
     .set_max_payload_size(16 * 1024);
   Listener{lo}.listen();
-  return 0;
 }

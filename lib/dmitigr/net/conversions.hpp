@@ -7,6 +7,7 @@
 
 #include <dmitigr/util/endianness.hpp>
 
+#include <cassert>
 #include <cstdint>
 #include <stdexcept>
 
@@ -18,9 +19,9 @@ namespace dmitigr::net {
  */
 inline void copy(void* const dest, const std::size_t dest_size, const void* const src, const std::size_t src_size)
 {
-  DMITIGR_REQUIRE(dest, std::invalid_argument);
-  DMITIGR_REQUIRE(src, std::invalid_argument);
-  DMITIGR_REQUIRE(src_size <= dest_size, std::invalid_argument);
+  assert(dest);
+  assert(src);
+  assert(src_size <= dest_size);
   const auto src_ubytes = static_cast<const unsigned char*>(src);
   const auto dest_ubytes = static_cast<unsigned char*>(dest);
   switch (endianness()) {
