@@ -37,7 +37,7 @@ public:
   /// The alias to represent a vector of program arguments.
   using Argument_vector = std::vector<std::string>;
 
-  /// The default constructor
+  /// The default constructor. (Constructs invalid instance.)
   Program_parameters() = default;
 
   /**
@@ -108,34 +108,25 @@ public:
     assert(is_valid());
   }
 
-  /**
-   * @returns `false` if this instance is default constructed, or
-   * `true` otherwise.
-   */
+  /// @returns `false` if this instance is default-constructed.
   bool is_valid() const
   {
     return !executable_path_.empty();
   }
 
-  /**
-   * @returns The executable path.
-   */
+  /// @returns The executable path.
   const std::filesystem::path& executable_path() const
   {
     return executable_path_;
   }
 
-  /**
-   * @returns The map of options.
-   */
+  /// @returns The map of options.
   const Option_map& options() const
   {
     return options_;
   }
 
-  /**
-   * @returns The vector of arguments.
-   */
+  /// @returns The vector of arguments.
   const Argument_vector& arguments() const
   {
     return arguments_;
@@ -157,8 +148,7 @@ public:
   /**
    * @returns `true` if the given option presents, or `false` otherwise.
    *
-   * @throws An instance of type `std::runtime_error` if the given option
-   * presents and have an argument.
+   * @throws `std::runtime_error` if the given option presents with an argument.
    */
   bool has_option_throw_if_argument(const std::string& name) const
   {
@@ -171,10 +161,8 @@ public:
       return false;
   }
 
-  /**
-   * @returns Iterator to the first found option that is not presents in `list`.
-   */
-  Option_map::const_iterator option_except(const std::vector<std::string>& list) const
+  /// @returns Iterator to the first found option that is not presents in `list`.
+  Option_map::const_iterator option_except(const std::vector<std::string>& list) const noexcept
   {
     return std::find_if(cbegin(options_), cend(options_),
       [b = cbegin(list), e = cend(list)](const auto& o)
@@ -183,11 +171,8 @@ public:
       });
   }
 
-  /**
-   * @returns `true` if there are option that is not present in given `list`,
-   * or `false` otherwise.
-   */
-  bool has_option_except(const std::vector<std::string>& list) const
+  /// @returns `true` if there are option that is not present in given `list`.
+  bool has_option_except(const std::vector<std::string>& list) const noexcept
   {
     return option_except(list) != cend(options_);
   }
