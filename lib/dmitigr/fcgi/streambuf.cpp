@@ -5,7 +5,7 @@
 #include "dmitigr/fcgi/basics.hpp"
 #include "dmitigr/fcgi/server_connection.hpp"
 #include "dmitigr/fcgi/streambuf.hpp"
-#include <dmitigr/util/math.hpp>
+#include <dmitigr/misc/math.hpp>
 
 #include <algorithm>
 #include <array>

@@ -11,7 +11,7 @@
 #include "dmitigr/pgfe/response.hpp"
 #include "dmitigr/pgfe/row_info.hpp"
 #include "dmitigr/pgfe/types_fwd.hpp"
-#include <dmitigr/util/mem.hpp>
+#include <dmitigr/misc/mem.hpp>
 
 #include <algorithm>
 #include <cassert>

@@ -6,8 +6,8 @@
 #define DMITIGR_JRPC_REQUEST_HPP
 
 #include "dmitigr/jrpc/response.hpp"
-#include <dmitigr/util/math.hpp>
-#include <dmitigr/util/str.hpp>
+#include <dmitigr/misc/math.hpp>
+#include <dmitigr/misc/str.hpp>
 
 #include <algorithm>
 #include <functional>

@@ -4,7 +4,7 @@
 
 #include "dmitigr/fcgi/basics.hpp"
 #include "dmitigr/fcgi/server_connection.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/misc/debug.hpp>
 
 namespace dmitigr::fcgi::detail {
 

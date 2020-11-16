@@ -6,7 +6,7 @@
 #define DMITIGR_NET_DESCRIPTOR_HPP
 
 #include "dmitigr/net/socket.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/misc/debug.hpp>
 
 #include <array>
 #include <cstdio>

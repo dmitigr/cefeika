@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see files LICENSE.txt or fcgi.hpp
 
 #include "dmitigr/fcgi/listener_options.hpp"
+#include <dmitigr/misc/debug.hpp>
 #include <dmitigr/net/net.hpp>
-#include <dmitigr/util/debug.hpp>
 
 namespace dmitigr::fcgi::detail {
 

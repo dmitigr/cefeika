@@ -5,7 +5,7 @@
 #ifndef DMITIGR_NET_CONVERSIONS_HPP
 #define DMITIGR_NET_CONVERSIONS_HPP
 
-#include <dmitigr/util/endianness.hpp>
+#include <dmitigr/misc/endianness.hpp>
 
 #include <cassert>
 #include <cstdint>

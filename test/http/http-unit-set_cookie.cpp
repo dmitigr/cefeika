@@ -4,7 +4,7 @@
 
 #include <dmitigr/dt.hpp>
 #include <dmitigr/http.hpp>
-#include <dmitigr/util/testo.hpp>
+#include <dmitigr/misc/testo.hpp>
 
 int main(int, char* argv[])
 {

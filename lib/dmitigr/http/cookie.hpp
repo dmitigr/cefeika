@@ -8,7 +8,7 @@
 #include "dmitigr/http/header.hpp"
 #include "dmitigr/http/syntax.hpp"
 #include "dmitigr/http/types_fwd.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/misc/debug.hpp>
 
 #include <algorithm>
 #include <optional>

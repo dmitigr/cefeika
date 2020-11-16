@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(web 0 1 "Web utilities")
+dmitigr_set_library_info(web 0 1 "Web frameworks")
 
 # ------------------------------------------------------------------------------
 # Sources

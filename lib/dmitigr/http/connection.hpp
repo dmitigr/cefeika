@@ -7,8 +7,8 @@
 
 #include "dmitigr/http/basics.hpp"
 #include "dmitigr/http/types_fwd.hpp"
+#include <dmitigr/misc/str.hpp>
 #include <dmitigr/net/descriptor.hpp>
-#include <dmitigr/util/str.hpp>
 
 //#include <iostream>
 

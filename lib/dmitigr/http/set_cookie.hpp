@@ -8,8 +8,8 @@
 #include "dmitigr/http/header.hpp"
 #include "dmitigr/http/syntax.hpp"
 #include <dmitigr/dt/timestamp.hpp>
+#include <dmitigr/misc/str.hpp>
 #include <dmitigr/net/util.hpp>
-#include <dmitigr/util/str.hpp>
 
 #include <cassert>
 #include <locale>

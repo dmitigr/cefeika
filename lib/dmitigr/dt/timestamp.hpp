@@ -6,7 +6,7 @@
 #define DMITIGR_DT_TIMESTAMP_HPP
 
 #include "dmitigr/dt/basics.hpp"
-#include <dmitigr/util/debug.hpp>
+#include <dmitigr/misc/debug.hpp>
 
 namespace dmitigr::dt {
 

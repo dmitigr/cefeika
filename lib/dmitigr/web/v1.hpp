@@ -8,11 +8,11 @@
 #include <dmitigr/fcgi/fcgi.hpp>
 #include <dmitigr/http/http.hpp>
 #include <dmitigr/jrpc/jrpc.hpp>
-#include <dmitigr/util/filesystem.hpp>
-#include <dmitigr/util/mulf.hpp>
-#include <dmitigr/util/read.hpp>
-#include <dmitigr/util/str.hpp>
-#include <dmitigr/util/ttpl.hpp>
+#include <dmitigr/misc/filesystem.hpp>
+#include <dmitigr/misc/mulf.hpp>
+#include <dmitigr/misc/read.hpp>
+#include <dmitigr/misc/str.hpp>
+#include <dmitigr/misc/ttpl.hpp>
 
 #include <cassert>
 #include <functional>

@@ -4,13 +4,12 @@
 
 #include "pgfe-unit.hpp"
 
+#include <dmitigr/misc/str.hpp>
 #include <dmitigr/pgfe/composite.hpp>
 #include <dmitigr/pgfe/exceptions.hpp>
 #include <dmitigr/pgfe/row.hpp>
 #include <dmitigr/pgfe/sql_string.hpp>
 #include <dmitigr/pgfe/sql_vector.hpp>
-
-#include <dmitigr/util/str.hpp>
 
 int main(int, char* argv[])
 {

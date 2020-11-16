@@ -11,7 +11,7 @@
 
 #include "dmitigr/os/log.hpp"
 #include "dmitigr/os/proc.hpp"
-#include <dmitigr/util/filesystem.hpp>
+#include <dmitigr/misc/filesystem.hpp>
 
 #include <cassert>
 #include <cstdlib>

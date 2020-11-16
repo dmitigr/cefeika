@@ -7,8 +7,8 @@
 
 #include "dmitigr/os/log.hpp"
 #include "dmitigr/os/proc_detach.hpp"
-#include "dmitigr/util/filesystem.hpp"
-#include "dmitigr/util/progpar.hpp"
+#include <dmitigr/misc/filesystem.hpp>
+#include <dmitigr/misc/progpar.hpp>
 
 #include <atomic>
 #include <cassert>

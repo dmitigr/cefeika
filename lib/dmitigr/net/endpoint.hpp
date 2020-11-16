@@ -5,8 +5,8 @@
 #ifndef DMITIGR_NET_ENDPOINT_HPP
 #define DMITIGR_NET_ENDPOINT_HPP
 
-#include <dmitigr/util/debug.hpp>
-#include <dmitigr/util/filesystem.hpp>
+#include <dmitigr/misc/debug.hpp>
+#include <dmitigr/misc/filesystem.hpp>
 
 #include <optional>
 #include <string>

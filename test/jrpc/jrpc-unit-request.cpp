@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/jrpc.hpp>
-#include <dmitigr/util/math.hpp>
-#include <dmitigr/util/testo.hpp>
+#include <dmitigr/misc/math.hpp>
+#include <dmitigr/misc/testo.hpp>
 
 int main(int, char* argv[])
 {

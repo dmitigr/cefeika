@@ -9,7 +9,7 @@
 #include "dmitigr/pgfe/conversions_api.hpp"
 #include "dmitigr/pgfe/data.hpp"
 #include "dmitigr/pgfe/exceptions.hpp"
-#include <dmitigr/util/str.hpp>
+#include <dmitigr/misc/str.hpp>
 
 #include <algorithm>
 #include <cassert>
