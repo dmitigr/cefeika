@@ -49,6 +49,8 @@ Also:
 |RapidJSON|https://github.com/dmitigr/rapidjson/tree/master|
 |uSockets|https://github.com/dmitigr/uSockets/tree/master|
 |uWebSockets|https://github.com/dmitigr/uWebSockets/tree/master|
+|buffer|https://github.com/dmitigr/buffer/tree/master|
+|uwsc|https://github.com/dmitigr/libuwsc/tree/master|
 
 ## CMake options
 
