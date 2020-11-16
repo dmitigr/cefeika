@@ -6,21 +6,18 @@
 #define DMITIGR_DT_TIMESTAMP_HPP
 
 #include "dmitigr/dt/basics.hpp"
-#include <dmitigr/misc/debug.hpp>
+
+#include <cassert>
 
 namespace dmitigr::dt {
 
-/**
- * @brief A timestamp.
- */
+/// A timestamp.
 class Timestamp final {
 public:
   /// @name Constructors
   /// @{
 
-  /**
-   * @brief Constructs the timestamp "1583/01/01 00:00:00".
-   */
+  /// Constructs the timestamp "1583/01/01 00:00:00".
   Timestamp() = default;
 
   /**
@@ -34,13 +31,10 @@ public:
    * @param input - HTTP date.
    *
    * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date
+   * @see https://tools.ietf.org/html/rfc7231#section-7.1.1.1
    */
   static Timestamp from_rfc7231(const std::string_view input)
   {
-    /*
-     * According to: https://tools.ietf.org/html/rfc7231#section-7.1.1.1
-     */
-
     if (input.size() < 29)
       throw std::runtime_error{"dmitigr::dt: RFC 7231 invalid input"};
 
@@ -48,7 +42,7 @@ public:
 
     static const auto process_integer = [](int& dest, const std::string& extracted, const char* const error_message)
     {
-      DMITIGR_ASSERT(error_message);
+      assert(error_message);
       std::size_t pos{};
       dest = std::stoi(extracted, &pos);
       if (pos != extracted.size())
@@ -126,56 +120,44 @@ public:
         throw std::runtime_error{"dmitigr::dt: RFC 7231 invalid timezone"};
     }
 
-    DMITIGR_ASSERT(result.is_invariant_ok());
+    assert(result.is_invariant_ok());
 
     return result;
   }
 
   /// @}
 
-  /**
-   * @returns The year.
-   */
-  int year() const
+  /// @returns The year.
+  int year() const noexcept
   {
     return year_;
   }
 
-  /**
-   * @returns The month.
-   */
-  Month month() const
+  /// @returns The month.
+  Month month() const noexcept
   {
     return month_;
   }
 
-  /**
-   * @returns The day.
-   */
-  int day() const
+  // @returns The day.
+  int day() const noexcept
   {
     return day_;
   }
 
-  /**
-   * @returns The day of week.
-   */
+  /// @returns The day of week.
   Day_of_week day_of_week() const
   {
     return dt::day_of_week(year(), month(), day());
   }
 
-  /**
-   * @returns The day of year. (Starts at 1.)
-   */
+  /// @returns The day of year. (Starts at 1.)
   int day_of_year() const
   {
     return dt::day_of_year(year(), month(), day());
   }
 
-  /**
-   * @returns The day of epoch (from 1583 Jan 1). (Starts at 1.)
-   */
+  /// @returns The day of epoch (from 1583 Jan 1). (Starts at 1.)
   int day_of_epoch() const
   {
     return dt::day_of_epoch(year(), month(), day());
@@ -184,35 +166,27 @@ public:
   /**
    * @brief Sets the date.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `is_date_acceptable(year, month, day)`.
    */
-  void set_date(const int year, const Month month, const int day)
+  void set_date(const int year, const Month month, const int day) noexcept
   {
-    DMITIGR_REQUIRE(dt::is_date_acceptable(year, month, day), std::invalid_argument);
-
+    assert(dt::is_date_acceptable(year, month, day));
     year_ = year;
     month_ = month;
     day_ = day;
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
    * @overload
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `(day_of_epoch > 0)`.
    */
-  void set_date(int day_of_epoch)
+  void set_date(int day_of_epoch) noexcept
   {
-    DMITIGR_REQUIRE(day_of_epoch > 0, std::invalid_argument);
+    assert(day_of_epoch > 0);
 
     int y = 1583;
     for (int dc = day_count(y); day_of_epoch > dc; dc = day_count(y)) {
@@ -220,7 +194,7 @@ public:
       ++y;
     }
 
-    DMITIGR_ASSERT(day_of_epoch <= day_count(y));
+    assert(day_of_epoch <= day_count(y));
 
     int m = static_cast<int>(Month::jan);
     for (int dc = day_count(y, static_cast<Month>(m)); day_of_epoch > dc; dc = day_count(y, static_cast<Month>(m))) {
@@ -228,16 +202,14 @@ public:
       ++m;
     }
 
-    DMITIGR_ASSERT(static_cast<int>(Month::jan) <= m && m <= static_cast<int>(Month::dec));
-    DMITIGR_ASSERT(day_of_epoch > 0);
+    assert(static_cast<int>(Month::jan) <= m && m <= static_cast<int>(Month::dec));
+    assert(day_of_epoch > 0);
 
     set_date(y, static_cast<Month>(m), day_of_epoch);
   }
 
-  /**
-   * @returns The hour.
-   */
-  int hour() const
+  /// @returns The hour.
+  int hour() const noexcept
   {
     return hour_;
   }
@@ -245,25 +217,18 @@ public:
   /**
    * @brief Sets the hour.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `(0 <= hour && hour <= 59)`.
    */
-  void set_hour(const int hour)
+  void set_hour(const int hour) noexcept
   {
-    DMITIGR_REQUIRE(0 <= hour && hour <= 23, std::invalid_argument);
-
+    assert(0 <= hour && hour <= 23);
     hour_ = hour;
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns The minute.
-   */
-  int minute() const
+  /// @returns The minute.
+  int minute() const noexcept
   {
     return minute_;
   }
@@ -271,25 +236,18 @@ public:
   /**
    * @brief Sets the minute.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `(0 <= minute && minute <= 59)`.
    */
-  void set_minute(const int minute)
+  void set_minute(const int minute) noexcept
   {
-    DMITIGR_REQUIRE(0 <= minute && minute <= 59, std::invalid_argument);
-
+    assert(0 <= minute && minute <= 59);
     minute_ = minute;
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
-  /**
-   * @returns The second.
-   */
-  int second() const
+  /// @returns The second.
+  int second() const noexcept
   {
     return second_;
   }
@@ -297,40 +255,29 @@ public:
   /**
    * @brief Sets the second.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `(0 <= second && second <= 59)`.
    */
-  void set_second(const int second)
+  void set_second(const int second) noexcept
   {
-    DMITIGR_REQUIRE(0 <= second && second <= 59, std::invalid_argument);
-
+    assert(0 <= second && second <= 59);
     second_ = second;
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
    * @brief Sets the time.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `(0 <= hour && hour <= 59) && (0 <= minute && minute <= 59) && (0 <= second && second <= 59)`.
    */
-  void set_time(int hour, int minute, int second)
+  void set_time(const int hour, const int minute, const int second) noexcept
   {
-    DMITIGR_REQUIRE((0 <= hour && hour <= 59) &&
-      (0 <= minute && minute <= 59) && (0 <= second && second <= 59), std::invalid_argument);
-
+    assert((0 <= hour && hour <= 59) && (0 <= minute && minute <= 59) && (0 <= second && second <= 59));
     hour_ = hour;
     minute_ = minute;
     second_ = second;
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /// @name Conversions
@@ -387,10 +334,8 @@ private:
   }
 };
 
-/**
- * @returns `true` if this instance is less than `rhs`, or `false` otherwise.
- */
-inline bool operator<(const Timestamp& lhs, const Timestamp& rhs)
+/// @returns `true` if `lhs` is less than `rhs`.
+inline bool operator<(const Timestamp& lhs, const Timestamp& rhs) noexcept
 {
   return lhs.year() < rhs.year() ||
     static_cast<int>(lhs.month()) < static_cast<int>(rhs.month()) ||
@@ -400,10 +345,8 @@ inline bool operator<(const Timestamp& lhs, const Timestamp& rhs)
     lhs.second() < rhs.second();
 }
 
-/**
- * @returns `true` if this instance is less than or equal to `rhs`, or `false` otherwise.
- */
-inline bool operator<=(const Timestamp& lhs, const Timestamp& rhs)
+/// @returns `true` if `lhs` is less than or equal to `rhs`.
+inline bool operator<=(const Timestamp& lhs, const Timestamp& rhs) noexcept
 {
   return lhs.year() <= rhs.year() ||
     static_cast<int>(lhs.month()) <= static_cast<int>(rhs.month()) ||
@@ -413,10 +356,8 @@ inline bool operator<=(const Timestamp& lhs, const Timestamp& rhs)
     lhs.second() <= rhs.second();
 }
 
-/**
- * @returns `true` if this instance is equal to `rhs`, or `false` otherwise.
- */
-inline bool operator==(const Timestamp& lhs, const Timestamp& rhs)
+/// @returns `true` if `lhs` is equal to `rhs`.
+inline bool operator==(const Timestamp& lhs, const Timestamp& rhs) noexcept
 {
   return lhs.year() == rhs.year() &&
     lhs.month() == rhs.month() &&
@@ -426,18 +367,14 @@ inline bool operator==(const Timestamp& lhs, const Timestamp& rhs)
     lhs.second() == rhs.second();
 }
 
-/**
- * @returns `true` if this instance is not equal to `rhs`, or `false` otherwise.
- */
-inline bool operator!=(const Timestamp& lhs, const Timestamp& rhs)
+/// @returns `true` if `lhs` is not equal to `rhs`.
+inline bool operator!=(const Timestamp& lhs, const Timestamp& rhs) noexcept
 {
   return !(lhs == rhs);
 }
 
-/**
- * @returns `true` if this instance is greater than `rhs`, or `false` otherwise.
- */
-inline bool operator>(const Timestamp& lhs, const Timestamp& rhs)
+/// @returns `true` if `lhs` is greater than `rhs`.
+inline bool operator>(const Timestamp& lhs, const Timestamp& rhs) noexcept
 {
   return lhs.year() > rhs.year() ||
     static_cast<int>(lhs.month()) > static_cast<int>(rhs.month()) ||
@@ -447,10 +384,8 @@ inline bool operator>(const Timestamp& lhs, const Timestamp& rhs)
     lhs.second() > rhs.second();
 }
 
-/**
- * @returns `true` if this instance is greater than or equal to `rhs`, or `false` otherwise.
- */
-inline bool operator>=(const Timestamp& lhs, const Timestamp& rhs)
+/// @returns `true` if `lhs` is greater than or equal to `rhs`.
+inline bool operator>=(const Timestamp& lhs, const Timestamp& rhs) noexcept
 {
   return lhs.year() >= rhs.year() ||
     static_cast<int>(lhs.month()) >= static_cast<int>(rhs.month()) ||

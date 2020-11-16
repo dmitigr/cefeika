@@ -5,20 +5,16 @@
 #ifndef DMITIGR_DT_BASICS_HPP
 #define DMITIGR_DT_BASICS_HPP
 
-#include <dmitigr/misc/debug.hpp>
-
+#include <cassert>
 #include <string>
+#include <stdexcept>
 
 namespace dmitigr::dt {
 
-/**
- * @brief A day of a week.
- */
+/// A day of a week.
 enum class Day_of_week { sun, mon, tue, wed, thu, fri, sat };
 
-/**
- * @brief A month.
- */
+/// A month.
 enum class Month { jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec };
 
 /**
@@ -27,20 +23,19 @@ enum class Month { jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec };
  * @par Requires
  * `(year >= 1583)`.
  */
-inline int day_count(const int year)
+inline int day_count(const int year) noexcept
 {
-  DMITIGR_REQUIRE(year >= 1583, std::invalid_argument);
-
+  assert(year >= 1583);
   return ((year % 100) != 0 && (year % 4) == 0) || (year % 400 == 0) ? 366 : 365;
 }
 
 /**
- * @returns `true` if the specified `year` is a leap year, or `false` otherwise.
+ * @returns `true` if the specified `year` is a leap year.
  *
  * @par Requires
  * `(year >= 1583)`.
  */
-inline bool is_leap_year(int year)
+inline bool is_leap_year(const int year) noexcept
 {
   return day_count(year) == 366;
 }
@@ -53,8 +48,7 @@ inline bool is_leap_year(int year)
  */
 inline int day_count(const int year, const Month month)
 {
-  DMITIGR_REQUIRE(year >= 1583, std::invalid_argument);
-
+  assert(year >= 1583);
   switch (month) {
   case Month::jan: return 31;
   case Month::feb: return is_leap_year(year) ? 29 : 28;
@@ -69,17 +63,16 @@ inline int day_count(const int year, const Month month)
   case Month::nov: return 30;
   case Month::dec: return 31;
   };
-
-  DMITIGR_ASSERT_ALWAYS(!true);
+  assert(false);
+  std::terminate();
 }
 
 /**
- * @returns `true` if the specified date is acceptable by the API, or
- * `false` otherwise.
+ * @returns `true` if the specified date is acceptable by the API.
  *
  * @remarks Dates from 1583 Jan 1 inclusive are acceptable.
  */
-inline bool is_date_acceptable(const int year, const Month month, const int day)
+inline bool is_date_acceptable(const int year, const Month month, const int day) noexcept
 {
   return year >= 1583 && 1 <= day && day <= day_count(year, month);
 }
@@ -115,10 +108,9 @@ inline Day_of_week to_day_of_week(const std::string_view str)
  * @par Requires
  * `is_date_acceptable(year, month, day)`.
  */
-inline Day_of_week day_of_week(const int year, const Month month, const int day)
+inline Day_of_week day_of_week(const int year, const Month month, const int day) noexcept
 {
-  DMITIGR_REQUIRE(is_date_acceptable(year, month, day), std::invalid_argument);
-
+  assert(is_date_acceptable(year, month, day));
   const auto month1 = static_cast<int>(month) + 1;
   const int a = (14 - month1) / 12;
   const int y = year - a;
@@ -135,10 +127,9 @@ inline Day_of_week day_of_week(const int year, const Month month, const int day)
  *
  * @remarks Days starts at 1.
  */
-inline int day_of_year(const int year, const Month month, int day)
+inline int day_of_year(const int year, const Month month, int day) noexcept
 {
-  DMITIGR_REQUIRE(is_date_acceptable(year, month, day), std::invalid_argument);
-
+  assert(is_date_acceptable(year, month, day));
   for (auto m = static_cast<int>(month) - 1; m >= 0; --m)
     day += day_count(year, static_cast<Month>(m));
   return day; // 1-based
@@ -147,13 +138,14 @@ inline int day_of_year(const int year, const Month month, int day)
 /**
  * @returns The computed day of the epoch.
  *
- * @remarks Epoch starts at Jan 1 1583.
- * @remarks Days starts at 1.
+ * @par Requires
+ * `is_date_acceptable(year, month, day)`.
+ *
+ * @remarks Epoch starts at Jan 1 1583. Days starts at 1.
  */
-inline int day_of_epoch(const int year, const Month month, const int day)
+inline int day_of_epoch(const int year, const Month month, const int day) noexcept
 {
-  DMITIGR_REQUIRE(is_date_acceptable(year, month, day), std::invalid_argument);
-
+  assert(is_date_acceptable(year, month, day));
   int result{};
   for (int y = 1583; y < year; ++y)
     result += day_count(y);
@@ -161,9 +153,7 @@ inline int day_of_epoch(const int year, const Month month, const int day)
   return result; // 1-based
 }
 
-/**
- * @returns The result of conversion of `dw` to the value of type `std::string`.
- */
+/// @returns The result of conversion of `dw` to the value of type `std::string`.
 inline std::string to_string(const Day_of_week dw)
 {
   switch (dw) {
@@ -175,8 +165,8 @@ inline std::string to_string(const Day_of_week dw)
   case Day_of_week::sat: return "Sat";
   case Day_of_week::sun: return "Sun";
   }
-
-  DMITIGR_ASSERT_ALWAYS(!true);
+  assert(false);
+  std::terminate();
 }
 
 /**
@@ -214,9 +204,7 @@ inline Month to_month(const std::string_view str)
     throw std::runtime_error{"dmitigr::dt: invalid month name"};
 }
 
-/**
- * @returns The result of conversion of `month` to the value of type `std::string`.
- */
+/// @returns The result of conversion of `month` to the value of type `std::string`.
 inline std::string to_string(const Month month)
 {
   switch (month) {
@@ -233,8 +221,8 @@ inline std::string to_string(const Month month)
   case Month::nov: return "Nov";
   case Month::dec: return "Dec";
   }
-
-  DMITIGR_ASSERT_ALWAYS(!true);
+  assert(false);
+  std::terminate();
 }
 
 } // namespace dmitigr::dt

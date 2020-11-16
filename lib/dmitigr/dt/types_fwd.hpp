@@ -5,9 +5,7 @@
 #ifndef DMITIGR_DT_TYPES_FWD_HPP
 #define DMITIGR_DT_TYPES_FWD_HPP
 
-/**
- * @brief The API.
- */
+/// The API.
 namespace dmitigr::dt {
 
 enum class Day_of_week;
@@ -15,9 +13,7 @@ enum class Month;
 
 class Timestamp;
 
-/**
- * @brief The implementation details.
- */
+/// The implementation details.
 namespace detail {
 } // namespace detail
 
