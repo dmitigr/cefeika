@@ -130,7 +130,7 @@ public:
    *
    * @see set_response_handler().
    */
-  virtual std::pair<bool, bool> send_data(std::string_view data, int total_size = 0) = 0;
+  virtual std::pair<bool, bool> send_data(std::string_view data, std::size_t total_size = 0) = 0;
 
   /**
    * @brief Sends the `data` (if any) and finishes the IO.

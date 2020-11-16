@@ -2,20 +2,11 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
-#ifdef __GNUG__
-// Disable some warnings of uWebSockets.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-
 #include "dmitigr/ws/basics.hpp"
 #include "dmitigr/ws/connection.hpp"
 #include "dmitigr/ws/util.hpp"
+#include "dmitigr/ws/uwebsockets.hpp"
 #include <dmitigr/net/net.hpp>
-
-#include <uwebsockets/App.h>
 
 #include <cassert>
 
@@ -197,7 +188,3 @@ DMITIGR_WS_INLINE void Connection::abort()
 }
 
 } // namespace dmitigr::ws
-
-#ifdef __GNUG__
-#pragma GCC diagnostic pop
-#endif

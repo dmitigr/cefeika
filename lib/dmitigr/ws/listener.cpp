@@ -8,8 +8,7 @@
 #include "dmitigr/ws/listener.hpp"
 #include "dmitigr/ws/listener_options.hpp"
 #include "dmitigr/ws/timer.hpp"
-
-#include <uwebsockets/App.h>
+#include "dmitigr/ws/uwebsockets.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -291,9 +290,10 @@ public:
     {
       if (is_listening()) {
         struct Guard {
-          Guard(Lstnr& l) : l{l} { l.close_connections_called_ = true; }
-          ~Guard() { l.close_connections_called_ = false; }
-          Lstnr& l;
+          Guard(Lstnr& l) : l_{l} { l_.close_connections_called_ = true; }
+          ~Guard() { l_.close_connections_called_ = false; }
+        private:
+          Lstnr& l_;
         } guard{*this};
 
         for (auto* const conn : connections_) {
@@ -343,8 +343,11 @@ public:
 
   void remove_timer(const std::string_view name) override
   {
-    if (const auto i = timer_index(name))
-      timers_.erase(cbegin(timers_) + *i);
+    if (const auto i = timer_index(name)) {
+      const auto b = cbegin(timers_);
+      using Diff = typename decltype(b)::difference_type;
+      timers_.erase(b + static_cast<Diff>(*i));
+    }
   }
 
   iTimer* timer(const std::string_view name) const override

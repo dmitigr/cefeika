@@ -22,6 +22,7 @@ set(dmitigr_ws_headers
   timer.hpp
   types_fwd.hpp
   util.hpp
+  uwebsockets.hpp
   )
 
 set(dmitigr_ws_implementations

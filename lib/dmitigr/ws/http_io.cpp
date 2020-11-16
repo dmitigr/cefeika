@@ -4,8 +4,7 @@
 
 #include "dmitigr/ws/http_io.hpp"
 #include "dmitigr/ws/util.hpp"
-
-#include <uwebsockets/HttpResponse.h>
+#include "dmitigr/ws/uwebsockets.hpp"
 
 #include <cassert>
 #include <string>
@@ -60,7 +59,7 @@ public:
     rep_->writeHeader(name, value);
   }
 
-  std::pair<bool, bool> send_data(const std::string_view data, const int total_size) override
+  std::pair<bool, bool> send_data(const std::string_view data, const std::size_t total_size) override
   {
     assert(is_valid());
     assert(!total_size || (data.size() <= static_cast<decltype(data.size())>(total_size)));
