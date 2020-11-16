@@ -5,10 +5,10 @@
 #ifndef DMITIGR_APP_PROGRAM_PARAMETERS_HPP
 #define DMITIGR_APP_PROGRAM_PARAMETERS_HPP
 
-#include "dmitigr/base/debug.hpp"
 #include "dmitigr/base/filesystem.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <map>
 #include <optional>
 #include <string>
@@ -31,19 +31,13 @@ namespace dmitigr::app {
  */
 class Program_parameters final {
 public:
-  /**
-   * @brief The alias to represent a map of program options.
-   */
+  /// The alias to represent a map of program options.
   using Option_map = std::map<std::string, std::optional<std::string>>;
 
-  /**
-   * @brief The alias to represent a vector of program arguments.
-   */
+  /// The alias to represent a vector of program arguments.
   using Argument_vector = std::vector<std::string>;
 
-  /**
-   * @brief The default constructor
-   */
+  /// The default constructor
   Program_parameters() = default;
 
   /**
@@ -54,7 +48,7 @@ public:
    */
   Program_parameters(const int argc, const char* const* argv)
   {
-    DMITIGR_REQUIRE(argc > 0 && argv && argv[0], std::invalid_argument);
+    assert(argc > 0 && argv && argv[0]);
 
     static const auto opt = [](const std::string_view arg)
       -> std::optional<std::pair<std::string, std::optional<std::string>>>
@@ -95,7 +89,7 @@ public:
     for (; argi < argc; ++argi)
       arguments_.emplace_back(argv[argi]);
 
-    DMITIGR_ASSERT(is_valid());
+    assert(is_valid());
   }
 
   /**
@@ -110,8 +104,8 @@ public:
     , options_{std::move(options)}
     , arguments_{std::move(arguments)}
   {
-    DMITIGR_REQUIRE(!executable_path_.empty(), std::invalid_argument);
-    DMITIGR_ASSERT(is_valid());
+    assert(!executable_path_.empty());
+    assert(is_valid());
   }
 
   /**
@@ -155,7 +149,7 @@ public:
    */
   const std::optional<std::string>* option(const std::string& name) const
   {
-    DMITIGR_REQUIRE(!name.empty(), std::invalid_argument);
+    assert(!name.empty());
     const auto i = options_.find(name);
     return (i != cend(options_)) ? &(i->second) : nullptr;
   }
