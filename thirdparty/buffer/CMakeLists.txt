@@ -16,6 +16,7 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
     -Wall
     -Wextra
     #-Wstrict-prototypes
+    -Wno-sign-compare
     -Wno-unused-parameter)
 endif()
 
@@ -53,7 +54,7 @@ set_target_properties(${lib}
   DEBUG_POSTFIX "d")
 target_compile_definitions(${lib}
   PRIVATE ${${lib}_defines})
-target_compile_options(${lib} PRIVATE ${${lib}_cflags})
+target_compile_options(${lib} INTERFACE -Wno-sign-compare PRIVATE ${${lib}_cflags})
 target_include_directories(${lib}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
