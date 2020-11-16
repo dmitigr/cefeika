@@ -24,8 +24,7 @@
 #define DMITIGR_FS_FS_HPP
 
 #include "dmitigr/fs/version.hpp"
-#include <dmitigr/base/debug.hpp>
-#include <dmitigr/base/filesystem.hpp>
+#include <dmitigr/util/filesystem.hpp>
 
 #include <optional>
 #include <vector>

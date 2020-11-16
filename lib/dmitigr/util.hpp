@@ -24,9 +24,9 @@
 // This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#ifndef DMITIGR_FS_HPP
-#define DMITIGR_FS_HPP
+#ifndef DMITIGR_UTIL_HPP
+#define DMITIGR_UTIL_HPP
 
-#include "dmitigr/fs/fs.hpp"
+#include "dmitigr/util/util.hpp"
 
-#endif  // DMITIGR_FS_HPP
+#endif  // DMITIGR_UTIL_HPP

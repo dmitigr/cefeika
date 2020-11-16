@@ -26,8 +26,8 @@
 #include "dmitigr/uuid/types_fwd.hpp"
 #include "dmitigr/uuid/version.hpp"
 
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/rng/gen.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
 #include <cstdint>

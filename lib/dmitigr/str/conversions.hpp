@@ -5,7 +5,7 @@
 #ifndef DMITIGR_STR_CONVERSIONS_HPP
 #define DMITIGR_STR_CONVERSIONS_HPP
 
-#include <dmitigr/base/debug.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
 #include <limits>

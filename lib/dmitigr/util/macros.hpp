@@ -20,13 +20,22 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_UTIL_MACROS_HPP
+#define DMITIGR_UTIL_MACROS_HPP
 
-#ifndef DMITIGR_APP_HPP
-#define DMITIGR_APP_HPP
+/**
+ * @brief Stringizes the argument `s`.
+ */
+#define DMITIGR_STRINGIZED(s) #s
 
-#include "dmitigr/app/app.hpp"
+/**
+ * @brief X-stringizes the argument `s`.
+ */
+#define DMITIGR_XSTRINGIZED(s) DMITIGR_STRINGIZED(s)
 
-#endif  // DMITIGR_APP_HPP
+/**
+ * @brief Expands to `x`.
+ */
+#define DMITIGR_EXPAND(x) x
+
+#endif // DMITIGR_UTIL_MACROS_HPP

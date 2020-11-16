@@ -5,7 +5,7 @@
 #ifndef DMITIGR_MP_SIMPLE_THREAD_POOL_HPP
 #define DMITIGR_MP_SIMPLE_THREAD_POOL_HPP
 
-#include <dmitigr/base/debug.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <cassert>
 #include <condition_variable>

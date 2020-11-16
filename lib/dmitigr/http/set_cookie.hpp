@@ -7,10 +7,10 @@
 
 #include "dmitigr/http/header.hpp"
 #include "dmitigr/http/syntax.hpp"
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/dt/timestamp.hpp>
 #include <dmitigr/net/util.hpp>
 #include <dmitigr/str/str.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <locale>
 #include <optional>

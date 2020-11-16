@@ -5,7 +5,7 @@
 #ifndef DMITIGR_TTPL_LOGIC_LESS_TEMPLATE_HPP
 #define DMITIGR_TTPL_LOGIC_LESS_TEMPLATE_HPP
 
-#include <dmitigr/base/debug.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
 #include <list>

@@ -6,31 +6,34 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(base 0 1 "Basics library")
+dmitigr_set_library_info(util 0 1 "Utilities")
 
 # ------------------------------------------------------------------------------
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_base_headers
+set(dmitigr_util_headers
   basics.hpp
   debug.hpp
   endianness.hpp
   filesystem.hpp
+  flatcfg.hpp
+  fs.hpp
   macros.hpp
+  progpar.hpp
   )
 
-set(dmitigr_base_implementations
+set(dmitigr_util_implementations
   )
 
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
 
-dmitigr_append_cppfs(dmitigr_base_target_link_libraries_interface)
+dmitigr_append_cppfs(dmitigr_util_target_link_libraries_interface)
 
 # ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(base)
+dmitigr_propagate_library_settings(util)

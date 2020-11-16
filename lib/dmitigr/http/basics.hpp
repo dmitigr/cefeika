@@ -5,7 +5,7 @@
 #ifndef DMITIGR_HTTP_BASICS_HPP
 #define DMITIGR_HTTP_BASICS_HPP
 
-#include <dmitigr/base/debug.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <optional>
 #include <string_view>

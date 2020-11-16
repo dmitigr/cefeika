@@ -4,7 +4,7 @@
 
 set(dmitigr_rajson_tests value_view)
 
-set(dmitigr_rajson_tests_target_link_libraries dmitigr::str dmitigr::fs)
+set(dmitigr_rajson_tests_target_link_libraries dmitigr::str)
 
 add_custom_target(dmitigr_rajson_copy_test_resources ALL
   COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/rajson-unit-value_view.json"

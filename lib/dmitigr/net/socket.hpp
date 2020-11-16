@@ -7,7 +7,7 @@
 
 #include "dmitigr/net/address.hpp"
 #include "dmitigr/net/exceptions.hpp"
-#include <dmitigr/base/basics.hpp>
+#include <dmitigr/util/basics.hpp>
 
 #include <algorithm>
 #include <chrono>

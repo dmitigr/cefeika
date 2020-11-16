@@ -5,7 +5,7 @@
 #ifndef DMITIGR_DT_BASICS_HPP
 #define DMITIGR_DT_BASICS_HPP
 
-#include <dmitigr/base/debug.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <string>
 

@@ -6,8 +6,8 @@
 #define DMITIGR_URL_QUERY_STRING_HPP
 
 #include "dmitigr/url/types_fwd.hpp"
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/str/str.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <algorithm>
 #include <limits>

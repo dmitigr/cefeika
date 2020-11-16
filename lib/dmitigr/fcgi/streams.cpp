@@ -5,7 +5,7 @@
 #include "dmitigr/fcgi/basics.hpp"
 #include "dmitigr/fcgi/streambuf.hpp"
 #include "dmitigr/fcgi/streams.hpp"
-#include <dmitigr/base/debug.hpp>
+#include <dmitigr/util/debug.hpp>
 
 namespace dmitigr::fcgi::detail {
 

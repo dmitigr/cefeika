@@ -2,16 +2,16 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or service.hpp
 
-#ifndef DMITIGR_APP_PROC1_HPP
-#define DMITIGR_APP_PROC1_HPP
+#ifndef DMITIGR_OS_APP_HPP
+#define DMITIGR_OS_APP_HPP
 
-#include "dmitigr/app/program_parameters.hpp"
-#include "dmitigr/base/debug.hpp"
-#include "dmitigr/base/filesystem.hpp"
 #include "dmitigr/os/log.hpp"
 #include "dmitigr/os/proc_detach.hpp"
+#include "dmitigr/progpar/progpar.hpp"
+#include "dmitigr/util/filesystem.hpp"
 
 #include <atomic>
+#include <cassert>
 #include <csignal>
 #include <cstdlib>
 #include <exception> // set_terminate()
@@ -20,7 +20,7 @@
 #include <fstream>
 #include <string_view>
 
-namespace dmitigr::app::proc1 {
+namespace dmitigr::os::proc {
 
 /// Stores a current running status of the program.
 inline std::atomic_bool is_running;
@@ -32,7 +32,7 @@ inline std::filesystem::path pid_file;
 inline std::filesystem::path log_file;
 
 /// Stores the program parameters. (Should be set in main()!)
-inline Program_parameters prog_params;
+inline dmitigr::progpar::Program_parameters prog_params;
 
 // =============================================================================
 
@@ -47,9 +47,9 @@ inline Program_parameters prog_params;
  */
 [[noreturn]] inline void usage(const std::string_view info = {})
 {
-  DMITIGR_REQUIRE(proc1::prog_params.is_valid(), std::logic_error);
+  assert(proc::prog_params.is_valid());
 
-  std::cerr << "usage: " << proc1::prog_params.executable_path();
+  std::cerr << "usage: " << proc::prog_params.executable_path();
   if (!info.empty())
     std::cerr << " " << info;
   std::cerr << std::endl;
@@ -64,7 +64,7 @@ inline Program_parameters prog_params;
 inline void default_handle_signal(const int sig) noexcept
 {
   if (sig == SIGINT)
-    proc1::is_running = false; // should cause a normal shutdown
+    proc::is_running = false; // should cause a normal shutdown
   else if (sig == SIGTERM)
     std::quick_exit(sig); // abnormal shutdown
 }
@@ -88,18 +88,15 @@ inline void set_signals(void(*signals)(int) = &default_handle_signal) noexcept
   std::signal(SIGTERM, signals);
 }
 
-/**
- * @brief Removes a file associated with proc1::pid_file and clears
- * `pid_file` global variable on success.
- */
+/// Removes a file associated with `proc::pid_file` and clears it.
 inline void default_cleanup() noexcept
 {
-  if (const bool do_cleanup = !proc1::pid_file.empty(); do_cleanup) {
-    if (!proc1::pid_file.empty()) {
+  if (const bool do_cleanup = !proc::pid_file.empty(); do_cleanup) {
+    if (!proc::pid_file.empty()) {
       std::error_code e;
-      std::filesystem::remove(proc1::pid_file, e);
+      std::filesystem::remove(proc::pid_file, e);
       if (!e)
-        proc1::pid_file.clear();
+        proc::pid_file.clear();
       else
         std::clog << "Cannot remove PID file: " << e.value() << std::endl;
     }
@@ -128,7 +125,7 @@ inline void set_cleanup(void(*cleanup)() = &default_cleanup) noexcept
  */
 inline void run(void(*startup)(), void(*cleanup)(), void(*signals)(int))
 {
-  proc1::is_running = true;
+  proc::is_running = true;
   if (cleanup)
     set_cleanup(cleanup);
   if (signals)
@@ -162,28 +159,28 @@ inline void start(const bool detach,
   std::filesystem::path log_file = {},
   const std::ios_base::openmode log_file_mode = std::ios_base::trunc | std::ios_base::out)
 {
-  DMITIGR_REQUIRE(startup, std::invalid_argument);
-  DMITIGR_REQUIRE(!proc1::is_running, std::logic_error);
-  DMITIGR_REQUIRE(proc1::prog_params.is_valid(), std::logic_error);
+  assert(startup);
+  assert(!proc::is_running);
+  assert(proc::prog_params.is_valid());
 
   // Preparing.
 
   if (working_directory.empty())
-    working_directory = proc1::prog_params.executable_path().parent_path();
+    working_directory = proc::prog_params.executable_path().parent_path();
 
   if (detach) {
     if (pid_file.empty()) {
-      pid_file = working_directory / proc1::prog_params.executable_path().filename();
+      pid_file = working_directory / proc::prog_params.executable_path().filename();
       pid_file += ".pid";
     }
     if (log_file.empty()) {
-      log_file = working_directory / proc1::prog_params.executable_path().filename();
+      log_file = working_directory / proc::prog_params.executable_path().filename();
       log_file += ".log";
     }
   }
 
-  proc1::pid_file = std::move(pid_file);
-  proc1::log_file = std::move(log_file);
+  proc::pid_file = std::move(pid_file);
+  proc::log_file = std::move(log_file);
 
   // Starting.
 
@@ -191,18 +188,18 @@ inline void start(const bool detach,
     if (!working_directory.empty())
       std::filesystem::current_path(working_directory);
 
-    if (!proc1::pid_file.empty())
-      os::proc::dump_pid(proc1::pid_file);
+    if (!proc::pid_file.empty())
+      os::proc::dump_pid(proc::pid_file);
 
-    if (!proc1::log_file.empty())
-      os::proc::redirect_clog(proc1::log_file, log_file_mode);
+    if (!proc::log_file.empty())
+      os::proc::redirect_clog(proc::log_file, log_file_mode);
 
     run(startup, cleanup, signals);
   } else
     os::proc::detach([&startup, &cleanup, &signals]
     {
       run(startup, cleanup, signals);
-    }, working_directory, proc1::pid_file, proc1::log_file, log_file_mode);
+    }, working_directory, proc::pid_file, proc::log_file, log_file_mode);
 }
 
 // =============================================================================
@@ -210,7 +207,7 @@ inline void start(const bool detach,
 /**
  * @brief Calls the function `f`.
  *
- * If the call of `callback` fails with exception `proc1::is_running` flag is
+ * If the call of `callback` fails with exception `proc::is_running` flag is
  * sets to `false` which should cause the normal application shutdown.
  *
  * @param f A function to call
@@ -222,14 +219,14 @@ void with_shutdown_on_error(F&& f, const std::string_view where) noexcept
   try {
     f();
   } catch (const std::exception& e) {
-    proc1::is_running = false; // should cause a normal shutdown
+    proc::is_running = false; // should cause a normal shutdown
     std::clog << where << ": " << e.what() << ". Shutting down!\n";
   } catch (...) {
-    proc1::is_running = false; // should cause a normal shutdown
+    proc::is_running = false; // should cause a normal shutdown
     std::clog << where << ": unknown error! Shutting down!\n";
   }
 }
 
-} // namespace dmitigr::app::proc1
+} // namespace dmitigr::os::proc
 
-#endif  // DMITIGR_APP_PROC1_HPP
+#endif  // DMITIGR_OS_APP_HPP

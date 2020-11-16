@@ -5,9 +5,9 @@
 #ifndef DMITIGR_CFG_FLAT_HPP
 #define DMITIGR_CFG_FLAT_HPP
 
-#include "dmitigr/base/debug.hpp"
-#include "dmitigr/base/filesystem.hpp"
 #include "dmitigr/str/str.hpp"
+#include "dmitigr/util/filesystem.hpp"
+#include "dmitigr/util/debug.hpp"
 
 #include <locale>
 #include <map>

@@ -5,8 +5,8 @@
 #ifndef DMITIGR_NET_ADDRESS_HPP
 #define DMITIGR_NET_ADDRESS_HPP
 
-#include <dmitigr/base/debug.hpp>
-#include <dmitigr/base/filesystem.hpp>
+#include <dmitigr/util/debug.hpp>
+#include <dmitigr/util/filesystem.hpp>
 
 #include <algorithm>
 #include <cstring>

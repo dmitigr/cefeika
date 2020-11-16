@@ -11,8 +11,8 @@
 
 #include "dmitigr/os/log.hpp"
 #include "dmitigr/os/proc.hpp"
-#include <dmitigr/base/debug.hpp>
-#include <dmitigr/base/filesystem.hpp>
+#include <dmitigr/util/debug.hpp>
+#include <dmitigr/util/filesystem.hpp>
 
 #include <cstdlib>
 #include <cstring>

@@ -10,8 +10,8 @@
 #include "dmitigr/net/endpoint.hpp"
 #include "dmitigr/net/socket.hpp"
 #include "dmitigr/net/types_fwd.hpp"
-#include <dmitigr/base/debug.hpp>
-#include <dmitigr/base/filesystem.hpp>
+#include <dmitigr/util/debug.hpp>
+#include <dmitigr/util/filesystem.hpp>
 
 #include <chrono>
 #include <memory>

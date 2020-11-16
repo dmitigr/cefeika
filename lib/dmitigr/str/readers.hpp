@@ -5,9 +5,9 @@
 #ifndef DMITIGR_STR_READERS_HPP
 #define DMITIGR_STR_READERS_HPP
 
-#include "dmitigr/base/debug.hpp"
-#include "dmitigr/base/filesystem.hpp"
 #include "dmitigr/str/exceptions.hpp"
+#include <dmitigr/util/debug.hpp>
+#include <dmitigr/util/filesystem.hpp>
 
 #include <cstddef>
 #include <istream>

@@ -6,8 +6,8 @@
 #define DMITIGR_HTTP_DATE_HPP
 
 #include "dmitigr/http/header.hpp"
-#include <dmitigr/base/debug.hpp>
 #include <dmitigr/dt/timestamp.hpp>
+#include <dmitigr/util/debug.hpp>
 
 #include <string_view>
 

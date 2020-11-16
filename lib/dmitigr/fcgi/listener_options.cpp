@@ -4,7 +4,7 @@
 
 #include "dmitigr/fcgi/listener_options.hpp"
 #include <dmitigr/net/net.hpp>
-#include <dmitigr/base/debug.hpp>
+#include <dmitigr/util/debug.hpp>
 
 namespace dmitigr::fcgi::detail {
 
