@@ -8,9 +8,9 @@
 #include "dmitigr/http/header.hpp"
 #include "dmitigr/http/syntax.hpp"
 #include "dmitigr/http/types_fwd.hpp"
-#include <dmitigr/misc/debug.hpp>
 
 #include <algorithm>
+#include <cassert>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -25,13 +25,16 @@ class Cookie_entry final {
 public:
   /**
    * @brief The constructor.
+   *
+   * @par Requires
+   * `(is_valid_cookie_name(name_) && is_valid_cookie_value(value_))`.
    */
   explicit Cookie_entry(std::string name, std::string value = {})
     : name_{std::move(name)}
     , value_{std::move(value)}
   {
-    DMITIGR_REQUIRE(is_valid_cookie_name(name_) && is_valid_cookie_value(value_), std::invalid_argument);
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_valid_cookie_name(name_) && is_valid_cookie_value(value_));
+    assert(is_invariant_ok());
   }
 
   /**
@@ -45,16 +48,12 @@ public:
   /**
    * @brief Sets the name of entry.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `is_valid_cookie_name(name)`.
    */
   void set_name(std::string name)
   {
-    DMITIGR_REQUIRE(is_valid_cookie_name(name), std::invalid_argument);
-
+    assert(is_valid_cookie_name(name));
     name_ = std::move(name);
   }
 
@@ -69,16 +68,12 @@ public:
   /**
    * @brief Sets the value of entry.
    *
-   * @par Exception safety guarantee
-   * Strong.
-   *
    * @par Requires
    * `is_valid_cookie_value(value)`.
    */
   void set_value(std::string value)
   {
-    DMITIGR_REQUIRE(is_valid_cookie_value(value), std::invalid_argument);
-
+    assert(is_valid_cookie_value(value));
     value_ = std::move(value);
   }
 
@@ -127,7 +122,7 @@ public:
      */
 
     if (input.empty()) {
-      DMITIGR_ASSERT(is_invariant_ok());
+      assert(is_invariant_ok());
       return;
     }
 
@@ -176,7 +171,7 @@ public:
     if (state != value)
       throw std::runtime_error{"dmitigr::http: invalid cookie string"};
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /// @see Header::to_header().
@@ -237,8 +232,7 @@ public:
   std::size_t entry_index_throw(const std::string_view name, const std::size_t offset = 0) const
   {
     const auto result = entry_index(name, offset);
-    DMITIGR_REQUIRE(result, std::out_of_range,
-      "the instance of dmitigr::http::Cookie has no entry \"" + std::string{name} + "\"");
+    assert(result);
     return *result;
   }
 
@@ -250,9 +244,7 @@ public:
    */
   const Entry& entry(const std::size_t index) const
   {
-    DMITIGR_REQUIRE(index < entry_count(), std::out_of_range,
-      "invalid cookie entry index (" + std::to_string(index) + ")"
-      " of the dmitigr::http::Cookie instance");
+    assert(index < entry_count());
     return entries_[index];
   }
 
@@ -313,8 +305,7 @@ public:
   void append_entry(std::string name, std::string value)
   {
     entries_.emplace_back(std::move(name), std::move(value));
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
@@ -328,11 +319,9 @@ public:
    */
   void remove_entry(const std::size_t index)
   {
-    DMITIGR_REQUIRE(index < entry_count(), std::out_of_range);
-
+    assert(index < entry_count());
     entries_.erase(cbegin(entries_) + index);
-
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
   /**
@@ -346,7 +335,7 @@ public:
     if (const auto index = entry_index(name, offset))
       entries_.erase(cbegin(entries_) + *index);
 
-    DMITIGR_ASSERT(is_invariant_ok());
+    assert(is_invariant_ok());
   }
 
 private:

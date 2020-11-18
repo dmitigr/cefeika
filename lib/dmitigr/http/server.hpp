@@ -34,7 +34,7 @@ public:
       std::is_same_v<StatusCode, Server_errc>, "used invalid type for status code");
 
     const char* const literal = to_literal(code);
-    DMITIGR_REQUIRE(literal, std::invalid_argument);
+    assert(literal);
     std::string line;
     line.reserve(9 + 3 + 1 + std::strlen(literal) + 2);
     line.append("HTTP/1.0 ").append(std::to_string(static_cast<int>(code)))

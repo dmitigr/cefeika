@@ -49,9 +49,9 @@ public:
    */
   void send_start(const Method method, const std::string_view path, const bool skip_headers = false)
   {
-    DMITIGR_REQUIRE(!is_head_received(), std::logic_error);
+    assert(!is_head_received());
     const char* const m = to_literal(method);
-    DMITIGR_REQUIRE(m, std::invalid_argument);
+    assert(m);
     std::string line;
     line.reserve(7 + 1 + path.size() + 11);
     line.append(m).append(" ").append(path).append(" HTTP/1.0\r\n");

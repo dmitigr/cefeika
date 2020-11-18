@@ -5,8 +5,7 @@
 #ifndef DMITIGR_HTTP_BASICS_HPP
 #define DMITIGR_HTTP_BASICS_HPP
 
-#include <dmitigr/misc/debug.hpp>
-
+#include <cassert>
 #include <optional>
 #include <string_view>
 
@@ -26,14 +25,11 @@ enum class Same_site { strict, lax };
  *
  * @remarks The value of `str` is case-sensitive.
  */
-inline Same_site to_same_site(const std::string_view str)
+inline std::optional<Same_site> to_same_site(const std::string_view str) noexcept
 {
-  if (str == "Strict")
-    return Same_site::strict;
-  else if (str == "Lax")
-    return Same_site::lax;
-  else
-    DMITIGR_THROW_REQUIREMENT_VIOLATED(str == "Strict" || str == "Lax", std::invalid_argument);
+  if (str == "Strict") return Same_site::strict;
+  else if (str == "Lax") return Same_site::lax;
+  else return std::nullopt;
 }
 
 /**
@@ -47,7 +43,7 @@ inline std::string to_string(const Same_site ss)
   case Same_site::strict: return "Strict";
   case Same_site::lax: return "Lax";
   }
-  DMITIGR_ASSERT_ALWAYS(!true);
+  assert(false);
 }
 
 // -----------------------------------------------------------------------------
@@ -68,7 +64,7 @@ enum class Method {
  * @returns The literal representation of the `method`, or `nullptr`
  * if `method` does not corresponds to any value defined by Method.
  */
-constexpr const char* to_literal(const Method method)
+constexpr const char* to_literal(const Method method) noexcept
 {
   switch (method) {
   case Method::get: return "GET";
@@ -90,7 +86,7 @@ constexpr const char* to_literal(const Method method)
  *
  * @remarks The value of `str` is case-sensitive.
  */
-inline std::optional<Method> to_method(const std::string_view str)
+inline std::optional<Method> to_method(const std::string_view str) noexcept
 {
   if (str == "GET") return Method::get;
   else if (str == "HEAD") return Method::head;
