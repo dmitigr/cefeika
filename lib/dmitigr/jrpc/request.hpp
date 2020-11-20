@@ -10,11 +10,11 @@
 #include <dmitigr/misc/str.hpp>
 
 #include <algorithm>
-#include <functional>
 #include <initializer_list>
 #include <optional>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace dmitigr::jrpc {
 
@@ -24,10 +24,23 @@ public:
   /// A parameter reference.
   class Paramref final {
   public:
-    /// @returns `true` if the instance references a parameter.
-    explicit operator bool() const noexcept
+    /**
+     * @returns `true` if the instance is valid (references a parameter).
+     *
+     * @warning The behavior is undefined if any method other than this one, the
+     * destructor or the move-assignment operator is called on an instance for
+     * which `(is_valid() == false)`. It's okay to move an instance for which
+     * `(is_valid() == false)`.
+     */
+    bool is_valid() const noexcept
     {
       return static_cast<bool>(value_);
+    }
+
+    /// @returns `is_valid()`.
+    explicit operator bool() const noexcept
+    {
+      return is_valid();
     }
 
     /// @returns The request of this parameter.
@@ -104,23 +117,14 @@ public:
     template<typename T, typename U, typename A, template<class, class> class Container>
     std::optional<T> optional(const Container<U, A>& valid_set) const
     {
-      return optional<T>([&valid_set](const T& v)
-      {
-        return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const T& e){return v == e;});
-      });
+      return optional__<T>(valid_set);
     }
 
     /// @overload
     template<typename T, typename U>
     std::optional<T> optional(const std::initializer_list<U>& valid_set) const
     {
-      return optional<T>([&valid_set](const T& v)
-      {
-        return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const auto& e)
-        {
-          return v == e;
-        });
-      });
+      return optional__<T>(valid_set);
     }
 
     /**
@@ -131,7 +135,7 @@ public:
     template<typename T, typename U>
     std::optional<T> optional(const math::Interval<U>& interval) const
     {
-      return optional<T>(std::bind(&math::Interval<U>::has, &interval, std::placeholders::_1));
+      return optional<T>([&interval](const auto& value){return interval.has(value);});
     }
 
     /**
@@ -171,6 +175,18 @@ public:
     const Request& request_;
     const rapidjson::Value* value_{};
     std::string namepos_;
+
+    template<typename T, typename U>
+    std::optional<T> optional__(const U& valid_set) const
+    {
+      return optional<T>([&valid_set](const T& v)
+      {
+        return std::any_of(cbegin(valid_set), cend(valid_set), [&v](const auto& e)
+        {
+          return v == e;
+        });
+      });
+    }
 
   public:
     explicit Paramref(const Request& request)
