@@ -24,14 +24,7 @@ public:
   /// A parameter reference.
   class Paramref final {
   public:
-    /**
-     * @returns `true` if the instance is valid (references a parameter).
-     *
-     * @warning The behavior is undefined if any method other than this one, the
-     * destructor or the move-assignment operator is called on an instance for
-     * which `(is_valid() == false)`. It's okay to move an instance for which
-     * `(is_valid() == false)`.
-     */
+    /// @returns `true` if the instance is valid (references a parameter).
     bool is_valid() const noexcept
     {
       return static_cast<bool>(value_);
@@ -49,19 +42,13 @@ public:
       return request_;
     }
 
-    /**
-     * @returns The pointer to the value of this parameter, or `nullptr` if
-     * this instance doesn't references a parameter.
-     */
+    /// @returns The pointer to the value of this parameter if `is_valid()`.
     const rapidjson::Value* value() const noexcept
     {
       return value_;
     }
 
-    /**
-     * @returns The position or name of this parameter, or empty string if
-     * this instance doesn't references a parameter.
-     */
+    /// @returns The position or name of this parameter if `is_valid()`.
     const std::string& namepos() const noexcept
     {
       return namepos_;
@@ -90,8 +77,8 @@ public:
      * @returns The result of conversion of `value()` to a value of type `T`, or
      * `std::nullopt` if `(!value() || value()->IsNull())`.
      *
-     * @param pred An unary predicate that returns `true` if a value of type
-     * `T` is valid.
+     * @param pred An unary predicate with signature `bool(const T&)` that
+     * returns `true` if a value of type `T` is valid.
      *
      * @throws Error if `value()` cannot be converted to a value of type `T`,
      * or if `!pred(T)`.
@@ -191,19 +178,25 @@ public:
   public:
     explicit Paramref(const Request& request)
       : request_{request}
-    {}
+    {
+      assert(!is_valid());
+    }
 
-    Paramref(const Request& request, const std::size_t pos, const rapidjson::Value* const value)
+    Paramref(const Request& request, const std::size_t pos, const rapidjson::Value& value)
       : request_{request}
-      , value_{value}
+      , value_{&value}
       , namepos_{std::to_string(pos)}
-    {}
+    {
+      assert(is_valid());
+    }
 
-    Paramref(const Request& request, std::string name, const rapidjson::Value* const value)
+    Paramref(const Request& request, std::string name, const rapidjson::Value& value)
       : request_{request}
-      , value_{value}
+      , value_{&value}
       , namepos_{std::move(name)}
-    {}
+    {
+      assert(is_valid());
+    }
 
     /// Non copy-constructible.
     Paramref(const Paramref& rhs) = delete;
@@ -338,7 +331,7 @@ public:
   {
     if (const auto* const p = params(); p && p->IsArray()) {
       assert(position < p->Size());
-      return {*this, position, &(*p)[position]};
+      return {*this, position, (*p)[position]};
     } else
       return Paramref{*this};
   }
@@ -349,7 +342,7 @@ public:
     if (const auto* const p = params(); p && p->IsObject()) {
       const auto nr = rajson::to<rapidjson::Value::StringRefType>(name);
       const auto i = p->FindMember(nr);
-      return i != p->MemberEnd() ? Paramref{*this, std::string{name}, &i->value} : Paramref{*this};
+      return i != p->MemberEnd() ? Paramref{*this, std::string{name}, i->value} : Paramref{*this};
     } else
       return Paramref{*this};
   }
