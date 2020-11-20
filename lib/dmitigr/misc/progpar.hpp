@@ -66,17 +66,10 @@ public:
    */
   class Optref final {
   public:
-    /**
-     * @returns `true` if the instance is valid (references an option).
-     *
-     * @warning The behavior is undefined if any method other than prefixed by
-     * "is_valid", the destructor or the move-assignment operator is called on
-     * an instance for which `(is_valid() == false)`. It's okay to move an
-     * instance for which `(is_valid() == false)`.
-     */
+    /// @returns `true` if the instance is valid (references an option).
     bool is_valid() const noexcept
     {
-      return static_cast<bool>(program_parameters_);
+      return !name_.empty();
     }
 
     /// @returns `is_valid()`.
@@ -88,21 +81,18 @@ public:
     /// @returns The corresponding Program_parameters instance.
     const Program_parameters& program_parameters() const noexcept
     {
-      assert(is_valid());
-      return *program_parameters_;
+      return program_parameters_;
     }
 
-    /// @returns The name of this option.
+    /// @returns The name of this option if `is_valid()`.
     const std::string& name() const noexcept
     {
-      assert(is_valid());
       return name_;
     }
 
-    /// @returns The value of this option.
+    /// @returns The value of this option if `is_valid()`.
     const std::optional<std::string>& value() const noexcept
     {
-      assert(is_valid());
       return value_;
     }
 
@@ -122,12 +112,12 @@ public:
   private:
     friend Program_parameters;
 
-    const Program_parameters* program_parameters_{};
+    const Program_parameters& program_parameters_;
     const std::string& name_;
     const std::optional<std::string>& value_;
 
     /// The constructor.
-    explicit Optref(const Program_parameters* const pp = {},
+    explicit Optref(const Program_parameters& pp,
       const std::string& name = {}, const std::optional<std::string>& value = {}) noexcept
       : program_parameters_{pp}
       , name_{name}
@@ -234,7 +224,7 @@ public:
   Optref option(const std::string& name) const noexcept
   {
     const auto i = options_.find(name);
-    return i != cend(options_) ? Optref{this, i->first, i->second} : Optref{};
+    return i != cend(options_) ? Optref{*this, i->first, i->second} : Optref{*this};
   }
 
   /**
