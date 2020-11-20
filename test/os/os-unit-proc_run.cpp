@@ -15,13 +15,16 @@ void start()
   std::clog << "Start flag is " << proc::is_running << std::endl;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) try {
   using namespace dmitigr::testo;
   proc::prog_params = {argc, argv};
   const std::string info = "[--detach]";
-  if (proc::prog_params.has_option_except({"detach"}) || proc::prog_params.arguments().size() > 0)
+  const auto [detach_o, all] = proc::prog_params.options("detach");
+  if (!all || !proc::prog_params.arguments().empty())
     proc::usage(info);
-  const bool detach = proc::prog_params.has_option_throw_if_argument("detach");
+
+  const bool detach = detach_o.is_valid_throw_if_value();
   proc::start(detach, start);
-}
+ } catch (const std::exception& e) {
+  std::clog << argv[0] << ": " << e.what() << std::endl;
+ }

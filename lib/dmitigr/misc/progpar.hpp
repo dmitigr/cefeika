@@ -30,6 +30,9 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <tuple>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace dmitigr::progpar {
@@ -41,11 +44,11 @@ namespace dmitigr::progpar {
  *   executabe [--opt1 --opt2=arg] [--] [arg1 arg2]
  *
  * Each option may have an argument which is specified after the "=" character.
- * The sequence of characters "--" indicates that the remaining parameters should
- * not be treated as options, but arguments.
+ * The sequence of two dashes ("--") indicates that the remaining parameters
+ * should be treated as arguments rather than as options.
  *
- * @remarks "Short" options (e.g. `-o` or `-o 1`) does not supported currently
- * and treated as arguments.
+ * @remarks Short options notation (e.g. `-o` or `-o 1`) doesn't supported
+ * currently and always treated as arguments.
  */
 class Program_parameters final {
 public:
@@ -55,8 +58,85 @@ public:
   /// The alias to represent a vector of program arguments.
   using Argument_vector = std::vector<std::string>;
 
+  /**
+   * An option reference.
+   *
+   * @warning The lifetime of the instances of this class is limited by
+   * the lifetime of the corresponding instances of type Program_parameters.
+   */
+  class Optref final {
+  public:
+    /**
+     * @returns `true` if the instance is valid (references an option).
+     *
+     * @warning The behavior is undefined if any method other than prefixed by
+     * "is_valid", the destructor or the move-assignment operator is called on
+     * an instance for which `(is_valid() == false)`. It's okay to move an
+     * instance for which `(is_valid() == false)`.
+     */
+    bool is_valid() const noexcept
+    {
+      return static_cast<bool>(program_parameters_);
+    }
+
+    /// @returns `is_valid()`.
+    explicit operator bool() const noexcept
+    {
+      return is_valid();
+    }
+
+    /// @returns The corresponding Program_parameters instance.
+    const Program_parameters& program_parameters() const noexcept
+    {
+      assert(is_valid());
+      return *program_parameters_;
+    }
+
+    /// @returns The name of this option.
+    const std::string& name() const noexcept
+    {
+      assert(is_valid());
+      return name_;
+    }
+
+    /// @returns The value of this option.
+    const std::optional<std::string>& value() const noexcept
+    {
+      assert(is_valid());
+      return value_;
+    }
+
+    /**
+     * @returns `is_valid()` if the given option presents.
+     *
+     * @throws `std::runtime_error` if the given option presents with an argument.
+     */
+    bool is_valid_throw_if_value() const
+    {
+      if (is_valid() && value())
+        throw std::runtime_error{std::string{"option --"}.append(name_)
+          .append(" doesn't need an argument")};
+      return is_valid();
+    }
+
+  private:
+    friend Program_parameters;
+
+    const Program_parameters* program_parameters_{};
+    const std::string& name_;
+    const std::optional<std::string>& value_;
+
+    /// The constructor.
+    explicit Optref(const Program_parameters* const pp = {},
+      const std::string& name = {}, const std::optional<std::string>& value = {}) noexcept
+      : program_parameters_{pp}
+      , name_{name}
+      , value_{value}
+    {}
+  };
+
   /// The default constructor. (Constructs invalid instance.)
-  Program_parameters() = default;
+  Program_parameters() noexcept = default;
 
   /**
    * @brief The constructor.
@@ -91,7 +171,7 @@ public:
 
     int argi = 1;
 
-    // Collecting options
+    // Collecting options.
     for (; argi < argc; ++argi) {
       if (auto o = opt(argv[argi])) {
         if (o->first.empty()) {
@@ -103,7 +183,7 @@ public:
         break;
     }
 
-    // Collecting arguments
+    // Collecting arguments.
     for (; argi < argc; ++argi)
       arguments_.emplace_back(argv[argi]);
 
@@ -114,10 +194,10 @@ public:
    * @brief The constructor.
    *
    * @par Requires
-   * `(!executable_path.empty())`.
+   * `!executable_path.empty()`.
    */
   explicit Program_parameters(std::filesystem::path executable_path,
-    Option_map options = {}, Argument_vector arguments = {})
+    Option_map options = {}, Argument_vector arguments = {}) noexcept
     : executable_path_{std::move(executable_path)}
     , options_{std::move(options)}
     , arguments_{std::move(arguments)}
@@ -127,78 +207,69 @@ public:
   }
 
   /// @returns `false` if this instance is default-constructed.
-  bool is_valid() const
+  bool is_valid() const noexcept
   {
     return !executable_path_.empty();
   }
 
   /// @returns The executable path.
-  const std::filesystem::path& executable_path() const
+  const std::filesystem::path& executable_path() const noexcept
   {
     return executable_path_;
   }
 
   /// @returns The map of options.
-  const Option_map& options() const
+  const Option_map& options() const noexcept
   {
     return options_;
   }
 
   /// @returns The vector of arguments.
-  const Argument_vector& arguments() const
+  const Argument_vector& arguments() const noexcept
   {
     return arguments_;
   }
 
-  /**
-   * @returns An option argument, or `nullptr` if option is not present.
-   *
-   * @par Require
-   * `!name.empty()`.
-   */
-  const std::optional<std::string>* option(const std::string& name) const
+  /// @returns The option reference, or invalid instance if no option `name`.
+  Optref option(const std::string& name) const noexcept
   {
-    assert(!name.empty());
     const auto i = options_.find(name);
-    return (i != cend(options_)) ? &(i->second) : nullptr;
+    return i != cend(options_) ? Optref{this, i->first, i->second} : Optref{};
   }
 
   /**
-   * @returns `true` if the given option presents, or `false` otherwise.
-   *
-   * @throws `std::runtime_error` if the given option presents with an argument.
+   * @returns A value of type `std::tuple<Optref, ..., bool>`. The last
+   * value of returned tuple indicates whether the all options are specified
+   * in the `names` or not.
    */
-  bool has_option_throw_if_argument(const std::string& name) const
+  template<class ... Types>
+  auto options(Types&& ... names) const noexcept
   {
-    if (const auto* const oa = option(name)) {
-      if (!*oa)
-        return true;
-      else
-        throw std::runtime_error{std::string{"program option --"}.append(name).append(" has no argument")};
-    } else
-      return false;
-  }
-
-  /// @returns Iterator to the first found option that is not presents in `list`.
-  Option_map::const_iterator option_except(const std::vector<std::string>& list) const noexcept
-  {
-    return std::find_if(cbegin(options_), cend(options_),
-      [b = cbegin(list), e = cend(list)](const auto& o)
-      {
-        return std::find(b, e, o.first) == e;
-      });
-  }
-
-  /// @returns `true` if there are option that is not present in given `list`.
-  bool has_option_except(const std::vector<std::string>& list) const noexcept
-  {
-    return option_except(list) != cend(options_);
+    return options__(std::make_index_sequence<sizeof ... (Types)>{},
+      std::forward<Types>(names)...);
   }
 
 private:
   std::filesystem::path executable_path_;
   Option_map options_;
   Argument_vector arguments_;
+
+  template<std::size_t ... I, typename ... Types>
+  auto options__(std::index_sequence<I...>, Types&& ... names) const noexcept
+  {
+    static_assert(sizeof...(I) == sizeof...(names));
+    static const auto incf = [](std::size_t& count, const auto& opt) noexcept
+    {
+      if (opt)
+        ++count;
+    };
+    auto result = std::make_tuple(option(names)..., true);
+    std::size_t count{};
+    (incf(count, std::get<I>(result)), ...);
+    if (count < options_.size())
+      std::get<sizeof...(I)>(result) = false;
+    return result;
+  }
 };
 
 } // namespace dmitigr::progpar
