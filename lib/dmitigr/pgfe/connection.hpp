@@ -50,7 +50,6 @@ public:
    */
   explicit Connection(Options options = {})
     : options_{std::move(options)}
-    , notice_handler_{&default_notice_handler}
   {}
 
   /// Non copy-constructible.
@@ -59,11 +58,44 @@ public:
   /// Non copy-assignable.
   Connection& operator=(const Connection&) = delete;
 
-  /// Non move-constructible.
-  Connection(Connection&& rhs) = delete;
+  /// Move-constructible.
+  Connection(Connection&& rhs) noexcept
+  {
+    swap(rhs);
+  }
 
-  /// Non move-assignable.
-  Connection& operator=(Connection&& rhs) = delete;
+  /// Move-assignable.
+  Connection& operator=(Connection&& rhs) noexcept
+  {
+    if (this != &rhs) {
+      Connection tmp{std::move(rhs)};
+      swap(tmp);
+    }
+    return *this;
+  }
+
+  /// Swaps this instance with `rhs`.
+  void swap(Connection& rhs) noexcept
+  {
+    using std::swap;
+    swap(options_, rhs.options_);
+    swap(error_handler_, rhs.error_handler_);
+    swap(notice_handler_, rhs.notice_handler_);
+    swap(notification_handler_, rhs.notification_handler_);
+    swap(default_result_format_, rhs.default_result_format_);
+    swap(conn_, rhs.conn_);
+    swap(polling_status_, rhs.polling_status_);
+    swap(session_start_time_, rhs.session_start_time_);
+    swap(response_, rhs.response_);
+    swap(response_status_, rhs.response_status_);
+    swap(last_prepared_statement_, rhs.last_prepared_statement_);
+    swap(shared_field_names_, rhs.shared_field_names_);
+    swap(named_prepared_statements_, rhs.named_prepared_statements_);
+    unnamed_prepared_statement_.swap(rhs.unnamed_prepared_statement_);
+    swap(requests_, rhs.requests_);
+    request_prepared_statement_.swap(rhs.request_prepared_statement_);
+    swap(request_prepared_statement_name_, rhs.request_prepared_statement_name_);
+  }
 
   /// @name General observers
   /// @{
@@ -1166,7 +1198,7 @@ private:
 
   // Persistent data / public-modifiable data
   Error_handler error_handler_;
-  Notice_handler notice_handler_;
+  Notice_handler notice_handler_{&default_notice_handler};
   Notification_handler notification_handler_;
   Data_format default_result_format_{Data_format::text};
 
@@ -1375,6 +1407,12 @@ Prepared_statement::execute(F&& callback)
   execute_nio();
   assert(is_invariant_ok());
   return connection_->process_responses(std::forward<F>(callback));
+}
+
+/// Connection is swappable.
+inline void swap(Connection& lhs, Connection& rhs) noexcept
+{
+  lhs.swap(rhs);
 }
 
 } // namespace dmitigr::pgfe
