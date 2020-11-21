@@ -446,7 +446,7 @@ private:
   std::unique_ptr< ::PGresult> pgresult_;
 };
 
-/// Overload of Result::swap().
+/// Result is swappable.
 inline void swap(Result& lhs, Result& rhs) noexcept
 {
   lhs.swap(rhs);
