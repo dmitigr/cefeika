@@ -154,7 +154,7 @@ public:
           return std::nullopt;
       };
 
-    executable_path_.assign(argv[0]);
+    path_.assign(argv[0]);
 
     if (argc == 1)
       return;
@@ -184,28 +184,28 @@ public:
    * @brief The constructor.
    *
    * @par Requires
-   * `!executable_path.empty()`.
+   * `!path.empty()`.
    */
-  explicit Program_parameters(std::filesystem::path executable_path,
+  explicit Program_parameters(std::filesystem::path path,
     Option_map options = {}, Argument_vector arguments = {}) noexcept
-    : executable_path_{std::move(executable_path)}
+    : path_{std::move(path)}
     , options_{std::move(options)}
     , arguments_{std::move(arguments)}
   {
-    assert(!executable_path_.empty());
+    assert(!path_.empty());
     assert(is_valid());
   }
 
   /// @returns `false` if this instance is default-constructed.
   bool is_valid() const noexcept
   {
-    return !executable_path_.empty();
+    return !path_.empty();
   }
 
   /// @returns The executable path.
-  const std::filesystem::path& executable_path() const noexcept
+  const std::filesystem::path& path() const noexcept
   {
-    return executable_path_;
+    return path_;
   }
 
   /// @returns The map of options.
@@ -253,7 +253,7 @@ public:
   }
 
 private:
-  std::filesystem::path executable_path_;
+  std::filesystem::path path_;
   Option_map options_;
   Argument_vector arguments_;
 
