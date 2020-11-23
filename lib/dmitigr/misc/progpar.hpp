@@ -239,6 +239,19 @@ public:
       std::forward<Types>(names)...);
   }
 
+  /// @returns `arguments()[argument_index]`.
+  const std::string& operator[](const std::size_t argument_index) const noexcept
+  {
+    assert(argument_index < arguments_.size());
+    return arguments_[argument_index];
+  }
+
+  /// @returns `option(option_name)`.
+  Optref operator[](const std::string& option_name) const noexcept
+  {
+    return option(option_name);
+  }
+
 private:
   std::filesystem::path executable_path_;
   Option_map options_;
