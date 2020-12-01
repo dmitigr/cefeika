@@ -69,7 +69,7 @@ public:
     /// @returns `true` if the instance is valid (references an option).
     bool is_valid() const noexcept
     {
-      return !name_.empty();
+      return name_ && !name_->empty();
     }
 
     /// @returns `is_valid()`.
@@ -87,13 +87,15 @@ public:
     /// @returns The name of this option if `is_valid()`.
     const std::string& name() const noexcept
     {
-      return name_;
+      assert(is_valid());
+      return *name_;
     }
 
     /// @returns The value of this option if `is_valid()`.
     const std::optional<std::string>& value() const noexcept
     {
-      return value_;
+      assert(is_valid());
+      return *value_;
     }
 
     /**
@@ -104,7 +106,7 @@ public:
     bool is_valid_throw_if_value() const
     {
       if (is_valid() && value())
-        throw std::runtime_error{std::string{"option --"}.append(name_)
+        throw std::runtime_error{std::string{"option --"}.append(name())
           .append(" doesn't need an argument")};
       return is_valid();
     }
@@ -113,16 +115,25 @@ public:
     friend Program_parameters;
 
     const Program_parameters& program_parameters_;
-    const std::string& name_;
-    const std::optional<std::string>& value_;
+    const std::string* name_{};
+    const std::optional<std::string>* value_{};
+
+    /// The constructor. (Constructs invalid instance.)
+    explicit Optref(const Program_parameters& pp) noexcept
+      : program_parameters_{pp}
+    {
+      assert(!is_valid());
+    }
 
     /// The constructor.
     explicit Optref(const Program_parameters& pp,
-      const std::string& name = {}, const std::optional<std::string>& value = {}) noexcept
+      const std::string& name, const std::optional<std::string>& value) noexcept
       : program_parameters_{pp}
-      , name_{name}
-      , value_{value}
-    {}
+      , name_{&name}
+      , value_{&value}
+    {
+      assert(is_valid());
+    }
   };
 
   /// The default constructor. (Constructs invalid instance.)
