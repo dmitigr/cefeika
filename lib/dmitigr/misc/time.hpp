@@ -26,25 +26,34 @@
 
 namespace dmitigr::time {
 
-/// @retruns The "now string" with microseconds, or empty string on error.
-template<class Clock = std::chrono::system_clock>
-std::string now_str()
+/**
+ * @returns The human-readable string representation of the given timepoint
+ * with microseconds or empty string on error.
+ */
+template<class Clock, class Duration>
+std::string to_string(const std::chrono::time_point<Clock, Duration> tp)
 {
   namespace chrono = std::chrono;
-  const auto now = Clock::now();
-  const auto nowt = Clock::to_time_t(now);
-  const auto tse = now.time_since_epoch();
+  const auto tp_time_t = Clock::to_time_t(tp);
+  const auto tse = tp.time_since_epoch();
   const auto sec = chrono::duration_cast<chrono::seconds>(tse);
   const auto rest_us = chrono::duration_cast<chrono::microseconds>(tse - sec);
   char buf[32];
   std::string result;
-  if (const auto count = std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&nowt))) {
+  if (const auto count = std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&tp_time_t))) {
     const auto us = std::to_string(rest_us.count());
     result.reserve(count + 1 + us.size());
     result.assign(buf, count);
     result.append(".").append(us);
   }
   return result;
+}
+
+/// @retruns `to_string(Clock::now())`.
+template<class Clock = std::chrono::system_clock>
+inline std::string now_string()
+{
+  return to_string(Clock::now());
 }
 
 } // namespace dmitigr::time
