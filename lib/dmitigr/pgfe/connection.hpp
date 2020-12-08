@@ -64,7 +64,9 @@ public:
   /// Move-constructible.
   Connection(Connection&& rhs) noexcept
   {
-    swap(rhs);
+    Connection tmp;
+    tmp.swap(rhs); // reset rhs to the default state
+    swap(tmp);
   }
 
   /// Move-assignable.
