@@ -90,9 +90,9 @@ enum class Communication_mode {
 /**
  * @ingroup main
  *
- * @brief A communication status.
+ * @brief A connection status.
  */
-enum class Communication_status {
+enum class Connection_status {
   /// Normally disconnected.
   disconnected = 0,
 

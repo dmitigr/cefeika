@@ -43,6 +43,9 @@ public:
   /// An alias of Connection_options.
   using Options = Connection_options;
 
+  /// An alias of Connection_status.
+  using Status = Connection_status;
+
   /**
    * The constructor.
    *
@@ -101,20 +104,20 @@ public:
   /// @{
 
   /**
-   * @returns The communication status.
+   * @returns The connection status.
    *
    * @see is_connected().
    */
-  DMITIGR_PGFE_API Communication_status communication_status() const noexcept;
+  DMITIGR_PGFE_API Status status() const noexcept;
 
   /**
-   * @returns `(communication_status() == Communication_status::connected)`.
+   * @returns `(status() == Status::connected)`.
    *
-   * @see communication_status().
+   * @see status().
    */
   bool is_connected() const noexcept
   {
-    return (communication_status() == Communication_status::connected);
+    return status() == Status::connected;
   }
 
   /// @returns `true` if the connection secured by SSL.
@@ -142,7 +145,7 @@ public:
 
   /**
    * @returns The last registered time point when is_connected() started to
-   * return `true`, or `std::nullopt` if the session wasn't started.
+   * return `true`, or `std::nullopt` if the session has never started.
    */
   std::optional<std::chrono::system_clock::time_point> session_start_time() const noexcept
   {
@@ -175,24 +178,23 @@ public:
   /**
    * @brief Establishing the connection to a PostgreSQL server without blocking on I/O.
    *
-   * This function should be called repeatedly. Until communication_status()
-   * becomes Communication_status::connected or Communication_status::failure loop
-   * thus: if communication_status() returned Communication_status::establishment_reading,
-   * wait until the socket is ready to read, then call connect_nio() again; if
-   * communication_status() returned Communication_status::establishment_writing, wait
-   * until the socket ready to write, then call connect_nio() again. To determine
-   * the socket readiness use the socket_readiness() function.
+   * This function should be called repeatedly. Until status() becomes Status::connected
+   * or Status::failure loop thus: if status() returned Status::establishment_reading,
+   * wait until the socket is ready to read, then call connect_nio() again; if status()
+   * returned Status::establishment_writing, wait until the socket ready to write, then
+   * call connect_nio() again. To determine the socket readiness use the socket_readiness()
+   * function.
    *
    * @par Effects
-   * Possible change of the returned value of communication_status().
+   * Possible change of the returned value of status().
    *
    * @par Exception safety guarantee
    * Basic.
    *
-   * @remarks If called when `(communication_status() == Communication_status::failure)`,
-   * it will dismiss all unhandled messages!
+   * @remarks If called when `(status() == Status::failure)`, it will discard all
+   * the unhandled messages!
    *
-   * @see connect(), communication_status(), socket_readiness().
+   * @see connect(), status(), socket_readiness().
    */
   DMITIGR_PGFE_API void connect_nio();
 
@@ -203,15 +205,14 @@ public:
    * the value of `std::nullopt` means *eternity*.
    *
    * @par Effects
-   * `(communication_status() == Communication_status::failure ||
-   *    communication_status() == Communication_status::connected)`.
+   * `(status() == Status::failure || status() == Status::connected)`.
    *
    * @par Requires
    * `(!timeout || timeout->count() >= -1)`.
    *
    * @throws An instance of type Timed_out if the expression
-   * `(connection_status() == Communication_status::connected)` will not
-   * evaluates to `true` within the specified `timeout`.
+   * `(status() == Status::connected)` will not evaluates to `true` within the
+   * specified `timeout`.
    *
    * @par Exception safety guarantee
    * Basic.
@@ -224,7 +225,7 @@ public:
    * @brief Attempts to disconnect from a server.
    *
    * @par Effects
-   * `(communication_status() == Communication_status::disconnected)`.
+   * `(status() == Status::disconnected)`.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -233,7 +234,7 @@ public:
   {
     reset_session();
     conn_.reset(); // Discarding unhandled notifications btw.
-    assert(communication_status() == Communication_status::disconnected);
+    assert(status() == Status::disconnected);
     assert(is_invariant_ok());
   }
 
@@ -249,8 +250,7 @@ public:
    *
    * @par Requires
    * `((!timeout || timeout->count() >= -1) &&
-   *    (communication_status() != Communication_status::failure) &&
-   *    (communication_status() != Communication_status::disconnected))`.
+   *    (status() != Status::failure) && (status() != Status::disconnected))`.
    */
   DMITIGR_PGFE_API Socket_readiness wait_socket_readiness(Socket_readiness mask,
     std::optional<std::chrono::milliseconds> timeout = std::nullopt) const;
@@ -1194,7 +1194,7 @@ private:
   // ---------------------------------------------------------------------------
 
   // Persistent data / constant data
-  Connection_options options_;
+  Options options_;
 
   // Persistent data / public-modifiable data
   Error_handler error_handler_;
@@ -1204,7 +1204,7 @@ private:
 
   // Persistent data / private-modifiable data
   std::unique_ptr< ::PGconn> conn_;
-  std::optional<Communication_status> polling_status_;
+  std::optional<Status> polling_status_;
   ::PGconn* conn() const noexcept { return conn_.get(); }
 
   // ---------------------------------------------------------------------------
