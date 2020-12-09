@@ -673,7 +673,10 @@ private:
   template<std::size_t ... I, typename ... Types>
   Prepared_statement& bind_many__(std::index_sequence<I...>, Types&& ... args)
   {
-    return (bind__(I, std::forward<Types>(args)), ...);
+    if constexpr (!sizeof...(args))
+      return *this;
+    else
+      return (bind__(I, std::forward<Types>(args)), ...);
   }
 
   Prepared_statement& bind__(const std::size_t, Named_argument&& na)
