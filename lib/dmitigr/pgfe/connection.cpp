@@ -21,10 +21,8 @@ inline Socket_readiness poll_sock(const int socket, const Socket_readiness mask,
 }
 } // namespace
 
-DMITIGR_PGFE_INLINE Communication_status Connection::communication_status() const noexcept
+DMITIGR_PGFE_INLINE auto Connection::status() const noexcept -> Status
 {
-  using Status = Communication_status;
-
   if (polling_status_) {
     assert(conn());
     return *polling_status_;
@@ -50,9 +48,7 @@ DMITIGR_PGFE_INLINE std::optional<Transaction_status> Connection::transaction_st
 
 DMITIGR_PGFE_INLINE void Connection::connect_nio()
 {
-  using Status = Communication_status;
-
-  const auto s = communication_status();
+  const auto s = status();
   if (s == Status::connected) {
     return;
   } else if (s == Status::establishment_reading || s == Status::establishment_writing) {
@@ -60,27 +56,27 @@ DMITIGR_PGFE_INLINE void Connection::connect_nio()
     switch (::PQconnectPoll(conn())) {
     case PGRES_POLLING_READING:
       polling_status_ = Status::establishment_reading;
-      assert(communication_status() == Status::establishment_reading);
+      assert(status() == Status::establishment_reading);
       goto done;
 
     case PGRES_POLLING_WRITING:
       polling_status_ = Status::establishment_writing;
-      assert(communication_status() == Status::establishment_writing);
+      assert(status() == Status::establishment_writing);
       goto done;
 
     case PGRES_POLLING_FAILED:
       polling_status_.reset();
-      assert(communication_status() == Status::failure);
+      assert(status() == Status::failure);
       goto done;
 
     case PGRES_POLLING_OK:
       polling_status_.reset();
       session_start_time_ = std::chrono::system_clock::now();
       /*
-       * We cannot assert here that communication_status() is "connected", because it can
-       * become "failure" at *any* time, even just after successful connection establishment!
+       * We cannot assert here that status() is "connected", because it can become
+       * "failure" at *any* time, even just after successful connection establishment!
        */
-      assert(communication_status() == Status::connected || communication_status() == Status::failure);
+      assert(status() == Status::connected || status() == Status::failure);
       goto done;
 
     default:
@@ -91,7 +87,7 @@ DMITIGR_PGFE_INLINE void Connection::connect_nio()
     if (s == Status::failure)
       disconnect();
 
-    assert(communication_status() == Status::disconnected);
+    assert(status() == Status::disconnected);
 
     const detail::pq::Connection_options pq_options{options_};
     constexpr int expand_dbname{0};
@@ -103,8 +99,8 @@ DMITIGR_PGFE_INLINE void Connection::connect_nio()
       else
         polling_status_ = Status::establishment_writing;
 
-      // Caution: until now we cannot use communication_status()!
-      assert(communication_status() == Status::establishment_writing);
+      // Caution: until now we cannot use status()!
+      assert(status() == Status::establishment_writing);
 
       ::PQsetNoticeReceiver(conn(), &notice_receiver, this);
     } else
@@ -136,7 +132,7 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
   auto timepoint1 = system_clock::now();
 
   connect_nio();
-  auto current_status = communication_status();
+  auto current_status = status();
 
   if (timeout) {
     *timeout -= duration_cast<milliseconds>(system_clock::now() - timepoint1);
@@ -145,27 +141,27 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
   }
 
   // Stage 2: polling.
-  while (current_status != Communication_status::connected) {
+  while (current_status != Status::connected) {
     timepoint1 = system_clock::now();
 
     Socket_readiness current_socket_readiness{};
     switch (current_status) {
-    case Communication_status::establishment_reading:
+    case Status::establishment_reading:
       current_socket_readiness = wait_socket_readiness(Socket_readiness::read_ready, timeout);
       break;
 
-    case Communication_status::establishment_writing:
+    case Status::establishment_writing:
       current_socket_readiness = wait_socket_readiness(Socket_readiness::write_ready, timeout);
       break;
 
-    case Communication_status::connected:
+    case Status::connected:
       break;
 
-    case Communication_status::disconnected:
+    case Status::disconnected:
       assert(false);
       std::terminate();
 
-    case Communication_status::failure:
+    case Status::failure:
       throw std::runtime_error{error_message()};
     }
 
@@ -179,7 +175,7 @@ DMITIGR_PGFE_INLINE void Connection::connect(std::optional<std::chrono::millisec
     }
 
     connect_nio();
-    current_status = communication_status();
+    current_status = status();
   } // while
 
   assert(is_invariant_ok());
@@ -193,8 +189,7 @@ DMITIGR_PGFE_INLINE Socket_readiness Connection::wait_socket_readiness(Socket_re
   using std::chrono::duration_cast;
 
   assert(!timeout || timeout >= milliseconds{-1});
-  assert(communication_status() != Communication_status::failure &&
-    communication_status() != Communication_status::disconnected);
+  assert(status() != Status::failure && status() != Status::disconnected);
   assert(socket() >= 0);
 
   while (true) {
@@ -360,7 +355,7 @@ DMITIGR_PGFE_INLINE bool Connection::wait_response(std::optional<std::chrono::mi
   using std::chrono::milliseconds;
   using std::chrono::duration_cast;
 
-  if (!(is_connected() && is_awaiting_response()))
+  if (!(is_connected() && has_uncompleted_request()))
     return false;
 
   assert(!timeout || timeout >= milliseconds{-1});
@@ -534,8 +529,6 @@ DMITIGR_PGFE_INLINE std::string Connection::to_quoted_identifier(const std::stri
 
 DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
 {
-  using Status = Communication_status;
-
   const bool conn_ok = conn_ || !polling_status_;
   const bool polling_status_ok =
     !polling_status_ ||
@@ -543,8 +536,7 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     (*polling_status_ == Status::establishment_writing);
   const bool requests_ok = !is_connected() || is_ready_for_nio_request() || !requests_.empty();
   const bool shared_field_names_ok = (!response_ || response_.status() != PGRES_SINGLE_TUPLE) || shared_field_names_;
-  const bool session_start_time_ok =
-    ((communication_status() == Communication_status::connected) == static_cast<bool>(session_start_time_));
+  const bool session_start_time_ok = (status() == Status::connected) == static_cast<bool>(session_start_time_);
   const bool session_data_empty =
     !session_start_time_ &&
     !response_ &&
@@ -555,9 +547,7 @@ DMITIGR_PGFE_INLINE bool Connection::is_invariant_ok() const noexcept
     requests_.empty() &&
     !request_prepared_statement_ &&
     !request_prepared_statement_name_;
-  const bool session_data_ok =
-    session_data_empty ||
-    ((communication_status() == Communication_status::failure) || (communication_status() == Communication_status::connected));
+  const bool session_data_ok = session_data_empty || (status() == Status::failure) || (status() == Status::connected);
   const bool trans_ok = !is_connected() || transaction_status();
   const bool sess_time_ok = !is_connected() || session_start_time();
   const bool pid_ok = !is_connected() || server_pid();

@@ -105,6 +105,18 @@ public:
   /// @name General observers
   /// @{
 
+  /// @returns The connection options of this instance.
+  const Connection_options& options() const noexcept
+  {
+    return options_;
+  }
+
+  /// @returns `true` if the connection secured by SSL.
+  bool is_ssl_secured() const noexcept
+  {
+    return conn() ? ::PQsslInUse(conn()) : false;
+  }
+
   /**
    * @returns The connection status.
    *
@@ -120,12 +132,6 @@ public:
   bool is_connected() const noexcept
   {
     return status() == Status::connected;
-  }
-
-  /// @returns `true` if the connection secured by SSL.
-  bool is_ssl_secured() const noexcept
-  {
-    return conn() ? ::PQsslInUse(conn()) : false;
   }
 
   /**
@@ -146,21 +152,6 @@ public:
   }
 
   /**
-   * @returns The last registered time point when is_connected() started to
-   * return `true`, or `std::nullopt` if the session has never started.
-   */
-  std::optional<std::chrono::system_clock::time_point> session_start_time() const noexcept
-  {
-    return session_start_time_;
-  }
-
-  /// @returns The connection options of this instance.
-  const Connection_options& options() const noexcept
-  {
-    return options_;
-  }
-
-  /**
    * @returns The PID of server.
    *
    * @see Notification::server_pid().
@@ -168,6 +159,15 @@ public:
   std::int_fast32_t server_pid() const noexcept
   {
     return is_connected() ? ::PQbackendPID(conn()) : 0;
+  }
+
+  /**
+   * @returns The last registered time point when is_connected() started to
+   * return `true`, or `std::nullopt` if the session has never started.
+   */
+  std::optional<std::chrono::system_clock::time_point> session_start_time() const noexcept
+  {
+    return session_start_time_;
   }
 
   ///@}
@@ -378,14 +378,16 @@ public:
   /// @name Responses
   /// @{
 
-  /**
-   * @returns `true` if some kind of the Response is awaited.
-   *
-   * @see wait_response().
-   */
-  bool is_awaiting_response() const noexcept
+  /// @returns `true` if there is uncompleted request.
+  bool has_uncompleted_request() const noexcept
   {
     return !requests_.empty();
+  }
+
+  /// @returns `true` if there is ready response available.
+  bool has_response() const noexcept
+  {
+    return static_cast<bool>(response_) && (response_status_ == Response_status::ready);
   }
 
   /**
@@ -423,12 +425,6 @@ public:
     const bool result = wait_response(timeout);
     throw_if_error();
     return result;
-  }
-
-  /// @returns `true` if there is ready response available.
-  bool has_response() const noexcept
-  {
-    return static_cast<bool>(response_) && (response_status_ == Response_status::ready);
   }
 
   /**
@@ -600,11 +596,7 @@ public:
     return ts && ts != Transaction_status::active;
   }
 
-  /**
-   * @returns `true` if the connection is ready for requesting a server.
-   *
-   * @see is_awaiting_response().
-   */
+  /// @returns `true` if the connection is ready for requesting a server.
   bool is_ready_for_request() const noexcept
   {
     // Same as is_ready_for_nio_request() at the moment.
@@ -624,7 +616,7 @@ public:
    * queries must be separated by a semicolon.
    *
    * @par Effects
-   * `is_awaiting_response()`.
+   * `has_uncompleted_request()`.
    *
    * @par Requires
    * `is_ready_for_nio_request()`.
@@ -680,7 +672,7 @@ public:
    * @param name A name of statement to be prepared.
    *
    * @par Effects
-   * - `is_awaiting_response()` - just after the successful request submission;
+   * - `has_uncompleted_request()` - just after the successful request submission;
    * - `(prepared_statement(name) != nullptr && prepared_statement(name)->is_preparsed())` - just
    * after the successful response.
    *
@@ -755,7 +747,7 @@ public:
    * @param name A name of prepared statement.
    *
    * @par Effects
-   * - `is_awaiting_response()` - just after the successful request submission;
+   * - `has_uncompleted_request()` - just after the successful request submission;
    * - `(prepared_statement(name) != nullptr && prepared_statement(name)->is_described())` - just
    * after the successful response.
    *
@@ -797,7 +789,7 @@ public:
    * @param name A name of prepared statement.
    *
    * @par Effects
-   * - `is_awaiting_response()` - just after the successful request submission;
+   * - `has_uncompleted_request()` - just after the successful request submission;
    * - `(prepared_statement(name) == nullptr)` - just after the successful response.
    *
    * @par Requires
@@ -859,8 +851,9 @@ public:
   execute(F&& callback, const Sql_string& statement, Types&& ... parameters)
   {
     auto* const ps = prepare(statement);
-    ps->bind_many(std::forward<Types>(parameters)...);
-    return ps->execute(std::forward<F>(callback));
+    assert(ps);
+    return ps->bind_many(std::forward<Types>(parameters)...)
+      .execute(std::forward<F>(callback));
   }
 
   /// @overload
