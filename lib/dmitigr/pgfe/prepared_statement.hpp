@@ -731,6 +731,11 @@ private:
     assert(is_described());
     assert(is_invariant_ok());
   }
+
+  // ---------------------------------------------------------------------------
+
+  void execute_nio(const Sql_string& statement);
+  void execute_nio__(const Sql_string* const statement);
 };
 
 } // namespace dmitigr::pgfe

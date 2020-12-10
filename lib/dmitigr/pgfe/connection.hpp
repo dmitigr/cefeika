@@ -93,6 +93,7 @@ public:
     swap(session_start_time_, rhs.session_start_time_);
     swap(response_, rhs.response_);
     swap(response_status_, rhs.response_status_);
+    swap(last_processed_request_id_, rhs.last_processed_request_id_);
     swap(last_prepared_statement_, rhs.last_prepared_statement_);
     swap(shared_field_names_, rhs.shared_field_names_);
     swap(named_prepared_statements_, rhs.named_prepared_statements_);
@@ -558,9 +559,12 @@ public:
    *
    * @see prepare().
    */
-  Prepared_statement* prepared_statement() const noexcept
+  Prepared_statement* prepared_statement() noexcept
   {
-    return last_prepared_statement_;
+    auto* const result = last_prepared_statement_;
+    last_prepared_statement_ = nullptr;
+    response_.reset();
+    return result;
   }
 
   /**
@@ -785,25 +789,8 @@ public:
   template<typename ... Types>
   void execute_nio(const Sql_string& statement, Types&& ... parameters)
   {
-#if 0
-    assert(is_ready_for_nio_request());
-
-    requests_.push(Request_id::execute); // can throw
-    try {
-      const auto send_ok = ::PQsendQuery(conn(), queries.c_str());
-      if (!send_ok)
-        throw std::runtime_error{error_message()};
-
-      const auto set_ok = ::PQsetSingleRowMode(conn());
-      if (!set_ok)
-        throw std::runtime_error{error_message()};
-    } catch (...) {
-      requests_.pop(); // rollback
-      throw;
-    }
-
-    assert(is_invariant_ok());
-#endif
+    Prepared_statement ps{"", this, &statement};
+    ps.bind_many(std::forward<Types>(parameters)...).execute_nio(statement);
   }
 
   /**
@@ -1204,6 +1191,7 @@ private:
 
   detail::pq::Result response_; // allowed to not match to response_status_
   Response_status response_status_{}; // status last assigned by handle_input()
+  Request_id last_processed_request_id_{}; // type last assigned by handle_input()
   Prepared_statement* last_prepared_statement_{};
   std::shared_ptr<std::vector<std::string>> shared_field_names_;
 

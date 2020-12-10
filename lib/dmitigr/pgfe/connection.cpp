@@ -231,6 +231,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
   {
     assert(response_status_ == Response_status::ready);
     assert(response_.status() == PGRES_SINGLE_TUPLE);
+    assert(!requests_.empty());
     assert(requests_.front() == Request_id::execute);
     if (!shared_field_names_)
       shared_field_names_ = Row_info::make_shared_field_names(response_);
@@ -238,9 +239,10 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
 
   const auto dismiss_request = [this]() noexcept
   {
-    if (!requests_.empty())
+    if (!requests_.empty()) {
+      last_processed_request_id_ = requests_.front();
       requests_.pop();
-    last_prepared_statement_ = {};
+    }
   };
 
   static const auto is_completion_status = [](const auto status) noexcept
@@ -318,30 +320,28 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
     const auto rstatus = response_.status();
     assert(rstatus != PGRES_NONFATAL_ERROR);
     assert(rstatus != PGRES_SINGLE_TUPLE);
-    assert(!requests_.empty());
-    const auto req_id = requests_.front();
     if (rstatus == PGRES_TUPLES_OK) {
-      assert(req_id == Request_id::execute);
+      assert(last_processed_request_id_ == Request_id::execute);
       shared_field_names_.reset();
     } else if (rstatus == PGRES_FATAL_ERROR) {
       shared_field_names_.reset();
       request_prepared_statement_ = {};
       request_prepared_statement_name_.reset();
     } else if (rstatus == PGRES_COMMAND_OK) {
-      assert(req_id != Request_id::prepare || request_prepared_statement_);
-      assert(req_id != Request_id::describe || request_prepared_statement_name_);
-      assert(req_id != Request_id::unprepare || request_prepared_statement_name_);
-      if (req_id == Request_id::prepare) {
+      assert(last_processed_request_id_ != Request_id::prepare || request_prepared_statement_);
+      assert(last_processed_request_id_ != Request_id::describe || request_prepared_statement_name_);
+      assert(last_processed_request_id_ != Request_id::unprepare || request_prepared_statement_name_);
+      if (last_processed_request_id_ == Request_id::prepare) {
         last_prepared_statement_ = register_ps(std::move(request_prepared_statement_));
         assert(!request_prepared_statement_);
-      } else if (req_id == Request_id::describe) {
+      } else if (last_processed_request_id_ == Request_id::describe) {
         last_prepared_statement_ = ps(*request_prepared_statement_name_);
         if (!last_prepared_statement_)
           last_prepared_statement_ = register_ps(Prepared_statement{std::move(*request_prepared_statement_name_),
             this, static_cast<std::size_t>(response_.field_count())});
         last_prepared_statement_->set_description(std::move(response_));
         request_prepared_statement_name_.reset();
-      } else if (req_id == Request_id::unprepare) {
+      } else if (last_processed_request_id_ == Request_id::unprepare) {
         assert(request_prepared_statement_name_ && !std::strcmp(response_.command_tag(), "DEALLOCATE"));
         unregister_ps(*request_prepared_statement_name_);
         request_prepared_statement_name_.reset();
@@ -414,7 +414,7 @@ DMITIGR_PGFE_INLINE Completion Connection::completion() noexcept
     return result;
   }
   case PGRES_COMMAND_OK:
-    switch (requests_.front()) {
+    switch (last_processed_request_id_) {
     case Request_id::execute: {
       Completion result{response_.command_tag()};
       response_.reset();
@@ -469,9 +469,7 @@ DMITIGR_PGFE_INLINE void Connection::unprepare_nio(const std::string& name)
 
   auto name_copy = name; // can throw
   const auto query = "DEALLOCATE " + to_quoted_identifier(name); // can throw
-
-  // FIXME (use Connection::exececute_nio()).
-  prepare(query)->execute_nio(); // can throw
+  execute_nio(query); // can throw
   assert(requests_.front() == Request_id::execute);
   requests_.front() = Request_id::unprepare; // cannot throw
   request_prepared_statement_name_ = std::move(name_copy); // cannot throw
