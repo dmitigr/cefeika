@@ -820,9 +820,8 @@ public:
   std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
   execute(F&& callback, const Sql_string& statement, Types&& ... parameters)
   {
-    auto* const ps = prepare(statement);
-    assert(ps);
-    return ps->bind_many(std::forward<Types>(parameters)...).execute(std::forward<F>(callback));
+    execute_nio(statement, std::forward<Types>(parameters)...);
+    return process_responses(std::forward<F>(callback));
   }
 
   /// @overload
