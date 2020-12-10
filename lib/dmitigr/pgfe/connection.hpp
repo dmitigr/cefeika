@@ -47,9 +47,9 @@ public:
   using Status = Connection_status;
 
   /**
-   * The constructor.
+   * @brief The constructor.
    *
-   * @param options The default connection options are used if not specified.
+   * @param options The connection options.
    */
   explicit Connection(Options options = {})
     : options_{std::move(options)}
@@ -142,7 +142,7 @@ public:
   DMITIGR_PGFE_API std::optional<Transaction_status> transaction_status() const noexcept;
 
   /**
-   * @returns `(transaction_status() == Transaction_status::uncommitted`).
+   * @returns `(transaction_status() == Transaction_status::uncommitted)`.
    *
    * @see transaction_status().
    */
@@ -152,7 +152,7 @@ public:
   }
 
   /**
-   * @returns The PID of server.
+   * @returns The valid PID of server if connected.
    *
    * @see Notification::server_pid().
    */
@@ -180,10 +180,10 @@ public:
   /**
    * @brief Establishing the connection to a PostgreSQL server without blocking on I/O.
    *
-   * This function should be called repeatedly. Until status() becomes Status::connected
-   * or Status::failure loop thus: if status() returned Status::establishment_reading,
+   * This function should be called repeatedly. Until status() becomes `Status::connected`
+   * or `Status::failure` loop thus: if status() returned `Status::establishment_reading`,
    * wait until the socket is ready to read, then call connect_nio() again; if status()
-   * returned Status::establishment_writing, wait until the socket ready to write, then
+   * returned `Status::establishment_writing`, wait until the socket ready to write, then
    * call connect_nio() again. To determine the socket readiness use the socket_readiness()
    * function.
    *
@@ -206,11 +206,11 @@ public:
    * @param timeout The value of `-1` means `options()->connect_timeout()`,
    * the value of `std::nullopt` means *eternity*.
    *
-   * @par Effects
-   * `(status() == Status::failure || status() == Status::connected)`.
-   *
    * @par Requires
    * `(!timeout || timeout->count() >= -1)`.
+   *
+   * @par Effects
+   * `(status() == Status::failure || status() == Status::connected)`.
    *
    * @throws An instance of type Timed_out if the expression
    * `(status() == Status::connected)` will not evaluates to `true` within the
@@ -235,13 +235,13 @@ public:
   void disconnect() noexcept
   {
     reset_session();
-    conn_.reset(); // Discarding unhandled notifications btw.
+    conn_.reset(); // discarding unhandled notifications btw.
     assert(status() == Status::disconnected);
     assert(is_invariant_ok());
   }
 
   /**
-   * @brief Waits for readiness of the connection socket if it is unready.
+   * @brief Waits for readiness of the connection socket if it's unready.
    *
    * @returns The bit mask indicating the readiness of the connection socket.
    *
@@ -260,9 +260,9 @@ public:
   /**
    * @brief Polls the readiness of the connection socket.
    *
-   * @param mask Similar to wait_socket_readiness().
+   * @returns `wait_socket_readiness(mask, std::chrono::milliseconds{})`.
    *
-   * @returns wait_socket_readiness(mask, std::chrono::milliseconds{});
+   * @param mask Similar to wait_socket_readiness().
    *
    * @see wait_socket_readiness().
    */
@@ -288,7 +288,7 @@ public:
    *
    * For every parsed notice or notification calls the corresponding handler.
    *
-   * @returns The value of type Response_status.
+   * @returns The response status.
    *
    * @param wait_response Indicates whether to wait for response (which assumes
    * possible thread block).
@@ -315,7 +315,7 @@ public:
    */
   /// @{
 
-  /// @returns The released instance of type Notification if available.
+  /// @returns The valid released instance if available.
   DMITIGR_PGFE_API Notification pop_notification();
 
   /// An alias of a notice handler.
@@ -461,7 +461,7 @@ public:
   }
 
   /**
-   * @returns The released instance of type Error if available.
+   * @returns The released instance if available.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -474,7 +474,7 @@ public:
   }
 
   /**
-   * @returns Row, or invalid instance.
+   * @returns The released instance if available.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -487,7 +487,19 @@ public:
   }
 
   /**
+   * @returns The released instance if available.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   *
+   * @see wait_response(), row().
+   */
+  DMITIGR_PGFE_API Completion completion() noexcept;
+
+  /**
    * @brief Processes the responses.
+   *
+   * @returns The released instance if available.
    *
    * @param callback A function to be called for each retrieved row. The callback:
    *   -# can be defined with a parameter of type `Row&&`. An exception will be
@@ -503,7 +515,7 @@ public:
    *   -# can return `void` to indicate that execution must be proceed until a
    *   completion or an error.
    *
-   * @returns The instance of type Completion.
+   * @see execute(), invoke(), call().
    */
   template<typename F>
   std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
@@ -539,20 +551,12 @@ public:
   }
 
   /**
-   * @returns The Completion, or invalid instance.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   *
-   * @see wait_response(), row().
-   */
-  DMITIGR_PGFE_API Completion completion() noexcept;
-
-  /**
-   * @returns The pointer to a last prepared statement, or `nullptr` if the last
-   * operation wasn't prepare.
+   * @returns The pointer to a last prepared statement if the last operation was
+   * prepare.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
+   *
+   * @see prepare().
    */
   Prepared_statement* prepared_statement() const noexcept
   {
@@ -560,17 +564,16 @@ public:
   }
 
   /**
-   * @returns The pointer to a prepared statement by its name, or `nullptr` if
-   * prepared statement with the given name is unknown by this instance. (This
-   * is possible, for example, when the statement is prepared by using the SQL
-   * command `PREPARE`. Such a statement must be described first in order to be
-   * accessible by this method.)
+   * @returns The pointer to a prepared statement by its name if the prepared
+   * statement with the given name is known by this instance.
    *
    * @param name A name of prepared statement.
    *
    * @remarks The object pointed by the returned value is owned by this instance.
+   * @remarks The statements prepared by using the SQL command `PREPARE` must be
+   * described first in order to be accessible by this method.
    *
-   * @see describe(), describe_nio().
+   * @see describe().
    */
   Prepared_statement* prepared_statement(const std::string& name) const noexcept
   {
@@ -596,7 +599,11 @@ public:
     return ts && ts != Transaction_status::active;
   }
 
-  /// @returns `true` if the connection is ready for requesting a server.
+  /**
+   * @returns `true` if the connection is ready for requesting a server.
+   *
+   * @see is_ready_for_nio_request().
+   */
   bool is_ready_for_request() const noexcept
   {
     // Same as is_ready_for_nio_request() at the moment.
@@ -604,68 +611,9 @@ public:
   }
 
   /**
-   * @brief Submits the SQL query(-es) to a server.
-   *
-   * @par Awaited responses
-   *   - if the query provokes an error: Error;
-   *   - if the query does not provokes producing rows: Completion;
-   *   - if the query provokes producing rows: the set of Row (if any), and
-   *     finally the Completion.
-   *
-   * @param queries A string, containing the SQL query(-es). Adjacent
-   * queries must be separated by a semicolon.
-   *
-   * @par Effects
-   * `has_uncompleted_request()`.
-   *
-   * @par Requires
-   * `is_ready_for_nio_request()`.
-   *
-   * @par Exception safety guarantee
-   * Strong.
-   *
-   * @remarks All queries specified in `queries` are executed in a transaction.
-   * Each query will provoke producing the separate flow of responses. Therefore,
-   * if one of them provokes an Error, then the transaction will be aborted and
-   * the queries which were not yet executed will be rejected.
-   *
-   * @see prepare_nio().
-   */
-  DMITIGR_PGFE_API void perform_nio(const std::string& queries);
-
-  /**
-   * @brief Similar to perform_nio(), but waits for the first Response and
-   * throws Server_exception if awaited Response is an Error.
-   *
-   * @param callback Same as for process_responses().
-   *
-   * @par Requires
-   * `is_ready_for_request()`.
-   *
-   * @par Exception safety guarantee
-   * Basic.
-   *
-   * @see process_responses().
-   */
-  template<typename F>
-  std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
-  perform(F&& callback, const std::string& queries)
-  {
-    assert(is_ready_for_request());
-    perform_nio(queries);
-    return process_responses(std::forward<F>(callback));
-  }
-
-  /// @overload
-  Completion perform(const std::string& queries)
-  {
-    return perform([](auto&&){}, queries);
-  }
-
-  /**
    * @brief Submits a request to a server to prepare the statement.
    *
-   * @par Awaited responses
+   * @par Responses
    * Prepared_statement
    *
    * @param statement A preparsed SQL string.
@@ -673,18 +621,18 @@ public:
    *
    * @par Effects
    * - `has_uncompleted_request()` - just after the successful request submission;
-   * - `(prepared_statement(name) != nullptr && prepared_statement(name)->is_preparsed())` - just
-   * after the successful response.
+   * - `(prepared_statement(name) && prepared_statement(name)->is_preparsed())` -
+   * just after the successful response.
    *
    * @par Requires
-   * `(statement && !statement->has_missing_parameters() && is_ready_for_nio_request())`.
+   * `(is_ready_for_nio_request() && !statement.has_missing_parameters())`.
    *
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks It is recommended to specify the types of the parameters by
-   * using explicit type casts to avoid ambiguities or type mismatch mistakes.
-   * For example:
+   * @remarks It's recommended to specify the types of the parameters by using
+   * explicit type casts to avoid ambiguities or type mismatch mistakes, for
+   * example:
    *   @code{sql}
    *     -- Force to use generate_series(int, int) overload.
    *     SELECT generate_series($1::int, $2::int);
@@ -700,20 +648,17 @@ public:
     prepare_nio__(statement.to_query_string().c_str(), name.c_str(), &statement); // can throw
   }
 
-  /**
-   * @brief Same as prepare_nio() except the statement will be send
-   * as-is, i.e. without preparsing.
-   */
+  /// Same as prepare_nio() except the statement will be send without preparsing.
   void prepare_nio_as_is(const std::string& statement, const std::string& name = {})
   {
     prepare_nio__(statement.c_str(), name.c_str(), nullptr); // can throw
   }
 
   /**
-   * @returns `(prepare_nio(), wait_response_throw(), prepared_statement())`
+   * @returns The pointer to the just prepared statement owned by this instance.
    *
    * @par Requires
-   * `(statement && !statement->has_missing_parameters() && is_ready_for_request())`.
+   * `(is_ready_for_request() && !statement.has_missing_parameters())`.
    *
    * @par Exception safety guarantee
    * Basic.
@@ -728,28 +673,24 @@ public:
     return prepare__(static_cast<M>(&Connection::prepare_nio), statement, name);
   }
 
-  /**
-   * @brief Same as prepare() except the statement will be send as-is,
-   * i.e. without preparsing.
-   */
+  /// Same as prepare() except the statement will be send without preparsing.
   Prepared_statement* prepare_as_is(const std::string& statement, const std::string& name = {})
   {
     return prepare__(&Connection::prepare_nio_as_is, statement, name);
   }
 
   /**
-   * @brief Submits a request to a PostgreSQL server to describe
-   * the prepared statement.
+   * @brief Requests the server to describe the prepared statement.
    *
-   * @par Awaiting responses
+   * @par Responses
    * Prepared_statement
    *
    * @param name A name of prepared statement.
    *
    * @par Effects
    * - `has_uncompleted_request()` - just after the successful request submission;
-   * - `(prepared_statement(name) != nullptr && prepared_statement(name)->is_described())` - just
-   * after the successful response.
+   * - `(prepared_statement(name) && prepared_statement(name)->is_described())` -
+   * just after the successful response.
    *
    * @par Requires
    * `is_ready_for_nio_request()`.
@@ -762,7 +703,7 @@ public:
   DMITIGR_PGFE_API void describe_nio(const std::string& name);
 
   /**
-   * @returns `(describe_nio(), wait_response_throw(), prepared_statement())`
+   * @returns The pointer to the prepared statement owned by this instance.
    *
    * @par Requires
    * `is_ready_for_request()`.
@@ -770,7 +711,7 @@ public:
    * @par Exception safety guarantee
    * Basic.
    *
-   * @see unprepare().
+   * @see describe_nio(), unprepare().
    */
   Prepared_statement* describe(const std::string& name)
   {
@@ -780,17 +721,16 @@ public:
   }
 
   /**
-   * @brief Submits a request to a PostgreSQL server to close
-   * the prepared statement.
+   * @brief Requests the server to deallocate the prepared statement.
    *
-   * @par Awaited responses
+   * @par Responses
    * Completion
    *
    * @param name A name of prepared statement.
    *
    * @par Effects
-   * - `has_uncompleted_request()` - just after the successful request submission;
-   * - `(prepared_statement(name) == nullptr)` - just after the successful response.
+   * - `has_uncompleted_request()` - just after the successful request;
+   * - `!prepared_statement(name)` - just after the successful response.
    *
    * @par Requires
    * `(is_ready_for_nio_request() && !name.empty())`.
@@ -798,15 +738,14 @@ public:
    * @par Exception safety guarantee
    * Strong.
    *
-   * @remarks It's impossible to unprepare an unnamed prepared statement
-   * at the moment.
+   * @remarks The named prepared statements only can be deallocated currently.
    *
    * @see unprepare().
    */
   DMITIGR_PGFE_API void unprepare_nio(const std::string& name);
 
   /**
-   * @returns `(unprepare_nio(const std::string& name), wait_response_throw())`
+   * @returns The valid released instance if available.
    *
    * @par Requires
    * `is_ready_for_request()`.
@@ -819,25 +758,69 @@ public:
     assert(is_ready_for_request());
     unprepare_nio(name);
     wait_response_throw();
-    auto result = completion();
-    wait_response_throw();
-    assert(response_status_ == Response_status::empty);
-    return result;
+    return completion();
   }
 
   /**
-   * @brief Submits the requests to a server to prepare and execute the unnamed
-   * statement from the preparsed SQL string, and waits for a response.
+   * @brief Requests the server to prepare and execute the unnamed statement
+   * from the preparsed SQL string without waiting for a response.
    *
-   * @par Awaited responses
-   * Similar to perform_nio().
+   * @par Responses
+   * Similar to Prepared_statement::execute().
+   *
+   * @param queries A string, containing the SQL query(-es). Adjacent
+   * queries must be separated by a semicolon.
+   *
+   * @par Effects
+   * `has_uncompleted_request()`.
+   *
+   * @par Requires
+   * `is_ready_for_nio_request()`.
+   *
+   * @par Exception safety guarantee
+   * Strong.
+   *
+   * @see execute().
+   */
+  template<typename ... Types>
+  void execute_nio(const Sql_string& statement, Types&& ... parameters)
+  {
+#if 0
+    assert(is_ready_for_nio_request());
+
+    requests_.push(Request_id::execute); // can throw
+    try {
+      const auto send_ok = ::PQsendQuery(conn(), queries.c_str());
+      if (!send_ok)
+        throw std::runtime_error{error_message()};
+
+      const auto set_ok = ::PQsetSingleRowMode(conn());
+      if (!set_ok)
+        throw std::runtime_error{error_message()};
+    } catch (...) {
+      requests_.pop(); // rollback
+      throw;
+    }
+
+    assert(is_invariant_ok());
+#endif
+  }
+
+  /**
+   * @brief Requests the server to prepare and execute the unnamed statement
+   * from the preparsed SQL string, and waits for a response.
+   *
+   * @returns The released instance.
+   *
+   * @par Responses
+   * Similar to Prepared_statement::execute().
    *
    * @param callback Same as for process_responses().
    * @param statement A *preparsed* statement to execute.
    * @param parameters Parameters to bind with a parameterized statement.
    *
    * @par Requires
-   * `(statement && !statement->has_missing_parameters() && is_ready_for_request())`.
+   * `(is_ready_for_request() && !statement.has_missing_parameters())`.
    *
    * @par Exception safety guarantee
    * Basic.
@@ -864,8 +847,8 @@ public:
   }
 
   /**
-   * @brief Submits the requests to a server to invoke the specified function
-   * and waits for a response.
+   * @brief Requests the server to invoke the specified function and waits for
+   * a response.
    *
    * If `function` returns table with multiple columns or has multiple output
    * parameters they are can be accessed as usual by using Row::data().
@@ -876,14 +859,14 @@ public:
    * When using positional notation all arguments specified traditionally in
    * order, for example:
    * @code
-   * conn->invoke("generate_series", 1, 3);
+   * conn.invoke("generate_series", 1, 3);
    * @endcode
    *
    * When using named notation, each argument is specified using object of type
-   * Named_argument (or it alias - _), for example:
+   * Named_argument (or it alias - `a`), for example:
    *
    * @code
-   * conn->invoke("person_info", _{"name", "Christopher"}, _{"id", 1});
+   * conn.invoke("person_info", a{"name", "Christopher"}, a{"id", 1});
    * @endcode
    *
    * When using mixed notation which combines positional and named notation,
@@ -891,14 +874,16 @@ public:
    * will be performed to enforce that. For example:
    *
    * @code
-   * conn->invoke("person_info", 1, _{"name", "Christopher"});
+   * conn.invoke("person_info", 1, a{"name", "Christopher"});
    * @endcode
    *
    * See <a href="https://www.postgresql.org/docs/current/static/sql-syntax-calling-funcs.html">calling functions</a>
    * section of the PostgreSQL documentation for the full details on calling
    * notations.
    *
-   * @par Awaited responses
+   * @returns The released instance.
+   *
+   * @par Responses
    * Similar to execute().
    *
    * @param callback Same as for process_responses().
@@ -906,7 +891,7 @@ public:
    * @param arguments Function arguments.
    *
    * @par Requires
-   * `(!function.empty() && is_ready_for_request())`.
+   * `(is_ready_for_request() && !function.empty())`.
    *
    * @par Exception safety guarantee
    * Basic.
@@ -938,6 +923,8 @@ public:
    * multiple columns or has multiple output parameters the result row is
    * always consists of exactly one field.
    *
+   * @returns The Completion instance.
+   *
    * @remarks This method is for specific use and in most cases invoke()
    * should be used instead.
    *
@@ -960,10 +947,12 @@ public:
   }
 
   /**
-   * @brief Submits the requests to a server to invoke the specified procedure
-   * and waits for a response.
+   * @brief Requests the server to invoke the specified procedure and waits for
+   * a response.
    *
    * This method is similar to invoke(), but for procedures rather than functions.
+   *
+   * @returns The Completion instance.
    *
    * @remarks PostgreSQL supports procedures since version 11.
    *
@@ -986,8 +975,7 @@ public:
   }
 
   /**
-   * @brief Sets the default data format of the result for a next prepared
-   * statement execution.
+   * @brief Sets the default data format of statements execution results.
    *
    * @par Exception safety guarantee
    * Strong.
@@ -998,7 +986,7 @@ public:
     assert(is_invariant_ok());
   }
 
-  /// @returns The default data format of a prepared statement execution result.
+  /// @returns The default data format of a statement execution result.
   Data_format result_format() const noexcept
   {
     return default_result_format_;
@@ -1012,7 +1000,7 @@ public:
   /// @{
 
   /**
-   * @brief Submits a request to create the large object and waits the result.
+   * @brief Requests the server to create the large object and waits the result.
    *
    * @param oid A desired OID. `invalid_oid` means *unused oid*.
    *
@@ -1027,7 +1015,7 @@ public:
   DMITIGR_PGFE_API Oid create_large_object(Oid oid = invalid_oid) noexcept;
 
   /**
-   * @brief Submits a request to open the large object and waits the result.
+   * @brief Requests the server to open the large object and waits the result.
    *
    * @returns The valid instance if successful.
    *
@@ -1040,7 +1028,7 @@ public:
   DMITIGR_PGFE_API Large_object open_large_object(Oid oid, Large_object_open_mode mode) noexcept;
 
   /**
-   * @brief Submits a request to remove the large object and waits the result.
+   * @brief Requests the server to remove the large object and waits the result.
    *
    * @returns `true` on success.
    *
@@ -1057,11 +1045,10 @@ public:
   }
 
   /**
-   * @brief Submits multiple requests to import the specified file as a large
-   * object.
+   * @brief Requests the server (multiple times) to import the specified file as
+   * a large object.
    *
-   * @returns The OID of a new large object on success, or `invalid_oid`
-   * otherwise.
+   * @returns The OID of a new large object on success, or `invalid_oid` otherwise.
    *
    * @par Requires
    * `(is_ready_for_request())`.
@@ -1076,8 +1063,8 @@ public:
   }
 
   /**
-   * @brief Submits multiple requests to export the specified large object
-   * to the specified file.
+   * @brief Requests the server (multiple times) to export the specified large
+   * object to the specified file.
    *
    * @returns `true` on success.
    *
@@ -1207,8 +1194,7 @@ private:
   // ---------------------------------------------------------------------------
 
   enum class Request_id {
-    perform = 1,
-    execute,
+    execute = 1,
     prepare,
     describe,
     unprepare
@@ -1216,15 +1202,15 @@ private:
 
   std::optional<std::chrono::system_clock::time_point> session_start_time_;
 
-  detail::pq::Result response_;
-  Response_status response_status_{};
+  detail::pq::Result response_; // allowed to not match to response_status_
+  Response_status response_status_{}; // status last assigned by handle_input()
   Prepared_statement* last_prepared_statement_{};
   std::shared_ptr<std::vector<std::string>> shared_field_names_;
 
   mutable std::list<Prepared_statement> named_prepared_statements_;
   mutable Prepared_statement unnamed_prepared_statement_;
 
-  std::queue<Request_id> requests_; // for now only 1 request can be queued
+  std::queue<Request_id> requests_; // for batch mode
   Prepared_statement request_prepared_statement_;
   std::optional<std::string> request_prepared_statement_name_;
 
@@ -1235,15 +1221,6 @@ private:
   // ---------------------------------------------------------------------------
 
   void reset_session() noexcept;
-
-  void get_ready_to_next_query() noexcept
-  {
-    response_.reset();
-    response_status_ = Response_status::empty;
-    if (!requests_.empty())
-      requests_.pop();
-    last_prepared_statement_ = {};
-  }
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -1271,9 +1248,7 @@ private:
     wait_response_throw();
     auto* const result = prepared_statement();
     assert(result);
-    wait_response_throw();
-    assert(response_status_ == Response_status::empty);
-    assert(!last_prepared_statement_);
+    assert(!completion()); // no completion for prepare/describe
     return result;
   }
 
@@ -1286,7 +1261,7 @@ private:
   Prepared_statement* ps(const std::string& name) const noexcept;
 
   /*
-   * Registers a prepared statement.
+   * Registers the prepared statement.
    *
    * @returns The pointer to the registered prepared statement.
    */
@@ -1400,8 +1375,9 @@ Prepared_statement::execute(F&& callback)
   assert(connection_);
   assert(connection_->is_ready_for_request());
   execute_nio();
+  auto result = connection_->process_responses(std::forward<F>(callback));
   assert(is_invariant_ok());
-  return connection_->process_responses(std::forward<F>(callback));
+  return result;
 }
 
 /// Connection is swappable.

@@ -63,7 +63,7 @@ void test_pgfe()
     pgfe::Communication_mode::net}.net_address("127.0.0.1").username("pgfe_test")
       .password("pgfe_test").database("pgfe_test").connect_timeout(std::chrono::seconds{7})};
   conn.connect();
-  conn.perform(query);
+  conn.execute(query);
   while (conn.wait_response()) {
     if (auto r = conn.row())
       r.data();

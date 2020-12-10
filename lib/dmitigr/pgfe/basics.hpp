@@ -231,7 +231,7 @@ inline auto to_problem_severity(const std::string_view str) noexcept
  * @brief A response status.
  */
 enum class Response_status {
-  /// No response available.
+  /// No response available. (No more requests.)
   empty = 0,
 
   /// Response is available.

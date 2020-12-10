@@ -231,9 +231,25 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
   {
     assert(response_status_ == Response_status::ready);
     assert(response_.status() == PGRES_SINGLE_TUPLE);
-    assert(requests_.front() == Request_id::perform || requests_.front() == Request_id::execute);
+    assert(requests_.front() == Request_id::execute);
     if (!shared_field_names_)
       shared_field_names_ = Row_info::make_shared_field_names(response_);
+  };
+
+  const auto dismiss_request = [this]() noexcept
+  {
+    if (!requests_.empty())
+      requests_.pop();
+    last_prepared_statement_ = {};
+  };
+
+  static const auto is_completion_status = [](const auto status) noexcept
+  {
+    return status == PGRES_FATAL_ERROR ||
+      status == PGRES_COMMAND_OK ||
+      status == PGRES_TUPLES_OK ||
+      status == PGRES_EMPTY_QUERY ||
+      status == PGRES_BAD_RESPONSE;
   };
 
   if (wait_response) {
@@ -241,13 +257,14 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
     complete_response:
       while (auto* const r = ::PQgetResult(conn())) ::PQclear(r);
       response_status_ = Response_status::ready;
+      dismiss_request();
     } else {
       response_.reset(::PQgetResult(conn()));
       if (response_.status() == PGRES_SINGLE_TUPLE) {
         response_status_ = Response_status::ready;
         handle_single_tuple();
         goto handle_notifications;
-      } else if (response_.status() == PGRES_FATAL_ERROR || response_.status() == PGRES_TUPLES_OK)
+      } else if (is_completion_status(response_.status()))
         goto complete_response;
       else if (response_)
         response_status_ = Response_status::ready;
@@ -257,9 +274,9 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
   } else {
     /*
      * Checks for nonblocking result and handles notices btw.
-     * @remarks: notice_receiver() (which calls the notice handler) will be
+     * @remark: notice_receiver() (which calls the notice handler) will be
      * called indirectly from ::PQisBusy().
-     * @remars: ::PQisBusy() calls a routine (pqParseInput3() from fe-protocol3.c)
+     * @remark: ::PQisBusy() calls a routine (pqParseInput3() from fe-protocol3.c)
      * which parses consumed input and stores notifications and notices if
      * are available. (::PQnotifies() calls this routine as well.)
      */
@@ -273,6 +290,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
       while (!is_get_result_would_block(conn())) {
         if (auto* const r = ::PQgetResult(conn()); !r) {
           response_status_ = Response_status::ready;
+          dismiss_request();
           break;
         } else
           ::PQclear(r);
@@ -284,7 +302,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
           response_status_ = Response_status::ready;
           handle_single_tuple();
           goto handle_notifications;
-        } else if (response_.status() == PGRES_FATAL_ERROR || response_.status() == PGRES_TUPLES_OK) {
+        } else if (is_completion_status(response_.status())) {
           response_status_ = Response_status::unready;
           goto try_complete_response;
         } else if (response_)
@@ -303,7 +321,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
     assert(!requests_.empty());
     const auto req_id = requests_.front();
     if (rstatus == PGRES_TUPLES_OK) {
-      assert(req_id == Request_id::perform || req_id == Request_id::execute);
+      assert(req_id == Request_id::execute);
       shared_field_names_.reset();
     } else if (rstatus == PGRES_FATAL_ERROR) {
       shared_field_names_.reset();
@@ -330,7 +348,7 @@ DMITIGR_PGFE_INLINE Response_status Connection::handle_input(const bool wait_res
       }
     }
   } else if (response_status_ == Response_status::empty)
-    get_ready_to_next_query();
+    dismiss_request(); // just in case
 
  handle_notifications:
   try {
@@ -392,16 +410,14 @@ DMITIGR_PGFE_INLINE Completion Connection::completion() noexcept
   switch (response_.status()) {
   case PGRES_TUPLES_OK: {
     Completion result{response_.command_tag()};
-    get_ready_to_next_query();
+    response_.reset();
     return result;
   }
   case PGRES_COMMAND_OK:
     switch (requests_.front()) {
-    case Request_id::perform:
-      [[fallthrough]];
     case Request_id::execute: {
       Completion result{response_.command_tag()};
-      get_ready_to_next_query();
+      response_.reset();
       return result;
     }
     case Request_id::prepare:
@@ -410,7 +426,7 @@ DMITIGR_PGFE_INLINE Completion Connection::completion() noexcept
       return {};
     case Request_id::unprepare: {
       Completion result{"unprepare"};
-      get_ready_to_next_query();
+      response_.reset();
       return result;
     }
     default:
@@ -424,27 +440,6 @@ DMITIGR_PGFE_INLINE Completion Connection::completion() noexcept
   default:
     return {};
   }
-}
-
-DMITIGR_PGFE_INLINE void Connection::perform_nio(const std::string& queries)
-{
-  assert(is_ready_for_nio_request());
-
-  requests_.push(Request_id::perform); // can throw
-  try {
-    const auto send_ok = ::PQsendQuery(conn(), queries.c_str());
-    if (!send_ok)
-      throw std::runtime_error{error_message()};
-
-    const auto set_ok = ::PQsetSingleRowMode(conn());
-    if (!set_ok)
-      throw std::runtime_error{error_message()};
-  } catch (...) {
-    requests_.pop(); // rollback
-    throw;
-  }
-
-  assert(is_invariant_ok());
 }
 
 DMITIGR_PGFE_INLINE void Connection::describe_nio(const std::string& name)
@@ -475,8 +470,9 @@ DMITIGR_PGFE_INLINE void Connection::unprepare_nio(const std::string& name)
   auto name_copy = name; // can throw
   const auto query = "DEALLOCATE " + to_quoted_identifier(name); // can throw
 
-  perform_nio(query); // can throw
-  assert(requests_.front() == Request_id::perform);
+  // FIXME (use Connection::exececute_nio()).
+  prepare(query)->execute_nio(); // can throw
+  assert(requests_.front() == Request_id::execute);
   requests_.front() = Request_id::unprepare; // cannot throw
   request_prepared_statement_name_ = std::move(name_copy); // cannot throw
 

@@ -476,7 +476,12 @@ public:
    * statement.
    *
    * @par Responses
-   * Similar to Connection::perform_nio().
+   *   - if the query provokes an error: Error;
+   *   - if the query produces rows: the set of Row;
+   *   - if the query does not provokes an error: Completion.
+   *
+   * @par Effects
+   * `has_uncompleted_request()`.
    *
    * @par Requires
    * `connection()->is_ready_for_nio_request()`.
@@ -492,7 +497,7 @@ public:
    * @param callback Same as for Connection::process_responses().
    *
    * @par Responses
-   * Similar to Connection::perform_nio().
+   * Similar to Connection::execute_nio().
    *
    * @par Requires
    * `connection()->is_ready_for_request()`.
