@@ -822,8 +822,7 @@ public:
   {
     auto* const ps = prepare(statement);
     assert(ps);
-    return ps->bind_many(std::forward<Types>(parameters)...)
-      .execute(std::forward<F>(callback));
+    return ps->bind_many(std::forward<Types>(parameters)...).execute(std::forward<F>(callback));
   }
 
   /// @overload
@@ -1356,16 +1355,15 @@ private:
   }
 };
 
-template<typename F>
+template<typename F, typename ... Types>
 std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
-Prepared_statement::execute(F&& callback)
+Prepared_statement::execute(F&& callback, Types&& ... parameters)
 {
   assert(connection_);
   assert(connection_->is_ready_for_request());
-  execute_nio();
-  auto result = connection_->process_responses(std::forward<F>(callback));
+  bind_many(std::forward<Types>(parameters)...).execute_nio();
   assert(is_invariant_ok());
-  return result;
+  return connection_->process_responses(std::forward<F>(callback));
 }
 
 /// Connection is swappable.

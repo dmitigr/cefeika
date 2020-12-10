@@ -509,9 +509,9 @@ public:
    *
    * @see Connection::execute(), Connection::process_responses().
    */
-  template<typename F>
+  template<typename F, typename ... Types>
   std::enable_if_t<detail::Response_callback_traits<F>::is_valid, Completion>
-  execute(F&& callback);
+  execute(F&& callback, Types&& ... parameters);
 
   /// @overload
   Completion execute()
