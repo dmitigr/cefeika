@@ -414,7 +414,7 @@ inline std::vector<S> split(const std::string_view input,
   while (offset < input.size()) {
     pos = input.find_first_of(separators, offset);
     assert(offset <= pos);
-    const auto part_size = std::min<std::string_view::size_type>(pos, input.size() - 1) - offset;
+    const auto part_size = std::min<std::string_view::size_type>(pos, input.size()) - offset;
     result.push_back(S{input.substr(offset, part_size)});
     offset += part_size + 1;
   }

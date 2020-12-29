@@ -105,23 +105,32 @@ int main(int, char* argv[])
 
     // String with separator
     {
-      std::string s{"part1 part2 part3"};
+      std::string s{"1 2 3"};
       const auto v = str::split(s, " ");
       ASSERT(v.size() == 3);
+      ASSERT(v[0] == "1");
+      ASSERT(v[1] == "2");
+      ASSERT(v[2] == "3");
     }
 
     // String with separators
     {
-      std::string s{"part1 part2,part3"};
+      std::string s{"1 2,3"};
       const auto v = str::split(s, " ,");
       ASSERT(v.size() == 3);
+      ASSERT(v[0] == "1");
+      ASSERT(v[1] == "2");
+      ASSERT(v[2] == "3");
     }
 
     // String with separators to vector of string_view
     {
-      std::string s{"part1 part2,part3"};
+      std::string s{"1 2,3"};
       const auto v = str::split<std::string_view>(s, " ,");
       ASSERT(v.size() == 3);
+      ASSERT(v[0] == "1");
+      ASSERT(v[1] == "2");
+      ASSERT(v[2] == "3");
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
