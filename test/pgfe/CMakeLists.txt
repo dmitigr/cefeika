@@ -8,7 +8,7 @@ set(dmitigr_pgfe_tests
   # benchmark_sql_string_replace
   composite
   connection
-  # connection_deferrable
+  connection_deferrable
   # connection-err_in_mid
   connection_options
   # connection_pool
