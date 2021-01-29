@@ -10,7 +10,7 @@
 #include <dmitigr/jrpc/jrpc.hpp>
 #include <dmitigr/misc/filesystem.hpp>
 #include <dmitigr/misc/mulf.hpp>
-#include <dmitigr/misc/read.hpp>
+#include <dmitigr/misc/reader.hpp>
 #include <dmitigr/misc/str.hpp>
 #include <dmitigr/misc/ttpl.hpp>
 
@@ -40,7 +40,7 @@ make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::p
     referenced.push_back(tplfile);
 
   if (std::filesystem::exists(tplfile)) {
-    ttpl::Logic_less_template result{read::file_to_string(tplfile)};
+    ttpl::Logic_less_template result{reader::file_to_string(tplfile)};
     for (std::size_t i = 0, pcount = result.parameter_count(); i < pcount;) {
       const auto& pname = result.parameter(i).name();
       if (auto t = make_expanded_llt(tplroot / pname, tplroot, referenced)) {
@@ -132,7 +132,7 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
             throw std::logic_error{hins("caller")};
           std::string o;
           try {
-            const jrpc::Request request{read::to_string(fcgi->in())};
+            const jrpc::Request request{reader::to_string(fcgi->in())};
             const auto result = i->second(fcgi, request);
             o = result.to_string();
           } catch (const jrpc::Error& e) {
@@ -155,7 +155,7 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
             if (!i->second)
               throw std::logic_error{hins("former")};
             const auto boundary = sm.str(1);
-            const mulf::Form_data form{read::to_string(fcgi->in()), boundary};
+            const mulf::Form_data form{reader::to_string(fcgi->in()), boundary};
             return i->second(fcgi, form);
           }
         }

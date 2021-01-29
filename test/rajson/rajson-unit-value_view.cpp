@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/misc/read.hpp>
+#include <dmitigr/misc/reader.hpp>
 #include <dmitigr/misc/testo.hpp>
 #include <dmitigr/rajson.hpp>
 
@@ -32,13 +32,13 @@ template<> struct Conversions<Db_params> final {
 int main(int, char* argv[])
 {
   namespace rajson = dmitigr::rajson;
-  namespace read = dmitigr::read;
+  namespace reader = dmitigr::reader;
   using namespace dmitigr::testo;
 
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
-    const auto input = read::file_to_string(this_exe_dir_name / "rajson-unit-value_view.json");
+    const auto input = reader::file_to_string(this_exe_dir_name / "rajson-unit-value_view.json");
     auto document = rajson::to_document(input);
 
     {
