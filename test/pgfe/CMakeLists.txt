@@ -16,7 +16,7 @@ set(dmitigr_pgfe_tests
   # connection_ssl
   conversions
   conversions_online
-  # data
+  data
   hello_world
   pq_vs_pgfe
   # ps
