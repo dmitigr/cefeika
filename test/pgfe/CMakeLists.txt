@@ -19,7 +19,7 @@ set(dmitigr_pgfe_tests
   data
   hello_world
   pq_vs_pgfe
-  # ps
+  ps
   # row_info
   sql_string
   sql_vector
