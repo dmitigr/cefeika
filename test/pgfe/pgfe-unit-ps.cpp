@@ -40,7 +40,6 @@ try {
     ps1->bind(0, 1983);
     ps1->execute([](auto&& row)
     {
-      ASSERT(row);
       ASSERT(row[0]);
       ASSERT(pgfe::to<int>(row[0]) == 1983);
     });
