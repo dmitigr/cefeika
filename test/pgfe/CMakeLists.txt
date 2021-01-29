@@ -3,8 +3,8 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 set(dmitigr_pgfe_tests
-  # benchmark_array_client
-  # benchmark_array_server
+  benchmark_array_client
+  benchmark_array_server
   # benchmark_sql_string_replace
   composite
   connection
