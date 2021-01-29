@@ -5,7 +5,7 @@
 set(dmitigr_pgfe_tests
   benchmark_array_client
   benchmark_array_server
-  # benchmark_sql_string_replace
+  benchmark_sql_string_replace
   composite
   connection
   connection_deferrable
