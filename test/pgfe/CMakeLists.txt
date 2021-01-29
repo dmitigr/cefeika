@@ -13,7 +13,7 @@ set(dmitigr_pgfe_tests
   connection_options
   connection_pool
   connection-rows
-  # connection_ssl
+  connection_ssl
   conversions
   conversions_online
   data
