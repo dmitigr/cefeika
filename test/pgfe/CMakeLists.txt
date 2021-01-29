@@ -22,7 +22,7 @@ set(dmitigr_pgfe_tests
   # ps
   # row_info
   sql_string
-  # sql_vector
+  sql_vector
   )
 
 set(dmitigr_pgfe_tests_target_link_libraries dmitigr::os)
