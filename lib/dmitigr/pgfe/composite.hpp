@@ -351,10 +351,10 @@ inline void swap(Composite& lhs, Composite& rhs) noexcept
 
 /**
  * @returns
- *   - `-1` if the first differing field in `lhs` is less than the
+ *   - negative value if the first differing field in `lhs` is less than the
  *   corresponding field in `rhs`;
- *   - `0` if all fields of `lhs` and `rhs` are equal;
- *   - `1` if the first differing field in `lhs` is greater than the
+ *   - zero if all fields of `lhs` and `rhs` are equal;
+ *   - positive value if the first differing field in `lhs` is greater than the
  *   corresponding field in `rhs`.
  */
 inline int cmp(const Composite& lhs, const Composite& rhs) noexcept
