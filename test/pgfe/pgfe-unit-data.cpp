@@ -54,6 +54,65 @@ try {
     ASSERT(d->size() == sz);
     ASSERT(std::strcmp(d->bytes(), name) == 0);
   }
+
+  // ---------------------------------------------------------------------------
+  // Operators
+  // ---------------------------------------------------------------------------
+
+  // <, <=
+  {
+#define ASSERTMENTS                             \
+    ASSERT(*lhs < *rhs);                        \
+    ASSERT(*lhs <= *rhs);                       \
+    ASSERT(!(*lhs == *rhs));                    \
+    ASSERT(*lhs != *rhs);                       \
+    ASSERT(!(*lhs > *rhs));                     \
+    ASSERT(!(*lhs >= *rhs))
+
+    auto lhs = pgfe::Data::make("dima");
+    auto rhs = pgfe::Data::make("olga");
+    ASSERTMENTS;
+    rhs = pgfe::Data::make("olgaolga");
+    ASSERTMENTS;
+#undef ASSERTMENTS
+  }
+
+  // ==, <=, >=
+  {
+#define ASSERTMENTS                             \
+    ASSERT(!(*lhs < *rhs));                     \
+    ASSERT(*lhs <= *rhs);                       \
+    ASSERT(*lhs == *rhs);                       \
+    ASSERT(!(*lhs != *rhs));                    \
+    ASSERT(!(*lhs > *rhs));                     \
+    ASSERT(*lhs >= *rhs)
+
+    auto lhs = pgfe::Data::make("dima");
+    auto rhs = pgfe::Data::make("dima");
+    ASSERTMENTS;
+    lhs = pgfe::Data::make("");
+    rhs = pgfe::Data::make("");
+    ASSERTMENTS;
+#undef ASSERTMENTS
+  }
+
+  // >, >=
+  {
+#define ASSERTMENTS                             \
+    ASSERT(!(*lhs < *rhs));                     \
+    ASSERT(!(*lhs <= *rhs));                    \
+    ASSERT(!(*lhs == *rhs));                    \
+    ASSERT(*lhs != *rhs);                       \
+    ASSERT(*lhs > *rhs);                        \
+    ASSERT(*lhs >= *rhs)
+
+    auto lhs = pgfe::Data::make("olga");
+    auto rhs = pgfe::Data::make("dima");
+    ASSERTMENTS;
+    lhs = pgfe::Data::make("olgaolga");
+    ASSERTMENTS;
+#undef ASSERTMENTS
+  }
 } catch (std::exception& e) {
   testo::report_failure(argv[0], e);
   return 1;

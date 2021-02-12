@@ -10,6 +10,7 @@
 #include "dmitigr/pgfe/types_fwd.hpp"
 
 #include <cstddef>
+#include <cstring>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -142,6 +143,64 @@ protected:
   /// @returns `true` if the invariant of this instance is correct.
   virtual bool is_invariant_ok() const;
 };
+
+/**
+ * @returns `true` if the first differing byte in `lhs` is less than the
+ * corresponding byte in `rhs`.
+ */
+inline bool operator<(const Data& lhs, const Data& rhs) noexcept
+{
+  const auto lsz = lhs.size();
+  const auto rsz = rhs.size();
+  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) < 0 : lsz < rsz;
+}
+
+/**
+ * @returns `true` if the first differing byte in `lhs` is less than the
+ * corresponding byte in `rhs` or if all bytes of `lhs` and `rhs` are equal.
+ */
+inline bool operator<=(const Data& lhs, const Data& rhs) noexcept
+{
+  const auto lsz = lhs.size();
+  const auto rsz = rhs.size();
+  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) <= 0 : lsz < rsz;
+}
+
+/// @returns `true` if all bytes of `lhs` and `rhs` are equal.
+inline bool operator==(const Data& lhs, const Data& rhs) noexcept
+{
+  const auto lsz = lhs.size();
+  const auto rsz = rhs.size();
+  return lsz == rsz && !std::memcmp(lhs.bytes(), rhs.bytes(), lsz);
+}
+
+/// @returns `true` if not all bytes of `lhs` and `rhs` are equal.
+inline bool operator!=(const Data& lhs, const Data& rhs) noexcept
+{
+  return !(lhs == rhs);
+}
+
+/**
+ * @returns `true` if the first differing byte in `lhs` is greater than the
+ * corresponding byte in `rhs`.
+ */
+inline bool operator>(const Data& lhs, const Data& rhs) noexcept
+{
+  const auto lsz = lhs.size();
+  const auto rsz = rhs.size();
+  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) > 0 : lsz > rsz;
+}
+
+/**
+ * @returns `true` if the first differing byte in `lhs` is greater than the
+ * corresponding byte in `rhs` or if all bytes of `lhs` and `rhs` are equal.
+ */
+inline bool operator>=(const Data& lhs, const Data& rhs) noexcept
+{
+  const auto lsz = lhs.size();
+  const auto rsz = rhs.size();
+  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) >= 0 : lsz > rsz;
+}
 
 // =============================================================================
 
