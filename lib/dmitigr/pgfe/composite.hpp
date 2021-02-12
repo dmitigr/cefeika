@@ -141,6 +141,30 @@ public:
     return const_cast<std::unique_ptr<Data>&>(static_cast<const Composite*>(this)->data(name, offset));
   }
 
+  /// @returns `data(index)`.
+  const auto& operator[](const std::size_t index) const noexcept
+  {
+    return data(index);
+  }
+
+  /// @overload
+  auto& operator[](const std::size_t index) noexcept
+  {
+    return const_cast<std::unique_ptr<Data>&>(static_cast<const Composite*>(this)->operator[](index));
+  }
+
+  /// @returns `data(name)`.
+  const auto& operator[](const std::string& name) const noexcept
+  {
+    return data(name);
+  }
+
+  /// @overload
+  auto& operator[](const std::string& name) noexcept
+  {
+    return const_cast<std::unique_ptr<Data>&>(static_cast<const Composite*>(this)->operator[](name));
+  }
+
   /**
    * @brief Sets the data of the specified index with the value of type T,
    * implicitly converted to the Data by using to_data().
