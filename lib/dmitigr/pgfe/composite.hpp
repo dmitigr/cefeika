@@ -361,9 +361,9 @@ inline int cmp(const Composite& lhs, const Composite& rhs) noexcept
 {
   if (const auto lsz = lhs.size(), rsz = rhs.size(); lsz == rsz) {
     for (auto i = 0*lsz; i < lsz; ++i) {
-      if (lhs[i] < rhs[i])
+      if (lhs.name_of(i) < rhs.name_of(i) || *lhs[i] < *rhs[i])
         return -1;
-      else if (lhs[i] > rhs[i])
+      else if (lhs.name_of(i) > rhs.name_of(i) || *lhs[i] > *rhs[i])
         return 1;
     }
     return 0;
