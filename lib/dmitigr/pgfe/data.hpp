@@ -145,61 +145,77 @@ protected:
 };
 
 /**
- * @returns `true` if the first differing byte in `lhs` is less than the
- * corresponding byte in `rhs`.
+ * @returns
+ *   - negative value if the first differing byte in `lhs` is less than the
+ *   corresponding byte in `rhs`;
+ *   - zero if all bytes of `lhs` and `rhs` are equal;
+ *   - positive value if the first differing byte in `lhs` is greater than the
+ *   corresponding byte in `rhs`.
  */
-inline bool operator<(const Data& lhs, const Data& rhs) noexcept
+inline int cmp(const Data& lhs, const Data& rhs) noexcept
 {
-  const auto lsz = lhs.size();
-  const auto rsz = rhs.size();
-  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) < 0 : lsz < rsz;
+  const auto lsz = lhs.size(), rsz = rhs.size();
+  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) : lsz < rsz ? -1 : 1;
 }
 
 /**
- * @returns `true` if the first differing byte in `lhs` is less than the
- * corresponding byte in `rhs` or if all bytes of `lhs` and `rhs` are equal.
+ * @returns `cmp(lhs, rhs) < 0`.
+ *
+ * @see cmp(const Data&, const Data&).
+ */
+inline bool operator<(const Data& lhs, const Data& rhs) noexcept
+{
+  return cmp(lhs, rhs) < 0;
+}
+
+/**
+ * @returns `cmp(lhs, rhs) <= 0`.
+ *
+ * @see cmp(const Data&, const Data&).
  */
 inline bool operator<=(const Data& lhs, const Data& rhs) noexcept
 {
-  const auto lsz = lhs.size();
-  const auto rsz = rhs.size();
-  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) <= 0 : lsz < rsz;
+  return cmp(lhs, rhs) <= 0;
 }
 
-/// @returns `true` if all bytes of `lhs` and `rhs` are equal.
+/**
+ * @returns `cmp(lhs, rhs) == 0`.
+ *
+ * @see cmp(const Data&, const Data&).
+ */
 inline bool operator==(const Data& lhs, const Data& rhs) noexcept
 {
-  const auto lsz = lhs.size();
-  const auto rsz = rhs.size();
-  return lsz == rsz && !std::memcmp(lhs.bytes(), rhs.bytes(), lsz);
+  return !cmp(lhs, rhs);
 }
 
-/// @returns `true` if not all bytes of `lhs` and `rhs` are equal.
+/**
+ * @returns `cmp(lhs, rhs) != 0`.
+ *
+ * @see cmp(const Data&, const Data&).
+ */
 inline bool operator!=(const Data& lhs, const Data& rhs) noexcept
 {
   return !(lhs == rhs);
 }
 
 /**
- * @returns `true` if the first differing byte in `lhs` is greater than the
- * corresponding byte in `rhs`.
+ * @returns `cmp(lhs, rhs) > 0`.
+ *
+ * @see cmp(const Data&, const Data&).
  */
 inline bool operator>(const Data& lhs, const Data& rhs) noexcept
 {
-  const auto lsz = lhs.size();
-  const auto rsz = rhs.size();
-  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) > 0 : lsz > rsz;
+  return cmp(lhs, rhs) > 0;
 }
 
 /**
- * @returns `true` if the first differing byte in `lhs` is greater than the
- * corresponding byte in `rhs` or if all bytes of `lhs` and `rhs` are equal.
+ * @returns `cmp(lhs, rhs) >= 0`.
+ *
+ * @see cmp(const Data&, const Data&).
  */
 inline bool operator>=(const Data& lhs, const Data& rhs) noexcept
 {
-  const auto lsz = lhs.size();
-  const auto rsz = rhs.size();
-  return lsz == rsz ? std::memcmp(lhs.bytes(), rhs.bytes(), lsz) >= 0 : lsz > rsz;
+  return cmp(lhs, rhs) >= 0;
 }
 
 // =============================================================================
