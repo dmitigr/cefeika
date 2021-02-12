@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -346,6 +347,88 @@ private:
 inline void swap(Composite& lhs, Composite& rhs) noexcept
 {
   lhs.swap(rhs);
+}
+
+/**
+ * @returns
+ *   - `-1` if the first differing field in `lhs` is less than the
+ *   corresponding field in `rhs`;
+ *   - `0` if all fields of `lhs` and `rhs` are equal;
+ *   - `1` if the first differing field in `lhs` is greater than the
+ *   corresponding field in `rhs`.
+ */
+inline int cmp(const Composite& lhs, const Composite& rhs) noexcept
+{
+  if (const auto lsz = lhs.size(), rsz = rhs.size(); lsz == rsz) {
+    for (auto i = 0*lsz; i < lsz; ++i) {
+      if (lhs[i] < rhs[i])
+        return -1;
+      else if (lhs[i] > rhs[i])
+        return 1;
+    }
+    return 0;
+  } else
+    return lsz < rsz ? -1 : 1;
+}
+
+/**
+ * @returns `cmp(lhs, rhs) < 0`.
+ *
+ * @see cmp(const Composite&, const Composite&).
+ */
+inline bool operator<(const Composite& lhs, const Composite& rhs) noexcept
+{
+  return cmp(lhs, rhs) < 0;
+}
+
+/**
+ * @returns `cmp(lhs, rhs) <= 0`.
+ *
+ * @see cmp(const Composite&, const Composite&).
+ */
+inline bool operator<=(const Composite& lhs, const Composite& rhs) noexcept
+{
+  return cmp(lhs, rhs) <= 0;
+}
+
+/**
+ * @returns `cmp(lhs, rhs) == 0`.
+ *
+ * @see cmp(const Composite&, const Composite&).
+ */
+inline bool operator==(const Composite& lhs, const Composite& rhs) noexcept
+{
+  return !cmp(lhs, rhs);
+}
+
+/**
+ * @returns `cmp(lhs, rhs) != 0`.
+ *
+ * @see cmp(const Composite&, const Composite&).
+ */
+inline bool operator!=(const Composite& lhs, const Composite& rhs) noexcept
+{
+  return !(lhs == rhs);
+}
+
+/**
+ * @returns `cmp(lhs, rhs) > 0`.
+ *
+ * @see cmp(const Composite&, const Composite&).
+ */
+inline bool operator>(const Composite& lhs, const Composite& rhs) noexcept
+{
+  return cmp(lhs, rhs) > 0;
+}
+
+/**
+ * @returns `cmp(lhs, rhs) >= 0`.
+ *
+ * @see cmp(const Composite&, const Composite&).
+ */
+inline bool operator>=(const Composite& lhs, const Composite& rhs) noexcept
+{
+  return cmp(lhs, rhs) >= 0;
 }
 
 } // namespace dmitigr::pgfe
