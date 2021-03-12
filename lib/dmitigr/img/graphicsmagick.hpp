@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or img.hpp
 
-#ifndef DMITIGR_MISC_GRAPHICSMAGICK_HPP
-#define DMITIGR_MISC_GRAPHICSMAGICK_HPP
+#ifndef DMITIGR_IMG_GRAPHICSMAGICK_HPP
+#define DMITIGR_IMG_GRAPHICSMAGICK_HPP
 
 #include <GraphicsMagick/Magick++.h>
 
@@ -13,10 +13,11 @@
 
 namespace dmitigr::img::graphicsmagick {
 
-/// A file type.
 enum class File_type { gif = 1, jpeg, png };
 
-/// @returns MIME in the GraphicsMagick notation.
+/**
+ * @returns MIME in the GraphicsMagick notation.
+ */
 constexpr const char* to_literal(const File_type file_type)
 {
   switch (file_type) {
@@ -26,7 +27,9 @@ constexpr const char* to_literal(const File_type file_type)
   }
 }
 
-/// The GraphicsMagick initialization.
+/**
+ * @brief The GraphicsMagick initialization.
+ */
 inline void init(const char* app_path)
 {
   ::Magick::InitializeMagick(app_path);
@@ -74,4 +77,4 @@ inline void resize(std::istream& input, std::ostream& output,
 
 } // namespace dmitigr::img::graphicsmagick
 
-#endif  // DMITIGR_MISC_GRAPHICSMAGICK_HPP
+#endif  // DMITIGR_IMG_GRAPHICSMAGICK_HPP
