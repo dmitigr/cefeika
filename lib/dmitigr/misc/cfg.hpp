@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_FLATCFG_HPP
-#define DMITIGR_MISC_FLATCFG_HPP
+#ifndef DMITIGR_MISC_CFG_HPP
+#define DMITIGR_MISC_CFG_HPP
 
 #include "dmitigr/misc/filesystem.hpp"
 #include "dmitigr/misc/reader.hpp"
@@ -155,4 +155,4 @@ private:
 
 } // namespace dmitigr::cfg
 
-#endif  // DMITIGR_MISC_FLATCFG_HPP
+#endif  // DMITIGR_MISC_CFG_HPP

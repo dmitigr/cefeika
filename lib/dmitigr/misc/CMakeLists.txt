@@ -15,10 +15,10 @@ dmitigr_set_library_info(misc 0 1 "Miscellaneous")
 set(dmitigr_misc_headers
   algo.hpp
   basics.hpp
+  cfg.hpp
   debug.hpp
   endianness.hpp
   filesystem.hpp
-  flatcfg.hpp
   fs.hpp
   macros.hpp
   math.hpp
