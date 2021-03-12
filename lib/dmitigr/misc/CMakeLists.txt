@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(misc 0 1 "Miscellaneous")
+dmitigr_set_library_info(misc 0 0 "Miscellaneous")
 
 # ------------------------------------------------------------------------------
 # Sources
