@@ -19,7 +19,7 @@ set(dmitigr_misc_headers
   debug.hpp
   endianness.hpp
   filesystem.hpp
-  fs.hpp
+  fsmisc.hpp
   macros.hpp
   math.hpp
   mem.hpp

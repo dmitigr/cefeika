@@ -20,15 +20,15 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_FS_HPP
-#define DMITIGR_MISC_FS_HPP
+#ifndef DMITIGR_MISC_FSMISC_HPP
+#define DMITIGR_MISC_FSMISC_HPP
 
 #include "dmitigr/misc/filesystem.hpp"
 
 #include <optional>
 #include <vector>
 
-namespace dmitigr::fs {
+namespace dmitigr::fsmisc {
 
 /**
  * @returns The vector of the paths.
@@ -98,6 +98,6 @@ parent_directory_path(const std::filesystem::path& dir)
   }
 }
 
-} // namespace dmitigr::fs
+} // namespace dmitigr::fsmisc
 
-#endif  // DMITIGR_MISC_FS_HPP
+#endif  // DMITIGR_MISC_FSMISC_HPP
