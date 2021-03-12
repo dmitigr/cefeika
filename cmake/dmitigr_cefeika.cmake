@@ -6,7 +6,6 @@ set(dmitigr_cefeika_libraries
   misc
 
   dt
-  img
   os
   rajson
 
@@ -25,7 +24,6 @@ set(dmitigr_cefeika_libraries
 set(dmitigr_cefeika_misc_deps)
 
 set(dmitigr_cefeika_dt_deps misc)
-set(dmitigr_cefeika_img_deps misc)
 set(dmitigr_cefeika_os_deps misc)
 set(dmitigr_cefeika_rajson_deps thirdparty_rapidjson)
 
