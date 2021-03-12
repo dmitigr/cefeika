@@ -65,8 +65,10 @@ public:
      * Setting magic numbers for the "version 4" (pseudorandom) UUID.
      * See http://tools.ietf.org/html/rfc4122#section-4.4
      */
-    result.data_.rep_.time_hi_and_version_ = (result.data_.rep_.time_hi_and_version_ & 0x0fff) | 0x4000;
-    result.data_.rep_.clock_seq_hi_and_reserved_ = (result.data_.rep_.clock_seq_hi_and_reserved_ & 0x3f) | 0x80;
+    result.data_.rep_.time_hi_and_version_ =
+      (result.data_.rep_.time_hi_and_version_ & 0x0fff) | 0x4000;
+    result.data_.rep_.clock_seq_hi_and_reserved_ =
+      (result.data_.rep_.clock_seq_hi_and_reserved_ & 0x3f) | 0x80;
 
     assert(result.is_invariant_ok());
     return result;
@@ -111,7 +113,8 @@ private:
 
   bool is_invariant_ok() const noexcept
   {
-    return std::any_of(std::cbegin(data_.raw_), std::cend(data_.raw_), [](const auto b) { return b != 0; });
+    return std::any_of(std::cbegin(data_.raw_), std::cend(data_.raw_),
+      [](const auto b) { return b != 0; });
   }
 };
 
