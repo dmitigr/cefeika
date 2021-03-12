@@ -296,7 +296,7 @@ public:
     if (is_http_only_)
       result.append("; ").append("HttpOnly");
     if (same_site_)
-      result.append("; ").append("SameSite=").append(http::to_string(*same_site_));
+      result.append("; ").append("SameSite=").append(http::to_string_view(*same_site_));
     return result;
   }
 

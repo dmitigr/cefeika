@@ -35,15 +35,15 @@ inline std::optional<Same_site> to_same_site(const std::string_view str) noexcep
 /**
  * @ingroup headers
  *
- * @returns The result of conversion of `ss` to the instance of type `std::string`.
+ * @returns The result of conversion of `ss` to the instance of type `std::string_view`.
  */
-inline std::string to_string(const Same_site ss)
+constexpr std::string_view to_string_view(const Same_site ss) noexcept
 {
   switch (ss) {
   case Same_site::strict: return "Strict";
   case Same_site::lax: return "Lax";
   }
-  assert(false);
+  return {};
 }
 
 // -----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ enum class Method {
  * @returns The literal representation of the `method`, or `nullptr`
  * if `method` does not corresponds to any value defined by Method.
  */
-constexpr const char* to_literal(const Method method) noexcept
+constexpr std::string_view to_string_view(const Method method) noexcept
 {
   switch (method) {
   case Method::get: return "GET";
@@ -76,7 +76,7 @@ constexpr const char* to_literal(const Method method) noexcept
   case Method::options: return "OPTIONS";
   case Method::trace: return "TRACE";
   }
-  return nullptr;
+  return {};
 }
 
 /**

@@ -11,14 +11,14 @@ int main(int, char* argv[])
   using namespace dmitigr::testo;
   using http::Same_site;
   using http::to_same_site;
-  using http::to_string;
+  using http::to_string_view;
 
   try {
     {
       ASSERT(to_same_site("Strict") == Same_site::strict);
       ASSERT(to_same_site("Lax") == Same_site::lax);
-      ASSERT(to_string(Same_site::strict) == "Strict");
-      ASSERT(to_string(Same_site::lax) == "Lax");
+      ASSERT(to_string_view(Same_site::strict) == "Strict");
+      ASSERT(to_string_view(Same_site::lax) == "Lax");
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);

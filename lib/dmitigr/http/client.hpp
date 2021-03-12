@@ -50,8 +50,8 @@ public:
   void send_start(const Method method, const std::string_view path, const bool skip_headers = false)
   {
     assert(!is_head_received());
-    const char* const m = to_literal(method);
-    assert(m);
+    const auto m{to_string_view(method)};
+    assert(!m.empty());
     std::string line;
     line.reserve(7 + 1 + path.size() + 11);
     line.append(m).append(" ").append(path).append(" HTTP/1.0\r\n");
