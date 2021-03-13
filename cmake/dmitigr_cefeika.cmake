@@ -28,15 +28,15 @@ set(dmitigr_cefeika_os_deps misc)
 set(dmitigr_cefeika_rajson_deps thirdparty_rapidjson)
 
 set(dmitigr_cefeika_jrpc_deps rajson misc)
-set(dmitigr_cefeika_net_deps os misc)
+set(dmitigr_cefeika_net_deps os)
 
-set(dmitigr_cefeika_fcgi_deps net misc)
-set(dmitigr_cefeika_http_deps dt net misc)
-set(dmitigr_cefeika_pgfe_deps net misc)
-set(dmitigr_cefeika_ws_deps thirdparty_uwebsockets net misc)
+set(dmitigr_cefeika_fcgi_deps net)
+set(dmitigr_cefeika_http_deps dt net)
+set(dmitigr_cefeika_pgfe_deps net)
+set(dmitigr_cefeika_ws_deps thirdparty_uwebsockets net)
 set(dmitigr_cefeika_wscl_deps thirdparty_uwsc)
 
-set(dmitigr_cefeika_web_deps fcgi http jrpc misc)
+set(dmitigr_cefeika_web_deps fcgi http jrpc)
 
 # ------------------------------------------------------------------------------
 
