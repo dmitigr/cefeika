@@ -19,15 +19,30 @@ namespace dmitigr::pgfe {
  *
  * @brief The base class of exceptions thrown on a client side.
  */
-class Client_exception : public std::system_error {
+class Client_exception : public std::exception {
 public:
   /// The constructor.
-  explicit Client_exception(const Client_errc errc)
-    : system_error(errc) {}
+  explicit Client_exception(const Client_errc errc, std::string what = {})
+    : condition_{errc}
+    , what_holder_{what.empty() ? to_literal(errc) :
+    what.append(" (").append(to_literal(errc)).append(")")}
+  {}
 
-  /// @overload
-  Client_exception(const Client_errc errc, const std::string& what)
-    : system_error(errc, what) {}
+  /// @returns The error condition.
+  const std::error_condition& condition() const noexcept
+  {
+    return condition_;
+  }
+
+  /// @returns An explanatory string.
+  const char* what() const noexcept override
+  {
+    return what_holder_.what();
+  }
+
+private:
+  std::error_condition condition_;
+  std::runtime_error what_holder_;
 };
 
 /**
@@ -52,7 +67,8 @@ class Excessive_array_dimensionality final : public Client_exception {
 public:
   /// The constructor.
   explicit Excessive_array_dimensionality(const std::string& what = {})
-    : Client_exception{Client_errc::excessive_array_dimensionality, what} {}
+    : Client_exception{Client_errc::excessive_array_dimensionality, what}
+  {}
 };
 
 /**
@@ -64,7 +80,8 @@ class Malformed_array_literal final : public Client_exception {
 public:
   /// The constructor.
   explicit Malformed_array_literal(const std::string& what = {})
-    : Client_exception{Client_errc::malformed_array_literal, what} {}
+    : Client_exception{Client_errc::malformed_array_literal, what}
+  {}
 };
 
 /**
@@ -76,7 +93,8 @@ class Improper_value_type_of_container final : public Client_exception {
 public:
   /// The constructor.
   explicit Improper_value_type_of_container(const std::string& what = {})
-    : Client_exception{Client_errc::improper_value_type_of_container, what} {}
+    : Client_exception{Client_errc::improper_value_type_of_container, what}
+  {}
 };
 
 /**
@@ -88,7 +106,8 @@ class Timed_out final : public Client_exception {
 public:
   /// The constructor.
   explicit Timed_out(const std::string& what = {})
-    : Client_exception{Client_errc::timed_out, what} {}
+    : Client_exception{Client_errc::timed_out, what}
+  {}
 };
 
 // -----------------------------------------------------------------------------
@@ -100,12 +119,11 @@ public:
  *
  * @brief The base class of exceptions thrown on a server side.
  */
-class Server_exception : public std::system_error {
+class Server_exception : public std::exception {
 public:
   /// The constructor.
-  explicit Server_exception(std::shared_ptr<Error> error)
-    : system_error(error ? error->code() : std::error_code{})
-    , error_(std::move(error))
+  explicit Server_exception(std::shared_ptr<Error>&& error)
+    : error_{std::move(error)}
   {
     assert(error_);
   }
@@ -114,6 +132,12 @@ public:
   const Error& error() const noexcept
   {
     return *error_;
+  }
+
+  /// @returns The brief human-readable description of the error.
+  const char* what() const noexcept override
+  {
+    return error_->brief();
   }
 
 private:
