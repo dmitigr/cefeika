@@ -55,7 +55,7 @@ public:
   }
 
   /// @see Compositional::name_of().
-  const std::string& name_of(const std::size_t index) const noexcept override
+  std::string_view name_of(const std::size_t index) const noexcept override
   {
     return info_.name_of(index);
   }
@@ -102,7 +102,7 @@ public:
    * @par Requires
    * `index_of(name, offset) < size()`.
    */
-  Data_view data(const std::string& name, std::size_t offset = 0) const noexcept
+  Data_view data(const std::string_view name, std::size_t offset = 0) const noexcept
   {
     return data(index_of(name, offset));
   }
@@ -114,7 +114,7 @@ public:
   }
 
   /// @overload
-  Data_view operator[](const std::string& name) const noexcept
+  Data_view operator[](const std::string_view name) const noexcept
   {
     return data(name);
   }

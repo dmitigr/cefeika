@@ -84,7 +84,7 @@ public:
   }
 
   /// @see Compositional::name_of().
-  const std::string& name_of(const std::size_t index) const noexcept override
+  std::string_view name_of(const std::size_t index) const noexcept override
   {
     assert(index < size());
     return datas_[index].first;

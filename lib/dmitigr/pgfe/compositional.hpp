@@ -34,7 +34,7 @@ public:
    * @par Requires
    * `(index < size())`.
    */
-  virtual const std::string& name_of(std::size_t index) const noexcept = 0;
+  virtual std::string_view name_of(std::size_t index) const noexcept = 0;
 
   /**
    * @returns The field index if presents, or `size()` othersize.
