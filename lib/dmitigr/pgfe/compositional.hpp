@@ -41,7 +41,7 @@ public:
    *
    * @param offset For cases when several fields are named equally.
    */
-  virtual std::size_t index_of(const std::string& name, std::size_t offset = 0) const noexcept = 0;
+  virtual std::size_t index_of(std::string_view name, std::size_t offset = 0) const noexcept = 0;
 
 private:
   friend Composite;

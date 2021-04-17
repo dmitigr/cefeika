@@ -61,7 +61,7 @@ public:
   }
 
   /// @see Compositional::index_of().
-  std::size_t index_of(const std::string& name, const std::size_t offset = 0) const noexcept override
+  std::size_t index_of(const std::string_view name, const std::size_t offset = 0) const noexcept override
   {
     return info_.index_of(name, offset);
   }

@@ -78,7 +78,7 @@ public:
   DMITIGR_PGFE_API const std::string& name_of(const std::size_t index) const noexcept override;
 
   /// @see Compositional::index_of().
-  DMITIGR_PGFE_API std::size_t index_of(const std::string& name, std::size_t offset = 0) const noexcept override;
+  DMITIGR_PGFE_API std::size_t index_of(const std::string_view name, std::size_t offset = 0) const noexcept override;
 
   /**
    * @returns The OID of the table if a field at `index` can be identified as a

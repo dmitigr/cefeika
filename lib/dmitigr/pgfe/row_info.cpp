@@ -43,7 +43,7 @@ DMITIGR_PGFE_INLINE const std::string& Row_info::name_of(const std::size_t index
   return (*shared_field_names_)[index];
 }
 
-DMITIGR_PGFE_INLINE std::size_t Row_info::index_of(const std::string& name, const std::size_t offset) const noexcept
+DMITIGR_PGFE_INLINE std::size_t Row_info::index_of(const std::string_view name, const std::size_t offset) const noexcept
 {
   const auto sz = shared_field_names_->size();
   const auto b = shared_field_names_->cbegin();
