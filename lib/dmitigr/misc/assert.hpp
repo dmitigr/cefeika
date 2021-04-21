@@ -38,6 +38,10 @@ constexpr bool is_debug{false};
 
 } // namespace dmitigr
 
+// Helpers
+#define DMITIGR_MISC_ASSERT_STR(s) #s
+#define DMITIGR_MISC_ASSERT_XSTR(s) DMITIGR_MISC_ASSERT_STR(s)
+
 /// Checks `a` always, even when `NDEBUG` is defined.
 #define dmitigr_assert_always(a) do {                                   \
     if (!(a)) {                                                         \
@@ -56,9 +60,8 @@ constexpr bool is_debug{false};
 /// Checks `a` always, even when `NDEBUG` is defined.
 #define dmitigr_check_always(a) do {                                    \
     if (!(a)) {                                                         \
-      throw std::logic_error{std::string{"check ("}.append(#a)          \
-          .append(") failed at ").append(__FILE__).append(":")          \
-          .append(std::to_string(__LINE__))};                           \
+      throw std::logic_error{"check (" #a ") failed at "                \
+          __FILE__ ":" DMITIGR_MISC_ASSERT_XSTR(__LINE__)};             \
     }                                                                   \
   } while (false)
 

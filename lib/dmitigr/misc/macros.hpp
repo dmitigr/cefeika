@@ -23,13 +23,19 @@
 #ifndef DMITIGR_MISC_MACROS_HPP
 #define DMITIGR_MISC_MACROS_HPP
 
+#ifndef DMITIGR_STRINGIZED
 /// Stringizes the argument `s`.
 #define DMITIGR_STRINGIZED(s) #s
+#endif
 
+#ifndef DMITIGR_XSTRINGIZED
 /// X-stringizes the argument `s`.
 #define DMITIGR_XSTRINGIZED(s) DMITIGR_STRINGIZED(s)
+#endif
 
+#ifndef DMITIGR_EXPAND
 /// Expands to `x`.
 #define DMITIGR_EXPAND(x) x
+#endif
 
 #endif // DMITIGR_MISC_MACROS_HPP
