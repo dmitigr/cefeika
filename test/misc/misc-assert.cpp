@@ -22,11 +22,11 @@ int main()
 {
   namespace testo = dmitigr::testo;
 
-  dmitigr_assert_always(testo::is_throw_works<std::logic_error>(
-      []{dmitigr_check_always(false);}));
+  DMITIGR_ASSERT_ALWAYS(testo::is_throw_works<std::logic_error>(
+      []{DMITIGR_CHECK_ALWAYS(false);}));
 
   std::set_terminate(&handle_terminate);
-  dmitigr_assert(true);
+  DMITIGR_ASSERT(true);
   if (true)
-    dmitigr_assert_always(false);
+    DMITIGR_ASSERT_ALWAYS(false);
 }

@@ -43,7 +43,7 @@ constexpr bool is_debug{false};
 #define DMITIGR_MISC_ASSERT_XSTR(s) DMITIGR_MISC_ASSERT_STR(s)
 
 /// Checks `a` always, even when `NDEBUG` is defined.
-#define dmitigr_assert_always(a) do {                                   \
+#define DMITIGR_ASSERT_ALWAYS(a) do {                                   \
     if (!(a)) {                                                         \
       std::cerr<<"assertion ("<<#a<<") failed at "<<__FILE__<<":"<<__LINE__<<"\n"; \
       std::terminate();                                                 \
@@ -52,13 +52,13 @@ constexpr bool is_debug{false};
 
 /// Checks `a` only if `NDEBUG` is not defined.
 #ifndef NDEBUG
-#define dmitigr_assert(a) dmitigr_assert_always(a)
+#define DMITIGR_ASSERT(a) DMITIGR_ASSERT_ALWAYS(a)
 #else
-#define dmitigr_assert(a) ((void)0)
+#define DMITIGR_ASSERT(a) ((void)0)
 #endif
 
 /// Checks `a` always, even when `NDEBUG` is defined.
-#define dmitigr_check_always(a) do {                        \
+#define DMITIGR_CHECK_ALWAYS(a) do {                        \
     if (!(a)) {                                             \
       throw std::logic_error{"check (" #a ") failed at "    \
           __FILE__ ":" DMITIGR_MISC_ASSERT_XSTR(__LINE__)}; \
@@ -67,9 +67,9 @@ constexpr bool is_debug{false};
 
 /// Checks `a` only if `NDEBUG` is not defined.
 #ifndef NDEBUG
-#define dmitigr_check(a) dmitigr_check_always(a)
+#define DMITIGR_CHECK(a) DMITIGR_CHECK_ALWAYS(a)
 #else
-#define dmitigr_check(a) ((void)0)
+#define DMITIGR_CHECK(a) ((void)0)
 #endif
 
 #endif  // DMITIGR_MISC_ASSERT_HPP
