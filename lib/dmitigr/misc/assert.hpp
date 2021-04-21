@@ -23,8 +23,20 @@
 #ifndef DMITIGR_MISC_ASSERT_HPP
 #define DMITIGR_MISC_ASSERT_HPP
 
-#include <exception>
 #include <iostream>
+#include <stdexcept>
+#include <string>
+
+namespace dmitigr {
+
+/// The debug mode indicator.
+#ifndef NDEBUG
+constexpr bool is_debug{true};
+#else
+constexpr bool is_debug{false};
+#endif
+
+} // namespace dmitigr
 
 /// Checks `a` always, even when `NDEBUG` is defined.
 #define dmitigr_assert_always(a) do {                                   \
@@ -39,6 +51,22 @@
 #define dmitigr_assert(a) dmitigr_assert_always(a)
 #else
 #define dmitigr_assert(a) ((void)0)
+#endif
+
+/// Checks `a` always, even when `NDEBUG` is defined.
+#define dmitigr_check_always(a) do {                                    \
+    if (!(a)) {                                                         \
+      throw std::logic_error{std::string{"check ("}.append(#a)          \
+          .append(") failed at ").append(__FILE__).append(":")          \
+          .append(std::to_string(__LINE__))};                           \
+    }                                                                   \
+  } while (false)
+
+/// Checks `a` only if `NDEBUG` is not defined.
+#ifndef NDEBUG
+#define dmitigr_check(a) dmitigr_check_always(a)
+#else
+#define dmitigr_check(a) ((void)0)
 #endif
 
 #endif  // DMITIGR_MISC_ASSERT_HPP
