@@ -23,19 +23,22 @@
 #ifndef DMITIGR_MISC_ASSERT_HPP
 #define DMITIGR_MISC_ASSERT_HPP
 
-#include <cassert>
-#include <cstdio>
-#include <cstdlib>
+#include <exception>
+#include <iostream>
 
-/// Checks the assertion only if `NDEBUG` is not defined.
-#define dmitigr_assert(a) assert(a);
-
-/// Checks the assertion even when `NDEBUG` is defined.
+/// Checks `a` always, even when `NDEBUG` is defined.
 #define dmitigr_assert_always(a) do {                                   \
     if (!(a)) {                                                         \
-      std::fprintf(stderr, "assertion (%s) failed at %s:%i\n", #a, __FILE__, __LINE__); \
-      std::abort();                                                     \
+      std::cerr<<"assertion ("<<#a<<") failed at "<<__FILE__<<":"<<__LINE__<<"\n"; \
+      std::terminate();                                                 \
     }                                                                   \
   } while (false)
+
+/// Checks `a` only if `NDEBUG` is not defined.
+#ifndef NDEBUG
+#define dmitigr_assert(a) dmitigr_assert_always(a)
+#else
+#define dmitigr_assert(a) ((void)0)
+#endif
 
 #endif  // DMITIGR_MISC_ASSERT_HPP
