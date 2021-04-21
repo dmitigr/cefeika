@@ -58,11 +58,11 @@ constexpr bool is_debug{false};
 #endif
 
 /// Checks `a` always, even when `NDEBUG` is defined.
-#define dmitigr_check_always(a) do {                                    \
-    if (!(a)) {                                                         \
-      throw std::logic_error{"check (" #a ") failed at "                \
-          __FILE__ ":" DMITIGR_MISC_ASSERT_XSTR(__LINE__)};             \
-    }                                                                   \
+#define dmitigr_check_always(a) do {                        \
+    if (!(a)) {                                             \
+      throw std::logic_error{"check (" #a ") failed at "    \
+          __FILE__ ":" DMITIGR_MISC_ASSERT_XSTR(__LINE__)}; \
+    }                                                       \
   } while (false)
 
 /// Checks `a` only if `NDEBUG` is not defined.
