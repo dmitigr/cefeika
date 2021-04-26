@@ -98,6 +98,13 @@ public:
       return *value_;
     }
 
+    /// @returns `value().value()` or `val`.
+    std::string value_or(std::string val) const
+    {
+      assert(is_valid());
+      return value_->value_or(std::move(val));
+    }
+
     /**
      * @returns `is_valid()` if the given option presents.
      *
