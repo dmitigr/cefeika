@@ -14,6 +14,7 @@ dmitigr_set_library_info(misc 0 0 "Miscellaneous")
 
 set(dmitigr_misc_headers
   algo.hpp
+  assert.hpp
   basics.hpp
   cfg.hpp
   debug.hpp
