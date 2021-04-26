@@ -78,12 +78,27 @@ public:
   template<typename R>
   std::optional<R> optional(const std::string_view name) const
   {
-    return optional__(*this, name);
+    return optional__<R>(*this, name);
   }
 
   /// @overload
   template<typename R>
   std::optional<R> optional(const std::string_view name)
+  {
+    return optional__<R>(*this, name);
+  }
+
+  /**
+   * @returns The instance of `std::optional<Value_view>` bound to member
+   * named by `name`.
+   */
+  auto optional(const std::string_view name) const
+  {
+    return optional__(*this, name);
+  }
+
+  /// @overload
+  auto optional(const std::string_view name)
   {
     return optional__(*this, name);
   }
@@ -140,13 +155,28 @@ private:
         .append(name).append("\"").append(" doesn't present")};
   }
 
-  template<class ValueView, typename R>
+  template<typename R, class ValueView>
   static std::optional<R> optional__(ValueView& view, const std::string_view name)
   {
     if (const auto i = view.optional_iterator(name); i != view.value_.MemberEnd())
       return rajson::to<R>(i->value);
     else
       return std::nullopt;
+  }
+
+  template<class ValueView>
+  static auto optional__(ValueView& view, const std::string_view name)
+  {
+    using Value = decltype(view.optional_iterator(name)->value);
+    using Result = std::conditional_t<
+      std::is_const_v<typename std::remove_reference_t<decltype(view.value_)>>,
+      std::optional<Value_view<std::add_const_t<Value>>>,
+      std::optional<Value_view<Value>>
+      >;
+    if (const auto i = view.optional_iterator(name); i != view.value_.MemberEnd())
+      return Result{i->value};
+    else
+      return Result{};
   }
 
   template<class ValueView>
