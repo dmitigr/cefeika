@@ -6,13 +6,15 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(web 0 1 "Web frameworks")
+dmitigr_set_library_info(web 0 1 "Web stuff")
 
 # ------------------------------------------------------------------------------
 # Sources
 # ------------------------------------------------------------------------------
 
 set(dmitigr_web_headers
+  mulf.hpp
+  url.hpp
   v1.hpp
   types_fwd.hpp
   )

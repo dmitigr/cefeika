@@ -9,10 +9,10 @@
 #include <dmitigr/http/http.hpp>
 #include <dmitigr/jrpc/jrpc.hpp>
 #include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/misc/mulf.hpp>
 #include <dmitigr/misc/reader.hpp>
 #include <dmitigr/misc/str.hpp>
 #include <dmitigr/misc/ttpl.hpp>
+#include <dmitigr/web/mulf.hpp>
 
 #include <cassert>
 #include <functional>

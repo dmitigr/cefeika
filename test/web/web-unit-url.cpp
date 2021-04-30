@@ -4,7 +4,7 @@
 
 #include <dmitigr/misc/str.hpp>
 #include <dmitigr/misc/testo.hpp>
-#include <dmitigr/misc/url.hpp>
+#include <dmitigr/web/url.hpp>
 
 int main(int, char* argv[])
 {

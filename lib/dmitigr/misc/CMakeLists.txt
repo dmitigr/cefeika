@@ -17,7 +17,6 @@ set(dmitigr_misc_headers
   assert.hpp
   basics.hpp
   cfg.hpp
-  debug.hpp
   endianness.hpp
   filesystem.hpp
   fsmisc.hpp
