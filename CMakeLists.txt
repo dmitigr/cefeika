@@ -196,10 +196,19 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   # Length of 0 means that the library is header-only anyway.
   list(LENGTH dmitigr_${lib}_implementations dmitigr_${lib}_implementations_length)
-  if(${dmitigr_${lib}_implementations_length} EQUAL 0)
-    set(dmitigr_${lib}_header_only TRUE)
-  else()
+  if(NOT ${dmitigr_${lib}_implementations_length} EQUAL 0)
+    # Some preprocessed headers (like dll.hpp) must be included for every
+    # library with implementation files.
+    foreach(file dll.hpp)
+      configure_file(lib/dmitigr/${file}.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
+        NEWLINE_STYLE UNIX)
+      list(APPEND dmitigr_${lib}_preprocessed_headers ${file})
+    endforeach()
+
     set(dmitigr_${lib}_header_only ${DMITIGR_CEFEIKA_HEADER_ONLY})
+  else()
+    set(dmitigr_${lib}_header_only TRUE)
   endif()
 
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${lib}.hpp)
@@ -214,14 +223,6 @@ foreach(lib ${dmitigr_cefeika_libraries})
   endif()
 
   if(NOT ${dmitigr_${lib}_header_only})
-    # Preprocessed headers
-    foreach(file dll.hpp)
-      configure_file(lib/dmitigr/${file}.in
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
-        NEWLINE_STYLE UNIX)
-      list(APPEND dmitigr_${lib}_preprocessed_headers ${file})
-    endforeach()
-
     # Transunits
     configure_file(lib/dmitigr/lib.cpp.in
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.cpp @ONLY
