@@ -24,7 +24,6 @@ set(dmitigr_misc_headers
   math.hpp
   mem.hpp
   mp.hpp
-  mulf.hpp
   progpar.hpp
   reader.hpp
   rng.hpp
@@ -32,7 +31,6 @@ set(dmitigr_misc_headers
   testo.hpp
   time.hpp
   ttpl.hpp
-  url.hpp
   uuid.hpp
   )
 
