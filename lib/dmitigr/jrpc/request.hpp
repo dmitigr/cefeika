@@ -359,6 +359,13 @@ public:
       std::forward<Types>(names)...);
   }
 
+  /// TODO:
+  template<class ... Types>
+  auto parameters_strict(Types&& ... names) const
+  {
+    throw "not implemented yet";
+  }
+
   /**
    * @brief Sets the method parameter of the specified `position` to the
    * specifid `value`.
