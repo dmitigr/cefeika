@@ -22,10 +22,6 @@
  * SOFTWARE.
  */
 
-/*
- * Modified by Dmitry Igrishin, 2020.
- */
-
 #ifndef _UWSC_H
 #define _UWSC_H
 
