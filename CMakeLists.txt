@@ -18,22 +18,22 @@ include(dmitigr_cefeika)
 # Build options
 # ------------------------------------------------------------------------------
 
-set(CMAKE_VERBOSE_MAKEFILE FALSE CACHE BOOL
-  "Verbose output upon build?")
-set(BUILD_SHARED_LIBS TRUE CACHE BOOL
-  "Build shared libraries?")
-set(DMITIGR_CEFEIKA_HEADER_ONLY FALSE CACHE BOOL
-  "Whole header-only?")
-set(DMITIGR_CEFEIKA_BUILD_TESTS FALSE CACHE BOOL
-  "Build tests?")
-set(DMITIGR_CEFEIKA_WITH_OPENSSL False CACHE BOOL
-  "Link to OpenSSL where possible?")
-set(DMITIGR_CEFEIKA_WITH_ZLIB False CACHE BOOL
-  "Link to Zlib where possible?")
-set(DMITIGR_LIBRARIAN_DEBUG FALSE CACHE BOOL
-  "Print librarian.cmake debug output?")
-set(DMITIGR_CEFEIKA_CLANG_USE_LIBCPP TRUE CACHE BOOL
+set(DMITIGR_CLANG_USE_LIBCPP On CACHE BOOL
   "Use libc++ with Clang?")
+set(DMITIGR_CEFEIKA_HEADER_ONLY On CACHE BOOL
+  "Whole header-only?")
+set(DMITIGR_CEFEIKA_TESTS On CACHE BOOL
+  "Build tests?")
+set(DMITIGR_CEFEIKA_OPENSSL Off CACHE BOOL
+  "Link to OpenSSL where possible?")
+set(DMITIGR_CEFEIKA_ZLIB Off CACHE BOOL
+  "Link to Zlib where possible?")
+set(DMITIGR_LIBRARIAN_DEBUG Off CACHE BOOL
+  "Print librarian.cmake debug output?")
+set(BUILD_SHARED_LIBS On CACHE BOOL
+  "Build shared libraries?")
+set(CMAKE_VERBOSE_MAKEFILE On CACHE BOOL
+  "Verbose output upon build?")
 
 if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   if(BUILD_SHARED_LIBS)
@@ -52,7 +52,7 @@ else()
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  if (DMITIGR_CEFEIKA_CLANG_USE_LIBCPP)
+  if (DMITIGR_CLANG_USE_LIBCPP)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
   endif()
 endif()
@@ -403,7 +403,7 @@ endforeach()
 # Tests
 # ------------------------------------------------------------------------------
 
-if(DMITIGR_CEFEIKA_BUILD_TESTS)
+if(DMITIGR_CEFEIKA_TESTS)
   enable_testing()
   message("The mode of building Dmitigr Cefeika tests is set.")
 

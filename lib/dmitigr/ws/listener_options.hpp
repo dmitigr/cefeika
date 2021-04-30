@@ -98,7 +98,7 @@ public:
   virtual DMITIGR_WS_API Listener_options& set_max_payload_size(std::size_t value);
 
   /**
-   * @return The current value of the maximum payload data size.
+   * @return The current value of the maximum size of received message.
    *
    * @see set_max_payload_size().
    */
@@ -128,7 +128,7 @@ public:
    * @brief Sets the SSL mode enabled if `(value == true)`.
    *
    * @par Requires
-   * The library must be compiled with DMITIGR_CEFEIKA_WITH_OPENSSL.
+   * The library must be compiled with DMITIGR_CEFEIKA_OPENSSL.
    *
    * @see is_ssl_enabled().
    */

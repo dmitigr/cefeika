@@ -85,10 +85,10 @@ public:
 
   void set_ssl_enabled(const bool value)
   {
-#ifndef DMITIGR_CEFEIKA_WITH_OPENSSL
+#ifndef DMITIGR_CEFEIKA_OPENSSL
     if (value)
       throw std::logic_error{"dmitigr::ws must be compiled with "
-        "DMITIGR_CEFEIKA_WITH_OPENSSL in order to enable SSL"};
+        "DMITIGR_CEFEIKA_OPENSSL in order to enable SSL"};
 #endif
     is_ssl_enabled_ = value;
     assert(is_invariant_ok());

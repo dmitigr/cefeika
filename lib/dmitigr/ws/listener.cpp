@@ -380,7 +380,7 @@ private:
 };
 
 using Non_ssl_listener = Lstnr<false>;
-#ifdef DMITIGR_CEFEIKA_WITH_OPENSSL
+#ifdef DMITIGR_CEFEIKA_OPENSSL
 using Ssl_listener = Lstnr<true>;
 #endif
 
@@ -393,7 +393,7 @@ DMITIGR_WS_INLINE Listener::Listener() = default;
 
 DMITIGR_WS_INLINE Listener::Listener(const Options& options)
 {
-#ifdef DMITIGR_CEFEIKA_WITH_OPENSSL
+#ifdef DMITIGR_CEFEIKA_OPENSSL
   if (options.is_ssl_enabled())
     rep_ = std::make_unique<detail::Ssl_listener>(this, options);
   else

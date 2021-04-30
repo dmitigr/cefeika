@@ -6,7 +6,7 @@ enable_language(C)
 set(C_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 
-if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+if (DMITIGR_CEFEIKA_OPENSSL)
   find_package(OpenSSL REQUIRED)
 endif()
 
@@ -35,7 +35,7 @@ set(usockets_sources
   src/internal/networking/bsd.h
   src/internal/networking/bsd_dmitigr.h
   )
-if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+if (DMITIGR_CEFEIKA_OPENSSL)
   list(APPEND usockets_sources src/crypto/openssl.c)
 endif()
 
@@ -80,7 +80,7 @@ target_include_directories(${lib}
   PRIVATE
   src)
 target_link_libraries(${lib} thirdparty_uv)
-if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+if (DMITIGR_CEFEIKA_OPENSSL)
   target_compile_definitions(${lib} PRIVATE LIBUS_USE_OPENSSL)
   target_link_libraries(${lib} OpenSSL::SSL OpenSSL::Crypto)
 else()

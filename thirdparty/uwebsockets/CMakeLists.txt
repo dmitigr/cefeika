@@ -9,7 +9,7 @@ target_include_directories(${lib} INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>)
 target_link_libraries(${lib} INTERFACE thirdparty_usockets)
-if (DMITIGR_CEFEIKA_WITH_ZLIB)
+if (DMITIGR_CEFEIKA_ZLIB)
   find_package(ZLIB REQUIRED)
   target_link_libraries(${lib} INTERFACE ZLIB::ZLIB)
 else()

@@ -48,8 +48,8 @@ if(WIN32)
   set(dmitigr_ws_target_compile_definitions_${suffix} WIN32_LEAN_AND_MEAN)
 endif()
 
-if(DMITIGR_CEFEIKA_WITH_OPENSSL)
-  set(dmitigr_ws_target_compile_definitions_private DMITIGR_CEFEIKA_WITH_OPENSSL)
+if(DMITIGR_CEFEIKA_OPENSSL)
+  set(dmitigr_ws_target_compile_definitions_private DMITIGR_CEFEIKA_OPENSSL)
 endif()
 
 # ------------------------------------------------------------------------------

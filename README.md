@@ -66,7 +66,7 @@ contains variables which can be passed to [CMake] for customization.
 |**The flag to only install the header-only libraries**||||
 |DMITIGR_CEFEIKA_HEADER_ONLY|On \| Off|Off|Off|
 |**The flag to build the tests**||||
-|DMITIGR_CEFEIKA_BUILD_TESTS|On \| Off|On|On|
+|DMITIGR_CEFEIKA_TESTS|On \| Off|On|On|
 |**Installation directories**||||
 |CMAKE_INSTALL_PREFIX|*an absolute path*|"/usr/local"|"%ProgramFiles%\dmitigr_cefeika"|
 |DMITIGR_CEFEIKA_SHARE_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"share/dmitigr_cefeika"|"."|

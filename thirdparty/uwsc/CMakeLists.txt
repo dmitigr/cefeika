@@ -10,7 +10,7 @@ set(CMAKE_C_STANDARD 11)
 
 find_package(Ev REQUIRED)
 
-if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+if (DMITIGR_CEFEIKA_OPENSSL)
   find_package(OpenSSL REQUIRED)
 endif()
 
@@ -31,7 +31,7 @@ set(${lib}_sources
   utils.c
   uwsc.c
   )
-if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+if (DMITIGR_CEFEIKA_OPENSSL)
   list(APPEND ${lib}_sources ssl.c)
 endif()
 list(TRANSFORM ${lib}_sources PREPEND src/)
@@ -77,7 +77,7 @@ target_include_directories(${lib}
   src)
 
 target_link_libraries(${lib} PUBLIC ${Suggested_Ev_LIBRARIES} thirdparty_buffer)
-if (DMITIGR_CEFEIKA_WITH_OPENSSL)
+if (DMITIGR_CEFEIKA_OPENSSL)
   target_compile_definitions(${lib} PUBLIC UWSC_SSL_SUPPORT PRIVATE UWSC_HAVE_OPENSSL)
   target_link_libraries(${lib} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 endif()
