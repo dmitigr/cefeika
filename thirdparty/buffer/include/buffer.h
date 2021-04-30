@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Jianhui Zhao <jianhuizhao329@gmail.com>
+ * Copyright (c) 2019 Jianhui Zhao <zhaojh329@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -71,6 +71,8 @@ int buffer_resize(struct buffer *b, size_t size);
 void buffer_free(struct buffer *b);
 void buffer_set_limit(struct buffer *b, size_t size);
 
+
+
 /* Actual data Length */
 static inline size_t buffer_length(const struct buffer *b)
 {
@@ -81,6 +83,15 @@ static inline size_t buffer_length(const struct buffer *b)
 static inline size_t buffer_size(const struct buffer *b)
 {
     return b->end - b->head;
+}
+
+/**
+ * buffer_grow - grow memory of the buffer
+ * @return: 0(success), -1(system error), 1(larger than limit)
+ */
+static inline int buffer_grow(struct buffer *b, size_t len)
+{
+    return buffer_resize(b, buffer_size(b) + len);
 }
 
 static inline size_t buffer_headroom(const struct buffer *b)
@@ -233,7 +244,7 @@ int buffer_put_vprintf(struct buffer *b, const char *fmt, va_list ap) __attribut
 int buffer_put_printf(struct buffer *b, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 
 /**
- *  buffer_put_fd_ex - Append data from a file to the end of a buffer. The file must be opened in nonblocking.
+ *  buffer_put_fd_ex - Append data from a file to the end of a buffer.
  *  @param fd: file descriptor
  *  @param len: how much data to read, or -1 to read as much as possible.
  *  @param eof: indicates end of file
@@ -257,6 +268,17 @@ static inline int buffer_put_fd(struct buffer *b, int fd, ssize_t len, bool *eof
  *	the buffer is already under the length specified it is not modified.
  */
 void buffer_truncate(struct buffer *b, size_t len);
+
+/* Discards data from tail */
+static inline void buffer_discard(struct buffer *b, size_t len)
+{
+    size_t data_len = buffer_length(b);
+
+    if (len > data_len)
+        len = data_len;
+
+    buffer_truncate(b, data_len - len);
+}
 
 /**
  *	buffer_pull - remove data from the start of a buffer

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Jianhui Zhao <jianhuizhao329@gmail.com>
+ * Copyright (c) 2019 Jianhui Zhao <zhaojh329@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #include "buffer.h"
 
@@ -98,15 +99,6 @@ void buffer_set_limit(struct buffer *b, size_t size)
     b->limit = new_size;
 }
 
-/**
- * buffer_grow - grow memory of the buffer
- * @return: 0(success), -1(system error), 1(larger than limit)
- */
-static inline int buffer_grow(struct buffer *b, size_t len)
-{
-    return buffer_resize(b, buffer_size(b) + len);
-}
-
 void *buffer_put(struct buffer *b, size_t len)
 {
     void *tmp;
@@ -159,16 +151,24 @@ int buffer_put_printf(struct buffer *b, const char *fmt, ...)
     return ret;
 }
 
+static inline bool fd_is_nonblock(int fd)
+{
+    return (fcntl(fd, F_GETFL) & O_NONBLOCK) == O_NONBLOCK;
+}
+
 int buffer_put_fd_ex(struct buffer *b, int fd, ssize_t len, bool *eof,
                      int (*rd)(int fd, void *buf, size_t count, void *arg), void *arg)
 {
+    bool nonblock = fd_is_nonblock(fd);
     ssize_t remain;
 
     if (len < 0)
         len = INT_MAX;
 
     remain = len;
-    *eof = false;
+
+    if (eof)
+        *eof = false;
 
     do {
         size_t tail_room = buffer_tailroom(b);
@@ -208,13 +208,14 @@ int buffer_put_fd_ex(struct buffer *b, int fd, ssize_t len, bool *eof,
         }
 
         if (!ret) {
-            *eof = true;
+            if (eof)
+                *eof = true;
             break;
         }
 
         b->tail += ret;
         remain -= ret;
-    } while (remain);
+    } while (remain && nonblock);
 
     return len - remain;
 }
@@ -245,6 +246,7 @@ size_t buffer_pull(struct buffer *b, void *dest, size_t len)
 int buffer_pull_to_fd_ex(struct buffer *b, int fd, ssize_t len,
                          int (*wr)(int fd, void *buf, size_t count, void *arg), void *arg)
 {
+    bool nonblock = fd_is_nonblock(fd);
     ssize_t remain;
 
     if (len < 0)
@@ -255,7 +257,7 @@ int buffer_pull_to_fd_ex(struct buffer *b, int fd, ssize_t len,
     if (remain > buffer_length(b))
         remain = buffer_length(b);
 
-    while (remain > 0) {
+    do {
         ssize_t ret;
 
         if (wr) {
@@ -279,7 +281,7 @@ int buffer_pull_to_fd_ex(struct buffer *b, int fd, ssize_t len,
 
         remain -= ret;
         b->data += ret;
-    }
+    } while (remain && nonblock);
 
     buffer_reclaim(b);
 
