@@ -90,7 +90,7 @@ else()
 endif()
 
 install(FILES libusockets.h libusockets_dmitigr.h
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
+  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/usockets")
 install(TARGETS ${target}
   EXPORT dmitigr_${target}_export
   ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})

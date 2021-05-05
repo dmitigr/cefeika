@@ -97,7 +97,7 @@ foreach(lib ${libs})
   target_link_libraries(${target} PUBLIC ${${lib}_link_libraries_public})
 
   install(FILES ${${lib}_headers}
-    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
+    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/zhaojh329")
   install(TARGETS ${target}
     EXPORT dmitigr_${target}_export
     ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
