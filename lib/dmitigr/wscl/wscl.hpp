@@ -23,9 +23,8 @@
 #ifndef DMITIGR_WSCL_WSCL_HPP
 #define DMITIGR_WSCL_WSCL_HPP
 
-#include "dmitigr/wscl/version.hpp"
-
-#include <uwsc.h>
+#include "version.hpp"
+#include "../thirdparty/zhaojh329/uwsc.h"
 
 #include <cassert>
 #include <cstring>
