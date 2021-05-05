@@ -65,35 +65,35 @@ endif()
 
 # ------------------------------------------------------------------------------
 
-set(target thirdparty_usockets)
+set(dmlib dmitigr_thirdparty_usockets)
 
-add_library(${target} STATIC ${usockets_sources})
-set_target_properties(${target}
+add_library(${dmlib} STATIC ${usockets_sources})
+set_target_properties(${dmlib}
   PROPERTIES
-  OUTPUT_NAME "dmitigr_${target}"
+  OUTPUT_NAME "${dmlib}"
   LINKER_LANGUAGE "C"
   POSITION_INDEPENDENT_CODE True
   DEBUG_POSTFIX "d")
-target_compile_definitions(${target}
+target_compile_definitions(${dmlib}
   PRIVATE ${usockets_defines}
   PUBLIC LIBUS_USE_LIBUV)
-target_compile_options(${target} PRIVATE ${usockets_cflags})
-target_include_directories(${target}
+target_compile_options(${dmlib} PRIVATE ${usockets_cflags})
+target_include_directories(${dmlib}
   PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-target_link_libraries(${target} PUBLIC thirdparty_uv)
+target_link_libraries(${dmlib} PUBLIC dmitigr_thirdparty_uv)
 if (DMITIGR_CEFEIKA_OPENSSL)
-  target_compile_definitions(${target} PRIVATE LIBUS_USE_OPENSSL)
-  target_link_libraries(${target} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
+  target_compile_definitions(${dmlib} PRIVATE LIBUS_USE_OPENSSL)
+  target_link_libraries(${dmlib} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 else()
-  target_compile_definitions(${target} PRIVATE LIBUS_NO_SSL)
+  target_compile_definitions(${dmlib} PRIVATE LIBUS_NO_SSL)
 endif()
 
 install(FILES libusockets.h libusockets_dmitigr.h
   DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/usockets")
-install(TARGETS ${target}
-  EXPORT dmitigr_${target}_export
+install(TARGETS ${dmlib}
+  EXPORT ${dmlib}_export
   ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
-install(EXPORT dmitigr_${target}_export
+install(EXPORT ${dmlib}_export
   DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
-  FILE "dmitigr_${target}_static-config.cmake")
+  FILE "${dmlib}_static-config.cmake")

@@ -173,6 +173,9 @@ install(FILES
 foreach(lib ${dmitigr_cefeika_libraries})
   string(TOUPPER "${lib}" LIB)
 
+  set(dmlib dmitigr_${lib})
+  set(DMLIB DMITIGR_${LIB})
+
   add_subdirectory(lib/dmitigr/${lib})
 
   dmitigr_set_library_info_lib_variables(${lib})
@@ -194,20 +197,20 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # -------------------------------------
 
   # Length of 0 means that the library is header-only anyway.
-  list(LENGTH dmitigr_${lib}_implementations dmitigr_${lib}_implementations_length)
-  if(NOT ${dmitigr_${lib}_implementations_length} EQUAL 0)
+  list(LENGTH ${dmlib}_implementations ${dmlib}_implementations_length)
+  if(NOT ${${dmlib}_implementations_length} EQUAL 0)
     # Some preprocessed headers (like dll.hpp) must be included for every
     # library with implementation files.
     foreach(file dll.hpp)
       configure_file(lib/dmitigr/${file}.in
         ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
         NEWLINE_STYLE UNIX)
-      list(APPEND dmitigr_${lib}_preprocessed_headers ${file})
+      list(APPEND ${dmlib}_preprocessed_headers ${file})
     endforeach()
 
-    set(dmitigr_${lib}_header_only ${DMITIGR_CEFEIKA_HEADER_ONLY})
+    set(${dmlib}_header_only ${DMITIGR_CEFEIKA_HEADER_ONLY})
   else()
-    set(dmitigr_${lib}_header_only TRUE)
+    set(${dmlib}_header_only TRUE)
   endif()
 
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${lib}.hpp)
@@ -215,46 +218,46 @@ foreach(lib ${dmitigr_cefeika_libraries})
     configure_file(lib/dmitigr/lib.hpp.in
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.hpp @ONLY
       NEWLINE_STYLE UNIX)
-    list(APPEND dmitigr_${lib}_root_headers "../${lib}.hpp")
+    list(APPEND ${dmlib}_root_headers "../${lib}.hpp")
 
     # Headers
-    list(APPEND dmitigr_${lib}_headers ${lib}.hpp)
+    list(APPEND ${dmlib}_headers ${lib}.hpp)
   endif()
 
-  if(NOT ${dmitigr_${lib}_header_only})
+  if(NOT ${${dmlib}_header_only})
     # Transunits
     configure_file(lib/dmitigr/lib.cpp.in
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.cpp @ONLY
       NEWLINE_STYLE UNIX)
-    list(APPEND dmitigr_${lib}_transunits "../${lib}.cpp")
+    list(APPEND ${dmlib}_transunits "../${lib}.cpp")
   endif()
 
   # Both major and minor versions of 0 means that the library handles
   # versioning by itself, so no version.* files needs to be configured.
-  if((${dmitigr_${lib}_version_major} GREATER 0) OR (${dmitigr_${lib}_version_minor} GREATER 0))
+  if((${${dmlib}_version_major} GREATER 0) OR (${${dmlib}_version_minor} GREATER 0))
     # Preprocessing
     configure_file(lib/dmitigr/version.hpp.in
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.hpp @ONLY
       NEWLINE_STYLE UNIX)
-    list(APPEND dmitigr_${lib}_preprocessed_headers version.hpp)
+    list(APPEND ${dmlib}_preprocessed_headers version.hpp)
 
-    if(WIN32 AND NOT ${dmitigr_${lib}_header_only})
+    if(WIN32 AND NOT ${${dmlib}_header_only})
       configure_file(lib/dmitigr/version.rc.in
         ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.rc @ONLY
         NEWLINE_STYLE UNIX)
-      list(APPEND dmitigr_${lib}_build_only_sources version.rc)
+      list(APPEND ${dmlib}_build_only_sources version.rc)
     endif()
   endif()
 
   foreach(st ${dmitigr_source_types})
-    list(TRANSFORM dmitigr_${lib}_${st} PREPEND "lib/dmitigr/${lib}/")
-    list(APPEND dmitigr_${lib}_sources ${dmitigr_${lib}_${st}})
+    list(TRANSFORM ${dmlib}_${st} PREPEND "lib/dmitigr/${lib}/")
+    list(APPEND ${dmlib}_sources ${${dmlib}_${st}})
   endforeach()
 
   set_source_files_properties(
-    ${dmitigr_${lib}_implementations}
-    ${dmitigr_${lib}_cmake_sources}
-    ${dmitigr_${lib}_cmake_unpreprocessed}
+    ${${dmlib}_implementations}
+    ${${dmlib}_cmake_sources}
+    ${${dmlib}_cmake_unpreprocessed}
 
     PROPERTIES
     HEADER_FILE_ONLY ON)
@@ -263,57 +266,57 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Targets
   # ------------------------------------
 
-  if(NOT ${dmitigr_${lib}_header_only})
-    add_library(${lib} ${dmitigr_${lib}_sources})
+  if(NOT ${${dmlib}_header_only})
+    add_library(${dmlib} ${${dmlib}_sources})
   else()
-    add_library(${lib} INTERFACE)
+    add_library(${dmlib} INTERFACE)
   endif()
-  add_library(dmitigr::${lib} ALIAS ${lib})
+  add_library(dmitigr::${lib} ALIAS ${dmlib})
 
-  if(NOT ${dmitigr_${lib}_header_only})
-    set(output_name "dmitigr_${lib}")
+  if(NOT ${${dmlib}_header_only})
+    set(output_name "${dmlib}")
     if(BUILD_SHARED_LIBS)
-      target_compile_definitions(${lib}
-        PRIVATE DMITIGR_${LIB}_DLL_BUILDING
-        PUBLIC  DMITIGR_${LIB}_DLL)
+      target_compile_definitions(${dmlib}
+        PRIVATE ${DMLIB}_DLL_BUILDING
+        PUBLIC  ${DMLIB}_DLL)
     elseif(WIN32)
-      set(output_name "dmitigr_${lib}_static")
+      set(output_name "${dmlib}_static")
     endif()
 
-    set_target_properties(${lib}
+    set_target_properties(${dmlib}
       PROPERTIES
       OUTPUT_NAME "${output_name}"
       LINKER_LANGUAGE "CXX"
       POSITION_INDEPENDENT_CODE True
-      VERSION ${dmitigr_${lib}_version_major}.${dmitigr_${lib}_version_minor}
+      VERSION ${${dmlib}_version_major}.${${dmlib}_version_minor}
       DEBUG_POSTFIX "d")
 
-    dmitigr_target_compile_options(${lib})
+    dmitigr_target_compile_options(${dmlib})
   else() # header-only
-    target_compile_definitions(${lib} INTERFACE DMITIGR_${LIB}_HEADER_ONLY)
+    target_compile_definitions(${dmlib} INTERFACE ${DMLIB}_HEADER_ONLY)
   endif()
 
-  if(NOT ${dmitigr_${lib}_header_only})
-    target_compile_definitions(${lib}
-      PRIVATE ${dmitigr_${lib}_target_compile_definitions_private}
-      PUBLIC  ${dmitigr_${lib}_target_compile_definitions_public})
+  if(NOT ${${dmlib}_header_only})
+    target_compile_definitions(${dmlib}
+      PRIVATE ${${dmlib}_target_compile_definitions_private}
+      PUBLIC  ${${dmlib}_target_compile_definitions_public})
 
-    target_include_directories(${lib}
-      PRIVATE ${dmitigr_${lib}_target_include_directories_private}
-      PUBLIC  ${dmitigr_${lib}_target_include_directories_public})
+    target_include_directories(${dmlib}
+      PRIVATE ${${dmlib}_target_include_directories_private}
+      PUBLIC  ${${dmlib}_target_include_directories_public})
 
-    target_include_directories(${lib} BEFORE PRIVATE
+    target_include_directories(${dmlib} BEFORE PRIVATE
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
       )
   else() # header-only
-    target_compile_definitions(${lib}
-      INTERFACE ${dmitigr_${lib}_target_compile_definitions_interface})
+    target_compile_definitions(${dmlib}
+      INTERFACE ${${dmlib}_target_compile_definitions_interface})
 
-    target_include_directories(${lib}
-      INTERFACE ${dmitigr_${lib}_target_include_directories_interface})
+    target_include_directories(${dmlib}
+      INTERFACE ${${dmlib}_target_include_directories_interface})
 
-    target_include_directories(${lib} BEFORE INTERFACE
+    target_include_directories(${dmlib} BEFORE INTERFACE
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
       )
@@ -323,68 +326,68 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Dependencies
   # ------------------------------------
 
-  if(NOT ${dmitigr_${lib}_header_only})
+  if(NOT ${${dmlib}_header_only})
     foreach(dep ${dmitigr_cefeika_${lib}_deps})
-      target_link_libraries(${lib} PUBLIC ${dep})
+      target_link_libraries(${dmlib} PUBLIC dmitigr_${dep})
     endforeach()
 
     # Link with manually specified dependencies in ${lib}/CMakeLists.txt (if any)
-    target_link_libraries(${lib}
-      PRIVATE ${dmitigr_${lib}_target_link_libraries_private}
-      PUBLIC  ${dmitigr_${lib}_target_link_libraries_public})
+    target_link_libraries(${dmlib}
+      PRIVATE ${${dmlib}_target_link_libraries_private}
+      PUBLIC  ${${dmlib}_target_link_libraries_public})
   else() # header-only
     foreach(dep ${dmitigr_cefeika_${lib}_deps})
-      target_link_libraries(${lib} INTERFACE ${dep})
+      target_link_libraries(${dmlib} INTERFACE dmitigr_${dep})
     endforeach()
 
     # Link with manually specified dependencies in ${lib}/CMakeLists.txt (if any)
-    target_link_libraries(${lib}
-      INTERFACE ${dmitigr_${lib}_target_link_libraries_interface})
+    target_link_libraries(${dmlib}
+      INTERFACE ${${dmlib}_target_link_libraries_interface})
   endif()
 
   # ------------------------------------
   # Installing
   # ------------------------------------
 
-  install(FILES ${dmitigr_${lib}_root_headers}
+  install(FILES ${${dmlib}_root_headers}
     DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr)
 
-  install(FILES ${dmitigr_${lib}_preprocessed_headers}
+  install(FILES ${${dmlib}_preprocessed_headers}
     DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
 
-  install(FILES ${dmitigr_${lib}_headers}
+  install(FILES ${${dmlib}_headers}
     DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
 
-  if(NOT ${dmitigr_${lib}_header_only})
-    install(TARGETS ${lib}
-      EXPORT dmitigr_${lib}_export
+  if(NOT ${${dmlib}_header_only})
+    install(TARGETS ${dmlib}
+      EXPORT ${dmlib}_export
       ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
       LIBRARY  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
       RUNTIME  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
       INCLUDES DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
   else()
-    install(TARGETS ${lib}
-      EXPORT dmitigr_${lib}_export
+    install(TARGETS ${dmlib}
+      EXPORT ${dmlib}_export
       INCLUDES DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
 
-    install(FILES ${dmitigr_${lib}_implementations}
+    install(FILES ${${dmlib}_implementations}
       DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
   endif()
 
-  install(EXPORT dmitigr_${lib}_export
+  install(EXPORT ${dmlib}_export
     NAMESPACE dmitigr::
     DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
-    FILE dmitigr_${lib}_${export_file_suffix}-config.cmake)
+    FILE ${dmlib}_${export_file_suffix}-config.cmake)
 
   # ------------------------------------
   # Uninstalling
   # ------------------------------------
 
   add_custom_command(TARGET dmitigr_cefeika_uninstall PRE_BUILD
-    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}/dmitigr_${lib}*
-    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_DOC_INSTALL_DIR}/dmitigr_${lib}*
-    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/dmitigr_${lib}*
-    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/libdmitigr_${lib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}/${dmlib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_DOC_INSTALL_DIR}/${dmlib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/${dmlib}*
+    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/lib${dmlib}*
     COMMAND cmake -E rm -rf ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib}*
     COMMAND cmake -E rm -rf ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
 
@@ -408,6 +411,7 @@ if(DMITIGR_CEFEIKA_TESTS)
   message("The mode of building Dmitigr Cefeika tests is set.")
 
   function(dmitigr_configure_test lib test)
+    set(dmlib dmitigr_${lib})
     set(full_name "${lib}-${test}")
     if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}/${full_name}.cpp")
       set(is_unit_test TRUE)
@@ -415,10 +419,10 @@ if(DMITIGR_CEFEIKA_TESTS)
     else()
       set(is_unit_test FALSE)
     endif()
-    set(exe "${full_name}")
+    set(exe "dmitigr_${full_name}")
     set(src "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}/${full_name}.cpp")
     add_executable(${exe} ${src})
-    target_link_libraries(${exe} PRIVATE dmitigr::misc dmitigr::${lib} ${dmitigr_${lib}_tests_target_link_libraries})
+    target_link_libraries(${exe} PRIVATE dmitigr::misc dmitigr::${lib} ${${dmlib}_tests_target_link_libraries})
     dmitigr_target_compile_options(${exe})
     if(is_unit_test)
       add_test(NAME ${exe} COMMAND ${exe})
@@ -426,9 +430,10 @@ if(DMITIGR_CEFEIKA_TESTS)
   endfunction()
 
   foreach(lib ${dmitigr_cefeika_libraries})
+    set(dmlib dmitigr_${lib})
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}")
       add_subdirectory(test/${lib})
-      foreach(test ${dmitigr_${lib}_tests})
+      foreach(test ${${dmlib}_tests})
         dmitigr_configure_test(${lib} ${test})
       endforeach()
     endif()

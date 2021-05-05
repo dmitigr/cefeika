@@ -206,31 +206,31 @@ endif()
 
 # ------------------------------------------------------------------------------
 
-set(lib thirdparty_uv)
+set(dmlib dmitigr_thirdparty_uv)
 
-add_library(${lib} STATIC ${uv_sources})
-set_target_properties(${lib}
+add_library(${dmlib} STATIC ${uv_sources})
+set_target_properties(${dmlib}
   PROPERTIES
-  OUTPUT_NAME "dmitigr_${lib}"
+  OUTPUT_NAME "${dmlib}"
   LINKER_LANGUAGE "C"
   POSITION_INDEPENDENT_CODE True
   DEBUG_POSTFIX "d")
-target_compile_definitions(${lib} PRIVATE ${uv_defines})
-target_compile_options(${lib} PRIVATE ${uv_cflags})
-target_include_directories(${lib}
+target_compile_definitions(${dmlib} PRIVATE ${uv_defines})
+target_compile_options(${dmlib} PRIVATE ${uv_cflags})
+target_include_directories(${dmlib}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>
   PRIVATE
   src
   )
-target_link_libraries(${lib} ${uv_libraries})
+target_link_libraries(${dmlib} ${uv_libraries})
 
 install(DIRECTORY "include/"
   DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
-install(TARGETS ${lib}
-  EXPORT dmitigr_${lib}_export
+install(TARGETS ${dmlib}
+  EXPORT ${dmlib}_export
   ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
-install(EXPORT dmitigr_${lib}_export
+install(EXPORT ${dmlib}_export
   DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
-  FILE "dmitigr_${lib}_static-config.cmake")
+  FILE "${dmlib}_static-config.cmake")
