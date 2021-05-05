@@ -2,12 +2,22 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
-set(buffer_sources
+set(buffer_headers
+  buffer.h
+  )
+set(buffer_implementations
   buffer.c
   )
 list(APPEND libs buffer)
 if ("wscl" IN_LIST dmitigr_cefeika_libraries)
-  set(uwsc_sources
+  set(uwsc_headers
+    config.h
+    log.h
+    sha1.h
+    utils.h
+    uwsc.h
+    )
+  set(uwsc_implementations
     log.c
     sha1.c
     utils.c
@@ -19,7 +29,8 @@ if ("wscl" IN_LIST dmitigr_cefeika_libraries)
 
   if(DMITIGR_CEFEIKA_OPENSSL)
     find_package(OpenSSL REQUIRED)
-    list(APPEND uwsc_sources ssl.c)
+    list(APPEND uwsc_headers ssl.h)
+    list(APPEND uwsc_implementations ssl.c)
   endif()
 endif()
 
@@ -69,7 +80,7 @@ if(DMITIGR_CEFEIKA_OPENSSL)
 endif()
 foreach(lib ${libs})
   set(target thirdparty_${lib})
-  add_library(${target} STATIC ${${lib}_sources})
+  add_library(${target} STATIC ${${lib}_implementations} ${${lib}_headers})
   set_target_properties(${target}
     PROPERTIES
     OUTPUT_NAME "dmitigr_${target}"
@@ -81,12 +92,11 @@ foreach(lib ${libs})
     PRIVATE ${libs_defines})
   target_compile_options(${target} PRIVATE ${libs_cflags})
   target_include_directories(${target}
-    PUBLIC
-    $<BUILD_INTERFACE:${${lib}_include_directories_build_interface}>
-    $<INSTALL_INTERFACE:${${lib}_include_directories_install_interface}>)
+    PRIVATE
+    $<BUILD_INTERFACE:${${lib}_include_directories_build_interface}>)
   target_link_libraries(${target} PUBLIC ${${lib}_link_libraries_public})
 
-  install(DIRECTORY "include/"
+  install(FILES ${${lib}_headers}
     DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
   install(TARGETS ${target}
     EXPORT dmitigr_${target}_export
