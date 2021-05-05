@@ -116,18 +116,18 @@ set(CXX_STANDARD_REQUIRED ON)
 # ------------------------------------------------------------------------------
 
 if ("rajson" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(thirdparty/rapidjson)
+  add_subdirectory(lib/dmitigr/thirdparty/rapidjson)
 endif()
 
 if ("ws" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(thirdparty/uv)
-  add_subdirectory(thirdparty/usockets)
-  add_subdirectory(thirdparty/uwebsockets)
+  add_subdirectory(lib/dmitigr/thirdparty/uv)
+  add_subdirectory(lib/dmitigr/thirdparty/usockets)
+  add_subdirectory(lib/dmitigr/thirdparty/uwebsockets)
 endif()
 
 if ("wscl" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(thirdparty/buffer)
-  add_subdirectory(thirdparty/uwsc)
+  add_subdirectory(lib/dmitigr/thirdparty/buffer)
+  add_subdirectory(lib/dmitigr/thirdparty/uwsc)
 endif()
 
 # ------------------------------------------------------------------------------
