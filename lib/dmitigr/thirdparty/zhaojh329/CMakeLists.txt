@@ -72,8 +72,7 @@ endif()
 # ------------------------------------------------------------------------------
 
 set(uwsc_link_libraries_public ${Suggested_Ev_LIBRARIES} thirdparty_buffer)
-set(uwsc_include_directories_build_interface ${Ev_INCLUDE_DIRS})
-set(uwsc_include_directories_install_interface ${Ev_INCLUDE_DIRS})
+set(uwsc_include_directories_public ${Ev_INCLUDE_DIRS})
 if(DMITIGR_CEFEIKA_OPENSSL)
   set(uwsc_compile_definitions_public UWSC_SSL_SUPPORT UWSC_HAVE_OPENSSL)
   list(APPEND uwsc_link_libraries_public OpenSSL::SSL OpenSSL::Crypto)
@@ -92,8 +91,7 @@ foreach(lib ${libs})
     PRIVATE ${libs_defines})
   target_compile_options(${target} PRIVATE ${libs_cflags})
   target_include_directories(${target}
-    PRIVATE
-    $<BUILD_INTERFACE:${${lib}_include_directories_build_interface}>)
+    PUBLIC ${${lib}_include_directories_public})
   target_link_libraries(${target} PUBLIC ${${lib}_link_libraries_public})
 
   install(FILES ${${lib}_headers}
