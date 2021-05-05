@@ -6,11 +6,10 @@
 #define DMITIGR_RAJSON_CONVERSIONS_HPP
 
 #include "dmitigr/rajson/fwd.hpp"
-
-#include <rapidjson/document.h>
-#include <rapidjson/schema.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
+#include "../thirdparty/rapidjson/document.h"
+#include "../thirdparty/rapidjson/schema.h"
+#include "../thirdparty/rapidjson/stringbuffer.h"
+#include "../thirdparty/rapidjson/writer.h"
 
 #include <cstdint>
 #include <limits>

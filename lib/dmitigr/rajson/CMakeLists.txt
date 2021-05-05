@@ -22,16 +22,6 @@ set(dmitigr_rajson_implementations
   )
 
 # ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
-foreach(t interface)
-  set(dmitigr_rajson_target_compile_definitions_${t}
-    RAPIDJSON_HAS_STDSTRING=1
-    RAPIDJSON_NO_SIZETYPEDEFINE)
-endforeach()
-
-# ------------------------------------------------------------------------------
 # Variables propagation
 # ------------------------------------------------------------------------------
 
