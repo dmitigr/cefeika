@@ -2,17 +2,20 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
-set(lib thirdparty_rapidjson)
+set(target thirdparty_rapidjson)
 
-add_library(${lib} INTERFACE)
-target_include_directories(${lib} INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>)
+add_library(${target} INTERFACE)
 
-install(DIRECTORY "include/"
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
-install(TARGETS ${lib}
-  EXPORT dmitigr_${lib}_export)
-install(EXPORT dmitigr_${lib}_export
+target_compile_definitions(${target}
+  INTERFACE
+  RAPIDJSON_HAS_STDSTRING=1
+  RAPIDJSON_NO_SIZETYPEDEFINE)
+
+install(DIRECTORY "./"
+  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/rapidjson"
+  FILES_MATCHING PATTERN "*.h")
+install(TARGETS ${target}
+  EXPORT dmitigr_${target}_export)
+install(EXPORT dmitigr_${target}_export
   DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
-  FILE dmitigr_${lib}_interface-config.cmake)
+  FILE dmitigr_${target}_interface-config.cmake)
