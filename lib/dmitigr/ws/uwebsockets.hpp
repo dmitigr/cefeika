@@ -21,9 +21,9 @@
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #endif
 
-#include <uwebsockets/App.h>
-#include <uwebsockets/HttpParser.h>
-#include <uwebsockets/HttpResponse.h>
+#include "../thirdparty/uwebsockets/App.h"
+#include "../thirdparty/uwebsockets/HttpParser.h"
+#include "../thirdparty/uwebsockets/HttpResponse.h"
 
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
