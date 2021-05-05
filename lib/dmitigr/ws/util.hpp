@@ -5,7 +5,7 @@
 #ifndef DMITIGR_WS_UTIL_HPP
 #define DMITIGR_WS_UTIL_HPP
 
-#include <libusockets_dmitigr.h>
+#include "../thirdparty/usockets/libusockets_dmitigr.h"
 
 #include <cassert>
 #include <string_view>

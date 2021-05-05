@@ -21,22 +21,27 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
     -Wno-unused-parameter)
 endif()
 
+set(usockets_headers
+  internal/internal.h
+  internal/internal_dmitigr.h
+  internal/loop_data.h
+  internal/eventing/libuv.h
+  internal/networking/bsd.h
+  internal/networking/bsd_dmitigr.h
+  )
 set(usockets_sources
-  src/bsd.c
-  src/context.c
-  src/loop.c
-  src/socket.c
-  src/socket_dmitigr.c
-  src/eventing/libuv.c
-  src/internal/internal.h
-  src/internal/internal_dmitigr.h
-  src/internal/loop_data.h
-  src/internal/eventing/libuv.h
-  src/internal/networking/bsd.h
-  src/internal/networking/bsd_dmitigr.h
+  bsd.c
+  context.c
+  loop.c
+  socket.c
+  socket_dmitigr.c
+  eventing/libuv.c
   )
 if (DMITIGR_CEFEIKA_OPENSSL)
-  list(APPEND usockets_sources src/crypto/openssl.c)
+  list(APPEND usockets_sources crypto/openssl.c crypto/sni_tree.cpp)
+  list(APPEND usockets_cflags
+    -fpermissive
+    )
 endif()
 
 if(WIN32)
@@ -60,38 +65,35 @@ endif()
 
 # ------------------------------------------------------------------------------
 
-set(lib thirdparty_usockets)
+set(target thirdparty_usockets)
 
-add_library(${lib} STATIC ${usockets_sources})
-set_target_properties(${lib}
+add_library(${target} STATIC ${usockets_sources})
+set_target_properties(${target}
   PROPERTIES
-  OUTPUT_NAME "dmitigr_${lib}"
+  OUTPUT_NAME "dmitigr_${target}"
   LINKER_LANGUAGE "C"
   POSITION_INDEPENDENT_CODE True
   DEBUG_POSTFIX "d")
-target_compile_definitions(${lib}
+target_compile_definitions(${target}
   PRIVATE ${usockets_defines}
   PUBLIC LIBUS_USE_LIBUV)
-target_compile_options(${lib} PRIVATE ${usockets_cflags})
-target_include_directories(${lib}
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>
+target_compile_options(${target} PRIVATE ${usockets_cflags})
+target_include_directories(${target}
   PRIVATE
-  src)
-target_link_libraries(${lib} thirdparty_uv)
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_link_libraries(${target} PUBLIC thirdparty_uv)
 if (DMITIGR_CEFEIKA_OPENSSL)
-  target_compile_definitions(${lib} PRIVATE LIBUS_USE_OPENSSL)
-  target_link_libraries(${lib} OpenSSL::SSL OpenSSL::Crypto)
+  target_compile_definitions(${target} PRIVATE LIBUS_USE_OPENSSL)
+  target_link_libraries(${target} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 else()
-  target_compile_definitions(${lib} PRIVATE LIBUS_NO_SSL)
+  target_compile_definitions(${target} PRIVATE LIBUS_NO_SSL)
 endif()
 
-install(DIRECTORY "include/"
+install(FILES libusockets.h libusockets_dmitigr.h
   DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
-install(TARGETS ${lib}
-  EXPORT dmitigr_${lib}_export
+install(TARGETS ${target}
+  EXPORT dmitigr_${target}_export
   ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
-install(EXPORT dmitigr_${lib}_export
+install(EXPORT dmitigr_${target}_export
   DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
-  FILE "dmitigr_${lib}_static-config.cmake")
+  FILE "dmitigr_${target}_static-config.cmake")

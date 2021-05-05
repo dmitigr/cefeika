@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
 #include "dmitigr/ws/timer.hpp"
+#include "../thirdparty/usockets/libusockets.h"
 
-#include <libusockets.h>
 #include <uv.h> // instead of <internal/eventing/libuv.h>
 
 #include <cassert>
