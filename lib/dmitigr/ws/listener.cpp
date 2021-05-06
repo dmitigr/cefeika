@@ -83,21 +83,34 @@ public:
       namespace chrono = std::chrono;
       typename App::WebSocketBehavior<Ws_data> result;
 
+      // These options are not yet exposed.
       result.compression = uWS::DISABLED;
+      result.closeOnBackpressureLimit = false;
+      result.resetIdleTimeoutOnSend = true;
+      result.sendPingsAutomatically = true;
+      result.maxLifetime = 0;
 
       using Timeout = decltype(result.idleTimeout);
+      constexpr auto max_idle_timeout = std::numeric_limits<Timeout>::max();
       const auto idle_timeout = chrono::duration_cast<chrono::seconds>(
         options().idle_timeout().value_or(chrono::milliseconds::zero()));
-      constexpr auto max_idle_timeout = std::numeric_limits<Timeout>::max();
-      result.idleTimeout = std::min(max_idle_timeout, static_cast<Timeout>(idle_timeout.count()));
+      using Native_timeout = decltype(idle_timeout.count());
+      static_assert(sizeof(Timeout) <= sizeof(Native_timeout));
+      result.idleTimeout = std::min<Native_timeout>(max_idle_timeout, idle_timeout.count());
 
+      using Payload = decltype(result.maxPayloadLength);
+      constexpr auto max_payload_length = std::numeric_limits<Payload>::max();
       const auto max_payload_size = options().max_payload_size();
-      assert(max_payload_size <= std::numeric_limits<int>::max());
-      result.maxPayloadLength = static_cast<decltype(result.maxPayloadLength)>(max_payload_size);
+      using Native_payload = decltype(max_payload_size);
+      static_assert(sizeof(Payload) <= sizeof(Native_payload));
+      result.maxPayloadLength = std::min<Native_payload>(max_payload_length, max_payload_size);
 
+      using Backpressure = decltype(result.maxBackpressure);
+      constexpr auto max_backpressure = std::numeric_limits<Backpressure>::max();
       const auto max_buffered_amount = options().max_buffered_amount();
-      assert(max_buffered_amount <= std::numeric_limits<int>::max());
-      result.maxBackpressure = static_cast<decltype(result.maxBackpressure)>(max_buffered_amount);
+      using Native_backpressure = decltype(max_buffered_amount);
+      static_assert(sizeof(Backpressure) <= sizeof(Native_backpressure));
+      result.maxBackpressure = std::min<Native_backpressure>(max_backpressure, max_buffered_amount);
 
       result.upgrade = [this](uWS::HttpResponse<IsSsl>* const res, uWS::HttpRequest* const req,
         us_socket_context_t* const ctx)
