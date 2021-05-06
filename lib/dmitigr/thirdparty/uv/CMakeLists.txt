@@ -218,19 +218,19 @@ set_target_properties(${dmlib}
 target_compile_definitions(${dmlib} PRIVATE ${uv_defines})
 target_compile_options(${dmlib} PRIVATE ${uv_cflags})
 target_include_directories(${dmlib}
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty>
   PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   src
   )
-target_link_libraries(${dmlib} ${uv_libraries})
+target_link_libraries(${dmlib} PUBLIC ${uv_libraries})
 
-install(DIRECTORY "include/"
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty")
+install(DIRECTORY uv
+  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/uv")
+install(FILES uv.h
+  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/uv")
 install(TARGETS ${dmlib}
   EXPORT ${dmlib}_export
-  ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
+  ARCHIVE DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
 install(EXPORT ${dmlib}_export
   DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
   FILE "${dmlib}_static-config.cmake")
