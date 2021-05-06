@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or fcgi.hpp
 
-#include "dmitigr/fcgi/basics.hpp"
-#include "dmitigr/fcgi/server_connection.hpp"
-#include "dmitigr/fcgi/streambuf.hpp"
-#include <dmitigr/misc/math.hpp>
+#include "basics.hpp"
+#include "server_connection.hpp"
+#include "streambuf.hpp"
+#include "../misc/math.hpp"
 
 #include <algorithm>
 #include <array>

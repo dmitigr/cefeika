@@ -5,18 +5,18 @@
 #ifndef DMITIGR_PGFE_CONNECTION_HPP
 #define DMITIGR_PGFE_CONNECTION_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/completion.hpp"
-#include "dmitigr/pgfe/connection_options.hpp"
-#include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/error.hpp"
-#include "dmitigr/pgfe/notice.hpp"
-#include "dmitigr/pgfe/notification.hpp"
-#include "dmitigr/pgfe/pq.hpp"
-#include "dmitigr/pgfe/prepared_statement.hpp"
-#include "dmitigr/pgfe/sql_string.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "basics.hpp"
+#include "completion.hpp"
+#include "connection_options.hpp"
+#include "data.hpp"
+#include "dll.hpp"
+#include "error.hpp"
+#include "notice.hpp"
+#include "notification.hpp"
+#include "pq.hpp"
+#include "prepared_statement.hpp"
+#include "sql_string.hpp"
+#include "types_fwd.hpp"
 
 #include <cassert>
 #include <chrono>
@@ -1428,8 +1428,8 @@ inline void swap(Connection& lhs, Connection& rhs) noexcept
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/connection.cpp"
-#include "dmitigr/pgfe/prepared_statement.cpp"
+#include "connection.cpp"
+#include "prepared_statement.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_CONNECTION_HPP

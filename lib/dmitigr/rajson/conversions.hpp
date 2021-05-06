@@ -5,7 +5,7 @@
 #ifndef DMITIGR_RAJSON_CONVERSIONS_HPP
 #define DMITIGR_RAJSON_CONVERSIONS_HPP
 
-#include "dmitigr/rajson/fwd.hpp"
+#include "fwd.hpp"
 #include "../thirdparty/rapidjson/document.h"
 #include "../thirdparty/rapidjson/schema.h"
 #include "../thirdparty/rapidjson/stringbuffer.h"

@@ -5,8 +5,8 @@
 #ifndef DMITIGR_OS_LOG_HPP
 #define DMITIGR_OS_LOG_HPP
 
-#include "dmitigr/os/proc.hpp"
-#include <dmitigr/misc/filesystem.hpp>
+#include "proc.hpp"
+#include "../misc/filesystem.hpp"
 
 #include <fstream>
 #include <iostream>

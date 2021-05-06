@@ -5,7 +5,7 @@
 #ifndef DMITIGR_HTTP_HEADER_HPP
 #define DMITIGR_HTTP_HEADER_HPP
 
-#include "dmitigr/http/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 #include <memory>
 #include <string>

@@ -9,9 +9,9 @@
 #ifndef DMITIGR_OS_PROC_DETACH_HPP
 #define DMITIGR_OS_PROC_DETACH_HPP
 
-#include "dmitigr/os/log.hpp"
-#include "dmitigr/os/proc.hpp"
-#include <dmitigr/misc/filesystem.hpp>
+#include "log.hpp"
+#include "proc.hpp"
+#include "../misc/filesystem.hpp"
 
 #include <cassert>
 #include <cstdlib>

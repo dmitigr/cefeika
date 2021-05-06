@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_COMPOSITE_HPP
 #define DMITIGR_PGFE_COMPOSITE_HPP
 
-#include "dmitigr/pgfe/compositional.hpp"
-#include "dmitigr/pgfe/conversions.hpp"
-#include "dmitigr/pgfe/data.hpp"
+#include "compositional.hpp"
+#include "conversions.hpp"
+#include "data.hpp"
 
 #include <algorithm>
 #include <cassert>

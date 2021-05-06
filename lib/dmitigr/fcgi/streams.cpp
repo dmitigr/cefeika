@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or fcgi.hpp
 
-#include "dmitigr/fcgi/basics.hpp"
-#include "dmitigr/fcgi/streambuf.hpp"
-#include "dmitigr/fcgi/streams.hpp"
+#include "basics.hpp"
+#include "streambuf.hpp"
+#include "streams.hpp"
 
 #include <cassert>
 

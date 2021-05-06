@@ -5,7 +5,7 @@
 #ifndef DMITIGR_WS_TIMER_HPP
 #define DMITIGR_WS_TIMER_HPP
 
-#include "dmitigr/ws/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 #include <chrono>
 #include <functional>
@@ -79,7 +79,7 @@ private:
 } // namespace dmitigr::ws
 
 #ifdef DMITIGR_WS_HEADER_ONLY
-#include "dmitigr/ws/timer.cpp"
+#include "timer.cpp"
 #endif
 
 #endif  // DMITIGR_WS_TIMER_HPP

@@ -27,6 +27,6 @@
 #ifndef DMITIGR_WEB_HPP
 #define DMITIGR_WEB_HPP
 
-#include "dmitigr/web/web.hpp"
+#include "web/web.hpp"
 
 #endif  // DMITIGR_WEB_HPP

@@ -6,7 +6,7 @@
 #define DMITIGR_OS_PROC_HPP
 
 #ifdef _WIN32
-#include "dmitigr/os/windows.hpp"
+#include "windows.hpp"
 #else
 #include <sys/types.h>
 #include <unistd.h>

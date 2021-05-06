@@ -9,8 +9,8 @@
 // This file was generated automatically. Edit defaults.hpp.in instead!
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#include "dmitigr/pgfe/basics.hpp"
-#include <dmitigr/misc/filesystem.hpp>
+#include "basics.hpp"
+#include "../misc/filesystem.hpp"
 
 #include <chrono>
 #include <cstdint>

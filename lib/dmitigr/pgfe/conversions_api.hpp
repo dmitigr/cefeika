@@ -5,7 +5,7 @@
 #ifndef DMITIGR_PGFE_CONVERSIONS_API_HPP
 #define DMITIGR_PGFE_CONVERSIONS_API_HPP
 
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 #include <memory>
 #include <type_traits>

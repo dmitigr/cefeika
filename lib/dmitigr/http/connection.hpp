@@ -5,10 +5,10 @@
 #ifndef DMITIGR_HTTP_CONNECTION_HPP
 #define DMITIGR_HTTP_CONNECTION_HPP
 
-#include "dmitigr/http/basics.hpp"
-#include "dmitigr/http/types_fwd.hpp"
-#include <dmitigr/misc/str.hpp>
-#include <dmitigr/net/descriptor.hpp>
+#include "basics.hpp"
+#include "types_fwd.hpp"
+#include "../misc/str.hpp"
+#include "../net/descriptor.hpp"
 
 //#include <iostream>
 

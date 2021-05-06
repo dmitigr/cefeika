@@ -27,6 +27,6 @@
 #ifndef DMITIGR_PGFE_HPP
 #define DMITIGR_PGFE_HPP
 
-#include "dmitigr/pgfe/pgfe.hpp"
+#include "pgfe/pgfe.hpp"
 
 #endif  // DMITIGR_PGFE_HPP

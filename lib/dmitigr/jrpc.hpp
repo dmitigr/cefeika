@@ -27,6 +27,6 @@
 #ifndef DMITIGR_JRPC_HPP
 #define DMITIGR_JRPC_HPP
 
-#include "dmitigr/jrpc/jrpc.hpp"
+#include "jrpc/jrpc.hpp"
 
 #endif  // DMITIGR_JRPC_HPP

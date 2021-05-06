@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_NOTIFICATION_HPP
 #define DMITIGR_PGFE_NOTIFICATION_HPP
 
-#include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/pq.hpp"
-#include "dmitigr/pgfe/signal.hpp"
+#include "data.hpp"
+#include "pq.hpp"
+#include "signal.hpp"
 
 #include <cassert>
 #include <cstdint>

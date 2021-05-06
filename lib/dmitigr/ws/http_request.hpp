@@ -5,8 +5,8 @@
 #ifndef DMITIGR_WS_HTTP_REQUEST_HPP
 #define DMITIGR_WS_HTTP_REQUEST_HPP
 
-#include "dmitigr/ws/types_fwd.hpp"
-#include "dmitigr/net/address.hpp"
+#include "types_fwd.hpp"
+#include "../net/address.hpp"
 
 #include <string>
 #include <string_view>
@@ -46,7 +46,7 @@ private:
 } // namespace dmitigr::ws
 
 #ifdef DMITIGR_WS_HEADER_ONLY
-#include "dmitigr/ws/http_request.cpp"
+#include "http_request.cpp"
 #endif
 
 #endif  // DMITIGR_WS_HTTP_REQUEST_HPP

@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_STD_SYSTEM_ERROR_HPP
 #define DMITIGR_PGFE_STD_SYSTEM_ERROR_HPP
 
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/errc.hpp"
+#include "dll.hpp"
+#include "errc.hpp"
 
 #include <system_error>
 
@@ -129,7 +129,7 @@ template<> struct is_error_condition_enum<dmitigr::pgfe::Server_errc> final : tr
 } // namespace std
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/std_system_error.cpp"
+#include "std_system_error.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_STD_SYSTEM_ERROR_HPP

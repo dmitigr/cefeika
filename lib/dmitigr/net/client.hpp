@@ -5,9 +5,9 @@
 #ifndef DMITIGR_NET_CLIENT_HPP
 #define DMITIGR_NET_CLIENT_HPP
 
-#include "dmitigr/net/descriptor.hpp"
-#include "dmitigr/net/endpoint.hpp"
-#include "dmitigr/net/socket.hpp"
+#include "descriptor.hpp"
+#include "endpoint.hpp"
+#include "socket.hpp"
 
 #include <cassert>
 #include <memory>

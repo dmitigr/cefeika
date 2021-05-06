@@ -23,8 +23,8 @@
 #ifndef DMITIGR_DT_DT_HPP
 #define DMITIGR_DT_DT_HPP
 
-#include "dmitigr/dt/basics.hpp"
-#include "dmitigr/dt/timestamp.hpp"
-#include "dmitigr/dt/version.hpp"
+#include "basics.hpp"
+#include "timestamp.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_DT_DT_HPP

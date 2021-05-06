@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or fcgi.hpp
 
-#include "dmitigr/fcgi/basics.hpp"
-#include "dmitigr/fcgi/connection.hpp"
-#include <dmitigr/misc/math.hpp>
-#include <dmitigr/net/descriptor.hpp>
+#include "basics.hpp"
+#include "connection.hpp"
+#include "../misc/math.hpp"
+#include "../net/descriptor.hpp"
 
 #include <algorithm>
 #include <array>

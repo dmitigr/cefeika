@@ -27,6 +27,6 @@
 #ifndef DMITIGR_WSCL_HPP
 #define DMITIGR_WSCL_HPP
 
-#include "dmitigr/wscl/wscl.hpp"
+#include "wscl/wscl.hpp"
 
 #endif  // DMITIGR_WSCL_HPP

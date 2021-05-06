@@ -27,6 +27,6 @@
 #ifndef DMITIGR_@dmitigr_lib_NAME@_HPP
 #define DMITIGR_@dmitigr_lib_NAME@_HPP
 
-#include "dmitigr/@dmitigr_lib_name@/@dmitigr_lib_name@.hpp"
+#include "@dmitigr_lib_name@/@dmitigr_lib_name@.hpp"
 
 #endif  // DMITIGR_@dmitigr_lib_NAME@_HPP

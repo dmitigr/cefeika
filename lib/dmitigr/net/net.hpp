@@ -23,16 +23,16 @@
 #ifndef DMITIGR_NET_NET_HPP
 #define DMITIGR_NET_NET_HPP
 
-#include "dmitigr/net/address.hpp"
-#include "dmitigr/net/client.hpp"
-#include "dmitigr/net/conversions.hpp"
-#include "dmitigr/net/descriptor.hpp"
-#include "dmitigr/net/endpoint.hpp"
-#include "dmitigr/net/exceptions.hpp"
-#include "dmitigr/net/listener.hpp"
-#include "dmitigr/net/socket.hpp"
-#include "dmitigr/net/types_fwd.hpp"
-#include "dmitigr/net/util.hpp"
-#include "dmitigr/net/version.hpp"
+#include "address.hpp"
+#include "client.hpp"
+#include "conversions.hpp"
+#include "descriptor.hpp"
+#include "endpoint.hpp"
+#include "exceptions.hpp"
+#include "listener.hpp"
+#include "socket.hpp"
+#include "types_fwd.hpp"
+#include "util.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_NET_NET_HPP

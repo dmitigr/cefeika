@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/prepared_statement.hpp"
-#include "dmitigr/pgfe/connection.hpp"
-#include "dmitigr/pgfe/exceptions.hpp"
-#include "dmitigr/pgfe/sql_string.hpp"
+#include "prepared_statement.hpp"
+#include "connection.hpp"
+#include "exceptions.hpp"
+#include "sql_string.hpp"
 
 #include <algorithm>
 

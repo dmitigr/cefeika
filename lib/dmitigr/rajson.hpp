@@ -27,6 +27,6 @@
 #ifndef DMITIGR_RAJSON_HPP
 #define DMITIGR_RAJSON_HPP
 
-#include "dmitigr/rajson/rajson.hpp"
+#include "rajson/rajson.hpp"
 
 #endif  // DMITIGR_RAJSON_HPP

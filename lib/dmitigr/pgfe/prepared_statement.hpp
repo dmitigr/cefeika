@@ -5,13 +5,13 @@
 #ifndef DMITIGR_PGFE_PREPARED_STATEMENT_HPP
 #define DMITIGR_PGFE_PREPARED_STATEMENT_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/conversions.hpp"
-#include "dmitigr/pgfe/parameterizable.hpp"
-#include "dmitigr/pgfe/response.hpp"
-#include "dmitigr/pgfe/row_info.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
-#include <dmitigr/misc/mem.hpp>
+#include "basics.hpp"
+#include "conversions.hpp"
+#include "parameterizable.hpp"
+#include "response.hpp"
+#include "row_info.hpp"
+#include "types_fwd.hpp"
+#include "../misc/mem.hpp"
 
 #include <algorithm>
 #include <cassert>

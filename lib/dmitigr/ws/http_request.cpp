@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
-#include "dmitigr/ws/http_request.hpp"
-#include "dmitigr/ws/uwebsockets.hpp"
+#include "http_request.hpp"
+#include "uwebsockets.hpp"
 
 #include <cassert>
 

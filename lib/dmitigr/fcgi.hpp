@@ -27,6 +27,6 @@
 #ifndef DMITIGR_FCGI_HPP
 #define DMITIGR_FCGI_HPP
 
-#include "dmitigr/fcgi/fcgi.hpp"
+#include "fcgi/fcgi.hpp"
 
 #endif  // DMITIGR_FCGI_HPP

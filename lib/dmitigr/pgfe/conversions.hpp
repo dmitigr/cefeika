@@ -5,14 +5,14 @@
 #ifndef DMITIGR_PGFE_CONVERSIONS_HPP
 #define DMITIGR_PGFE_CONVERSIONS_HPP
 
-#include "dmitigr/pgfe/array_conversions.hpp"
-#include "dmitigr/pgfe/basic_conversions.hpp"
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/row.hpp"
-#include "dmitigr/pgfe/exceptions.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
-#include <dmitigr/net/conversions.hpp>
+#include "array_conversions.hpp"
+#include "basic_conversions.hpp"
+#include "basics.hpp"
+#include "data.hpp"
+#include "row.hpp"
+#include "exceptions.hpp"
+#include "types_fwd.hpp"
+#include "../net/conversions.hpp"
 
 #include <cassert>
 #include <cstring>

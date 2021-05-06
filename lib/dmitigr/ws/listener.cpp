@@ -2,14 +2,14 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
-#include "dmitigr/ws/connection.hpp"
-#include "dmitigr/ws/http_io.hpp"
-#include "dmitigr/ws/http_request.hpp"
-#include "dmitigr/ws/listener.hpp"
-#include "dmitigr/ws/listener_options.hpp"
-#include "dmitigr/ws/timer.hpp"
-#include "dmitigr/ws/util.hpp"
-#include "dmitigr/ws/uwebsockets.hpp"
+#include "connection.hpp"
+#include "http_io.hpp"
+#include "http_request.hpp"
+#include "listener.hpp"
+#include "listener_options.hpp"
+#include "timer.hpp"
+#include "util.hpp"
+#include "uwebsockets.hpp"
 
 #include <algorithm>
 #include <cassert>

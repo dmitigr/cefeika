@@ -2,11 +2,11 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
-#include "dmitigr/ws/basics.hpp"
-#include "dmitigr/ws/connection.hpp"
-#include "dmitigr/ws/util.hpp"
-#include "dmitigr/ws/uwebsockets.hpp"
-#include <dmitigr/net/net.hpp>
+#include "basics.hpp"
+#include "connection.hpp"
+#include "util.hpp"
+#include "uwebsockets.hpp"
+#include "../net/net.hpp"
 
 #include <cassert>
 

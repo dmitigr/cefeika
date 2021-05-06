@@ -12,4 +12,4 @@
 #ifndef DMITIGR_FCGI_BUILDING
 #define DMITIGR_FCGI_BUILDING
 #endif
-#include "dmitigr/fcgi.hpp"
+#include "fcgi.hpp"

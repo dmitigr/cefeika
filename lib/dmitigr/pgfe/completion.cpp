@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/completion.hpp"
+#include "completion.hpp"
 
 #include <cassert>
 #include <cstdlib>

@@ -5,11 +5,11 @@
 #ifndef DMITIGR_WS_LISTENER_OPTIONS_HPP
 #define DMITIGR_WS_LISTENER_OPTIONS_HPP
 
-#include "dmitigr/ws/dll.hpp"
-#include "dmitigr/ws/types_fwd.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
-#include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/net/types_fwd.hpp>
+#include "../misc/filesystem.hpp"
+#include "../net/types_fwd.hpp"
 
 #include <chrono>
 #include <memory>
@@ -243,7 +243,7 @@ private:
 } // namespace dmitigr::ws
 
 #ifdef DMITIGR_WS_HEADER_ONLY
-#include "dmitigr/ws/listener_options.cpp"
+#include "listener_options.cpp"
 #endif
 
 #endif  // DMITIGR_WS_LISTENER_OPTIONS_HPP

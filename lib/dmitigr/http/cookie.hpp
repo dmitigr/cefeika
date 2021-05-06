@@ -5,9 +5,9 @@
 #ifndef DMITIGR_HTTP_COOKIE_HPP
 #define DMITIGR_HTTP_COOKIE_HPP
 
-#include "dmitigr/http/header.hpp"
-#include "dmitigr/http/syntax.hpp"
-#include "dmitigr/http/types_fwd.hpp"
+#include "header.hpp"
+#include "syntax.hpp"
+#include "types_fwd.hpp"
 
 #include <algorithm>
 #include <cassert>

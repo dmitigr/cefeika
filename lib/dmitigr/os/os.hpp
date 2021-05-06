@@ -23,11 +23,11 @@
 #ifndef DMITIGR_OS_OS_HPP
 #define DMITIGR_OS_OS_HPP
 
-#include "dmitigr/os/env.hpp"
-#include "dmitigr/os/proc.hpp"
+#include "env.hpp"
+#include "proc.hpp"
 #ifndef _WIN32
-#include "dmitigr/os/proc_detach.hpp"
+#include "proc_detach.hpp"
 #endif
-#include "dmitigr/os/version.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_OS_OS_HPP

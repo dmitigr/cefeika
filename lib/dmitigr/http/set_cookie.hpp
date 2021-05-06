@@ -5,11 +5,11 @@
 #ifndef DMITIGR_HTTP_SET_COOKIE_HPP
 #define DMITIGR_HTTP_SET_COOKIE_HPP
 
-#include "dmitigr/http/header.hpp"
-#include "dmitigr/http/syntax.hpp"
-#include <dmitigr/dt/timestamp.hpp>
-#include <dmitigr/misc/str.hpp>
-#include <dmitigr/net/util.hpp>
+#include "header.hpp"
+#include "syntax.hpp"
+#include "../dt/timestamp.hpp"
+#include "../misc/str.hpp"
+#include "../net/util.hpp"
 
 #include <cassert>
 #include <locale>

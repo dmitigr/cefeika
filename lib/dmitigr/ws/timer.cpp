@@ -2,9 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
-#include "dmitigr/ws/timer.hpp"
+#include "timer.hpp"
 #include "../thirdparty/usockets/libusockets.h"
-
 #include "../thirdparty/uv/uv.h" // instead of <internal/eventing/libuv.h>
 
 #include <cassert>

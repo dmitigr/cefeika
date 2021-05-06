@@ -5,9 +5,9 @@
 #ifndef DMITIGR_NET_SOCKET_HPP
 #define DMITIGR_NET_SOCKET_HPP
 
-#include "dmitigr/net/address.hpp"
-#include "dmitigr/net/exceptions.hpp"
-#include <dmitigr/misc/basics.hpp>
+#include "address.hpp"
+#include "exceptions.hpp"
+#include "../misc/basics.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -17,7 +17,7 @@
 #include <type_traits>
 
 #ifdef _WIN32
-#include <dmitigr/os/windows.hpp>
+#include "../os/windows.hpp"
 
 #include <Winsock2.h> // includes Ws2def.h
 #include <In6addr.h>  // must follows after Winsock2.h

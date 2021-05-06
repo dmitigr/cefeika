@@ -5,11 +5,11 @@
 #ifndef DMITIGR_JRPC_RESPONSE_HPP
 #define DMITIGR_JRPC_RESPONSE_HPP
 
-#include "dmitigr/jrpc/basics.hpp"
-#include "dmitigr/jrpc/std_system_error.hpp"
-#include "dmitigr/jrpc/types_fwd.hpp"
+#include "basics.hpp"
+#include "std_system_error.hpp"
+#include "types_fwd.hpp"
 
-#include <dmitigr/rajson/conversions.hpp>
+#include "../rajson/conversions.hpp"
 
 #include <cassert>
 #include <memory>

@@ -5,7 +5,7 @@
 #ifndef DMITIGR_PGFE_ERRC_HPP
 #define DMITIGR_PGFE_ERRC_HPP
 
-#include "dmitigr/pgfe/dll.hpp"
+#include "dll.hpp"
 
 namespace dmitigr::pgfe {
 
@@ -1002,7 +1002,7 @@ DMITIGR_PGFE_API const char* to_literal(Server_errc errc) noexcept;
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/errc.cpp"
+#include "errc.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_ERRC_HPP

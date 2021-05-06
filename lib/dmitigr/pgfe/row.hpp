@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_ROW_HPP
 #define DMITIGR_PGFE_ROW_HPP
 
-#include "dmitigr/pgfe/compositional.hpp"
-#include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/row_info.hpp"
+#include "compositional.hpp"
+#include "data.hpp"
+#include "row_info.hpp"
 
 #include <cassert>
 #include <iterator>

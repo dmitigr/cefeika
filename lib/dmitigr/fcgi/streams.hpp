@@ -5,8 +5,8 @@
 #ifndef DMITIGR_FCGI_STREAMS_HPP
 #define DMITIGR_FCGI_STREAMS_HPP
 
-#include "dmitigr/fcgi/dll.hpp"
-#include "dmitigr/fcgi/types_fwd.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
 #include <istream>
 #include <ostream>
@@ -85,7 +85,7 @@ DMITIGR_FCGI_API std::ostream& crlfcrlf(std::ostream& ostr);
 } // namespace dmitigr::fcgi
 
 #ifdef DMITIGR_FCGI_HEADER_ONLY
-#include "dmitigr/fcgi/streams.cpp"
+#include "streams.cpp"
 #endif
 
 #endif  // DMITIGR_FCGI_STREAMS_HPP

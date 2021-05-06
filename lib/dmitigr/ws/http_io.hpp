@@ -5,7 +5,7 @@
 #ifndef DMITIGR_WS_HTTP_IO_HPP
 #define DMITIGR_WS_HTTP_IO_HPP
 
-#include "dmitigr/ws/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 #include <cstdint>
 #include <functional>
@@ -214,7 +214,7 @@ private:
 } // namespace dmitigr::ws
 
 #ifdef DMITIGR_WS_HEADER_ONLY
-#include "dmitigr/ws/http_io.cpp"
+#include "http_io.cpp"
 #endif
 
 #endif  // DMITIGR_WS_HTTP_IO_HPP

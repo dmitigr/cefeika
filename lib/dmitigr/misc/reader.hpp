@@ -23,7 +23,7 @@
 #ifndef DMITIGR_MISC_READER_HPP
 #define DMITIGR_MISC_READER_HPP
 
-#include "dmitigr/misc/filesystem.hpp"
+#include "filesystem.hpp"
 
 #include <cassert>
 #include <cstddef>

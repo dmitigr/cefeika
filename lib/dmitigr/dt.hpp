@@ -27,6 +27,6 @@
 #ifndef DMITIGR_DT_HPP
 #define DMITIGR_DT_HPP
 
-#include "dmitigr/dt/dt.hpp"
+#include "dt/dt.hpp"
 
 #endif  // DMITIGR_DT_HPP

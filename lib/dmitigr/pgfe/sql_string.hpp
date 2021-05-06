@@ -5,11 +5,11 @@
 #ifndef DMITIGR_PGFE_SQL_STRING_HPP
 #define DMITIGR_PGFE_SQL_STRING_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/composite.hpp"
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/parameterizable.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "basics.hpp"
+#include "composite.hpp"
+#include "dll.hpp"
+#include "parameterizable.hpp"
+#include "types_fwd.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -463,7 +463,7 @@ inline void swap(Sql_string& lhs, Sql_string& rhs) noexcept
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/sql_string.cpp"
+#include "sql_string.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_SQL_STRING_HPP

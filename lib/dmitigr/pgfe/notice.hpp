@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_NOTICE_HPP
 #define DMITIGR_PGFE_NOTICE_HPP
 
-#include "dmitigr/pgfe/problem.hpp"
-#include "dmitigr/pgfe/signal.hpp"
+#include "problem.hpp"
+#include "signal.hpp"
 
 namespace dmitigr::pgfe {
 

@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_COMPLETION_HPP
 #define DMITIGR_PGFE_COMPLETION_HPP
 
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/response.hpp"
+#include "dll.hpp"
+#include "response.hpp"
 
 #include <optional>
 #include <string>
@@ -113,7 +113,7 @@ inline void swap(Completion& lhs, Completion& rhs) noexcept
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/completion.cpp"
+#include "completion.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_COMPLETION_HPP

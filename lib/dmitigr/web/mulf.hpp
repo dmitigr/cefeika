@@ -20,10 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_MULF_HPP
-#define DMITIGR_MISC_MULF_HPP
+#ifndef DMITIGR_WEB_MULF_HPP
+#define DMITIGR_WEB_MULF_HPP
 
-#include "dmitigr/misc/str.hpp"
+#include "../misc/str.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -680,4 +680,4 @@ private:
 
 } // namespace dmitigr::mulf
 
-#endif // DMITIGR_MISC_MULF_HPP
+#endif // DMITIGR_WEB_MULF_HPP

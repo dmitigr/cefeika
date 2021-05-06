@@ -11,7 +11,7 @@
 #include <system_error>
 
 #ifdef _WIN32
-#include <dmitigr/os/windows.hpp>
+#include "../os/windows.hpp"
 
 #include <Winsock2.h> // includes Ws2def.h
 #endif

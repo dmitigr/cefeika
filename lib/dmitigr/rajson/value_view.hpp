@@ -5,7 +5,7 @@
 #ifndef DMITIGR_RAJSON_VALUE_VIEW_HPP
 #define DMITIGR_RAJSON_VALUE_VIEW_HPP
 
-#include "dmitigr/rajson/conversions.hpp"
+#include "conversions.hpp"
 
 #include <cassert>
 #include <optional>

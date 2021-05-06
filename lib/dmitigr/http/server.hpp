@@ -5,10 +5,10 @@
 #ifndef DMITIGR_HTTP_SERVER_HPP
 #define DMITIGR_HTTP_SERVER_HPP
 
-#include "dmitigr/http/connection.hpp"
-#include "dmitigr/http/errc.hpp"
-#include "dmitigr/http/types_fwd.hpp"
-#include <dmitigr/net/listener.hpp>
+#include "connection.hpp"
+#include "errc.hpp"
+#include "types_fwd.hpp"
+#include "../net/listener.hpp"
 
 #include <string>
 #include <type_traits>

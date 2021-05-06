@@ -23,19 +23,19 @@
 #ifndef DMITIGR_HTTP_HTTP_HPP
 #define DMITIGR_HTTP_HTTP_HPP
 
-#include "dmitigr/http/basics.hpp"
-#include "dmitigr/http/client.hpp"
-#include "dmitigr/http/connection.hpp"
-#include "dmitigr/http/cookie.hpp"
-#include "dmitigr/http/date.hpp"
-#include "dmitigr/http/errc.hpp"
-#include "dmitigr/http/exceptions.hpp"
-#include "dmitigr/http/header.hpp"
-#include "dmitigr/http/server.hpp"
-#include "dmitigr/http/set_cookie.hpp"
-#include "dmitigr/http/std_system_error.hpp"
-#include "dmitigr/http/syntax.hpp"
-#include "dmitigr/http/types_fwd.hpp"
-#include "dmitigr/http/version.hpp"
+#include "basics.hpp"
+#include "client.hpp"
+#include "connection.hpp"
+#include "cookie.hpp"
+#include "date.hpp"
+#include "errc.hpp"
+#include "exceptions.hpp"
+#include "header.hpp"
+#include "server.hpp"
+#include "set_cookie.hpp"
+#include "std_system_error.hpp"
+#include "syntax.hpp"
+#include "types_fwd.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_HTTP_HTTP_HPP

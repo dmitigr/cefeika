@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_SQL_VECTOR_HPP
 #define DMITIGR_PGFE_SQL_VECTOR_HPP
 
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/sql_string.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "dll.hpp"
+#include "sql_string.hpp"
+#include "types_fwd.hpp"
 
 #include <cassert>
 #include <string>
@@ -228,7 +228,7 @@ inline void swap(Sql_vector& lhs, Sql_vector& rhs) noexcept
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/sql_vector.cpp"
+#include "sql_vector.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_SQL_VECTOR_HPP

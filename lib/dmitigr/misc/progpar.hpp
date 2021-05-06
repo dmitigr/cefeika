@@ -23,7 +23,7 @@
 #ifndef DMITIGR_MISC_PROGPAR_HPP
 #define DMITIGR_MISC_PROGPAR_HPP
 
-#include "dmitigr/misc/filesystem.hpp"
+#include "filesystem.hpp"
 
 #include <algorithm>
 #include <cassert>

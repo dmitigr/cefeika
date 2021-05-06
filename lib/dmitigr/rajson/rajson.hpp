@@ -23,9 +23,9 @@
 #ifndef DMITIGR_RAJSON_RAJSON_HPP
 #define DMITIGR_RAJSON_RAJSON_HPP
 
-#include "dmitigr/rajson/fwd.hpp"
-#include "dmitigr/rajson/conversions.hpp"
-#include "dmitigr/rajson/value_view.hpp"
-#include "dmitigr/rajson/version.hpp"
+#include "fwd.hpp"
+#include "conversions.hpp"
+#include "value_view.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_RAJSON_RAJSON_HPP

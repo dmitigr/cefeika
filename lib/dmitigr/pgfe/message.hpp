@@ -5,7 +5,7 @@
 #ifndef DMITIGR_PGFE_MESSAGE_HPP
 #define DMITIGR_PGFE_MESSAGE_HPP
 
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 namespace dmitigr::pgfe {
 

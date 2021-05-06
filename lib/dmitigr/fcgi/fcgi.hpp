@@ -23,13 +23,13 @@
 #ifndef DMITIGR_FCGI_FCGI_HPP
 #define DMITIGR_FCGI_FCGI_HPP
 
-#include "dmitigr/fcgi/basics.hpp"
-#include "dmitigr/fcgi/connection.hpp"
-#include "dmitigr/fcgi/listener.hpp"
-#include "dmitigr/fcgi/listener_options.hpp"
-#include "dmitigr/fcgi/server_connection.hpp"
-#include "dmitigr/fcgi/streambuf.hpp"
-#include "dmitigr/fcgi/streams.hpp"
-#include "dmitigr/fcgi/version.hpp"
+#include "basics.hpp"
+#include "connection.hpp"
+#include "listener.hpp"
+#include "listener_options.hpp"
+#include "server_connection.hpp"
+#include "streambuf.hpp"
+#include "streams.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_FCGI_FCGI_HPP

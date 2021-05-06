@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_LARGE_OBJECT_HPP
 #define DMITIGR_PGFE_LARGE_OBJECT_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "basics.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -209,7 +209,7 @@ inline void swap(Large_object& lhs, Large_object& rhs) noexcept
 } // namespace dmitigr
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/large_object.cpp"
+#include "large_object.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_LARGE_OBJECT_HPP

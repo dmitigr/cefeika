@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_ERROR_HPP
 #define DMITIGR_PGFE_ERROR_HPP
 
-#include "dmitigr/pgfe/problem.hpp"
-#include "dmitigr/pgfe/response.hpp"
+#include "problem.hpp"
+#include "response.hpp"
 
 #include <cassert>
 

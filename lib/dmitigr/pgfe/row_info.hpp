@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_ROW_INFO_HPP
 #define DMITIGR_PGFE_ROW_INFO_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/compositional.hpp"
-#include "dmitigr/pgfe/pq.hpp"
+#include "basics.hpp"
+#include "compositional.hpp"
+#include "pq.hpp"
 
 #include <cstdint>
 
@@ -272,7 +272,7 @@ private:
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/row_info.cpp"
+#include "row_info.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_ROW_INFO_HPP

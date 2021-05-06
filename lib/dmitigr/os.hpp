@@ -27,6 +27,6 @@
 #ifndef DMITIGR_OS_HPP
 #define DMITIGR_OS_HPP
 
-#include "dmitigr/os/os.hpp"
+#include "os/os.hpp"
 
 #endif  // DMITIGR_OS_HPP

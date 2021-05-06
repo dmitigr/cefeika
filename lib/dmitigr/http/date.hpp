@@ -5,8 +5,8 @@
 #ifndef DMITIGR_HTTP_DATE_HPP
 #define DMITIGR_HTTP_DATE_HPP
 
-#include "dmitigr/http/header.hpp"
-#include <dmitigr/dt/timestamp.hpp>
+#include "header.hpp"
+#include "../dt/timestamp.hpp"
 
 #include <cassert>
 #include <string_view>

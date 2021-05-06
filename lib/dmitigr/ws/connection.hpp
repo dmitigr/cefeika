@@ -5,8 +5,8 @@
 #ifndef DMITIGR_WS_CONNECTION_HPP
 #define DMITIGR_WS_CONNECTION_HPP
 
-#include "dmitigr/ws/dll.hpp"
-#include "dmitigr/ws/types_fwd.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
 #include <functional>
 #include <memory>
@@ -180,7 +180,7 @@ private:
 } // namespace dmitigr::ws
 
 #ifdef DMITIGR_WS_HEADER_ONLY
-#include "dmitigr/ws/connection.cpp"
+#include "connection.cpp"
 #endif
 
 #endif  // DMITIGR_WS_CONNECTION_HPP

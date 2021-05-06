@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/problem.hpp"
-#include "dmitigr/pgfe/std_system_error.hpp"
+#include "basics.hpp"
+#include "problem.hpp"
+#include "std_system_error.hpp"
 
 #include <cassert>
 #include <cerrno>

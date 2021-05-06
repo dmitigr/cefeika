@@ -5,7 +5,7 @@
 #ifndef DMITIGR_NET_DESCRIPTOR_HPP
 #define DMITIGR_NET_DESCRIPTOR_HPP
 
-#include "dmitigr/net/socket.hpp"
+#include "socket.hpp"
 
 #include <array>
 #include <cassert>
@@ -14,7 +14,7 @@
 #include <utility> // std::move()
 
 #ifdef _WIN32
-#include <dmitigr/os/windows.hpp>
+#include "../os/windows.hpp"
 #endif
 
 namespace dmitigr::net {

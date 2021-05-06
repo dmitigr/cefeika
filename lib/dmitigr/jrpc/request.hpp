@@ -5,9 +5,9 @@
 #ifndef DMITIGR_JRPC_REQUEST_HPP
 #define DMITIGR_JRPC_REQUEST_HPP
 
-#include "dmitigr/jrpc/response.hpp"
-#include <dmitigr/misc/math.hpp>
-#include <dmitigr/misc/str.hpp>
+#include "response.hpp"
+#include "../misc/math.hpp"
+#include "../misc/str.hpp"
 
 #include <algorithm>
 #include <initializer_list>

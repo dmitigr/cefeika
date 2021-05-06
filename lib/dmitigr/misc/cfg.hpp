@@ -23,9 +23,9 @@
 #ifndef DMITIGR_MISC_CFG_HPP
 #define DMITIGR_MISC_CFG_HPP
 
-#include "dmitigr/misc/filesystem.hpp"
-#include "dmitigr/misc/reader.hpp"
-#include "dmitigr/misc/str.hpp"
+#include "filesystem.hpp"
+#include "reader.hpp"
+#include "str.hpp"
 
 #include <cassert>
 #include <locale>

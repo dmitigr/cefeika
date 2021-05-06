@@ -5,8 +5,8 @@
 #ifndef DMITIGR_FCGI_LISTENER_HPP
 #define DMITIGR_FCGI_LISTENER_HPP
 
-#include "dmitigr/fcgi/dll.hpp"
-#include "dmitigr/fcgi/types_fwd.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
 #include <chrono>
 #include <memory>
@@ -97,7 +97,7 @@ private:
 } // namespace dmitigr::fcgi
 
 #ifdef DMITIGR_FCGI_HEADER_ONLY
-#include "dmitigr/fcgi/listener.cpp"
+#include "listener.cpp"
 #endif
 
 #endif  // DMITIGR_FCGI_LISTENER_HPP

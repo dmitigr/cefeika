@@ -5,7 +5,7 @@
 #ifndef DMITIGR_FCGI_CONNECTION_HPP
 #define DMITIGR_FCGI_CONNECTION_HPP
 
-#include "dmitigr/fcgi/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 #include <cstddef>
 #include <optional>

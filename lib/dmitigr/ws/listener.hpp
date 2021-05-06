@@ -5,9 +5,9 @@
 #ifndef DMITIGR_WS_LISTENER_HPP
 #define DMITIGR_WS_LISTENER_HPP
 
-#include "dmitigr/ws/basics.hpp"
-#include "dmitigr/ws/dll.hpp"
-#include "dmitigr/ws/types_fwd.hpp"
+#include "basics.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
 #include <functional>
 #include <memory>
@@ -196,7 +196,7 @@ private:
 } // namespace dmitigr::ws
 
 #ifdef DMITIGR_WS_HEADER_ONLY
-#include "dmitigr/ws/listener.cpp"
+#include "listener.cpp"
 #endif
 
 #endif  // DMITIGR_WS_LISTENER_HPP

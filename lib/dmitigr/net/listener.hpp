@@ -5,12 +5,12 @@
 #ifndef DMITIGR_NET_LISTENER_HPP
 #define DMITIGR_NET_LISTENER_HPP
 
-#include "dmitigr/net/address.hpp"
-#include "dmitigr/net/descriptor.hpp"
-#include "dmitigr/net/endpoint.hpp"
-#include "dmitigr/net/socket.hpp"
-#include "dmitigr/net/types_fwd.hpp"
-#include <dmitigr/misc/filesystem.hpp>
+#include "address.hpp"
+#include "descriptor.hpp"
+#include "endpoint.hpp"
+#include "socket.hpp"
+#include "types_fwd.hpp"
+#include "../misc/filesystem.hpp"
 
 #include <cassert>
 #include <chrono>
@@ -20,7 +20,7 @@
 #include <utility>
 
 #ifdef _WIN32
-#include <dmitigr/os/windows.hpp>
+#include "../os/windows.hpp"
 #endif
 
 namespace dmitigr::net {

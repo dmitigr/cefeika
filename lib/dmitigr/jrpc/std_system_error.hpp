@@ -5,7 +5,7 @@
 #ifndef DMITIGR_JRPC_STD_SYSTEM_ERROR_HPP
 #define DMITIGR_JRPC_STD_SYSTEM_ERROR_HPP
 
-#include "dmitigr/jrpc/errc.hpp"
+#include "errc.hpp"
 
 #include <string>
 #include <system_error>

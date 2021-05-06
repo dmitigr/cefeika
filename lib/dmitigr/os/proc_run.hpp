@@ -5,10 +5,10 @@
 #ifndef DMITIGR_OS_APP_HPP
 #define DMITIGR_OS_APP_HPP
 
-#include "dmitigr/os/log.hpp"
-#include "dmitigr/os/proc_detach.hpp"
-#include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/misc/progpar.hpp>
+#include "log.hpp"
+#include "proc_detach.hpp"
+#include "../misc/filesystem.hpp"
+#include "../misc/progpar.hpp"
 
 #include <atomic>
 #include <cassert>

@@ -5,7 +5,7 @@
 #ifndef DMITIGR_FCGI_STREAMBUF_HPP
 #define DMITIGR_FCGI_STREAMBUF_HPP
 
-#include "dmitigr/fcgi/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 #include <streambuf>
 
@@ -97,7 +97,7 @@ private:
 } // namespace dmitigr::fcgi
 
 #ifdef DMITIGR_FCGI_HEADER_ONLY
-#include "dmitigr/fcgi/streambuf.cpp"
+#include "streambuf.cpp"
 #endif
 
 #endif  // DMITIGR_FCGI_STREAMBUF_HPP

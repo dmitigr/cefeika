@@ -5,11 +5,11 @@
 #ifndef DMITIGR_FCGI_LISTENER_OPTIONS_HPP
 #define DMITIGR_FCGI_LISTENER_OPTIONS_HPP
 
-#include "dmitigr/fcgi/dll.hpp"
-#include "dmitigr/fcgi/types_fwd.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
-#include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/net/types_fwd.hpp>
+#include "../misc/filesystem.hpp"
+#include "../net/types_fwd.hpp"
 
 #include <memory>
 #include <optional>
@@ -105,7 +105,7 @@ private:
 } // namespace dmitigr::fcgi
 
 #ifdef DMITIGR_FCGI_HEADER_ONLY
-#include "dmitigr/fcgi/listener_options.cpp"
+#include "listener_options.cpp"
 #endif
 
 #endif  // DMITIGR_FCGI_LISTENER_OPTIONS_HPP

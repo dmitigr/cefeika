@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/row_info.hpp"
+#include "row_info.hpp"
 
 #include <algorithm>
 #include <cassert>

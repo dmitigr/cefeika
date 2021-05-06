@@ -5,7 +5,7 @@
 #ifndef DMITIGR_PGFE_SIGNAL_HPP
 #define DMITIGR_PGFE_SIGNAL_HPP
 
-#include "dmitigr/pgfe/message.hpp"
+#include "message.hpp"
 
 namespace dmitigr::pgfe {
 

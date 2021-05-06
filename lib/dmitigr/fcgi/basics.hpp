@@ -59,7 +59,7 @@ enum class Stream_type {
 } // namespace dmitigr::fcgi
 
 #ifdef DMITIGR_FCGI_HEADER_ONLY
-#include "dmitigr/fcgi/basics.cpp"
+#include "basics.cpp"
 #endif
 
 #endif  // DMITIGR_FCGI_BASICS_HPP

@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/connection_pool.hpp"
+#include "connection_pool.hpp"
 
 #include <algorithm>
 #include <cassert>

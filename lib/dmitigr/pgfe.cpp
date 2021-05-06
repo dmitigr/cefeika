@@ -12,4 +12,4 @@
 #ifndef DMITIGR_PGFE_BUILDING
 #define DMITIGR_PGFE_BUILDING
 #endif
-#include "dmitigr/pgfe.hpp"
+#include "pgfe.hpp"

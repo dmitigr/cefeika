@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_PROBLEM_HPP
 #define DMITIGR_PGFE_PROBLEM_HPP
 
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/pq.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "dll.hpp"
+#include "pq.hpp"
+#include "types_fwd.hpp"
 
 #include <string>
 
@@ -235,7 +235,7 @@ private:
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/problem.cpp"
+#include "problem.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_PROBLEM_HPP

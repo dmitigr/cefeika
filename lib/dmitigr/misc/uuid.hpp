@@ -23,7 +23,7 @@
 #ifndef DMITIGR_MISC_UUID_HPP
 #define DMITIGR_MISC_UUID_HPP
 
-#include "dmitigr/misc/rng.hpp"
+#include "rng.hpp"
 
 #include <algorithm>
 #include <cassert>

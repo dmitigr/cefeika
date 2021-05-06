@@ -12,4 +12,4 @@
 #ifndef DMITIGR_@dmitigr_lib_NAME@_BUILDING
 #define DMITIGR_@dmitigr_lib_NAME@_BUILDING
 #endif
-#include "dmitigr/@dmitigr_lib_name@.hpp"
+#include "@dmitigr_lib_name@.hpp"

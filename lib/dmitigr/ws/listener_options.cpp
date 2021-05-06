@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or ws.hpp
 
-#include "dmitigr/ws/basics.hpp"
-#include "dmitigr/ws/listener_options.hpp"
-#include <dmitigr/net/listener.hpp>
+#include "basics.hpp"
+#include "listener_options.hpp"
+#include "../net/listener.hpp"
 
 #include <cassert>
 #include <limits>

@@ -23,12 +23,12 @@
 #ifndef DMITIGR_JRPC_JRPC_HPP
 #define DMITIGR_JRPC_JRPC_HPP
 
-#include "dmitigr/jrpc/basics.hpp"
-#include "dmitigr/jrpc/errc.hpp"
-#include "dmitigr/jrpc/request.hpp"
-#include "dmitigr/jrpc/response.hpp"
-#include "dmitigr/jrpc/std_system_error.hpp"
-#include "dmitigr/jrpc/types_fwd.hpp"
-#include "dmitigr/jrpc/version.hpp"
+#include "basics.hpp"
+#include "errc.hpp"
+#include "request.hpp"
+#include "response.hpp"
+#include "std_system_error.hpp"
+#include "types_fwd.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_JRPC_JRPC_HPP

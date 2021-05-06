@@ -2,15 +2,15 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/connection_options.hpp"
+#include "connection_options.hpp"
 
 #ifdef _WIN32
-#include "dmitigr/pgfe/defaults_windows.hpp"
+#include "defaults_windows.hpp"
 #else
-#include "dmitigr/pgfe/defaults_unix.hpp"
+#include "defaults_unix.hpp"
 #endif
 
-#include <dmitigr/net/net.hpp>
+#include "../net/net.hpp"
 
 #include <algorithm>
 #include <stdexcept>

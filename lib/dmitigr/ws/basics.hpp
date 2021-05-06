@@ -5,7 +5,7 @@
 #ifndef DMITIGR_WS_BASICS_HPP
 #define DMITIGR_WS_BASICS_HPP
 
-#include "dmitigr/ws/dll.hpp"
+#include "dll.hpp"
 
 namespace dmitigr::ws {
 

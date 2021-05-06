@@ -27,6 +27,6 @@
 #ifndef DMITIGR_NET_HPP
 #define DMITIGR_NET_HPP
 
-#include "dmitigr/net/net.hpp"
+#include "net/net.hpp"
 
 #endif  // DMITIGR_NET_HPP

@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_CONNECTION_OPTIONS_HPP
 #define DMITIGR_PGFE_CONNECTION_OPTIONS_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/dll.hpp"
-#include <dmitigr/misc/filesystem.hpp>
+#include "basics.hpp"
+#include "dll.hpp"
+#include "../misc/filesystem.hpp"
 
 #include <cstdint>
 #include <chrono>
@@ -623,7 +623,7 @@ inline bool operator!=(const Connection_options& lhs, const Connection_options& 
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/connection_options.cpp"
+#include "connection_options.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_CONNECTION_OPTIONS_HPP

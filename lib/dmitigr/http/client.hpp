@@ -5,9 +5,9 @@
 #ifndef DMITIGR_HTTP_CLIENT_HPP
 #define DMITIGR_HTTP_CLIENT_HPP
 
-#include "dmitigr/http/connection.hpp"
-#include "dmitigr/http/types_fwd.hpp"
-#include <dmitigr/net/client.hpp>
+#include "connection.hpp"
+#include "types_fwd.hpp"
+#include "../net/client.hpp"
 
 namespace dmitigr::http {
 

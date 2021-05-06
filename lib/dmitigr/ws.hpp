@@ -27,6 +27,6 @@
 #ifndef DMITIGR_WS_HPP
 #define DMITIGR_WS_HPP
 
-#include "dmitigr/ws/ws.hpp"
+#include "ws/ws.hpp"
 
 #endif  // DMITIGR_WS_HPP

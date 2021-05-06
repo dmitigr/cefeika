@@ -5,14 +5,14 @@
 #ifndef DMITIGR_WEB_V1_HPP
 #define DMITIGR_WEB_V1_HPP
 
-#include <dmitigr/fcgi/fcgi.hpp>
-#include <dmitigr/http/http.hpp>
-#include <dmitigr/jrpc/jrpc.hpp>
-#include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/misc/reader.hpp>
-#include <dmitigr/misc/str.hpp>
-#include <dmitigr/misc/ttpl.hpp>
-#include <dmitigr/web/mulf.hpp>
+#include "mulf.hpp"
+#include "../fcgi/fcgi.hpp"
+#include "../http/http.hpp"
+#include "../jrpc/jrpc.hpp"
+#include "../misc/filesystem.hpp"
+#include "../misc/reader.hpp"
+#include "../misc/str.hpp"
+#include "../misc/ttpl.hpp"
 
 #include <cassert>
 #include <functional>

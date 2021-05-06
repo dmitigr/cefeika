@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/conversions.hpp"
-#include "dmitigr/pgfe/sql_vector.hpp"
+#include "conversions.hpp"
+#include "sql_vector.hpp"
 
 #include <algorithm>
 

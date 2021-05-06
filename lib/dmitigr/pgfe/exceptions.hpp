@@ -5,10 +5,10 @@
 #ifndef DMITIGR_PGFE_EXCEPTIONS_HPP
 #define DMITIGR_PGFE_EXCEPTIONS_HPP
 
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/error.hpp"
-#include "dmitigr/pgfe/std_system_error.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "dll.hpp"
+#include "error.hpp"
+#include "std_system_error.hpp"
+#include "types_fwd.hpp"
 
 #include <memory>
 

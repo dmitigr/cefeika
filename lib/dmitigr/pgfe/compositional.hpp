@@ -5,7 +5,7 @@
 #ifndef DMITIGR_PGFE_COMPOSITIONAL_HPP
 #define DMITIGR_PGFE_COMPOSITIONAL_HPP
 
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "types_fwd.hpp"
 
 #include <cstdint>
 #include <string>

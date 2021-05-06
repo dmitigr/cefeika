@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_RESPONSE_HPP
 #define DMITIGR_PGFE_RESPONSE_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/message.hpp"
+#include "basics.hpp"
+#include "message.hpp"
 
 #include <type_traits>
 

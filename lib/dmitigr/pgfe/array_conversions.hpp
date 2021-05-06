@@ -5,11 +5,11 @@
 #ifndef DMITIGR_PGFE_ARRAY_CONVERSIONS_HPP
 #define DMITIGR_PGFE_ARRAY_CONVERSIONS_HPP
 
-#include "dmitigr/pgfe/basic_conversions.hpp"
-#include "dmitigr/pgfe/conversions_api.hpp"
-#include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/exceptions.hpp"
-#include <dmitigr/misc/str.hpp>
+#include "basic_conversions.hpp"
+#include "conversions_api.hpp"
+#include "data.hpp"
+#include "exceptions.hpp"
+#include "../misc/str.hpp"
 
 #include <algorithm>
 #include <cassert>

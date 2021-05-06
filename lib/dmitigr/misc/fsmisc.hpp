@@ -23,7 +23,7 @@
 #ifndef DMITIGR_MISC_FSMISC_HPP
 #define DMITIGR_MISC_FSMISC_HPP
 
-#include "dmitigr/misc/filesystem.hpp"
+#include "filesystem.hpp"
 
 #include <optional>
 #include <vector>

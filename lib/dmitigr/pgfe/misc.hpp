@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_MISC_HPP
 #define DMITIGR_PGFE_MISC_HPP
 
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
 #include <string>
 
@@ -30,7 +30,7 @@ DMITIGR_PGFE_API std::string unquote_identifier(std::string_view identifier);
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/misc.cpp"
+#include "misc.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_MISC_HPP

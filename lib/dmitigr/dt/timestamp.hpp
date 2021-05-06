@@ -5,7 +5,7 @@
 #ifndef DMITIGR_DT_TIMESTAMP_HPP
 #define DMITIGR_DT_TIMESTAMP_HPP
 
-#include "dmitigr/dt/basics.hpp"
+#include "basics.hpp"
 
 #include <cassert>
 

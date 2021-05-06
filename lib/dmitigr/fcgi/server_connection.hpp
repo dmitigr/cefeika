@@ -5,7 +5,7 @@
 #ifndef DMITIGR_FCGI_SERVER_CONNECTION_HPP
 #define DMITIGR_FCGI_SERVER_CONNECTION_HPP
 
-#include "dmitigr/fcgi/connection.hpp"
+#include "connection.hpp"
 
 namespace dmitigr::fcgi {
 
@@ -54,7 +54,7 @@ private:
 } // namespace dmitigr::fcgi
 
 #ifdef DMITIGR_FCGI_HEADER_ONLY
-#include "dmitigr/fcgi/server_connection.cpp"
+#include "server_connection.cpp"
 #endif
 
 #endif  // DMITIGR_FCGI_SERVER_CONNECTION_HPP

@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_CONNECTION_POOL_HPP
 #define DMITIGR_PGFE_CONNECTION_POOL_HPP
 
-#include "dmitigr/pgfe/connection.hpp"
-#include "dmitigr/pgfe/dll.hpp"
+#include "connection.hpp"
+#include "dll.hpp"
 
 #include <cassert>
 #include <functional>
@@ -232,7 +232,7 @@ private:
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/connection_pool.cpp"
+#include "connection_pool.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_CONNECTION_POOL_HPP

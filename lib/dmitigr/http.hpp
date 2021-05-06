@@ -27,6 +27,6 @@
 #ifndef DMITIGR_HTTP_HPP
 #define DMITIGR_HTTP_HPP
 
-#include "dmitigr/http/http.hpp"
+#include "http/http.hpp"
 
 #endif  // DMITIGR_HTTP_HPP

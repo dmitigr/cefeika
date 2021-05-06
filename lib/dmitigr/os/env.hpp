@@ -14,7 +14,7 @@
 
 #ifdef _WIN32
 
-#include "dmitigr/os/windows.hpp"
+#include "windows.hpp"
 
 #include <Winnls.h>
 #include <Lmcons.h>

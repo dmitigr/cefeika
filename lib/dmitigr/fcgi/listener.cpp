@@ -2,12 +2,12 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or fcgi.hpp
 
-#include "dmitigr/fcgi/basics.hpp"
-#include "dmitigr/fcgi/listener.hpp"
-#include "dmitigr/fcgi/listener_options.hpp"
-#include "dmitigr/fcgi/server_connection.hpp"
-#include "dmitigr/fcgi/streams.hpp"
-#include <dmitigr/net/net.hpp>
+#include "basics.hpp"
+#include "listener.hpp"
+#include "listener_options.hpp"
+#include "server_connection.hpp"
+#include "streams.hpp"
+#include "../net/net.hpp"
 
 #include <array>
 #include <cassert>

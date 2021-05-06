@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or pgfe.hpp
 
-#include "dmitigr/pgfe/data.hpp"
-#include "dmitigr/pgfe/pq.hpp"
+#include "data.hpp"
+#include "pq.hpp"
 
 #include <algorithm> // swap
 #include <cassert>

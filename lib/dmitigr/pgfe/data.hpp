@@ -5,9 +5,9 @@
 #ifndef DMITIGR_PGFE_DATA_HPP
 #define DMITIGR_PGFE_DATA_HPP
 
-#include "dmitigr/pgfe/basics.hpp"
-#include "dmitigr/pgfe/dll.hpp"
-#include "dmitigr/pgfe/types_fwd.hpp"
+#include "basics.hpp"
+#include "dll.hpp"
+#include "types_fwd.hpp"
 
 #include <cstddef>
 #include <cstring>
@@ -299,7 +299,7 @@ inline void swap(Data_view& lhs, Data_view& rhs) noexcept
 } // namespace dmitigr::pgfe
 
 #ifdef DMITIGR_PGFE_HEADER_ONLY
-#include "dmitigr/pgfe/data.cpp"
+#include "data.cpp"
 #endif
 
 #endif  // DMITIGR_PGFE_DATA_HPP

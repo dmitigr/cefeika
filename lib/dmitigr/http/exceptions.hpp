@@ -5,7 +5,7 @@
 #ifndef DMITIGR_HTTP_EXCEPTIONS_HPP
 #define DMITIGR_HTTP_EXCEPTIONS_HPP
 
-#include "dmitigr/http/std_system_error.hpp"
+#include "std_system_error.hpp"
 
 namespace dmitigr::http {
 

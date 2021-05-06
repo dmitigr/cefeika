@@ -20,10 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_URL_HPP
-#define DMITIGR_MISC_URL_HPP
+#ifndef DMITIGR_WEB_URL_HPP
+#define DMITIGR_WEB_URL_HPP
 
-#include "dmitigr/misc/str.hpp"
+#include "../misc/str.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -400,4 +400,4 @@ private:
 
 } // namespace dmitigr::url
 
-#endif  // DMITIGR_MISC_URL_HPP
+#endif  // DMITIGR_WEB_URL_HPP

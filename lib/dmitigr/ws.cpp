@@ -12,4 +12,4 @@
 #ifndef DMITIGR_WS_BUILDING
 #define DMITIGR_WS_BUILDING
 #endif
-#include "dmitigr/ws.hpp"
+#include "ws.hpp"
