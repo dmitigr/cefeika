@@ -196,8 +196,12 @@ int main(int, char* argv[])
       req.set_parameter("s", "foo");
 
       {
-        const auto [zr, all] = req.parameters("z");
-        ASSERT(!all);
+        const auto [y, x, s] = req.parameters_mandatory("y", "x", "s");
+        ASSERT(y && x && s);
+      }
+
+      {
+        const auto [zr] = req.parameters("z");
         ASSERT(!zr);
         try {
           const auto z = zr.mandatory<int>(math::Interval{1, 2000});
@@ -208,18 +212,18 @@ int main(int, char* argv[])
       }
 
       {
-        const auto [x, s, y, all] = req.parameters("x", "s", "y");
-        ASSERT(x && s && y && all);
+        const auto [x, s, y] = req.parameters("x", "s", "y");
+        ASSERT(x && s && y);
       }
 
       {
-        const auto [x, y, s, z, all] = req.parameters("x", "y", "s", "z");
-        ASSERT(x && y && s && !z && all);
+        const auto [x, y, s, z] = req.parameters("x", "y", "s", "z");
+        ASSERT(x && y && s && !z);
       }
 
       {
-        const auto [x, z, all] = req.parameters("x", "z");
-        ASSERT(x && !z && !all);
+        const auto [x, z] = req.parameters("x", "z");
+        ASSERT(x && !z);
       }
 
       {

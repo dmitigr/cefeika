@@ -347,23 +347,26 @@ public:
       return Paramref{*this};
   }
 
-  /**
-   * @returns A value of type `std::tuple<Paramref, ..., bool>`. The last
-   * value of returned tuple indicates whether the all parameters of request
-   * are specified in the `names` or not.
-   */
+  /// @returns A value of type `std::tuple<Paramref, ...>`.
   template<class ... Types>
   auto parameters(Types&& ... names) const
   {
-    return parameters__(std::make_index_sequence<sizeof ... (Types)>{},
-      std::forward<Types>(names)...);
+    return std::make_tuple(parameter(std::forward<Types>(names))...);
   }
 
-  /// TODO:
+  /**
+   * @returns A value of type `std::tuple<Paramref, ...>`.
+   *
+   * @throws `Server_errc::invalid_params` if any of parameters which are
+   * specified in the `names` does not presents in request.
+   */
   template<class ... Types>
-  auto parameters_strict(Types&& ... names) const
+  auto parameters_mandatory(Types&& ... names) const
   {
-    throw "not implemented yet";
+    auto result = parameters(std::forward<Types>(names)...);
+    if (!is_all_present(result))
+      throw_error(Server_errc::invalid_params);
+    return result;
   }
 
   /**
@@ -572,21 +575,19 @@ private:
     return const_cast<rapidjson::Value*>(static_cast<const Request*>(this)->params());
   }
 
-  template<std::size_t ... I, typename ... Types>
-  auto parameters__(std::index_sequence<I...>, Types&& ... names) const
+  template<std::size_t ... I, typename Tuple>
+  static bool is_all_present__(std::index_sequence<I...>, const Tuple& tuple) noexcept
   {
-    static_assert(sizeof...(I) == sizeof...(names));
-    static const auto incf = [](std::size_t& count, const auto& param)
-    {
-      if (param)
-        ++count;
-    };
-    auto result = std::make_tuple(parameter(names)..., true);
-    std::size_t count{};
-    (incf(count, std::get<I>(result)), ...);
-    if (count < parameter_count())
-      std::get<sizeof...(I)>(result) = false;
-    return result;
+    constexpr auto tsz = std::tuple_size<std::decay_t<decltype(tuple)>>();
+    static_assert(sizeof...(I) == tsz);
+    return (static_cast<bool>(std::get<I>(tuple)) && ...);
+  }
+
+  template<typename Tuple>
+  static bool is_all_present(const Tuple& tuple) noexcept
+  {
+    constexpr auto tsz = std::tuple_size<std::decay_t<decltype(tuple)>>();
+    return is_all_present__(std::make_index_sequence<tsz>{}, tuple);
   }
 
   // Used by from_json().
