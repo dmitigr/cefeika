@@ -23,11 +23,9 @@ endif()
 
 set(usockets_headers
   internal/internal.h
-  internal/internal_dmitigr.h
   internal/loop_data.h
   internal/eventing/libuv.h
   internal/networking/bsd.h
-  internal/networking/bsd_dmitigr.h
   )
 set(usockets_sources
   bsd.c
