@@ -32,7 +32,7 @@ public:
 template<bool IsSsl>
 class Conn final : public iConnection {
 public:
-  using Underlying_type = uWS::WebSocket<IsSsl, true>;
+  using Underlying_type = uWS::WebSocket<IsSsl, true, Ws_data>;
 
   Conn(const Conn&) = delete;
   Conn& operator=(const Conn&) = delete;
@@ -47,7 +47,7 @@ public:
 
   Connection* connection() const override
   {
-    auto* const data = static_cast<Ws_data*>(ws_->getUserData());
+    auto* const data = ws_->getUserData();
     assert(data);
     return data->conn.get();
   }

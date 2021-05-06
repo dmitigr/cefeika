@@ -8,6 +8,7 @@
 #include "dmitigr/ws/listener.hpp"
 #include "dmitigr/ws/listener_options.hpp"
 #include "dmitigr/ws/timer.hpp"
+#include "dmitigr/ws/util.hpp"
 #include "dmitigr/ws/uwebsockets.hpp"
 
 #include <algorithm>
@@ -80,7 +81,7 @@ public:
     const auto ws_behavior = [this]
     {
       namespace chrono = std::chrono;
-      typename App::WebSocketBehavior result;
+      typename App::WebSocketBehavior<Ws_data> result;
 
       result.compression = uWS::DISABLED;
 
@@ -141,7 +142,7 @@ public:
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .open emitted" << std::endl;
 #endif
-        auto* const data = static_cast<Ws_data*>(ws->getUserData());
+        auto* const data = ws->getUserData();
         assert(data);
         if (data->conn) {
           data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws);
@@ -152,7 +153,7 @@ public:
 
       result.message = [](auto* const ws, const std::string_view message, const uWS::OpCode oc)
       {
-        auto* const data = static_cast<Ws_data*>(ws->getUserData());
+        auto* const data = ws->getUserData();
         assert(data && data->conn);
         const auto message_format = (oc == uWS::OpCode::TEXT) ? Data_format::text : Data_format::binary;
         data->conn->handle_message(message, message_format);
@@ -163,19 +164,19 @@ public:
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .drain emitted. Buffered amount is " << ws->getBufferedAmount() << std::endl;
 #endif
-        auto* const data = static_cast<Ws_data*>(ws->getUserData());
+        auto* const data = ws->getUserData();
         assert(data && data->conn);
         data->conn->handle_drain();
       };
 
-      result.ping = [](auto* const /*ws*/)
+      result.ping = [](auto* const /*ws*/, const std::string_view)
       {
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .ping emitted" << std::endl;
 #endif
       };
 
-      result.pong = [](auto* const /*ws*/)
+      result.pong = [](auto* const /*ws*/, const std::string_view)
       {
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .pong emitted" << std::endl;
@@ -187,7 +188,7 @@ public:
 #ifdef DMITIGR_WS_DEBUG
         std::clog << "dmitigr::ws: .close emitted" << std::endl;
 #endif
-        auto* const data = static_cast<Ws_data*>(ws->getUserData());
+        auto* const data = ws->getUserData();
         assert(data);
         /*
          * If connection is closed from .open or .upgrade,
@@ -225,7 +226,7 @@ public:
       ssl_certificate_authority_file;
     App app = [this, &ssl_private_key_file, &ssl_certificate_file, &ssl_dh_parameters_file, &ssl_certificate_authority_file]
     {
-      us_socket_context_options_t socket_options{};
+      uWS::SocketContextOptions socket_options{};
       if (options().is_ssl_enabled()) {
         assert(IsSsl);
         if (const auto& value = options().ssl_private_key_file()) {
