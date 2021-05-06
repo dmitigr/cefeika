@@ -5,7 +5,7 @@
 #include "dmitigr/ws/timer.hpp"
 #include "../thirdparty/usockets/libusockets.h"
 
-#include <uv.h> // instead of <internal/eventing/libuv.h>
+#include "../thirdparty/uv/uv.h" // instead of <internal/eventing/libuv.h>
 
 #include <cassert>
 #include <limits>
