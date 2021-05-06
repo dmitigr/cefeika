@@ -34,7 +34,7 @@
 #include "WebSocket.h"
 #include "WebSocketContextData.h"
 
-#include "f2/function2.hpp"
+#include "MoveOnlyFunction.h"
 
 /* todo: tryWrite is missing currently, only send smaller segments with write */
 
@@ -90,14 +90,14 @@ private:
 #ifndef UWS_HTTPRESPONSE_NO_WRITEMARK
         if (!Super::getLoopData()->noMark) {
             /* We only expose major version */
-            writeHeader("uWebSockets", "18");
+            writeHeader("uWebSockets", "19");
         }
 #endif
     }
 
     /* Returns true on success, indicating that it might be feasible to write more data.
      * Will start timeout if stream reaches totalSize or write failure. */
-    bool internalEnd(std::string_view data, size_t totalSize, bool optional, bool allowContentLength = true) {
+    bool internalEnd(std::string_view data, size_t totalSize, bool optional, bool allowContentLength = true, bool closeConnection = false) {
         /* Write status if not already done */
         writeStatus(HTTP_200_OK);
 
@@ -107,6 +107,22 @@ private:
         }
 
         HttpResponseData<SSL> *httpResponseData = getHttpResponseData();
+
+        /* In some cases, such as when refusing huge data we want to close the connection when drained */
+        if (closeConnection) {
+
+            /* HTTP 1.1 must send this back unless the client already sent it to us.
+             * It is a connection close when either of the two parties say so but the
+             * one party must tell the other one so.
+             *
+             * This check also serves to limit writing the header only once. */
+            if ((httpResponseData->state & HttpResponseData<SSL>::HTTP_CONNECTION_CLOSE) == 0) {
+                writeHeader("Connection", "close");
+            }
+
+            httpResponseData->state |= HttpResponseData<SSL>::HTTP_CONNECTION_CLOSE;
+        }
+
         if (httpResponseData->state & HttpResponseData<SSL>::HTTP_WRITE_CALLED) {
 
             /* We do not have tryWrite-like functionalities, so ignore optional in this path */
@@ -159,7 +175,7 @@ private:
                 /* uSockets only deals with int sizes, so pass chunks of max signed int size */
                 auto writtenFailed = Super::write(data.data() + written, (int) std::min<size_t>(data.length() - written, INT_MAX), optional);
 
-                written += writtenFailed.first;
+                written += (size_t) writtenFailed.first;
                 failed = writtenFailed.second;
             }
 
@@ -202,7 +218,7 @@ public:
             struct us_socket_context_t *webSocketContext) {
 
         /* Extract needed parameters from WebSocketContextData */
-        WebSocketContextData<SSL> *webSocketContextData = (WebSocketContextData<SSL> *) us_socket_context_ext(SSL, webSocketContext);
+        WebSocketContextData<SSL, UserData> *webSocketContextData = (WebSocketContextData<SSL, UserData> *) us_socket_context_ext(SSL, webSocketContext);
 
         /* Note: OpenSSL can be used here to speed this up somewhat */
         char secWebSocketAccept[29] = {};
@@ -218,67 +234,39 @@ public:
             writeHeader("Sec-WebSocket-Protocol", secWebSocketProtocol.substr(0, secWebSocketProtocol.find(',')));
         }
 
-        /* Negotiate compression, we may use a smaller compression window than we negotiate */
+        /* Negotiate compression */
         bool perMessageDeflate = false;
-        /* We are always allowed to share compressor, if perMessageDeflate */
-        int compressOptions = webSocketContextData->compression & SHARED_COMPRESSOR;
-        if (webSocketContextData->compression != DISABLED) {
-            if (secWebSocketExtensions.length()) {
-                /* We never support client context takeover (the client cannot compress with a sliding window). */
-                int wantedOptions = PERMESSAGE_DEFLATE | CLIENT_NO_CONTEXT_TAKEOVER;
+        CompressOptions compressOptions = CompressOptions::DISABLED;
+        if (secWebSocketExtensions.length() && webSocketContextData->compression != DISABLED) {
 
-                /* Shared compressor is the default */
-                if (webSocketContextData->compression == SHARED_COMPRESSOR) {
-                    /* Disable per-socket compressor */
-                    wantedOptions |= SERVER_NO_CONTEXT_TAKEOVER;
-                }
+            /* We always want shared inflation */
+            int wantedInflationWindow = 0;
 
-                /* isServer = true */
-                ExtensionsNegotiator<true> extensionsNegotiator(wantedOptions);
-                extensionsNegotiator.readOffer(secWebSocketExtensions);
+            /* Map from selected compressor */
+            int wantedCompressionWindow = (webSocketContextData->compression & 0xFF00) >> 8;
 
-                /* Todo: remove these mid string copies */
-                std::string offer = extensionsNegotiator.generateOffer();
-                if (offer.length()) {
+            auto [negCompression, negCompressionWindow, negInflationWindow, negResponse] =
+            negotiateCompression(true, wantedCompressionWindow, wantedInflationWindow,
+                                        secWebSocketExtensions);
 
-                    /* Todo: this is a quick fix that should be properly moved to ExtensionsNegotiator */
-                    if (webSocketContextData->compression & DEDICATED_COMPRESSOR &&
-                        webSocketContextData->compression != DEDICATED_COMPRESSOR_256KB) {
-                            /* 3kb, 4kb is 9, 256 is 15 (default) */
-                            int maxServerWindowBits = 9;
-                            switch (webSocketContextData->compression) {
-                                case DEDICATED_COMPRESSOR_8KB:
-                                maxServerWindowBits = 10;
-                                break;
-                                case DEDICATED_COMPRESSOR_16KB:
-                                maxServerWindowBits = 11;
-                                break;
-                                case DEDICATED_COMPRESSOR_32KB:
-                                maxServerWindowBits = 12;
-                                break;
-                                case DEDICATED_COMPRESSOR_64KB:
-                                maxServerWindowBits = 13;
-                                break;
-                                case DEDICATED_COMPRESSOR_128KB:
-                                maxServerWindowBits = 14;
-                                break;
-                            }
-                            offer += "; server_max_window_bits=";
-                            offer += std::to_string(maxServerWindowBits);
+            if (negCompression) {
+                perMessageDeflate = true;
+
+                /* Map from windowBits to compressor */
+                if (negCompressionWindow == 0) {
+                    compressOptions = CompressOptions::SHARED_COMPRESSOR;
+                } else {
+                    compressOptions = (CompressOptions) ((uint32_t) (negCompressionWindow << 8)
+                                                        | (uint32_t) (negCompressionWindow - 7));
+
+                    /* If we are dedicated and have the 3kb then correct any 4kb to 3kb,
+                     * (they both share the windowBits = 9) */
+                    if (webSocketContextData->compression == DEDICATED_COMPRESSOR_3KB) {
+                        compressOptions = DEDICATED_COMPRESSOR_3KB;
                     }
-
-                    writeHeader("Sec-WebSocket-Extensions", offer);
                 }
 
-                /* Did we negotiate permessage-deflate? */
-                if (extensionsNegotiator.getNegotiatedOptions() & PERMESSAGE_DEFLATE) {
-                    perMessageDeflate = true;
-                }
-
-                /* Is the server allowed to compress with a sliding window? */
-                if (!(extensionsNegotiator.getNegotiatedOptions() & SERVER_NO_CONTEXT_TAKEOVER)) {
-                    compressOptions = webSocketContextData->compression;
-                }
+                writeHeader("Sec-WebSocket-Extensions", negResponse);
             }
         }
 
@@ -297,7 +285,7 @@ public:
         bool wasCorked = Super::isCorked();
 
         /* Adopting a socket invalidates it, do not rely on it directly to carry any data */
-        WebSocket<SSL, true> *webSocket = (WebSocket<SSL, true> *) us_socket_context_adopt_socket(SSL,
+        WebSocket<SSL, true, UserData> *webSocket = (WebSocket<SSL, true, UserData> *) us_socket_context_adopt_socket(SSL,
                     (us_socket_context_t *) webSocketContext, (us_socket_t *) this, sizeof(WebSocketData) + sizeof(UserData));
 
         /* For whatever reason we were corked, update cork to the new socket */
@@ -316,7 +304,7 @@ public:
         }
 
         /* Arm idleTimeout */
-        us_socket_timeout(SSL, (us_socket_t *) webSocket, webSocketContextData->idleTimeout);
+        us_socket_timeout(SSL, (us_socket_t *) webSocket, webSocketContextData->idleTimeoutComponents.first);
 
         /* Move construct the UserData right before calling open handler */
         new (webSocket->getUserData()) UserData(std::move(userData));
@@ -375,6 +363,8 @@ public:
 
     /* Write an HTTP header with unsigned int value */
     HttpResponse *writeHeader(std::string_view key, uint64_t value) {
+        writeStatus(HTTP_200_OK);
+
         Super::write(key.data(), (int) key.length());
         Super::write(": ", 2);
         writeUnsigned64(value);
@@ -383,8 +373,8 @@ public:
     }
 
     /* End the response with an optional data chunk. Always starts a timeout. */
-    void end(std::string_view data = {}) {
-        internalEnd(data, data.length(), false);
+    void end(std::string_view data = {}, bool closeConnection = false) {
+        internalEnd(data, data.length(), false, true, closeConnection);
     }
 
     /* Try and end the response. Returns [true, true] on success.
@@ -441,7 +431,7 @@ public:
     }
 
     /* Corks the response if possible. Leaves already corked socket be. */
-    HttpResponse *cork(fu2::unique_function<void()> &&handler) {
+    HttpResponse *cork(MoveOnlyFunction<void()> &&handler) {
         if (!Super::isCorked() && Super::canCork()) {
             Super::cork();
             handler();
@@ -462,7 +452,7 @@ public:
     }
 
     /* Attach handler for writable HTTP response */
-    HttpResponse *onWritable(fu2::unique_function<bool(size_t)> &&handler) {
+    HttpResponse *onWritable(MoveOnlyFunction<bool(size_t)> &&handler) {
         HttpResponseData<SSL> *httpResponseData = getHttpResponseData();
 
         httpResponseData->onWritable = std::move(handler);
@@ -470,7 +460,7 @@ public:
     }
 
     /* Attach handler for aborted HTTP request */
-    HttpResponse *onAborted(fu2::unique_function<void()> &&handler) {
+    HttpResponse *onAborted(MoveOnlyFunction<void()> &&handler) {
         HttpResponseData<SSL> *httpResponseData = getHttpResponseData();
 
         httpResponseData->onAborted = std::move(handler);
@@ -478,7 +468,7 @@ public:
     }
 
     /* Attach a read handler for data sent. Will be called with FIN set true if last segment. */
-    void onData(fu2::unique_function<void(std::string_view, bool)> &&handler) {
+    void onData(MoveOnlyFunction<void(std::string_view, bool)> &&handler) {
         HttpResponseData<SSL> *data = getHttpResponseData();
         data->inStream = std::move(handler);
     }

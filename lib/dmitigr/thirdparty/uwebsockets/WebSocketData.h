@@ -29,14 +29,15 @@ namespace uWS {
 
 struct WebSocketData : AsyncSocketData<false>, WebSocketState<true> {
     /* This guy has a lot of friends - why? */
-    template <bool, bool> friend struct WebSocketContext;
-    template <bool> friend struct WebSocketContextData;
-    template <bool, bool> friend struct WebSocket;
+    template <bool, bool, typename> friend struct WebSocketContext;
+    template <bool, typename> friend struct WebSocketContextData;
+    template <bool, bool, typename> friend struct WebSocket;
     template <bool> friend struct HttpContext;
 private:
     std::string fragmentBuffer;
-    int controlTipLength = 0;
+    unsigned int controlTipLength = 0;
     bool isShuttingDown = 0;
+    bool hasTimedOut = false;
     enum CompressionStatus : char {
         DISABLED,
         ENABLED,
@@ -49,11 +50,11 @@ private:
     /* We could be a subscriber */
     Subscriber *subscriber = nullptr;
 public:
-    WebSocketData(bool perMessageDeflate, int compressOptions, std::string &&backpressure) : AsyncSocketData<false>(std::move(backpressure)), WebSocketState<true>() {
+    WebSocketData(bool perMessageDeflate, CompressOptions compressOptions, std::string &&backpressure) : AsyncSocketData<false>(std::move(backpressure)), WebSocketState<true>() {
         compressionStatus = perMessageDeflate ? ENABLED : DISABLED;
 
         /* Initialize the dedicated sliding window */
-        if (perMessageDeflate && (compressOptions & CompressOptions::DEDICATED_COMPRESSOR)) {
+        if (perMessageDeflate && (compressOptions != CompressOptions::SHARED_COMPRESSOR)) {
             deflationStream = new DeflationStream(compressOptions);
         }
     }
