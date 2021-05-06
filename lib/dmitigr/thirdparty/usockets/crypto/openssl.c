@@ -35,11 +35,6 @@ void *sni_find(void *sni, const char *hostname);
 #include <openssl/bio.h>
 #include <openssl/err.h>
 
-/* We do not want to block the loop with tons and tons of CPU-intensive work.
- * Spread it out during many loop iterations, prioritizing already open connections,
- * they are far easier on CPU */
-static const int MAX_HANDSHAKES_PER_LOOP_ITERATION = 5;
-
 struct loop_ssl_data {
     char *ssl_read_input, *ssl_read_output;
     unsigned int ssl_read_input_length;
@@ -48,10 +43,6 @@ struct loop_ssl_data {
 
     int last_write_was_msg_more;
     int msg_more;
-
-    // these are used to throttle SSL handshakes per loop iteration
-    long long last_iteration_nr;
-    int handshake_budget;
 
     BIO *shared_rbio;
     BIO *shared_wbio;
@@ -70,6 +61,7 @@ struct us_internal_ssl_socket_context_t {
     /* These decorate the base implementation */
     struct us_internal_ssl_socket_t *(*on_open)(struct us_internal_ssl_socket_t *, int is_client, char *ip, int ip_length);
     struct us_internal_ssl_socket_t *(*on_data)(struct us_internal_ssl_socket_t *, char *data, int length);
+    struct us_internal_ssl_socket_t *(*on_writable)(struct us_internal_ssl_socket_t *);
     struct us_internal_ssl_socket_t *(*on_close)(struct us_internal_ssl_socket_t *, int code, void *reason);
 
     /* Called for missing SNI hostnames, if not NULL */
@@ -84,6 +76,7 @@ struct us_internal_ssl_socket_t {
     struct us_socket_t s;
     SSL *ssl;
     int ssl_write_wants_read; // we use this for now
+    int ssl_read_wants_write;
 };
 
 int passphrase_cb(char *buf, int size, int rwflag, void *u) {
@@ -155,6 +148,7 @@ struct us_internal_ssl_socket_t *ssl_on_open(struct us_internal_ssl_socket_t *s,
 
     s->ssl = SSL_new(context->ssl_context);
     s->ssl_write_wants_read = 0;
+    s->ssl_read_wants_write = 0;
     SSL_set_bio(s->ssl, loop_ssl_data->shared_rbio, loop_ssl_data->shared_wbio);
 
     BIO_up_ref(loop_ssl_data->shared_rbio);
@@ -183,7 +177,7 @@ struct us_internal_ssl_socket_t *ssl_on_close(struct us_internal_ssl_socket_t *s
 }
 
 struct us_internal_ssl_socket_t *ssl_on_end(struct us_internal_ssl_socket_t *s) {
-    struct us_internal_ssl_socket_context_t *context = (struct us_internal_ssl_socket_context_t *) us_socket_context(0, &s->s);
+    // struct us_internal_ssl_socket_context_t *context = (struct us_internal_ssl_socket_context_t *) us_socket_context(0, &s->s);
 
     // whatever state we are in, a TCP FIN is always an answered shutdown
 
@@ -252,6 +246,11 @@ struct us_internal_ssl_socket_t *ssl_on_data(struct us_internal_ssl_socket_t *s,
             } else {
                 // emit the data we have and exit
 
+                if (err == SSL_ERROR_WANT_WRITE) {
+                    // here we need to trigger writable event next ssl_read!
+                    s->ssl_read_wants_write = 1;
+                }
+
                 // assume we emptied the input buffer fully or error here as well!
                 if (loop_ssl_data->ssl_read_input_length) {
                     return us_internal_ssl_socket_close(s, 0, NULL);
@@ -261,6 +260,8 @@ struct us_internal_ssl_socket_t *ssl_on_data(struct us_internal_ssl_socket_t *s,
                 if (!read) {
                     break;
                 }
+
+                context = (struct us_internal_ssl_socket_context_t *) us_socket_context(0, &s->s);
 
                 s = context->on_data(s, loop_ssl_data->ssl_read_output + LIBUS_RECV_BUFFER_PADDING, read);
                 if (us_socket_is_closed(0, &s->s)) {
@@ -276,6 +277,8 @@ struct us_internal_ssl_socket_t *ssl_on_data(struct us_internal_ssl_socket_t *s,
 
         // at this point we might be full and need to emit the data to application and start over
         if (read == LIBUS_RECV_BUFFER_LENGTH) {
+
+            context = (struct us_internal_ssl_socket_context_t *) us_socket_context(0, &s->s);
 
             // emit data and restart
             s = context->on_data(s, loop_ssl_data->ssl_read_output + LIBUS_RECV_BUFFER_PADDING, read);
@@ -317,6 +320,28 @@ struct us_internal_ssl_socket_t *ssl_on_data(struct us_internal_ssl_socket_t *s,
     return s;
 }
 
+struct us_internal_ssl_socket_t *ssl_on_writable(struct us_internal_ssl_socket_t *s) {
+
+    struct us_internal_ssl_socket_context_t *context = (struct us_internal_ssl_socket_context_t *) us_socket_context(0, &s->s);
+
+    // todo: cork here so that we efficiently output both from reading and from writing?
+
+    if (s->ssl_read_wants_write) {
+        s->ssl_read_wants_write = 0;
+
+        // make sure to update context before we call (context can change if the user adopts the socket!)
+        context = (struct us_internal_ssl_socket_context_t *) us_socket_context(0, &s->s);
+
+        // if this one fails to write data, it sets ssl_read_wants_write again
+        s = (struct us_internal_ssl_socket_t *) context->sc.on_data(&s->s, 0, 0); // cast here!
+    }
+
+    // should this one come before we have read? should it come always? spurious on_writable is okay
+    s = context->on_writable(s);
+
+    return s;
+}
+
 /* Lazily inits loop ssl data first time */
 void us_internal_init_loop_ssl_data(struct us_loop_t *loop) {
     if (!loop->data.ssl_data) {
@@ -336,10 +361,6 @@ void us_internal_init_loop_ssl_data(struct us_loop_t *loop) {
         loop_ssl_data->shared_wbio = BIO_new(loop_ssl_data->shared_biom);
         BIO_set_data(loop_ssl_data->shared_rbio, loop_ssl_data);
         BIO_set_data(loop_ssl_data->shared_wbio, loop_ssl_data);
-
-        // reset handshake budget (doesn't matter what loop nr we start on)
-        loop_ssl_data->last_iteration_nr = 0;
-        loop_ssl_data->handshake_budget = MAX_HANDSHAKES_PER_LOOP_ITERATION;
 
         loop->data.ssl_data = loop_ssl_data;
     }
@@ -361,35 +382,13 @@ void us_internal_free_loop_ssl_data(struct us_loop_t *loop) {
     }
 }
 
-// we ignore reading data for ssl sockets that are
-// in init state, if our so called budget for doing
-// so won't allow it. here we actually use
+// we throttle reading data for ssl sockets that are in init state. here we actually use
 // the kernel buffering to our advantage
-int ssl_ignore_data(struct us_internal_ssl_socket_t *s) {
-
-    // fast path just checks for init
-    if (!SSL_in_init(s->ssl)) {
-        return 0;
-    }
-
-    // this path is run for all ssl sockets that are in init and just got data event from polling
-
-    struct us_loop_t *loop = s->s.context->loop;
-    struct loop_ssl_data *loop_ssl_data = loop->data.ssl_data;
-
-    // reset handshake budget if new iteration
-    if (loop_ssl_data->last_iteration_nr != us_loop_iteration_number(loop)) {
-        loop_ssl_data->last_iteration_nr = us_loop_iteration_number(loop);
-        loop_ssl_data->handshake_budget = MAX_HANDSHAKES_PER_LOOP_ITERATION;
-    }
-
-    if (loop_ssl_data->handshake_budget) {
-        loop_ssl_data->handshake_budget--;
-        return 0;
-    }
-
-    // ignore this data event
-    return 1;
+int ssl_is_low_prio(struct us_internal_ssl_socket_t *s) {
+    /* We use SSL_in_before() instead of SSL_in_init(), because only the first step is CPU intensive, and we want to
+     * speed up the rest of connection establishing if the CPU intensive work is already done, so fully established
+     * connections increase lineary over time under high load */
+    return SSL_in_before(s->ssl);
 }
 
 /* Per-context functions */
@@ -615,7 +614,7 @@ struct us_internal_ssl_socket_context_t *us_internal_create_ssl_socket_context(s
     context->is_parent = 1;
 
     /* We, as parent context, may ignore data */
-    context->sc.ignore_data = (int (*)(struct us_socket_t *)) ssl_ignore_data;
+    context->sc.is_low_prio = (int (*)(struct us_socket_t *)) ssl_is_low_prio;
 
     /* Parent contexts may use SNI */
     SSL_CTX_set_tlsext_servername_callback(context->ssl_context, sni_cb);
@@ -670,15 +669,21 @@ void us_internal_ssl_socket_context_on_data(struct us_internal_ssl_socket_contex
 }
 
 void us_internal_ssl_socket_context_on_writable(struct us_internal_ssl_socket_context_t *context, struct us_internal_ssl_socket_t *(*on_writable)(struct us_internal_ssl_socket_t *s)) {
-    us_socket_context_on_writable(0, (struct us_socket_context_t *) context, (struct us_socket_t *(*)(struct us_socket_t *)) on_writable);
+    us_socket_context_on_writable(0, (struct us_socket_context_t *) context, (struct us_socket_t *(*)(struct us_socket_t *)) ssl_on_writable);
+    context->on_writable = on_writable;
 }
 
 void us_internal_ssl_socket_context_on_timeout(struct us_internal_ssl_socket_context_t *context, struct us_internal_ssl_socket_t *(*on_timeout)(struct us_internal_ssl_socket_t *s)) {
     us_socket_context_on_timeout(0, (struct us_socket_context_t *) context, (struct us_socket_t *(*)(struct us_socket_t *)) on_timeout);
 }
 
+/* We do not really listen to passed FIN-handler, we entirely override it with our handler since SSL doesn't really have support for half-closed sockets */
 void us_internal_ssl_socket_context_on_end(struct us_internal_ssl_socket_context_t *context, struct us_internal_ssl_socket_t *(*on_end)(struct us_internal_ssl_socket_t *)) {
     us_socket_context_on_end(0, (struct us_socket_context_t *) context, (struct us_socket_t *(*)(struct us_socket_t *)) ssl_on_end);
+}
+
+void us_internal_ssl_socket_context_on_connect_error(struct us_internal_ssl_socket_context_t *context, struct us_internal_ssl_socket_t *(*on_connect_error)(struct us_internal_ssl_socket_t *, int code)) {
+    us_socket_context_on_connect_error(0, (struct us_socket_context_t *) context, (struct us_socket_t *(*)(struct us_socket_t *, int)) on_connect_error);
 }
 
 void *us_internal_ssl_socket_context_ext(struct us_internal_ssl_socket_context_t *context) {

@@ -1,5 +1,5 @@
 /*
- * Authored by Alex Hultman, 2018-2019.
+ * Authored by Alex Hultman, 2018-2021.
  * Intellectual property of third-party.
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +28,8 @@ void us_internal_loop_data_init(struct us_loop_t *loop, void (*wakeup_cb)(struct
     loop->data.head = 0;
     loop->data.iterator = 0;
     loop->data.closed_head = 0;
+    loop->data.low_prio_head = 0;
+    loop->data.low_prio_budget = 0;
 
     loop->data.pre_cb = pre_cb;
     loop->data.post_cb = post_cb;
@@ -80,24 +82,74 @@ void us_internal_loop_unlink(struct us_loop_t *loop, struct us_socket_context_t 
 /* This functions should never run recursively */
 void us_internal_timer_sweep(struct us_loop_t *loop) {
     struct us_internal_loop_data_t *loop_data = &loop->data;
+    /* For all socket contexts in this loop */
     for (loop_data->iterator = loop_data->head; loop_data->iterator; loop_data->iterator = loop_data->iterator->next) {
 
         struct us_socket_context_t *context = loop_data->iterator;
-        for (context->iterator = context->head; context->iterator; ) {
 
-            struct us_socket_t *s = context->iterator;
-            if (s->timeout && --(s->timeout) == 0) {
+        /* Update this context's 15-bit timestamp */
+        context->timestamp = (context->timestamp + 1) & 0x1fff;
 
-                context->on_socket_timeout(s);
+        /* Update our 14-bit full timestamp (the needle in the haystack) */
+        unsigned short needle = 0x2000 | context->timestamp;
 
-                /* Check for unlink / link */
-                if (s == context->iterator) {
-                    context->iterator = s->next;
+        /* Begin at head */
+        struct us_socket_t *s = context->head;
+        while (s) {
+            /* Seek until end or timeout found (tightest loop) */
+            while (1) {
+                /* We only read from 1 random cache line here */
+                if (needle == s->timeout) {
+                    break;
                 }
+
+                /* Did we reach the end without a find? */
+                if ((s = s->next) == 0) {
+                    goto next_context;
+                }
+            }
+
+            /* Here we have a timeout to emit (slow path) */
+            s->timeout = 0;
+            context->iterator = s;
+
+            context->on_socket_timeout(s);
+
+            /* Check for unlink / link (if the event handler did not modify the chain, we step 1) */
+            if (s == context->iterator) {
+                s = s->next;
             } else {
-                context->iterator = s->next;
+                /* The iterator was changed by event handler */
+                s = context->iterator;
             }
         }
+        /* We always store a 0 to context->iterator here since we are no longer iterating this context */
+        next_context:
+        context->iterator = 0;
+    }
+}
+
+/* We do not want to block the loop with tons and tons of CPU-intensive work for SSL handshakes.
+ * Spread it out during many loop iterations, prioritizing already open connections, they are far
+ * easier on CPU */
+static const int MAX_LOW_PRIO_SOCKETS_PER_LOOP_ITERATION = 5;
+
+void us_internal_handle_low_priority_sockets(struct us_loop_t *loop) {
+    struct us_internal_loop_data_t *loop_data = &loop->data;
+    struct us_socket_t *s;
+
+    loop_data->low_prio_budget = MAX_LOW_PRIO_SOCKETS_PER_LOOP_ITERATION;
+
+    for (s = loop_data->low_prio_head; s && loop_data->low_prio_budget > 0; s = loop_data->low_prio_head, loop_data->low_prio_budget--) {
+        /* Unlink this socket from the low-priority queue */
+        loop_data->low_prio_head = s->next;
+        if (s->next) s->next->prev = 0;
+        s->next = 0;
+
+        us_internal_socket_context_link(s->context, s);
+        us_poll_change(&s->p, us_socket_context(0, s)->loop, us_poll_events(&s->p) | LIBUS_SOCKET_READABLE);
+
+        s->low_prio_state = 2;
     }
 }
 
@@ -125,6 +177,7 @@ long long us_loop_iteration_number(struct us_loop_t *loop) {
 /* These may have somewhat different meaning depending on the underlying event library */
 void us_internal_loop_pre(struct us_loop_t *loop) {
     loop->data.iteration_nr++;
+    us_internal_handle_low_priority_sockets(loop);
     loop->data.pre_cb(loop);
 }
 
@@ -136,7 +189,10 @@ void us_internal_loop_post(struct us_loop_t *loop) {
 void us_internal_dispatch_ready_poll(struct us_poll_t *p, int error, int events) {
     switch (us_internal_poll_type(p)) {
     case POLL_TYPE_CALLBACK: {
+            /* Let's just do this to clear the CodeQL alert */
+        #ifndef LIBUS_USE_LIBUV
             us_internal_accept_poll_event(p);
+        #endif
             struct us_internal_callback_t *cb = (struct us_internal_callback_t *) p;
             cb->cb(cb->cb_expects_the_loop ? (struct us_internal_callback_t *) cb->loop : (struct us_internal_callback_t *) &cb->p);
         }
@@ -147,15 +203,26 @@ void us_internal_dispatch_ready_poll(struct us_poll_t *p, int error, int events)
             if (us_poll_events(p) == LIBUS_SOCKET_WRITABLE) {
                 struct us_socket_t *s = (struct us_socket_t *) p;
 
-                us_poll_change(p, s->context->loop, LIBUS_SOCKET_READABLE);
+                /* It is perfectly possible to come here with an error */
+                if (error) {
+                    /* Emit error, close without emitting on_close */
+                    s->context->on_connect_error(s, 0);
+                    us_socket_close_connecting(0, s);
+                } else {
+                    /* All sockets poll for readable */
+                    us_poll_change(p, s->context->loop, LIBUS_SOCKET_READABLE);
 
-                /* We always use nodelay */
-                bsd_socket_nodelay(us_poll_fd(p), 1);
+                    /* We always use nodelay */
+                    bsd_socket_nodelay(us_poll_fd(p), 1);
 
-                /* We are now a proper socket */
-                us_internal_poll_set_type(p, POLL_TYPE_SOCKET);
+                    /* We are now a proper socket */
+                    us_internal_poll_set_type(p, POLL_TYPE_SOCKET);
 
-                s->context->on_open(s, 1, 0, 0);
+                    /* If we used a connection timeout we have to reset it here */
+                    us_socket_timeout(0, s, 0);
+
+                    s->context->on_open(s, 1, 0, 0);
+                }
             } else {
                 struct us_listen_socket_t *listen_socket = (struct us_listen_socket_t *) p;
                 struct bsd_addr_t addr;
@@ -176,6 +243,8 @@ void us_internal_dispatch_ready_poll(struct us_poll_t *p, int error, int events)
                         struct us_socket_t *s = (struct us_socket_t *) accepted_p;
 
                         s->context = listen_socket->s.context;
+                        s->timeout = 0;
+                        s->low_prio_state = 0;
 
                         /* We always use nodelay */
                         bsd_socket_nodelay(client_fd, 1);
@@ -224,10 +293,30 @@ void us_internal_dispatch_ready_poll(struct us_poll_t *p, int error, int events)
             }
 
             if (events & LIBUS_SOCKET_READABLE) {
-                /* Contexts may ignore data and postpone it to next iteration, for balancing purposes such as
-                 * when SSL handshakes take too long to finish and we only want a few of them per iteration */
-                if (s->context->ignore_data(s)) {
-                    break;
+                /* Contexts may prioritize down sockets that are currently readable, e.g. when SSL handshake has to be done.
+                 * SSL handshakes are CPU intensive, so we limit the number of handshakes per loop iteration, and move the rest
+                 * to the low-priority queue */
+                if (s->context->is_low_prio(s)) {
+                    if (s->low_prio_state == 2) {
+                        s->low_prio_state = 0; /* Socket has been delayed and now it's time to process incoming data for one iteration */
+                    } else if (s->context->loop->data.low_prio_budget > 0) {
+                        s->context->loop->data.low_prio_budget--; /* Still having budget for this iteration - do normal processing */
+                    } else {
+                        us_poll_change(&s->p, us_socket_context(0, s)->loop, us_poll_events(&s->p) & LIBUS_SOCKET_WRITABLE);
+                        us_internal_socket_context_unlink(s->context, s);
+
+                        /* Link this socket to the low-priority queue - we use a LIFO queue, to prioritize newer clients that are
+                         * maybe not already timeouted - sounds unfair, but works better in real-life with smaller client-timeouts
+                         * under high load */
+                        s->prev = 0;
+                        s->next = s->context->loop->data.low_prio_head;
+                        if (s->next) s->next->prev = s;
+                        s->context->loop->data.low_prio_head = s;
+
+                        s->low_prio_state = 1;
+
+                        break;
+                    }
                 }
 
                 int length = bsd_recv(us_poll_fd(&s->p), s->context->loop->data.recv_buf + LIBUS_RECV_BUFFER_PADDING, LIBUS_RECV_BUFFER_LENGTH, 0);
