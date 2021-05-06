@@ -19,6 +19,8 @@ class Timer;
 
 /// The implementation details.
 namespace detail {
+struct Ws_data;
+
 class iConnection;
 template<bool> class Conn;
 

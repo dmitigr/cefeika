@@ -7,6 +7,7 @@
 
 #include "dmitigr/ws/types_fwd.hpp"
 
+#include <cstdint>
 #include <functional>
 #include <string_view>
 #include <utility>
@@ -47,7 +48,7 @@ public:
    *
    * @see respond().
    */
-  using Response_handler = std::function<bool(int position)>;
+  using Response_handler = std::function<bool(std::uintmax_t position)>;
 
   /// The destructor.
   virtual ~Http_io() = default;
@@ -130,7 +131,7 @@ public:
    *
    * @see set_response_handler().
    */
-  virtual std::pair<bool, bool> send_data(std::string_view data, std::size_t total_size = 0) = 0;
+  virtual std::pair<bool, bool> send_data(std::string_view data, std::uintmax_t total_size = 0) = 0;
 
   /**
    * @brief Sends the `data` (if any) and finishes the IO.

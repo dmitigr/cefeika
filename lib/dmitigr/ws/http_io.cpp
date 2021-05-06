@@ -59,10 +59,10 @@ public:
     rep_->writeHeader(name, value);
   }
 
-  std::pair<bool, bool> send_data(const std::string_view data, const std::size_t total_size) override
+  std::pair<bool, bool> send_data(const std::string_view data, const std::uintmax_t total_size) override
   {
     assert(is_valid());
-    assert(!total_size || (data.size() <= static_cast<decltype(data.size())>(total_size)));
+    static_assert(sizeof(decltype(data.size())) <= sizeof(decltype(total_size)));
     if (!is_response_handler_set_) {
       end(data);
       return {true, true};
@@ -83,7 +83,7 @@ public:
   {
     assert(is_valid() && !is_response_handler_set());
     assert(handler);
-    rep_->onWritable([this, handler = std::move(handler)](const int position)
+    rep_->onWritable([this, handler = std::move(handler)](const std::uintmax_t position)
     {
       assert(rep_);
       const auto ok = handler(position);
