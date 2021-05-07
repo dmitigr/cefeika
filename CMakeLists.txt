@@ -304,22 +304,12 @@ foreach(lib ${dmitigr_cefeika_libraries})
     target_include_directories(${dmlib}
       PRIVATE ${${dmlib}_target_include_directories_private}
       PUBLIC  ${${dmlib}_target_include_directories_public})
-
-    target_include_directories(${dmlib} BEFORE PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
-      )
   else() # header-only
     target_compile_definitions(${dmlib}
       INTERFACE ${${dmlib}_target_compile_definitions_interface})
 
     target_include_directories(${dmlib}
       INTERFACE ${${dmlib}_target_include_directories_interface})
-
-    target_include_directories(${dmlib} BEFORE INTERFACE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/lib>
-      )
   endif()
 
   # ------------------------------------
