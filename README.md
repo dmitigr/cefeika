@@ -5,7 +5,6 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [dt] - library to work with date and time
   - [fcgi] - powerful FastCGI implementation (server)
   - [http] - HTTP library
-  - [img] - image processing library
   - [jrpc] - [JSON-RPC 2.0][json-rpc2] implementation
   - [net] - networking library
   - [os] - OS interaction
@@ -39,7 +38,7 @@ Any feedback are [welcome][dmitigr_mail]. Donations are also [welcome][dmitigr_p
 Also:
 
 - [libpq] library for [pgfe];
-- [GraphicsMagick] library for [img].
+- [libev] library for [wscl].
 
 ## Third-party software which are shipped with Cefeika
 
@@ -244,12 +243,11 @@ distributed under zlib [LICENSE](LICENSE.txt).
 
 Cefeika includes the following software of third parties:
 
-  - [RapidJSON] distributed under the following [LICENSE](thirdparty/rapidjson/license.txt);
-  - [uSockets] distributed under the following [LICENSE](thirdparty/usockets/LICENSE);
-  - [libuv] distributed under the following [LICENSE](thirdparty/uv/LICENSE);
-  - [uWebSockets] distributed under the following [LICENSE](thirdparty/uwebsockets/LICENSE);
-  - [buffer] distributed under the following [LICENSE](thirdparty/buffer/LICENSE);
-  - [libuwsc] distributed under the following [LICENSE](thirdparty/uwsc/LICENSE).
+  - [RapidJSON] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/rapidjson/license.txt);
+  - [uSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/usockets/LICENSE);
+  - [libuv] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uv/LICENSE);
+  - [uWebSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwebsockets/LICENSE);
+  - [buffer and libuwsc] are distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwsc/LICENSE).
 
 For conditions of distribution and use, please see the corresponding license.
 
@@ -262,7 +260,6 @@ For conditions of distribution and use, please see the corresponding license.
 [dt]: https://github.com/dmitigr/cefeika/tree/master/doc/dt
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
 [http]: https://github.com/dmitigr/cefeika/tree/master/doc/http
-[img]: https://github.com/dmitigr/cefeika/tree/master/doc/img
 [jrpc]: https://github.com/dmitigr/cefeika/tree/master/doc/jrpc
 [misc]: https://github.com/dmitigr/cefeika/tree/master/doc/misc
 [net]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/net
@@ -276,7 +273,6 @@ For conditions of distribution and use, please see the corresponding license.
 [CMake]: https://cmake.org/
 [CMake_find_package]: https://cmake.org/cmake/help/latest/command/find_package.html
 [GCC]: https://gcc.gnu.org/
-[GraphicsMagick]: http://www.graphicsmagick.org/
 [json-rpc2]: https://www.jsonrpc.org/specification
 [libev]: http://software.schmorp.de/pkg/libev.html
 [libpq]: https://www.postgresql.org/docs/current/static/libpq.html
