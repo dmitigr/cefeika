@@ -3,8 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include "pgfe-unit.hpp"
-
-#include <dmitigr/misc/reader.hpp>
+#include "../../lib/dmitigr/misc/reader.hpp"
 
 namespace pgfe = dmitigr::pgfe;
 namespace reader = dmitigr::reader;

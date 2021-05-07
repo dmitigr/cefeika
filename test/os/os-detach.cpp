@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/misc/testo.hpp>
-#include <dmitigr/os/proc_detach.hpp>
+#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/os/proc_detach.hpp"
 
 #include <csignal>
 #include <iostream>

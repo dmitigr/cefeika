@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/misc/testo.hpp>
-#include <dmitigr/pgfe/composite.hpp>
-#include <dmitigr/pgfe/exceptions.hpp>
-#include <dmitigr/pgfe/sql_string.hpp>
+#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/pgfe/composite.hpp"
+#include "../../lib/dmitigr/pgfe/exceptions.hpp"
+#include "../../lib/dmitigr/pgfe/sql_string.hpp"
 
 #include <functional>
 

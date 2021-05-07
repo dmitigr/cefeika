@@ -3,8 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include "pgfe-unit.hpp"
-
-#include <dmitigr/pgfe.hpp>
+#include "../../lib/dmitigr/pgfe.hpp"
 
 namespace pgfe = dmitigr::pgfe;
 namespace testo = dmitigr::testo;

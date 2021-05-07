@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/dt.hpp>
-#include <dmitigr/http.hpp>
-#include <dmitigr/misc/testo.hpp>
+#include "../../lib/dmitigr/dt.hpp"
+#include "../../lib/dmitigr/http.hpp"
+#include "../../lib/dmitigr/misc/testo.hpp"
 
 int main(int, char* argv[])
 {

@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/misc/rng.hpp>
-#include <dmitigr/misc/testo.hpp>
-#include <dmitigr/ws.hpp>
+#include "../../lib/dmitigr/misc/rng.hpp"
+#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/ws.hpp"
 
 #include <chrono>
 #include <sstream>

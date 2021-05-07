@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/ws.hpp>
+#include "../../lib/dmitigr/ws.hpp"
 
 #include <chrono>
 #include <sstream>

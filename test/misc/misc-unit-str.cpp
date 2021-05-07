@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/misc/str.hpp>
-#include <dmitigr/misc/testo.hpp>
+#include "../../lib/dmitigr/misc/str.hpp"
+#include "../../lib/dmitigr/misc/testo.hpp"
 
 int main(int, char* argv[])
 {

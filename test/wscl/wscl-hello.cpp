@@ -2,7 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/wscl.hpp>
+#include "../../lib/dmitigr/wscl.hpp"
+
 #include <chrono>
 #include <iostream>
 

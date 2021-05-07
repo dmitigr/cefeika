@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/misc/testo.hpp>
-#include <dmitigr/pgfe/exceptions.hpp>
-#include <dmitigr/pgfe/conversions.hpp>
+#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/pgfe/exceptions.hpp"
+#include "../../lib/dmitigr/pgfe/conversions.hpp"
 
 #include <limits>
 #include <optional>

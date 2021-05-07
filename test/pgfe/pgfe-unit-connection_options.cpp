@@ -5,8 +5,8 @@
 #ifndef DMITIGR_PGFE_HEADER_ONLY
 #define DMITIGR_PGFE_HEADER_ONLY
 #endif
-#include <dmitigr/misc/testo.hpp>
-#include <dmitigr/pgfe/connection_options.hpp>
+#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/pgfe/connection_options.hpp"
 
 #include <cstring>
 #include <iostream>

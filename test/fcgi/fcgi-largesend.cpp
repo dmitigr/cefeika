@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/fcgi.hpp>
-#include <dmitigr/misc/rng.hpp>
+#include "../../lib/dmitigr/fcgi.hpp"
+#include "../../lib/dmitigr/misc/rng.hpp"
 
 #include <iostream>
 

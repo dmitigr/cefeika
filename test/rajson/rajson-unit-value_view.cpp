@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/misc/reader.hpp>
-#include <dmitigr/misc/testo.hpp>
-#include <dmitigr/rajson.hpp>
+#include "../../lib/dmitigr/misc/filesystem.hpp"
+#include "../../lib/dmitigr/misc/reader.hpp"
+#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/rajson.hpp"
 
 #include <iostream>
 

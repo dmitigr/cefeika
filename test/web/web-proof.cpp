@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "dmitigr/web.hpp"
+#include "../../lib/dmitigr/web.hpp"
 
 int main()
 {

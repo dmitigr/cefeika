@@ -2,10 +2,10 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or mulf.hpp
 
-#include <dmitigr/misc/filesystem.hpp>
-#include <dmitigr/misc/reader.hpp>
-#include <dmitigr/misc/testo.hpp>
-#include <dmitigr/web/mulf.hpp>
+#include "../../lib/dmitigr/misc/filesystem.hpp"
+#include "../../lib/dmitigr/misc/reader.hpp"
+#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/web/mulf.hpp"
 
 int main(int, char* argv[])
 {

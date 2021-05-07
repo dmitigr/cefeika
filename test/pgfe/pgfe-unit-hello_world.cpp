@@ -2,7 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/pgfe.hpp>
+#include "../../lib/dmitigr/pgfe.hpp"
+
 #include <cstdio>
 
 namespace pgfe = dmitigr::pgfe;

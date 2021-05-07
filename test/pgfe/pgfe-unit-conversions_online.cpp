@@ -4,9 +4,9 @@
 
 #include "pgfe-unit.hpp"
 
-#include <dmitigr/pgfe/conversions.hpp>
-#include <dmitigr/pgfe/row.hpp>
-#include <dmitigr/pgfe/sql_string.hpp>
+#include "../../lib/dmitigr/pgfe/conversions.hpp"
+#include "../../lib/dmitigr/pgfe/row.hpp"
+#include "../../lib/dmitigr/pgfe/sql_string.hpp"
 
 #include <optional>
 #include <limits>

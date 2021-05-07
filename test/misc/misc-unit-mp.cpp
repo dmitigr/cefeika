@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include <dmitigr/misc/mp.hpp>
-#include <dmitigr/misc/testo.hpp>
+#include "../../lib/dmitigr/misc/mp.hpp"
+#include "../../lib/dmitigr/misc/testo.hpp"
 
 #include <chrono>
 #include <thread>
