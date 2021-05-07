@@ -20,20 +20,14 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_BASICS_HPP
-#define DMITIGR_MISC_BASICS_HPP
+#ifndef DMITIGR_MISC_ENUM_BITMASK_HPP
+#define DMITIGR_MISC_ENUM_BITMASK_HPP
 
 #include <type_traits>
 
 namespace dmitigr {
 
-// -----------------------------------------------------------------------------
-// Bitmask enums
-// -----------------------------------------------------------------------------
-
-/*
- * The following code is inspired by the exposition from 14822:2014 17.5.2.1.3.
- */
+// The following code is inspired by the exposition from 14822:2014 17.5.2.1.3.
 
 template<typename T> struct Is_bitmask_enum : std::false_type {};
 
@@ -147,4 +141,4 @@ operator^=(T& lhs, const T rhs) noexcept
     return dmitigr::operator^=(lhs, rhs);                   \
   }
 
-#endif  // DMITIGR_MISC_BASICS_HPP
+#endif  // DMITIGR_MISC_ENUM_BITMASK_HPP

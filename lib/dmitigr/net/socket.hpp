@@ -7,7 +7,7 @@
 
 #include "address.hpp"
 #include "exceptions.hpp"
-#include "../misc/basics.hpp"
+#include "../misc/enum_bitmask.hpp"
 
 #include <algorithm>
 #include <cassert>
