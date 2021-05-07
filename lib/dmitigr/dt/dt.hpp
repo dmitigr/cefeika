@@ -24,6 +24,7 @@
 #define DMITIGR_DT_DT_HPP
 
 #include "basics.hpp"
+#include "time.hpp"
 #include "timestamp.hpp"
 #include "version.hpp"
 

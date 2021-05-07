@@ -29,7 +29,6 @@ set(dmitigr_misc_headers
   rng.hpp
   str.hpp
   testo.hpp
-  time.hpp
   ttpl.hpp
   uuid.hpp
   )
