@@ -191,12 +191,18 @@ int main(int, char* argv[])
     // Convenient methods.
     {
       jrpc::Request req{4, "foo"};
+      req.set_parameter("n", {});
       req.set_parameter("x", 10);
       req.set_parameter("y", 20);
       req.set_parameter("s", "foo");
 
       {
-        const auto [y, x, s] = req.parameters_mandatory("y", "x", "s");
+        const auto [y, x, s, n] = req.parameters_mandatory("y", "x", "s", "n");
+        ASSERT(y && x && s && n);
+      }
+
+      {
+        const auto [y, x, s] = req.parameters_not_null("y", "x", "s");
         ASSERT(y && x && s);
       }
 
@@ -204,7 +210,7 @@ int main(int, char* argv[])
         const auto [zr] = req.parameters("z");
         ASSERT(!zr);
         try {
-          const auto z = zr.mandatory<int>(math::Interval{1, 2000});
+          const auto z = zr.not_null<int>(math::Interval{1, 2000});
           (void)z;
         } catch (const jrpc::Error& e) {
           ASSERT(e.code() == jrpc::Server_errc::invalid_params);
@@ -227,8 +233,8 @@ int main(int, char* argv[])
       }
 
       {
-        const auto x = req.parameter("x").mandatory<int>();
-        const auto y = req.parameter("y").mandatory<std::int8_t>();
+        const auto x = req.parameter("x").not_null<int>();
+        const auto y = req.parameter("y").not_null<std::int8_t>();
         const auto z = req.parameter("z").optional<int>();
         ASSERT(x == 10);
         ASSERT(y == 20);
@@ -236,9 +242,9 @@ int main(int, char* argv[])
       }
 
       {
-        const auto x = req.parameter("x").mandatory<int>({10,20});
+        const auto x = req.parameter("x").not_null<int>({10,20});
         (void)x;
-        const auto s = req.parameter("s").mandatory<std::string_view>({"bar","baz", "foo"});
+        const auto s = req.parameter("s").not_null<std::string_view>({"bar","baz","foo"});
         (void)s;
       }
     }

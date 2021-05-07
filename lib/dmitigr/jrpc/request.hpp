@@ -133,7 +133,7 @@ public:
      * @throws Error if `!value() || value()->IsNull()`.
      */
     template<typename T, typename ... Types>
-    T mandatory(Types&& ... args) const
+    T not_null(Types&& ... args) const
     {
       if (auto result = optional<T>(std::forward<Types>(args)...))
         return std::move(*result);
@@ -143,7 +143,7 @@ public:
 
     /// @overload
     template<typename T, typename U>
-    T mandatory(const std::initializer_list<U>& valid_set) const
+    T not_null(const std::initializer_list<U>& valid_set) const
     {
       if (auto result = optional<T>(valid_set))
         return std::move(*result);
@@ -347,7 +347,11 @@ public:
       return Paramref{*this};
   }
 
-  /// @returns A value of type `std::tuple<Paramref, ...>`.
+  /**
+   * @returns A value of type `std::tuple<Paramref, ...>`.
+   *
+   * @see parameters_mandatory(), parameters_not_null().
+   */
   template<class ... Types>
   auto parameters(Types&& ... names) const
   {
@@ -359,9 +363,28 @@ public:
    *
    * @throws `Server_errc::invalid_params` if any of parameters which are
    * specified in the `names` does not presents in request.
+   *
+   * @see parameters(), parameters_not_null().
    */
   template<class ... Types>
   auto parameters_mandatory(Types&& ... names) const
+  {
+    auto result = parameters(std::forward<Types>(names)...);
+    if (!is_all_present(result))
+      throw_error(Server_errc::invalid_params);
+    return result;
+  }
+
+  /**
+   * @returns A value of type `std::tuple<Paramref, ...>`.
+   *
+   * @throws `Server_errc::invalid_params` if any of parameters which are
+   * specified in the `names` does not presents in request or `NULL`.
+   *
+   * @see parameters(), parameters_mandatory().
+   */
+  template<class ... Types>
+  auto parameters_not_null(Types&& ... names) const
   {
     auto result = parameters(std::forward<Types>(names)...);
     if (!is_all_present(result))
@@ -575,19 +598,29 @@ private:
     return const_cast<rapidjson::Value*>(static_cast<const Request*>(this)->params());
   }
 
-  template<std::size_t ... I, typename Tuple>
-  static bool is_all_present__(std::index_sequence<I...>, const Tuple& tuple) noexcept
+  template<std::size_t ... I, typename Tuple, typename Check>
+  static bool is_all_passed__(std::index_sequence<I...>,
+    const Tuple& tuple, Check&& check) noexcept
   {
     constexpr auto tsz = std::tuple_size<std::decay_t<decltype(tuple)>>();
     static_assert(sizeof...(I) == tsz);
-    return (static_cast<bool>(std::get<I>(tuple)) && ...);
+    return (check(std::get<I>(tuple)) && ...);
   }
 
   template<typename Tuple>
   static bool is_all_present(const Tuple& tuple) noexcept
   {
     constexpr auto tsz = std::tuple_size<std::decay_t<decltype(tuple)>>();
-    return is_all_present__(std::make_index_sequence<tsz>{}, tuple);
+    return is_all_passed__(std::make_index_sequence<tsz>{}, tuple,
+      [](const auto& e){return e.value();});
+  }
+
+  template<typename Tuple>
+  static bool is_all_not_null(const Tuple& tuple) noexcept
+  {
+    constexpr auto tsz = std::tuple_size<std::decay_t<decltype(tuple)>>();
+    return is_all_passed__(std::make_index_sequence<tsz>{}, tuple,
+      [](const auto& e){return e.value() && !e.value()->IsNull();});
   }
 
   // Used by from_json().
