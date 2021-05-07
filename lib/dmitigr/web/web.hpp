@@ -24,8 +24,8 @@
 #define DMITIGR_WEB_WEB_HPP
 
 #include "mulf.hpp"
-#include "v1.hpp"
 #include "url.hpp"
-#include "types_fwd.hpp"
+#include "v1.hpp"
+#include "version.hpp"
 
 #endif  // DMITIGR_WEB_WEB_HPP

@@ -52,7 +52,6 @@
 #include "sql_string.hpp"
 #include "sql_vector.hpp"
 #include "std_system_error.hpp"
-#include "types_fwd.hpp"
 #include "version.hpp"
 
 #endif  // DMITIGR_PGFE_PGFE_HPP

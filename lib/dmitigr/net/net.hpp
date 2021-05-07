@@ -31,7 +31,6 @@
 #include "exceptions.hpp"
 #include "listener.hpp"
 #include "socket.hpp"
-#include "types_fwd.hpp"
 #include "util.hpp"
 #include "version.hpp"
 

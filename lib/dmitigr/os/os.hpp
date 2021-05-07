@@ -24,10 +24,15 @@
 #define DMITIGR_OS_OS_HPP
 
 #include "env.hpp"
+#include "log.hpp"
 #include "proc.hpp"
 #ifndef _WIN32
 #include "proc_detach.hpp"
 #endif
+#include "proc_run.hpp"
 #include "version.hpp"
+#ifdef _WIN32
+#include "windows.hpp"
+#endif
 
 #endif  // DMITIGR_OS_OS_HPP

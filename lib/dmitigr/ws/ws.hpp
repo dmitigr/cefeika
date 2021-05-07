@@ -30,7 +30,7 @@
 #include "listener.hpp"
 #include "listener_options.hpp"
 #include "timer.hpp"
-#include "types_fwd.hpp"
+#include "util.hpp"
 #include "version.hpp"
 
 #endif  // DMITIGR_WS_WS_HPP
