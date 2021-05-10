@@ -15,6 +15,7 @@ set(dmitigr_cefeika_libraries
   fcgi
   http
   pgfe
+  sqlixx
   ws
   wscl
 
@@ -22,6 +23,7 @@ set(dmitigr_cefeika_libraries
   )
 
 set(dmitigr_cefeika_misc_deps)
+set(dmitigr_cefeika_sqlixx_deps)
 
 set(dmitigr_cefeika_dt_deps misc)
 set(dmitigr_cefeika_os_deps misc)

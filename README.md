@@ -11,6 +11,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [pgfe] - powerful client API for [PostgreSQL]
   - [rajson] - [RapidJSON] wrapper
   - [misc] - miscellaneous stuff (from basics to URL processing to multithreading)
+  - [sqlixx] - powerful client API for [SQLite]
   - [web] - Web frameworks
   - [ws] - WebSocket server library
   - [wscl] - WebSocket client library
@@ -280,6 +281,7 @@ For conditions of distribution and use, please see the corresponding license.
 [libuv]: https://libuv.org/
 [PostgreSQL]: https://www.postgresql.org/
 [RapidJSON]: http://rapidjson.org/
+[SQLite]: https://www.sqlite.org/
 [uSockets]: https://github.com/uNetworking/uSockets
 [uWebSockets]: https://github.com/uNetworking/uWebSockets
 [buffer]: https://github.com/zhaojh329/buffer
