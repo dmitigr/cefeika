@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt or sqlixx.hpp
 
 #include "../../lib/dmitigr/sqlixx.hpp"
+#include "../../lib/dmitigr/misc/assert.hpp"
 #include <iostream>
 
 int main()
@@ -40,7 +41,7 @@ int main()
     const auto t1 = s.result<sqlixx::Text_utf8>("ct");
     const auto t2 = s.result<std::string>("ct");
     const auto t3 = s.result<std::string_view>("ct");
-    assert(!std::strcmp(t1.data(), t2.data()) && (t2 == t3));
+    DMITIGR_ASSERT(!std::strcmp(t1.data(), t2.data()) && (t2 == t3));
     std::cout << "id: " << s.result<int>("id") << "\n"
               << "cr: " << s.result<double>("cr") << "\n"
               << "ct: " << t3 << "\n"

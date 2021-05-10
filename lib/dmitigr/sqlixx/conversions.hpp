@@ -7,10 +7,10 @@
 
 #include "data.hpp"
 #include "exception.hpp"
+#include "../misc/assert.hpp"
 
 #include <sqlite3.h>
 
-#include <cassert>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -22,7 +22,7 @@ namespace dmitigr::sqlixx {
 namespace detail {
 inline void check_bind(sqlite3_stmt* const handle, const int r)
 {
-  assert(handle);
+  DMITIGR_CHECK(handle);
   if (r != SQLITE_OK)
     throw Exception{r, std::string{"cannot bind a prepared statement parameter"}
       .append(" (").append(sqlite3_errmsg(sqlite3_db_handle(handle))).append(")")};
@@ -87,7 +87,7 @@ struct Conversions<Data<T, E>> final {
         if (value.is_data_owner()) {
           const auto result = value.deleter_;
           value = {};
-          assert(!value.is_data_owner());
+          DMITIGR_ASSERT(!value.is_data_owner());
           return result;
         } else
           return SQLITE_STATIC;

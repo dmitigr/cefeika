@@ -6,10 +6,10 @@
 #define DMITIGR_SQLIXX_STATEMENT_HPP
 
 #include "conversions.hpp"
+#include "../misc/assert.hpp"
 
 #include <sqlite3.h>
 
-#include <cassert>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
@@ -73,12 +73,12 @@ public:
   Statement(sqlite3* const handle, const std::string_view sql,
     const unsigned int flags = 0)
   {
-    assert(handle);
+    DMITIGR_CHECK_ARG(handle);
     if (const int r = sqlite3_prepare_v3(handle, sql.data(), sql.size(), flags,
         &handle_, nullptr); r != SQLITE_OK)
       throw Exception{r, std::string{"cannot prepare statement "}.append(sql)
         .append(" (").append(sqlite3_errmsg(handle)).append(")")};
-    assert(handle_);
+    DMITIGR_ASSERT(handle_);
   }
 
   /// Non-copyable.
@@ -148,14 +148,15 @@ public:
   /// @returns The number of parameters.
   int parameter_count() const
   {
-    assert(handle_);
+    DMITIGR_CHECK(handle_);
     return sqlite3_bind_parameter_count(handle_);
   }
 
   /// @returns The parameter index, or -1 if no parameter `name` presents.
   int parameter_index(const char* const name) const
   {
-    assert(handle_ && name);
+    DMITIGR_CHECK_ARG(name);
+    DMITIGR_CHECK(handle_);
     return sqlite3_bind_parameter_index(handle_, name) - 1;
   }
 
@@ -164,33 +165,34 @@ public:
    */
   int parameter_index_throw(const char* const name) const
   {
-    assert(handle_ && name);
+    DMITIGR_CHECK_ARG(name);
+    DMITIGR_CHECK(handle_);
     const int index = parameter_index(name);
-#ifndef NDEBUG
     if (index < 0)
       throw std::logic_error{std::string{"no parameter with name "}.append(name)};
-#endif
     return index;
   }
 
   /// @returns The name of the parameter by the `index`.
-  std::string parameter_name(const int index) const noexcept
+  std::string parameter_name(const int index) const
   {
-    assert(handle_ && (index < parameter_count()));
+    DMITIGR_CHECK_ARG(index < parameter_count());
+    DMITIGR_CHECK(handle_);
     return sqlite3_column_name(handle_, index + 1);
   }
 
   /// Binds all the parameters with NULL.
   void bind_null()
   {
-    assert(handle_);
+    DMITIGR_CHECK(handle_);
     detail::check_bind(handle_, sqlite3_clear_bindings(handle_));
   }
 
   /// Binds the parameter of the specified index with NULL.
   void bind_null(const int index)
   {
-    assert(handle_ && (index < parameter_count()));
+    DMITIGR_CHECK_ARG(index < parameter_count());
+    DMITIGR_CHECK(handle_);
     detail::check_bind(handle_, sqlite3_bind_null(handle_, index + 1));
   }
 
@@ -207,7 +209,8 @@ public:
    */
   void bind(const int index, const char* const value)
   {
-    assert(handle_ && (index < parameter_count()));
+    DMITIGR_CHECK_ARG(index < parameter_count());
+    DMITIGR_CHECK(handle_);
     detail::check_bind(handle_, sqlite3_bind_text(handle_, index + 1, value, -1, SQLITE_STATIC));
   }
 
@@ -229,7 +232,8 @@ public:
   template<typename T>
   void bind(const int index, T&& value)
   {
-    assert(handle_ && (index < parameter_count()));
+    DMITIGR_CHECK_ARG(index < parameter_count());
+    DMITIGR_CHECK(handle_);
     using U = std::decay_t<T>;
     Conversions<U>::bind(handle_, index + 1, std::forward<T>(value));
   }
@@ -294,7 +298,7 @@ public:
   std::enable_if_t<detail::Execute_callback_traits<F>::is_valid, int>
   execute(F&& callback, Types&& ... values)
   {
-    assert(handle_);
+    DMITIGR_CHECK(handle_);
 
     if (last_step_result_ == SQLITE_DONE)
       reset();
@@ -357,14 +361,15 @@ public:
   /// @returns The number of columns.
   int column_count() const
   {
-    assert(handle_);
+    DMITIGR_CHECK(handle_);
     return sqlite3_column_count(handle_);
   }
 
   /// @returns The column index, or -1 if no column `name` presents.
   int column_index(const char* const name) const
   {
-    assert(handle_ && name);
+    DMITIGR_CHECK_ARG(name);
+    DMITIGR_CHECK(handle_);
     const int count = column_count();
     for (int i = 0; i < count; ++i) {
       if (const char* const nm = sqlite3_column_name(handle_, i)) {
@@ -381,19 +386,19 @@ public:
    */
   int column_index_throw(const char* const name) const
   {
-    assert(handle_ && name);
+    DMITIGR_CHECK_ARG(name);
+    DMITIGR_CHECK(handle_);
     const int index = column_index(name);
-#ifndef NDEBUG
     if (index < 0)
       throw std::logic_error{std::string{"no column with name "}.append(name)};
-#endif
     return index;
   }
 
   /// @returns The name of the column by the `index`.
-  std::string column_name(const int index) const noexcept
+  std::string column_name(const int index) const
   {
-    assert(handle_ && (index < column_count()));
+    DMITIGR_CHECK_ARG(index < column_count());
+    DMITIGR_CHECK(handle_);
     return sqlite3_column_name(handle_, index);
   }
 
@@ -401,7 +406,8 @@ public:
   template<typename T>
   T result(const int index) const
   {
-    assert(handle_ && (index < column_count()));
+    DMITIGR_CHECK_ARG(index < column_count());
+    DMITIGR_CHECK(handle_);
     using U = std::decay_t<T>;
     return Conversions<U>::result(handle_, index);
   }

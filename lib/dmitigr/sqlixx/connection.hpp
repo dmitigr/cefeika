@@ -6,11 +6,11 @@
 #define DMITIGR_SQLIXX_CONNECTION_HPP
 
 #include "statement.hpp"
+#include "../misc/assert.hpp"
 #include "../misc/filesystem.hpp"
 
 #include <sqlite3.h>
 
-#include <cassert>
 #include <cstdio>
 #include <exception>
 #include <new>
@@ -48,14 +48,14 @@ public:
    */
   Connection(const char* const ref, const int flags)
   {
-    assert(ref);
+    DMITIGR_CHECK_ARG(ref);
     if (const int r = sqlite3_open_v2(ref, &handle_, flags, nullptr); r != SQLITE_OK) {
       if (handle_)
         throw Exception{r, sqlite3_errmsg(handle_)};
       else
         throw std::bad_alloc{};
     }
-    assert(handle_);
+    DMITIGR_ASSERT(handle_);
   }
 
   /// @overload
@@ -145,7 +145,7 @@ public:
   std::enable_if_t<detail::Execute_callback_traits<F>::is_valid>
   execute(F&& callback, const std::string_view sql, Types&& ... values)
   {
-    assert(handle_);
+    DMITIGR_CHECK(handle_);
     prepare(sql).execute(std::forward<F>(callback), std::forward<Types>(values)...);
   }
 
@@ -161,9 +161,9 @@ public:
    * otherwise. Autocommit mode is disabled by a `BEGIN` command and re-enabled
    * by a `COMMIT` or `ROLLBACK` commands.
    */
-  bool is_transaction_active() const noexcept
+  bool is_transaction_active() const
   {
-    assert(handle_);
+    DMITIGR_CHECK(handle_);
     return (sqlite3_get_autocommit(handle_) == 0);
   }
 

@@ -5,9 +5,10 @@
 #ifndef DMITIGR_SQLIXX_DATA_HPP
 #define DMITIGR_SQLIXX_DATA_HPP
 
+#include "../misc/assert.hpp"
+
 #include <sqlite3.h>
 
-#include <cassert>
 #include <utility>
 
 namespace dmitigr::sqlixx {
@@ -89,7 +90,7 @@ struct Data final {
   {
     auto* const result = data_;
     deleter_ = SQLITE_STATIC;
-    assert(!is_data_owner());
+    DMITIGR_ASSERT(!is_data_owner());
     Data{}.swap(*this);
     return result;
   }
