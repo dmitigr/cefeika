@@ -16,8 +16,8 @@ set(dmitigr_sqlixx_headers
   connection.hpp
   conversions.hpp
   data.hpp
+  exception.hpp
   statement.hpp
-  std_system_error.hpp
   )
 
 set(dmitigr_sqlixx_implementations
