@@ -13,7 +13,11 @@ dmitigr_set_library_info(sqlixx 0 1 "Powerful client API for SQLite")
 # ------------------------------------------------------------------------------
 
 set(dmitigr_sqlixx_headers
-  sqlixx.hpp
+  connection.hpp
+  conversions.hpp
+  data.hpp
+  statement.hpp
+  std_system_error.hpp
   )
 
 set(dmitigr_sqlixx_implementations
