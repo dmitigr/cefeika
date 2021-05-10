@@ -42,34 +42,26 @@ constexpr bool is_debug{false};
 #define DMITIGR_MISC_ASSERT_STR(s) #s
 #define DMITIGR_MISC_ASSERT_XSTR(s) DMITIGR_MISC_ASSERT_STR(s)
 
-/// Checks `a` always, even when `NDEBUG` is defined.
-#define DMITIGR_ASSERT_ALWAYS(a) do {                                   \
+/// Checks `a` always, regardless of `NDEBUG`.
+#define DMITIGR_ASSERT(a) do {                                          \
     if (!(a)) {                                                         \
       std::cerr<<"assertion ("<<#a<<") failed at "<<__FILE__<<":"<<__LINE__<<"\n"; \
       std::terminate();                                                 \
     }                                                                   \
   } while (false)
 
-/// Checks `a` only if `NDEBUG` is not defined.
-#ifndef NDEBUG
-#define DMITIGR_ASSERT(a) DMITIGR_ASSERT_ALWAYS(a)
-#else
-#define DMITIGR_ASSERT(a) ((void)0)
-#endif
-
-/// Checks `a` always, even when `NDEBUG` is defined.
-#define DMITIGR_CHECK_ALWAYS(a) do {                        \
+/// Checks `a` always, regardless of `NDEBUG`.
+#define DMITIGR_CHECK_GENERIC(a, E) do {                    \
     if (!(a)) {                                             \
-      throw std::logic_error{"check (" #a ") failed at "    \
-          __FILE__ ":" DMITIGR_MISC_ASSERT_XSTR(__LINE__)}; \
+      throw E{"check (" #a ") failed at "                   \
+        __FILE__ ":" DMITIGR_MISC_ASSERT_XSTR(__LINE__)};   \
     }                                                       \
   } while (false)
 
-/// Checks `a` only if `NDEBUG` is not defined.
-#ifndef NDEBUG
-#define DMITIGR_CHECK(a) DMITIGR_CHECK_ALWAYS(a)
-#else
-#define DMITIGR_CHECK(a) ((void)0)
-#endif
+#define DMITIGR_CHECK(a) DMITIGR_CHECK_GENERIC(a, std::logic_error)
+#define DMITIGR_CHECK_ARG(a) DMITIGR_CHECK_GENERIC(a, std::invalid_argument)
+#define DMITIGR_CHECK_DOMAIN(a) DMITIGR_CHECK_GENERIC(a, std::domain_error)
+#define DMITIGR_CHECK_LENGTH(a) DMITIGR_CHECK_GENERIC(a, std::length_error)
+#define DMITIGR_CHECK_RANGE(a) DMITIGR_CHECK_GENERIC(a, std::out_of_range)
 
 #endif  // DMITIGR_MISC_ASSERT_HPP
