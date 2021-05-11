@@ -322,14 +322,6 @@ set(dmitigr_pgfe_cmake_unpreprocessed
 # libpq
 #
 
-# FindPq.cmake module will use these settings to find libpq.
-set(LIBPQ_PREFIX "" CACHE PATH
-  "Installation prefix of the libpq library (where both headers and binary resides)")
-set(LIBPQ_LIB_PREFIX "${LIBPQ_PREFIX}" CACHE PATH
-  "Installation prefix of the libpq binary (where the binary reside)")
-set(LIBPQ_INCLUDE_PREFIX "${LIBPQ_PREFIX}" CACHE PATH
-  "Installation prefix of the libpq includes (where the headers resides)")
-
 if(("${LIBPQ_PREFIX}" STREQUAL "") AND ("${LIBPQ_LIB_PREFIX}" STREQUAL "") AND ("${LIBPQ_INCLUDE_PREFIX}" STREQUAL ""))
   find_package(PostgreSQL REQUIRED)
   list(APPEND dmitigr_pgfe_target_include_directories_public "${PostgreSQL_INCLUDE_DIRS}")

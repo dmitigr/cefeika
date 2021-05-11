@@ -17,9 +17,7 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [wscl] - WebSocket client library
 
 All of these libraries can be used as shared libraries, static libraries or
-header-only libraries. ([ws] requires to build some third-party libraries
-such as [libuv] and [uSockets] which are shipped with Cefeika; [wscl] requires
-[libev] at the moment.)
+header-only libraries.
 
 **Most of these libraries are in *work in progress* state! Participations and
 contributions of any kind are welcome!**
@@ -31,21 +29,20 @@ Some of these libraries are available as standalone versions:
 
 Any feedback are [welcome][dmitigr_mail]. Donations are also [welcome][dmitigr_paypal].
 
-## Third-party dependencies
+## Third-party dependencies which are not shipped with Cefeika:
 
 - [CMake] build system version 3.13+;
-- C++17 compiler ([GCC] 7.4+ or [Microsoft Visual C++][Visual_Studio] 15.7+).
-
-Also:
-
+- C++17 compiler ([GCC] 7.4+ or [Microsoft Visual C++][Visual_Studio] 15.7+);
 - [libpq] library for [pgfe];
-- [libev] library for [wscl].
+- [libuv] library for [ws];
+- [OpenSSL] library (optionally) for [ws];
+- [zlib] library (optionally) for [ws];
+- [libev] library for [wscl];
 
 ## Third-party software which are shipped with Cefeika
 
 |Name|Source|
 |:---|:------|
-|libuv|https://github.com/dmitigr/libuv/tree/v1.x|
 |RapidJSON|https://github.com/dmitigr/rapidjson/tree/master|
 |uSockets|https://github.com/dmitigr/uSockets/tree/master|
 |uWebSockets|https://github.com/dmitigr/uWebSockets/tree/master|
@@ -58,14 +55,22 @@ contains variables which can be passed to [CMake] for customization.
 
 |CMake variable|Possible values|Default on Unix|Default on Windows|
 |:-------------|:--------------|:--------------|:-----------------|
-|**The type of the build**||||
-|CMAKE_BUILD_TYPE|Debug \| Release \| RelWithDebInfo \| MinSizeRel|Debug|Debug|
-|**The flag to build the shared libraries**||||
-|BUILD_SHARED_LIBS|On \| Off|On|On|
+|**The flag to use libc++ with Clang**||||
+|DMITIGR_CLANG_USE_LIBCPP|On \| Off|On|On|
 |**The flag to only install the header-only libraries**||||
 |DMITIGR_CEFEIKA_HEADER_ONLY|On \| Off|Off|Off|
 |**The flag to build the tests**||||
 |DMITIGR_CEFEIKA_TESTS|On \| Off|On|On|
+|**The flag to link to OpenSSL**||||
+|DMITIGR_CEFEIKA_OPENSSL|On \| Off|Off|Off|
+|**The flag to link to zlib**||||
+|DMITIGR_CEFEIKA_ZLIB|On \| Off|Off|Off|
+|**The flag to build the shared libraries**||||
+|BUILD_SHARED_LIBS|On \| Off|Off|Off|
+|**The flag to be verbose upon build**||||
+|CMAKE_VERBOSE_MAKEFILE|On \| Off|On|On|
+|**The type of the build**||||
+|CMAKE_BUILD_TYPE|Debug \| Release \| RelWithDebInfo \| MinSizeRel|Debug|Debug|
 |**Installation directories**||||
 |CMAKE_INSTALL_PREFIX|*an absolute path*|"/usr/local"|"%ProgramFiles%\dmitigr_cefeika"|
 |DMITIGR_CEFEIKA_SHARE_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"share/dmitigr_cefeika"|"."|
@@ -73,16 +78,24 @@ contains variables which can be passed to [CMake] for customization.
 |DMITIGR_CEFEIKA_DOC_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"${DMITIGR_CEFEIKA_SHARE_INSTALL_DIR}/doc"|"doc"|
 |DMITIGR_CEFEIKA_LIB_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"lib"|"lib"|
 |DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR|*a path relative to CMAKE_INSTALL_PREFIX*|"include"|"include"|
-|**Options of the Pgfe library**||||
+|**Options of the libev**||||
+|LIBEV_PREFIX|*a path*|*not set (rely on CMake)*|*not set (rely on CMake)*|
+|LIBEV_LIB_PREFIX|*a path*|${LIBEV_PREFIX}|${LIBEV_PREFIX}|
+|LIBEV_INCLUDE_PREFIX|*a path*|${LIBEV_PREFIX}|${LIBEV_PREFIX}|
+|**Options of the libpq**||||
 |LIBPQ_PREFIX|*a path*|*not set (rely on CMake)*|*not set (rely on CMake)*|
 |LIBPQ_LIB_PREFIX|*a path*|${LIBPQ_PREFIX}|${LIBPQ_PREFIX}|
 |LIBPQ_INCLUDE_PREFIX|*a path*|${LIBPQ_PREFIX}|${LIBPQ_PREFIX}|
+|**Options of the libuv**||||
+|LIBUV_PREFIX|*a path*|*not set (rely on CMake)*|*not set (rely on CMake)*|
+|LIBUV_LIB_PREFIX|*a path*|${LIBUV_PREFIX}|${LIBUV_PREFIX}|
+|LIBUV_INCLUDE_PREFIX|*a path*|${LIBUV_PREFIX}|${LIBUV_PREFIX}|
 
 ### Remarks
 
-  - `LIBPQ_PREFIX` specifies a prefix for both binary and headers of [libpq].
-  For example, if [PostgreSQL] installed relocatably into `/usr/local/pgsql`,
-  the value of `LIBPQ_PREFIX` may be set accordingly;
+  - `LIB<LIB>_PREFIX` specifies a prefix for both binary and headers of the
+  `<LIB>`. For example, if [PostgreSQL] installed relocatably into
+  `/usr/local/pgsql`, the value of `LIBPQ_PREFIX` may be set accordingly;
   - `LIBPQ_LIB_PREFIX` specifies a prefix of the [libpq] binary (shared library);
   - `LIBPQ_INCLUDE_PREFIX` specifies a prefix of the [libpq] headers (namely,
   `libpq-fe.h`).
@@ -101,9 +114,9 @@ contains variables which can be passed to [CMake] for customization.
 
 Cefeika can be installed as a set of:
 
-  - shared libraries if `-DBUILD_SHARED_LIBS=ON` option is specified
-    (by default);
-  - static libraries if `-DBUILD_SHARED_LIBS=OFF` option is specified;
+  - shared libraries if `-DBUILD_SHARED_LIBS=ON` option is specified;
+  - static libraries if `-DBUILD_SHARED_LIBS=OFF` option is specified
+    (the default);
   - header-only libraries if `-DDMITIGR_CEFEIKA_HEADER_ONLY=ON` option
     is specified.
 
@@ -173,21 +186,21 @@ The code below demonstrates how to import system-wide installed Cefeika librarie
 by using [CMake] (this snippet is also valid when using the standalone libraries):
 
 ```cmake
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.16)
 project(foo)
 find_package(dmitigr_cefeika REQUIRED COMPONENTS fcgi pgfe)
 set(CMAKE_CXX_STANDARD 17)
-set(CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(foo foo.cpp)
 target_link_libraries(foo dmitigr::fcgi dmitigr::pgfe)
 ```
 
 The next code demonstrates how to import the standalone [Pgfe][dmitigr_pgfe]
-library dropped directly into the project's source directory `third-party/pgfe`:
+library dropped directly into the project's source directory `thirdparty/pgfe`:
 
 ```cmake
 set(DMITIGR_CEFEIKA_HEADER_ONLY ON CACHE BOOL "Header-only?")
-add_subdirectory(third-party/pgfe)
+add_subdirectory(thirdparty/pgfe)
 ```
 
 Note, that all CMake variables described in [CMake options](#cmake-options) are
@@ -245,7 +258,6 @@ Cefeika includes the following software of third parties:
 
   - [RapidJSON] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/rapidjson/license.txt);
   - [uSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/usockets/LICENSE);
-  - [libuv] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uv/LICENSE);
   - [uWebSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwebsockets/LICENSE);
   - [libuwsc] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwsc/LICENSE).
 
@@ -266,6 +278,7 @@ For conditions of distribution and use, please see the corresponding license.
 [os]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/os
 [pgfe]: https://github.com/dmitigr/cefeika/tree/master/doc/pgfe
 [rajson]: https://github.com/dmitigr/cefeika/tree/master/doc/rajson
+[sqlixx]: https://github.com/dmitigr/cefeika/tree/master/doc/sqlixx
 [web]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/web
 [ws]: https://github.com/dmitigr/cefeika/tree/master/doc/ws
 [wscl]: https://github.com/dmitigr/cefeika/tree/master/doc/wscl
@@ -277,6 +290,7 @@ For conditions of distribution and use, please see the corresponding license.
 [libev]: http://software.schmorp.de/pkg/libev.html
 [libpq]: https://www.postgresql.org/docs/current/static/libpq.html
 [libuv]: https://libuv.org/
+[OpenSSL]: https://www.openssl.org/
 [PostgreSQL]: https://www.postgresql.org/
 [RapidJSON]: http://rapidjson.org/
 [SQLite]: https://www.sqlite.org/
@@ -284,3 +298,4 @@ For conditions of distribution and use, please see the corresponding license.
 [uWebSockets]: https://github.com/uNetworking/uWebSockets
 [libuwsc]: https://github.com/zhaojh329/libuwsc
 [Visual_Studio]: https://www.visualstudio.com/
+[zlib]: https://zlib.net/

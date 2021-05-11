@@ -2,8 +2,8 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
-cmake_minimum_required(VERSION 3.13)
-cmake_policy(VERSION 3.13)
+cmake_minimum_required(VERSION 3.16)
+cmake_policy(VERSION 3.16)
 project(dmitigr_cefeika)
 
 if (NOT (UNIX OR WIN32))
@@ -18,9 +18,11 @@ include(dmitigr_cefeika)
 # Build options
 # ------------------------------------------------------------------------------
 
+set(DMITIGR_LIBRARIAN_DEBUG Off CACHE BOOL
+  "Print librarian.cmake debug output?")
 set(DMITIGR_CLANG_USE_LIBCPP On CACHE BOOL
   "Use libc++ with Clang?")
-set(DMITIGR_CEFEIKA_HEADER_ONLY On CACHE BOOL
+set(DMITIGR_CEFEIKA_HEADER_ONLY Off CACHE BOOL
   "Whole header-only?")
 set(DMITIGR_CEFEIKA_TESTS On CACHE BOOL
   "Build tests?")
@@ -28,13 +30,30 @@ set(DMITIGR_CEFEIKA_OPENSSL Off CACHE BOOL
   "Link to OpenSSL where possible?")
 set(DMITIGR_CEFEIKA_ZLIB Off CACHE BOOL
   "Link to Zlib where possible?")
-set(DMITIGR_LIBRARIAN_DEBUG Off CACHE BOOL
-  "Print librarian.cmake debug output?")
-set(BUILD_SHARED_LIBS On CACHE BOOL
+set(BUILD_SHARED_LIBS Off CACHE BOOL
   "Build shared libraries?")
 set(CMAKE_VERBOSE_MAKEFILE On CACHE BOOL
   "Verbose output upon build?")
 
+# FindLib.cmake modules will use these settings to find Lib.
+foreach(lib ev pq uv)
+  string(TOUPPER "${lib}" LIB)
+  set(LIB${LIB}_PREFIX "" CACHE PATH
+    "Installation prefix of the lib${lib} library (where both headers and binary resides)")
+  set(LIB${LIB}_LIB_PREFIX "${LIB${LIB}_PREFIX}" CACHE PATH
+    "Installation prefix of the lib${lib} binary (where the binary reside)")
+  set(LIB${LIB}_INCLUDE_PREFIX "${LIB${LIB}_PREFIX}" CACHE PATH
+    "Installation prefix of the lib${lib} includes (where the headers resides)")
+endforeach()
+
+# Enable linking with libc++ if requested.
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  if (DMITIGR_CLANG_USE_LIBCPP)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  endif()
+endif()
+
+# Set default CMAKE_BUILD_TYPE.
 if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   if(BUILD_SHARED_LIBS)
     message("The mode of building shared Dmitigr Cefeika libraries is set.")
@@ -49,12 +68,6 @@ if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   message("Dmitigr Cefeika build type it set to ${CMAKE_BUILD_TYPE}")
 else()
   message("Dmitigr Cefeika header-only mode is set.")
-endif()
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  if (DMITIGR_CLANG_USE_LIBCPP)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-  endif()
 endif()
 
 # ------------------------------------------------------------------------------
