@@ -4,7 +4,8 @@
 
 #include "timer.hpp"
 #include "../thirdparty/usockets/libusockets.h"
-#include "../thirdparty/uv/uv.h" // instead of <internal/eventing/libuv.h>
+
+#include <uv.h> // instead of <internal/eventing/libuv.h>
 
 #include <cassert>
 #include <limits>

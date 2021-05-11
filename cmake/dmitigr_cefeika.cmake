@@ -43,9 +43,6 @@ set(dmitigr_cefeika_web_deps fcgi http jrpc)
 # ------------------------------------------------------------------------------
 
 set(dmitigr_cefeika_thirdparty_rapidjson_deps)
-set(dmitigr_cefeika_thirdparty_thirdparty_uv_deps)
-set(dmitigr_cefeika_thirdparty_usockets_deps thirdparty_uv)
+set(dmitigr_cefeika_thirdparty_usockets_deps)
 set(dmitigr_cefeika_thirdparty_uwebsockets_deps thirdparty_usockets)
-
-set(dmitigr_cefeika_thirdparty_buffer_deps)
-set(dmitigr_cefeika_thirdparty_uwsc_deps thirdparty_buffer)
+set(dmitigr_cefeika_thirdparty_uwsc_deps)
