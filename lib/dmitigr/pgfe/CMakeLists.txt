@@ -340,8 +340,8 @@ else()
   find_package(Pq REQUIRED)
   list(APPEND dmitigr_pgfe_target_include_directories_public "${Pq_INCLUDE_DIRS}")
   list(APPEND dmitigr_pgfe_target_include_directories_interface "${Pq_INCLUDE_DIRS}")
-  list(APPEND dmitigr_pgfe_target_link_libraries_public ${Suggested_Pq_LIBRARIES})
-  list(APPEND dmitigr_pgfe_target_link_libraries_interface ${Suggested_Pq_LIBRARIES})
+  list(APPEND dmitigr_pgfe_target_link_libraries_public ${Pq_LIBRARIES})
+  list(APPEND dmitigr_pgfe_target_link_libraries_interface ${Pq_LIBRARIES})
 endif()
 
 # ------------------------------------------------------------------------------

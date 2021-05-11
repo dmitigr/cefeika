@@ -20,12 +20,12 @@
 # This module defines the following variables:
 #
 # ${dmitigr_librarian_lib}_INCLUDE_DIRS - include directories
+# ${dmitigr_librarian_lib}_LIBRARIES - suggested libraries to link
 # ${dmitigr_librarian_lib}_DEBUG_LIBRARIES - debug libraries to link
 # ${dmitigr_librarian_lib}_RELEASE_LIBRARIES - release libraries to link
 # ${dmitigr_librarian_lib}_FOUND - true if ${dmitigr_librarian_lib} either of debug or release libraries are found
 # ${dmitigr_librarian_lib}_DEBUG_FOUND - true if ${dmitigr_librarian_lib} debug libraries are found
 # ${dmitigr_librarian_lib}_RELEASE_FOUND - true if ${dmitigr_librarian_lib} release libraries are found
-# Suggested_${dmitigr_librarian_lib}_LIBRARIES
 
 # The search engine will consider CMAKE_INCLUDE_PATH, CMAKE_PREFIX_PATH,
 # or CMAKE_SYSTEM_INCLUDE_PATH, CMAKE_SYSTEM_PREFIX_PATH.
@@ -93,18 +93,18 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   if(${dmitigr_librarian_lib}_DEBUG_FOUND)
-    set(Suggested_${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_DEBUG_LIBRARIES})
+    set(${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_DEBUG_LIBRARIES})
   else()
     if(${dmitigr_librarian_lib}_RELEASE_FOUND)
-      set(Suggested_${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_RELEASE_LIBRARIES})
+      set(${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_RELEASE_LIBRARIES})
     endif()
   endif()
 else()
   if(${dmitigr_librarian_lib}_RELEASE_FOUND)
-    set(Suggested_${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_RELEASE_LIBRARIES})
+    set(${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_RELEASE_LIBRARIES})
   else()
     if(${dmitigr_librarian_lib}_DEBUG_FOUND)
-      set(Suggested_${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_DEBUG_LIBRARIES})
+      set(${dmitigr_librarian_lib}_LIBRARIES ${${dmitigr_librarian_lib}_DEBUG_LIBRARIES})
     endif()
   endif()
 endif()

@@ -68,7 +68,7 @@ target_include_directories(${dmlib}
   PUBLIC ${Uv_INCLUDE_DIRS}
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 target_link_libraries(${dmlib}
-  PUBLIC ${Suggested_Uv_LIBRARIES} ${Suggested_Uv_EXTRA_LIBRARIES}
+  PUBLIC ${Uv_LIBRARIES} ${Uv_EXTRA_LIBRARIES}
   PRIVATE ${usockets_sni_tree})
 if (DMITIGR_CEFEIKA_OPENSSL)
   target_compile_definitions(${dmlib} PRIVATE LIBUS_USE_OPENSSL)

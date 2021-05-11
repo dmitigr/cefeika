@@ -23,7 +23,7 @@ set(uwsc_implementations
   )
 
 find_package(Ev REQUIRED)
-set(uwsc_link_libraries_public ${Suggested_Ev_LIBRARIES})
+set(uwsc_link_libraries_public ${Ev_LIBRARIES})
 set(uwsc_include_directories_public ${Ev_INCLUDE_DIRS})
 
 if(DMITIGR_CEFEIKA_OPENSSL)
