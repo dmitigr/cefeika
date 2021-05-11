@@ -10,6 +10,8 @@ if (DMITIGR_CEFEIKA_OPENSSL)
   find_package(OpenSSL REQUIRED)
 endif()
 
+find_package(Uv REQUIRED)
+
 if(MSVC)
   list(APPEND usockets_cflags /W0)
 elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
@@ -63,9 +65,10 @@ target_compile_definitions(${dmlib}
   PUBLIC LIBUS_USE_LIBUV)
 target_compile_options(${dmlib} PRIVATE ${usockets_cflags})
 target_include_directories(${dmlib}
-  PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-target_link_libraries(${dmlib} PUBLIC dmitigr_thirdparty_uv
+  PUBLIC ${Uv_INCLUDE_DIRS}
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_link_libraries(${dmlib}
+  PUBLIC ${Suggested_Uv_LIBRARIES} ${Suggested_Uv_EXTRA_LIBRARIES}
   PRIVATE ${usockets_sni_tree})
 if (DMITIGR_CEFEIKA_OPENSSL)
   target_compile_definitions(${dmlib} PRIVATE LIBUS_USE_OPENSSL)

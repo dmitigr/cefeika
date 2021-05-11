@@ -120,7 +120,6 @@ if ("rajson" IN_LIST dmitigr_cefeika_libraries)
 endif()
 
 if ("ws" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(lib/dmitigr/thirdparty/uv)
   add_subdirectory(lib/dmitigr/thirdparty/usockets)
   add_subdirectory(lib/dmitigr/thirdparty/uwebsockets)
 endif()
