@@ -192,7 +192,7 @@ find_package(dmitigr_cefeika REQUIRED COMPONENTS fcgi pgfe)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(foo foo.cpp)
-target_link_libraries(foo dmitigr::fcgi dmitigr::pgfe)
+target_link_libraries(foo dmitigr_fcgi dmitigr_pgfe)
 ```
 
 The next code demonstrates how to import the standalone [Pgfe][dmitigr_pgfe]
@@ -221,7 +221,7 @@ and the header-only [pgfe] library in a same project side by side:
 ```cmake
 find_package(dmitigr_cefeika REQUIRED COMPONENTS fcgi_shared pgfe_interface)
 # ...
-target_link_libraries(foo dmitigr::fcgi dmitigr::pgfe)
+target_link_libraries(foo dmitigr_fcgi dmitigr_pgfe)
 ```
 
 **Note that libraries of the explicitly specified types must be installed

@@ -122,7 +122,7 @@ endif()
 
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ------------------------------------------------------------------------------
 # Third-party dependencies
@@ -376,8 +376,10 @@ foreach(lib ${dmitigr_cefeika_libraries})
       DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
   endif()
 
+  # Don't use NAMESPACE, since ${dmlib} contains "dmitigr_" prefix already
+  # and it seems there is no way to omit it in order to use NAMESPACE...
   install(EXPORT ${dmlib}_export
-    NAMESPACE dmitigr::
+    # NAMESPACE dmitigr::
     DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
     FILE ${dmlib}_${export_file_suffix}-config.cmake)
 
