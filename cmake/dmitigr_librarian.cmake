@@ -46,12 +46,14 @@ if(NOT ${dmitigr_librarian_lib}_library_path_suffixes)
   set(${dmitigr_librarian_lib}_library_path_suffixes lib)
 endif()
 
-find_path(${dmitigr_librarian_lib}_INCLUDE_DIRS
+find_path(${dmitigr_librarian_lib}_INCLUDE_DIR
   NAMES ${${dmitigr_librarian_lib}_include_names}
   PATHS ${${dmitigr_librarian_lib}_include_paths}
   PATH_SUFFIXES ${${dmitigr_librarian_lib}_include_path_suffixes})
 
-if(${dmitigr_librarian_lib}_INCLUDE_DIRS)
+if(${dmitigr_librarian_lib}_INCLUDE_DIR)
+  set(${dmitigr_librarian_lib}_INCLUDE_DIRS ${${dmitigr_librarian_lib}_INCLUDE_DIR})
+
   if(${dmitigr_librarian_lib}_release_library_names)
     find_library(${dmitigr_librarian_lib}_RELEASE_LIBRARY
       NAMES ${${dmitigr_librarian_lib}_release_library_names}
