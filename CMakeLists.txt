@@ -125,7 +125,7 @@ if ("ws" IN_LIST dmitigr_cefeika_libraries)
 endif()
 
 if ("wscl" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(lib/dmitigr/thirdparty/zhaojh329)
+  add_subdirectory(lib/dmitigr/thirdparty/uwsc)
 endif()
 
 # ------------------------------------------------------------------------------

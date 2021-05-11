@@ -70,7 +70,7 @@ target_include_directories(${dmlib} PUBLIC ${uwsc_include_directories_public})
 target_link_libraries(${dmlib} PUBLIC ${uwsc_link_libraries_public})
 
 install(FILES ${uwsc_headers}
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/zhaojh329")
+  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/uwsc")
 install(TARGETS ${dmlib}
   EXPORT ${dmlib}_export
   ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})

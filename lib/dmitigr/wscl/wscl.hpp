@@ -24,7 +24,7 @@
 #define DMITIGR_WSCL_WSCL_HPP
 
 #include "version.hpp"
-#include "../thirdparty/zhaojh329/uwsc.h"
+#include "../thirdparty/uwsc/uwsc.h"
 
 #include <cassert>
 #include <cstring>

@@ -49,7 +49,6 @@ Also:
 |RapidJSON|https://github.com/dmitigr/rapidjson/tree/master|
 |uSockets|https://github.com/dmitigr/uSockets/tree/master|
 |uWebSockets|https://github.com/dmitigr/uWebSockets/tree/master|
-|buffer|https://github.com/dmitigr/buffer/tree/master|
 |libuwsc|https://github.com/dmitigr/libuwsc/tree/master|
 
 ## CMake options
@@ -248,7 +247,6 @@ Cefeika includes the following software of third parties:
   - [uSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/usockets/LICENSE);
   - [libuv] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uv/LICENSE);
   - [uWebSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwebsockets/LICENSE);
-  - [buffer] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwsc/LICENSE);
   - [libuwsc] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwsc/LICENSE).
 
 For conditions of distribution and use, please see the corresponding license.
@@ -284,6 +282,5 @@ For conditions of distribution and use, please see the corresponding license.
 [SQLite]: https://www.sqlite.org/
 [uSockets]: https://github.com/uNetworking/uSockets
 [uWebSockets]: https://github.com/uNetworking/uWebSockets
-[buffer]: https://github.com/zhaojh329/buffer
 [libuwsc]: https://github.com/zhaojh329/libuwsc
 [Visual_Studio]: https://www.visualstudio.com/
