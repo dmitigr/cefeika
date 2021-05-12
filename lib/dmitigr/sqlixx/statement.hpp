@@ -89,9 +89,10 @@ public:
 
   /// The move constructor.
   Statement(Statement&& rhs) noexcept
-    : handle_{rhs.handle_}
   {
-    rhs.handle_ = {};
+    Statement tmp;
+    tmp.swap(rhs); // reset rhs to the default state
+    swap(tmp);
   }
 
   /// The move assignment operator.
@@ -107,7 +108,9 @@ public:
   /// The swap operation.
   void swap(Statement& other) noexcept
   {
-    std::swap(handle_, other.handle_);
+    using std::swap;
+    swap(last_step_result_, other.last_step_result_);
+    swap(handle_, other.handle_);
   }
 
   /// @returns The underlying handle.
@@ -126,6 +129,7 @@ public:
   sqlite3_stmt* release() noexcept
   {
     auto* const result = handle_;
+    last_step_result_ = -1;
     handle_ = {};
     return result;
   }
@@ -133,10 +137,11 @@ public:
   /// Closes the prepared statement.
   void close()
   {
-    if (const int r = sqlite3_finalize(handle_); r != SQLITE_OK)
-      throw Exception{r, "cannot close a prepared statement"};
-    else
+    if (const int r = sqlite3_finalize(handle_); r == SQLITE_OK) {
+      last_step_result_ = -1;
       handle_ = {};
+    } else
+      throw Exception{r, "cannot close a prepared statement"};
   }
 
   // ---------------------------------------------------------------------------
@@ -348,6 +353,7 @@ public:
   /// Resets the statement back to its initial state, ready to be executed.
   int reset()
   {
+    last_step_result_ = -1;
     return sqlite3_reset(handle_);
   }
 

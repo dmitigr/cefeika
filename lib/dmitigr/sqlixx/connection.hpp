@@ -94,7 +94,8 @@ public:
   /// The swap operation.
   void swap(Connection& other) noexcept
   {
-    std::swap(handle_, other.handle_);
+    using std::swap;
+    swap(handle_, other.handle_);
   }
 
   /// @returns The guarded handle.
