@@ -38,6 +38,19 @@ set(${dmitigr_librarian_lib}_FOUND FALSE)
 set(${dmitigr_librarian_lib}_DEBUG_FOUND FALSE)
 set(${dmitigr_librarian_lib}_RELEASE_FOUND FALSE)
 
+# FIXME: this should be enabled by an option
+# unset(${dmitigr_librarian_lib}_INCLUDE_DIR CACHE)
+# unset(${dmitigr_librarian_lib}_RELEASE_LIBRARY CACHE)
+# unset(${dmitigr_librarian_lib}_DEBUG_LIBRARY CACHE)
+
+if(NOT "${dmitigr_librarian_lib}_library_paths" STREQUAL "")
+  list(APPEND dmitigr_librarian_find_library_args NO_DEFAULT_PATH)
+endif()
+
+if(NOT "${dmitigr_librarian_lib}_include_paths" STREQUAL "")
+  list(APPEND dmitigr_librarian_find_path_args NO_DEFAULT_PATH)
+endif()
+
 if(NOT ${dmitigr_librarian_lib}_include_path_suffixes)
   set(${dmitigr_librarian_lib}_include_path_suffixes include)
 endif()
@@ -47,6 +60,7 @@ if(NOT ${dmitigr_librarian_lib}_library_path_suffixes)
 endif()
 
 find_path(${dmitigr_librarian_lib}_INCLUDE_DIR
+  ${dmitigr_librarian_find_path_args}
   NAMES ${${dmitigr_librarian_lib}_include_names}
   PATHS ${${dmitigr_librarian_lib}_include_paths}
   PATH_SUFFIXES ${${dmitigr_librarian_lib}_include_path_suffixes})
@@ -56,6 +70,7 @@ if(${dmitigr_librarian_lib}_INCLUDE_DIR)
 
   if(${dmitigr_librarian_lib}_release_library_names)
     find_library(${dmitigr_librarian_lib}_RELEASE_LIBRARY
+      ${dmitigr_librarian_find_library_args}
       NAMES ${${dmitigr_librarian_lib}_release_library_names}
       PATHS ${${dmitigr_librarian_lib}_library_paths}
       PATH_SUFFIXES ${${dmitigr_librarian_lib}_library_path_suffixes})
@@ -70,6 +85,7 @@ if(${dmitigr_librarian_lib}_INCLUDE_DIR)
 
   if(${dmitigr_librarian_lib}_debug_library_names)
     find_library(${dmitigr_librarian_lib}_DEBUG_LIBRARY
+      ${dmitigr_librarian_find_library_args}
       NAMES ${${dmitigr_librarian_lib}_debug_library_names}
       PATHS ${${dmitigr_librarian_lib}_library_paths}
       PATH_SUFFIXES ${${dmitigr_librarian_lib}_library_path_suffixes})
