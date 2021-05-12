@@ -206,11 +206,11 @@ public:
       assert(is_valid());
     }
 
-    /// Non copy-constructible.
-    Paramref(const Paramref& rhs) = delete;
+    /// Copy-constructible.
+    Paramref(const Paramref& rhs) = default;
 
-    /// Non copy-assignable.
-    Paramref& operator=(const Paramref& rhs) = delete;
+    /// Copy-assignable.
+    Paramref& operator=(const Paramref& rhs) = default;
 
     /// Move-constructible.
     Paramref(Paramref&& rhs) = default;
