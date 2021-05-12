@@ -176,8 +176,16 @@ public:
     }
 
   public:
-    explicit Paramref(const Request& request)
+    Paramref(const Request& request, const std::size_t pos)
       : request_{request}
+      , namepos_{std::to_string(pos)}
+    {
+      assert(!is_valid());
+    }
+
+    Paramref(const Request& request, std::string name)
+      : request_{request}
+      , namepos_{std::move(name)}
     {
       assert(!is_valid());
     }
@@ -331,20 +339,23 @@ public:
   {
     if (const auto* const p = params(); p && p->IsArray()) {
       assert(position < p->Size());
-      return {*this, position, (*p)[position]};
+      return Paramref{*this, position, (*p)[position]};
     } else
-      return Paramref{*this};
+      return Paramref{*this, position};
   }
 
   /// @returns The parameter reference, or invalid instance if no parameter `name`.
   Paramref parameter(const std::string_view name) const noexcept
   {
+    std::string namestr{name};
     if (const auto* const p = params(); p && p->IsObject()) {
       const auto nr = rajson::to<rapidjson::Value::StringRefType>(name);
       const auto i = p->FindMember(nr);
-      return i != p->MemberEnd() ? Paramref{*this, std::string{name}, i->value} : Paramref{*this};
+      return i != p->MemberEnd() ?
+        Paramref{*this, std::move(namestr), i->value} :
+        Paramref{*this, std::move(namestr)};
     } else
-      return Paramref{*this};
+      return Paramref{*this, std::move(namestr)};
   }
 
   /**
