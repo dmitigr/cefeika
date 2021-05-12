@@ -81,7 +81,7 @@ public:
     const auto ws_behavior = [this]
     {
       namespace chrono = std::chrono;
-      typename App::WebSocketBehavior<Ws_data> result;
+      typename App::template WebSocketBehavior<Ws_data> result;
 
       // These options are not yet exposed.
       result.compression = uWS::DISABLED;
