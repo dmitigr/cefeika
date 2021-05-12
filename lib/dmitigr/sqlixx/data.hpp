@@ -80,9 +80,10 @@ struct Data final {
   /// The swap operation.
   void swap(Data& other) noexcept
   {
-    std::swap(data_, other.data_);
-    std::swap(size_, other.size_);
-    std::swap(deleter_, other.deleter_);
+    using std::swap;
+    swap(data_, other.data_);
+    swap(size_, other.size_);
+    swap(deleter_, other.deleter_);
   }
 
   /// @returns The released data.
