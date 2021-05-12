@@ -348,6 +348,50 @@ public:
   }
 
   /**
+   * @returns The parameter reference.
+   * @throws Error with the code `Server_errc::invalid_params` if the specified
+   * parameter is omitted.
+   */
+  Paramref parameter_mandatory(const std::size_t position) const
+  {
+    if (auto result = parameter(position))
+      return result;
+    else
+      result.throw_invalid_params();
+  }
+
+  /// @overload
+  Paramref parameter_mandatory(const std::string_view name) const
+  {
+    if (auto result = parameter(name))
+      return result;
+    else
+      result.throw_invalid_params();
+  }
+
+  /**
+   * @returns The parameter reference.
+   * @throws Error with the code `Server_errc::invalid_params` if the specified
+   * parameter is omitted or `null`.
+   */
+  Paramref parameter_not_null(const std::size_t position) const
+  {
+    if (auto result = parameter(position); result && !result.value()->IsNull())
+      return result;
+    else
+      result.throw_invalid_params();
+  }
+
+  /// @overload
+  Paramref parameter_not_null(const std::string_view name) const
+  {
+    if (auto result = parameter(name); result && !result.value()->IsNull())
+      return result;
+    else
+      result.throw_invalid_params();
+  }
+
+  /**
    * @returns A value of type `std::tuple<Paramref, ...>`.
    *
    * @see parameters_mandatory(), parameters_not_null().
