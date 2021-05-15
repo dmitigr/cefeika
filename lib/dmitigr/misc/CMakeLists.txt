@@ -16,6 +16,7 @@ set(dmitigr_misc_headers
   algo.hpp
   assert.hpp
   cfg.hpp
+  concur.hpp
   endianness.hpp
   enum_bitmask.hpp
   filesystem.hpp
@@ -23,7 +24,6 @@ set(dmitigr_misc_headers
   macros.hpp
   math.hpp
   mem.hpp
-  mp.hpp
   progpar.hpp
   reader.hpp
   rng.hpp

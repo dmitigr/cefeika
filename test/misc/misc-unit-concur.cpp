@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/misc/mp.hpp"
+#include "../../lib/dmitigr/misc/concur.hpp"
 #include "../../lib/dmitigr/misc/testo.hpp"
 
 #include <chrono>
@@ -10,12 +10,12 @@
 
 int main(int, char* argv[])
 {
-  namespace mp = dmitigr::mp;
+  namespace concur = dmitigr::concur;
   using namespace dmitigr::testo;
 
   try {
     const auto size = std::thread::hardware_concurrency() * 2;
-    mp::Simple_thread_pool pool{size};
+    concur::Simple_thread_pool pool{size};
     ASSERT(pool.size() == size);
     ASSERT(pool.queue_size() == 0);
     ASSERT(pool.is_queue_empty());

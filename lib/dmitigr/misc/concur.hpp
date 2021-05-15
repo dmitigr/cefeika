@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_MP_HPP
-#define DMITIGR_MISC_MP_HPP
+#ifndef DMITIGR_MISC_CONCUR_HPP
+#define DMITIGR_MISC_CONCUR_HPP
 
 #include <cassert>
 #include <condition_variable>
@@ -35,7 +35,7 @@
 #include <thread>
 #include <utility>
 
-namespace dmitigr::mp {
+namespace dmitigr::concur {
 
 /// Simple thread pool.
 class Simple_thread_pool final {
@@ -197,13 +197,13 @@ private:
   void log_error(const char* const what) const noexcept
   {
     assert(what);
-    std::clog << "dmitigr::mp::Simple_thread_pool ";
+    std::clog << "dmitigr::concur::Simple_thread_pool ";
     if (!name_.empty())
       std::clog << name_ << " ";
     std::clog << "(thread " << std::this_thread::get_id() << "): " << what << "\n";
   }
 };
 
-} // namespace dmitigr::mp
+} // namespace dmitigr::concur
 
-#endif  // DMITIGR_MISC_MP_HPP
+#endif  // DMITIGR_MISC_CONCUR_HPP
