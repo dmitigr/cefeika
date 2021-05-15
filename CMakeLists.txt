@@ -65,13 +65,13 @@ if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   else()
     message("Dmitigr Cefeika: building static libraries.")
   endif()
-  if(DMITIGR_CEFEIKA_TESTS)
-    message("Dmitigr Cefeika: building tests.")
-  endif()
 else()
-  message("Dmitigr Cefeika: no build (header-only mode).")
+  message("Dmitigr Cefeika: not building libraries (header-only mode).")
 endif()
 
+if(DMITIGR_CEFEIKA_TESTS)
+  message("Dmitigr Cefeika: building tests.")
+endif()
 # ------------------------------------------------------------------------------
 # Installation options
 # ------------------------------------------------------------------------------
