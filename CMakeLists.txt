@@ -105,20 +105,6 @@ elseif(WIN32)
 endif()
 
 # ------------------------------------------------------------------------------
-# Global variables (constants)
-# ------------------------------------------------------------------------------
-
-if(NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-  if(BUILD_SHARED_LIBS)
-    set(export_file_suffix "shared")
-  else()
-    set(export_file_suffix "static")
-  endif()
-else() # header-only
-  set(export_file_suffix "interface")
-endif()
-
-# ------------------------------------------------------------------------------
 # Languages
 # ------------------------------------------------------------------------------
 
@@ -267,6 +253,16 @@ foreach(lib ${dmitigr_cefeika_libraries})
     set(${dmlib}_header_only ${DMITIGR_CEFEIKA_HEADER_ONLY})
   else()
     set(${dmlib}_header_only TRUE)
+  endif()
+
+  if(NOT ${dmlib}_header_only)
+    if(BUILD_SHARED_LIBS)
+      set(export_file_suffix "shared")
+    else()
+      set(export_file_suffix "static")
+    endif()
+  else() # header-only
+    set(export_file_suffix "interface")
   endif()
 
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${lib}.hpp)
