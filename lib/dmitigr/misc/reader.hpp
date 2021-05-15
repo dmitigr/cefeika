@@ -52,7 +52,7 @@ template<> struct is_error_condition_enum<dmitigr::reader::Errc> : true_type {};
 
 namespace dmitigr::reader {
 
-/// A type to support category of `dmitigr::str` runtime errors.
+/// A type to support category of `dmitigr::reader` runtime errors.
 class Error_category final : public std::error_category {
 public:
   /// @returns The string literal "dmitigr_reader_error".
@@ -112,10 +112,10 @@ public:
     return context_;
   }
 
-  /// @returns The string literal "dmitigr::str::exception".
+  /// @returns The string literal "dmitigr::reader::Exception".
   const char* what() const noexcept override
   {
-    return "dmitigr::str::Exception";
+    return "dmitigr::reader::Exception";
   }
 
 private:
