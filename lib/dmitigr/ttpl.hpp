@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_TTPL_HPP
-#define DMITIGR_MISC_TTPL_HPP
+#ifndef DMITIGR_TTPL_HPP
+#define DMITIGR_TTPL_HPP
 
 #include <algorithm>
 #include <cassert>
@@ -447,4 +447,4 @@ private:
 
 } // namespace dmitigr::ttpl
 
-#endif  // DMITIGR_MISC_TTPL_HPP
+#endif  // DMITIGR_TTPL_HPP

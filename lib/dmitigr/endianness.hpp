@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_ENDIANNESS_HPP
-#define DMITIGR_MISC_ENDIANNESS_HPP
+#ifndef DMITIGR_ENDIANNESS_HPP
+#define DMITIGR_ENDIANNESS_HPP
 
 namespace dmitigr {
 
@@ -45,4 +45,4 @@ inline Endianness endianness() noexcept
 
 } // namespace dmitigr
 
-#endif  // DMITIGR_MISC_ENDIANNESS_HPP
+#endif  // DMITIGR_ENDIANNESS_HPP

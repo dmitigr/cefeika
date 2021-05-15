@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_CONCUR_HPP
-#define DMITIGR_MISC_CONCUR_HPP
+#ifndef DMITIGR_CONCUR_HPP
+#define DMITIGR_CONCUR_HPP
 
 #include <cassert>
 #include <condition_variable>
@@ -206,4 +206,4 @@ private:
 
 } // namespace dmitigr::concur
 
-#endif  // DMITIGR_MISC_CONCUR_HPP
+#endif  // DMITIGR_CONCUR_HPP

@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_ASSERT_HPP
-#define DMITIGR_MISC_ASSERT_HPP
+#ifndef DMITIGR_ASSERT_HPP
+#define DMITIGR_ASSERT_HPP
 
 #include <iostream>
 #include <stdexcept>
@@ -39,8 +39,8 @@ constexpr bool is_debug{false};
 } // namespace dmitigr
 
 // Helpers
-#define DMITIGR_MISC_ASSERT_STR(s) #s
-#define DMITIGR_MISC_ASSERT_XSTR(s) DMITIGR_MISC_ASSERT_STR(s)
+#define DMITIGR_ASSERT_STR(s) #s
+#define DMITIGR_ASSERT_XSTR(s) DMITIGR_ASSERT_STR(s)
 
 /// Checks `a` always, regardless of `NDEBUG`.
 #define DMITIGR_ASSERT(a) do {                                          \
@@ -51,11 +51,11 @@ constexpr bool is_debug{false};
   } while (false)
 
 /// Checks `a` always, regardless of `NDEBUG`.
-#define DMITIGR_CHECK_GENERIC(a, E) do {                    \
-    if (!(a)) {                                             \
-      throw E{"check (" #a ") failed at "                   \
-        __FILE__ ":" DMITIGR_MISC_ASSERT_XSTR(__LINE__)};   \
-    }                                                       \
+#define DMITIGR_CHECK_GENERIC(a, E) do {                \
+    if (!(a)) {                                         \
+      throw E{"check (" #a ") failed at "               \
+        __FILE__ ":" DMITIGR_ASSERT_XSTR(__LINE__)};    \
+    }                                                   \
   } while (false)
 
 #define DMITIGR_CHECK(a) DMITIGR_CHECK_GENERIC(a, std::logic_error)
@@ -64,4 +64,4 @@ constexpr bool is_debug{false};
 #define DMITIGR_CHECK_LENGTH(a) DMITIGR_CHECK_GENERIC(a, std::length_error)
 #define DMITIGR_CHECK_RANGE(a) DMITIGR_CHECK_GENERIC(a, std::out_of_range)
 
-#endif  // DMITIGR_MISC_ASSERT_HPP
+#endif  // DMITIGR_ASSERT_HPP

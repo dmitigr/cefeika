@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_ALGO_HPP
-#define DMITIGR_MISC_ALGO_HPP
+#ifndef DMITIGR_ALGO_HPP
+#define DMITIGR_ALGO_HPP
 
 #include <algorithm>
 
@@ -45,4 +45,4 @@ bool is_begins_with(const Container& input, const Container& pattern) noexcept
 
 } // namespace dmitigr::algo
 
-#endif  // DMITIGR_MISC_ALGO_HPP
+#endif  // DMITIGR_ALGO_HPP

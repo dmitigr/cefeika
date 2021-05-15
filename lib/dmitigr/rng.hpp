@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_RNG_HPP
-#define DMITIGR_MISC_RNG_HPP
+#ifndef DMITIGR_RNG_HPP
+#define DMITIGR_RNG_HPP
 
 #include <cassert>
 #include <chrono>
@@ -111,4 +111,4 @@ inline std::string random_string(const char beg, const char end,
 
 } // namespace dmitigr::rng
 
-#endif  // DMITIGR_MISC_RNG_HPP
+#endif  // DMITIGR_RNG_HPP

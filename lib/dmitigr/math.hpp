@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_MATH_HPP
-#define DMITIGR_MISC_MATH_HPP
+#ifndef DMITIGR_MATH_HPP
+#define DMITIGR_MATH_HPP
 
 #include <cassert>
 #include <utility>
@@ -224,4 +224,4 @@ constexpr T aligned(const T size, const U alignment) noexcept
 
 } // namespace dmitigr::math
 
-#endif  // DMITIGR_MISC_MATH_HPP
+#endif  // DMITIGR_MATH_HPP

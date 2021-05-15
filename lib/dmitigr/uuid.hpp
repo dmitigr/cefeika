@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_UUID_HPP
-#define DMITIGR_MISC_UUID_HPP
+#ifndef DMITIGR_UUID_HPP
+#define DMITIGR_UUID_HPP
 
 #include "rng.hpp"
 
@@ -120,4 +120,4 @@ private:
 
 } // namespace dmitigr::uuid
 
-#endif  // DMITIGR_MISC_UUID_HPP
+#endif  // DMITIGR_UUID_HPP
