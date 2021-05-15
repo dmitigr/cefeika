@@ -122,8 +122,8 @@ public:
     case Type::open:   return (min_ <  value) && (value <  max_); // ()
     case Type::lopen:  return (min_ <  value) && (value <= max_); // (]
     case Type::ropen:  return (min_ <= value) && (value <  max_); // [)
-    default: assert(false);
     }
+    assert(false);
   }
 
   /**
