@@ -12,7 +12,6 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH ${dmitigr_cefeika_SOURCE_DIR}/cmake)
 include(dmitigr)
-include(dmitigr_cefeika)
 
 # ------------------------------------------------------------------------------
 # Build options
@@ -55,19 +54,22 @@ endif()
 
 # Set default CMAKE_BUILD_TYPE.
 if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-  if(BUILD_SHARED_LIBS)
-    message("The mode of building shared Dmitigr Cefeika libraries is set.")
-  else()
-    message("The mode of building static Dmitigr Cefeika libraries is set.")
-  endif()
-
   if(NOT DEFINED CMAKE_BUILD_TYPE OR NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING
       "Build type: Debug Release RelWithDebInfo MinSizeRel." FORCE)
   endif()
-  message("Dmitigr Cefeika build type it set to ${CMAKE_BUILD_TYPE}")
+
+  message("Dmitigr Cefeika: build mode is ${CMAKE_BUILD_TYPE}.")
+  if(BUILD_SHARED_LIBS)
+    message("Dmitigr Cefeika: building shared libraries.")
+  else()
+    message("Dmitigr Cefeika: building static libraries.")
+  endif()
+  if(DMITIGR_CEFEIKA_TESTS)
+    message("Dmitigr Cefeika: building tests.")
+  endif()
 else()
-  message("Dmitigr Cefeika header-only mode is set.")
+  message("Dmitigr Cefeika: no build (header-only mode).")
 endif()
 
 # ------------------------------------------------------------------------------
@@ -123,6 +125,39 @@ endif()
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# ------------------------------------------------------------------------------
+# Getting the actual list of libraries
+# ------------------------------------------------------------------------------
+
+# Full list of libraries.
+set(dmitigr_cefeika_libraries_all
+  algo assert cfg concur endianness enum_bitmask filesystem fsmisc math mem
+  progpar reader rng str testo ttpl uuid
+
+  dt os rajson
+
+  jrpc net
+
+  fcgi http pgfe sqlixx ws wscl
+
+  web
+  )
+
+foreach(lib ${dmitigr_cefeika_libraries_all})
+  set(dmitigr_p "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}")
+  if(EXISTS "${dmitigr_p}" OR EXISTS "${dmitigr_p}.hpp")
+    list(APPEND dmitigr_cefeika_libraries ${lib})
+  endif()
+endforeach()
+unset(dmitigr_p)
+
+configure_file(cmake/dmitigr_cefeika.cmake.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/dmitigr_cefeika.cmake @ONLY
+  NEWLINE_STYLE UNIX)
+include(dmitigr_cefeika)
+
+message("Dmitigr Cefeika: libraries ${dmitigr_cefeika_libraries}")
 
 # ------------------------------------------------------------------------------
 # Third-party dependencies
@@ -187,8 +222,17 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   set(dmlib dmitigr_${lib})
   set(DMLIB DMITIGR_${LIB})
+  set(${dmlib}_rel_path_prefix "lib/dmitigr/${lib}")
+  set(${dmlib}_abs_path_prefix "${CMAKE_CURRENT_SOURCE_DIR}/${${dmlib}_rel_path_prefix}")
 
-  add_subdirectory(lib/dmitigr/${lib})
+  if(NOT IS_DIRECTORY "${${dmlib}_abs_path_prefix}")
+    list(APPEND ${dmlib}_root_headers "${${dmlib}_rel_path_prefix}.hpp")
+    list(APPEND ${dmlib}_sources ${${dmlib}_root_headers})
+    set(${dmlib}_one_header_only True)
+  else()
+    add_subdirectory(${${dmlib}_rel_path_prefix})
+    set(${dmlib}_one_header_only False)
+  endif()
 
   dmitigr_set_library_info_lib_variables(${lib})
 
@@ -246,25 +290,32 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   # Both major and minor versions of 0 means that the library handles
   # versioning by itself, so no version.* files needs to be configured.
-  if((${${dmlib}_version_major} GREATER 0) OR (${${dmlib}_version_minor} GREATER 0))
-    # Preprocessing
-    configure_file(lib/dmitigr/version.hpp.in
-      ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.hpp @ONLY
-      NEWLINE_STYLE UNIX)
-    list(APPEND ${dmlib}_preprocessed_headers version.hpp)
-
-    if(WIN32 AND NOT ${${dmlib}_header_only})
-      configure_file(lib/dmitigr/version.rc.in
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.rc @ONLY
+  # ${dmlib}_version_major is NOT DEFINED when ${dmlib}_one_header_only.
+  if(DEFINED ${dmlib}_version_major)
+    if((${${dmlib}_version_major} GREATER 0) OR (${${dmlib}_version_minor} GREATER 0))
+      # Preprocessing
+      configure_file(lib/dmitigr/version.hpp.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.hpp @ONLY
         NEWLINE_STYLE UNIX)
-      list(APPEND ${dmlib}_build_only_sources version.rc)
+      list(APPEND ${dmlib}_preprocessed_headers version.hpp)
+
+      if(WIN32 AND NOT ${${dmlib}_header_only})
+        configure_file(lib/dmitigr/version.rc.in
+          ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.rc @ONLY
+          NEWLINE_STYLE UNIX)
+        list(APPEND ${dmlib}_build_only_sources version.rc)
+      endif()
     endif()
   endif()
 
-  foreach(st ${dmitigr_source_types})
-    list(TRANSFORM ${dmlib}_${st} PREPEND "lib/dmitigr/${lib}/")
-    list(APPEND ${dmlib}_sources ${${dmlib}_${st}})
-  endforeach()
+  # One-header-only library source is already added to the both
+  # ${dmlib}_root_headers and ${dmlib}_sources.
+  if(NOT ${${dmlib}_one_header_only})
+    foreach(st ${dmitigr_source_types})
+      list(TRANSFORM ${dmlib}_${st} PREPEND "lib/dmitigr/${lib}/")
+      list(APPEND ${dmlib}_sources ${${dmlib}_${st}})
+    endforeach()
+  endif()
 
   set_source_files_properties(
     ${${dmlib}_implementations}
@@ -412,7 +463,6 @@ endforeach()
 
 if(DMITIGR_CEFEIKA_TESTS)
   enable_testing()
-  message("The mode of building Dmitigr Cefeika tests is set.")
 
   function(dmitigr_configure_test lib test)
     set(dmlib dmitigr_${lib})
@@ -426,7 +476,7 @@ if(DMITIGR_CEFEIKA_TESTS)
     set(exe "dmitigr_${full_name}")
     set(src "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}/${full_name}.cpp")
     add_executable(${exe} ${src})
-    target_link_libraries(${exe} PRIVATE dmitigr::misc dmitigr::${lib} ${${dmlib}_tests_target_link_libraries})
+    target_link_libraries(${exe} PRIVATE dmitigr::${lib} ${${dmlib}_tests_target_link_libraries})
     dmitigr_target_compile_options(${exe})
     if(is_unit_test)
       add_test(NAME ${exe} COMMAND ${exe})
