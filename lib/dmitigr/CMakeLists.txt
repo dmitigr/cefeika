@@ -7,6 +7,14 @@
 # ------------------------------------------------------------------------------
 
 dmitigr_append_cppfs(dmitigr_filesystem_target_link_libraries_interface)
-if (UNIX)
+if(UNIX)
   list(APPEND dmitigr_concur_target_link_libraries_interface pthread)
 endif()
+
+# ------------------------------------------------------------------------------
+# Variables propagation
+# ------------------------------------------------------------------------------
+
+foreach(lib concur filesystem)
+  dmitigr_propagate_library_settings(${lib})
+endforeach()
