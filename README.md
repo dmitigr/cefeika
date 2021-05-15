@@ -10,11 +10,11 @@ Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
   - [os] - OS interaction
   - [pgfe] - powerful client API for [PostgreSQL]
   - [rajson] - [RapidJSON] wrapper
-  - [misc] - miscellaneous stuff (from basics to URL processing to multithreading)
   - [sqlixx] - powerful client API for [SQLite]
   - [web] - Web frameworks
   - [ws] - WebSocket server library
   - [wscl] - WebSocket client library
+  - miscellaneous stuff (from basics to URL processing to concurrency)
 
 All of these libraries can be used as shared libraries, static libraries or
 header-only libraries.
@@ -273,7 +273,6 @@ For conditions of distribution and use, please see the corresponding license.
 [fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
 [http]: https://github.com/dmitigr/cefeika/tree/master/doc/http
 [jrpc]: https://github.com/dmitigr/cefeika/tree/master/doc/jrpc
-[misc]: https://github.com/dmitigr/cefeika/tree/master/doc/misc
 [net]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/net
 [os]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/os
 [pgfe]: https://github.com/dmitigr/cefeika/tree/master/doc/pgfe
