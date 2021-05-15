@@ -43,11 +43,11 @@ set(${dmitigr_librarian_lib}_RELEASE_FOUND FALSE)
 # unset(${dmitigr_librarian_lib}_RELEASE_LIBRARY CACHE)
 # unset(${dmitigr_librarian_lib}_DEBUG_LIBRARY CACHE)
 
-if(NOT "${dmitigr_librarian_lib}_library_paths" STREQUAL "")
+if(NOT "${${dmitigr_librarian_lib}_library_paths}" STREQUAL "")
   list(APPEND dmitigr_librarian_find_library_args NO_DEFAULT_PATH)
 endif()
 
-if(NOT "${dmitigr_librarian_lib}_include_paths" STREQUAL "")
+if(NOT "${${dmitigr_librarian_lib}_include_paths}" STREQUAL "")
   list(APPEND dmitigr_librarian_find_path_args NO_DEFAULT_PATH)
 endif()
 
