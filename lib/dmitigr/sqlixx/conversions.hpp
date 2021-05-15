@@ -7,7 +7,7 @@
 
 #include "data.hpp"
 #include "exception.hpp"
-#include "../misc/assert.hpp"
+#include "../assert.hpp"
 
 #include <sqlite3.h>
 

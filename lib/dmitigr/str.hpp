@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_STR_HPP
-#define DMITIGR_MISC_STR_HPP
+#ifndef DMITIGR_STR_HPP
+#define DMITIGR_STR_HPP
 
 #include <algorithm>
 #include <cassert>
@@ -485,4 +485,4 @@ inline bool is_uppercased(const std::string_view str, const std::locale& loc = {
 
 } // namespace dmitigr::str
 
-#endif  // DMITIGR_MISC_STR_HPP
+#endif  // DMITIGR_STR_HPP

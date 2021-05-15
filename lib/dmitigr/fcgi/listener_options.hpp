@@ -8,7 +8,7 @@
 #include "dll.hpp"
 #include "types_fwd.hpp"
 
-#include "../misc/filesystem.hpp"
+#include "../filesystem.hpp"
 #include "../net/types_fwd.hpp"
 
 #include <memory>

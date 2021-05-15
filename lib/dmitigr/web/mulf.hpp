@@ -5,7 +5,7 @@
 #ifndef DMITIGR_WEB_MULF_HPP
 #define DMITIGR_WEB_MULF_HPP
 
-#include "../misc/str.hpp"
+#include "../str.hpp"
 
 #include <algorithm>
 #include <cassert>

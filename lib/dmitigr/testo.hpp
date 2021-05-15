@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_TESTO_HPP
-#define DMITIGR_MISC_TESTO_HPP
+#ifndef DMITIGR_TESTO_HPP
+#define DMITIGR_TESTO_HPP
 
 #include <cassert>
 #include <chrono>
@@ -72,4 +72,4 @@ auto time(F&& f)
 
 } // namespace dmitigr::testo
 
-#endif // DMITIGR_MISC_TESTO_HPP
+#endif // DMITIGR_TESTO_HPP

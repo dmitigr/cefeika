@@ -6,7 +6,7 @@
 #define DMITIGR_SQLIXX_STATEMENT_HPP
 
 #include "conversions.hpp"
-#include "../misc/assert.hpp"
+#include "../assert.hpp"
 
 #include <sqlite3.h>
 

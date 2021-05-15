@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_FILESYSTEM_HPP
-#define DMITIGR_MISC_FILESYSTEM_HPP
+#ifndef DMITIGR_FILESYSTEM_HPP
+#define DMITIGR_FILESYSTEM_HPP
 
 #if (defined(__clang__) && (__clang_major__ < 7)) || \
     (defined(__GNUG__)  && (__GNUC__ < 8) && !defined (__clang__))
@@ -33,4 +33,4 @@
   #include <filesystem>
 #endif
 
-#endif // DMITIGR_MISC_FILESYSTEM_HPP
+#endif // DMITIGR_FILESYSTEM_HPP

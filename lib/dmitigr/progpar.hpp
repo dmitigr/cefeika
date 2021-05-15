@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_PROGPAR_HPP
-#define DMITIGR_MISC_PROGPAR_HPP
+#ifndef DMITIGR_PROGPAR_HPP
+#define DMITIGR_PROGPAR_HPP
 
 #include "filesystem.hpp"
 
@@ -295,4 +295,4 @@ private:
 
 } // namespace dmitigr::progpar
 
-#endif // DMITIGR_MISC_PROGPAR_HPP
+#endif // DMITIGR_PROGPAR_HPP

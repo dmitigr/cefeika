@@ -5,7 +5,7 @@
 #ifndef DMITIGR_WEB_URL_HPP
 #define DMITIGR_WEB_URL_HPP
 
-#include "../misc/str.hpp"
+#include "../str.hpp"
 
 #include <algorithm>
 #include <cassert>

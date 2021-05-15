@@ -5,7 +5,7 @@
 #ifndef DMITIGR_CEFEIKA_TEST_PGFE_UNIT_HPP
 #define DMITIGR_CEFEIKA_TEST_PGFE_UNIT_HPP
 
-#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/testo.hpp"
 #include "../../lib/dmitigr/os/env.hpp"
 #include "../../lib/dmitigr/pgfe.hpp"
 

@@ -8,7 +8,7 @@
 #include "header.hpp"
 #include "syntax.hpp"
 #include "../dt/timestamp.hpp"
-#include "../misc/str.hpp"
+#include "../str.hpp"
 #include "../net/util.hpp"
 
 #include <cassert>

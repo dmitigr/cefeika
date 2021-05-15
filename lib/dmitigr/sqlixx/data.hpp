@@ -5,7 +5,7 @@
 #ifndef DMITIGR_SQLIXX_DATA_HPP
 #define DMITIGR_SQLIXX_DATA_HPP
 
-#include "../misc/assert.hpp"
+#include "../assert.hpp"
 
 #include <sqlite3.h>
 

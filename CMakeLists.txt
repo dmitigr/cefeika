@@ -203,6 +203,9 @@ install(FILES
 # Libraries
 # ------------------------------------------------------------------------------
 
+# Add one-header-only stuff first
+add_subdirectory(lib/dmitigr)
+
 foreach(lib ${dmitigr_cefeika_libraries})
   string(TOUPPER "${lib}" LIB)
 

@@ -7,7 +7,7 @@
 
 #include "basics.hpp"
 #include "types_fwd.hpp"
-#include "../misc/str.hpp"
+#include "../str.hpp"
 #include "../net/descriptor.hpp"
 
 //#include <iostream>

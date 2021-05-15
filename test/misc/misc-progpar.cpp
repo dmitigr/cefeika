@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/misc/progpar.hpp"
-#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/progpar.hpp"
+#include "../../lib/dmitigr/testo.hpp"
 
 #include <iostream>
 

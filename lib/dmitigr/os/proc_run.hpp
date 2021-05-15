@@ -7,8 +7,8 @@
 
 #include "log.hpp"
 #include "proc_detach.hpp"
-#include "../misc/filesystem.hpp"
-#include "../misc/progpar.hpp"
+#include "../filesystem.hpp"
+#include "../progpar.hpp"
 
 #include <atomic>
 #include <cassert>

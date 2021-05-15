@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include "../../lib/dmitigr/fcgi.hpp"
-#include "../../lib/dmitigr/misc/rng.hpp"
+#include "../../lib/dmitigr/rng.hpp"
 
 #include <iostream>
 

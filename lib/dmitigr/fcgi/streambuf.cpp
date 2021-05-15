@@ -5,7 +5,7 @@
 #include "basics.hpp"
 #include "server_connection.hpp"
 #include "streambuf.hpp"
-#include "../misc/math.hpp"
+#include "../math.hpp"
 
 #include <algorithm>
 #include <array>

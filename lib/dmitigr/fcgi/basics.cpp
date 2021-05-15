@@ -4,7 +4,7 @@
 
 #include "basics.hpp"
 #include "connection.hpp"
-#include "../misc/math.hpp"
+#include "../math.hpp"
 #include "../net/descriptor.hpp"
 
 #include <algorithm>

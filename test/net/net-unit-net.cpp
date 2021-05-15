@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/testo.hpp"
 #include "../../lib/dmitigr/net.hpp"
 
 int main(int, char* argv[])

@@ -2,7 +2,7 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
-set(dmitigr_cefeika_libraries "dt;os;rajson;jrpc;net;fcgi;http;pgfe;sqlixx;ws;wscl;web")
+set(dmitigr_cefeika_libraries "algo;assert;cfg;concur;endianness;enum_bitmask;filesystem;fsmisc;math;mem;progpar;reader;rng;str;testo;ttpl;uuid;dt;os;rajson;jrpc;net;fcgi;http;pgfe;sqlixx;ws;wscl;web")
 
 set(dmitigr_cefeika_cfg_deps filesystem reader str)
 set(dmitigr_cefeika_fsmisc_deps filesystem)

@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_READER_HPP
-#define DMITIGR_MISC_READER_HPP
+#ifndef DMITIGR_READER_HPP
+#define DMITIGR_READER_HPP
 
 #include "filesystem.hpp"
 
@@ -273,4 +273,4 @@ inline std::string file_to_string(const std::filesystem::path& path,
 
 } // namespace dmitigr::reader
 
-#endif  // DMITIGR_MISC_READER_HPP
+#endif  // DMITIGR_READER_HPP

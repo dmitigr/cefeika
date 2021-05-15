@@ -9,10 +9,10 @@
 #include "../fcgi/fcgi.hpp"
 #include "../http/http.hpp"
 #include "../jrpc/jrpc.hpp"
-#include "../misc/filesystem.hpp"
-#include "../misc/reader.hpp"
-#include "../misc/str.hpp"
-#include "../misc/ttpl.hpp"
+#include "../filesystem.hpp"
+#include "../reader.hpp"
+#include "../str.hpp"
+#include "../ttpl.hpp"
 
 #include <cassert>
 #include <functional>

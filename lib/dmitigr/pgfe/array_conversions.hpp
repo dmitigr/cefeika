@@ -9,7 +9,7 @@
 #include "conversions_api.hpp"
 #include "data.hpp"
 #include "exceptions.hpp"
-#include "../misc/str.hpp"
+#include "../str.hpp"
 
 #include <algorithm>
 #include <cassert>

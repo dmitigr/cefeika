@@ -11,7 +11,7 @@
 #include "response.hpp"
 #include "row_info.hpp"
 #include "types_fwd.hpp"
-#include "../misc/mem.hpp"
+#include "../mem.hpp"
 
 #include <algorithm>
 #include <cassert>

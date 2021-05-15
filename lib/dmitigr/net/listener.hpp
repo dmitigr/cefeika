@@ -10,7 +10,7 @@
 #include "endpoint.hpp"
 #include "socket.hpp"
 #include "types_fwd.hpp"
-#include "../misc/filesystem.hpp"
+#include "../filesystem.hpp"
 
 #include <cassert>
 #include <chrono>

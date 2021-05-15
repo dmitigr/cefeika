@@ -5,7 +5,7 @@
 #ifndef DMITIGR_NET_ENDPOINT_HPP
 #define DMITIGR_NET_ENDPOINT_HPP
 
-#include "../misc/filesystem.hpp"
+#include "../filesystem.hpp"
 
 #include <cassert>
 #include <optional>

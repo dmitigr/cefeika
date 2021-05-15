@@ -4,7 +4,7 @@
 
 #include "../../lib/dmitigr/dt.hpp"
 #include "../../lib/dmitigr/http.hpp"
-#include "../../lib/dmitigr/misc/testo.hpp"
+#include "../../lib/dmitigr/testo.hpp"
 
 int main(int, char* argv[])
 {

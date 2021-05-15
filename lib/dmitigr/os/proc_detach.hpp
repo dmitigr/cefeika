@@ -11,7 +11,7 @@
 
 #include "log.hpp"
 #include "proc.hpp"
-#include "../misc/filesystem.hpp"
+#include "../filesystem.hpp"
 
 #include <cassert>
 #include <cstdlib>

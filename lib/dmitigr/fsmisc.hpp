@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_MISC_FSMISC_HPP
-#define DMITIGR_MISC_FSMISC_HPP
+#ifndef DMITIGR_FSMISC_HPP
+#define DMITIGR_FSMISC_HPP
 
 #include "filesystem.hpp"
 
@@ -100,4 +100,4 @@ parent_directory_path(const std::filesystem::path& dir)
 
 } // namespace dmitigr::fsmisc
 
-#endif  // DMITIGR_MISC_FSMISC_HPP
+#endif  // DMITIGR_FSMISC_HPP
