@@ -23,7 +23,8 @@
 #ifndef DMITIGR_CONCUR_HPP
 #define DMITIGR_CONCUR_HPP
 
-#include <cassert>
+#include "assert.hpp"
+
 #include <condition_variable>
 #include <cstddef>
 #include <functional>
@@ -65,14 +66,14 @@ public:
    * @brief Constructs the thread pool with size of `size`.
    *
    * @par Requires
-   * `(size > 0 && queue_max_size > 0)`.
+   * `(size > 0)`.
    */
   explicit Simple_thread_pool(const std::size_t size, std::string name = {})
     : name_{std::move(name)}
     , workers_{size}
   {
-    assert(size > 0);
-    assert(workers_.size() == size);
+    DMITIGR_CHECK_ARG(size > 0);
+    DMITIGR_ASSERT(workers_.size() == size);
   }
 
   /// @}
@@ -85,7 +86,7 @@ public:
    */
   void submit(std::function<void()> function)
   {
-    assert(function);
+    DMITIGR_CHECK_ARG(function);
     const std::lock_guard lg{queue_mutex_};
     queue_.push(std::move(function));
     state_changed_.notify_one();
@@ -178,9 +179,9 @@ private:
           std::unique_lock lk{queue_mutex_};
           state_changed_.wait(lk, [this]{ return !queue_.empty() || !is_running_; });
           if (is_running_) {
-            assert(!queue_.empty());
+            DMITIGR_ASSERT(!queue_.empty());
             func = std::move(queue_.front());
-            assert(static_cast<bool>(func));
+            DMITIGR_ASSERT(func);
             queue_.pop();
           } else
             return;
@@ -196,7 +197,7 @@ private:
 
   void log_error(const char* const what) const noexcept
   {
-    assert(what);
+    DMITIGR_ASSERT(what);
     std::clog << "dmitigr::concur::Simple_thread_pool ";
     if (!name_.empty())
       std::clog << name_ << " ";
