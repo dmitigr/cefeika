@@ -8,10 +8,10 @@
 #include "basics.hpp"
 #include "std_system_error.hpp"
 #include "types_fwd.hpp"
+#include "../assert.hpp"
 
 #include "../rajson/conversions.hpp"
 
-#include <cassert>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -68,7 +68,7 @@ public:
     : Error{Server_errc::generic_error, std::string{}}
   {
     init__(rapidjson::Value{}, std::string{});
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// The constructor.
@@ -76,7 +76,7 @@ public:
     : Error{code, message}
   {
     init__(rapidjson::Value{}, message);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @overload
@@ -84,7 +84,7 @@ public:
     : Error{code, message}
   {
     init__(rapidjson::Value{id}, message);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @overload
@@ -94,7 +94,7 @@ public:
   {
     // Attention: calling allocator() assumes constructed rep_!
     init__(rapidjson::Value{id.data(), id.size(), allocator()}, message);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// Swaps this instance with `rhs`.
@@ -115,7 +115,7 @@ public:
   const rapidjson::Value& id() const override
   {
     const auto i = rep_->FindMember("id");
-    assert(i != rep_->MemberEnd());
+    DMITIGR_ASSERT(i != rep_->MemberEnd());
     return i->value;
   }
 
@@ -211,7 +211,7 @@ private:
   const rapidjson::Value& error() const
   {
     const auto i = rep_->FindMember("error");
-    assert(i != rep_->MemberEnd());
+    DMITIGR_ASSERT(i != rep_->MemberEnd());
     return i->value;
   }
 
@@ -225,7 +225,7 @@ private:
     : Error{code, message}
   {
     init__(std::move(id), message);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   // Used by Request.
@@ -233,7 +233,7 @@ private:
     : Error{code, message}
   {
     init__(rapidjson::Value{id, allocator()}, message);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   // Used by Response.
@@ -241,7 +241,7 @@ private:
     : system_error{code, message}
     , rep_{std::move(rep)}
   {
-    assert(rep_ != nullptr);
+    DMITIGR_ASSERT(rep_ != nullptr);
     // Maybe uninitialized, so invariant *maybe* invalid here!
   }
 
@@ -277,14 +277,14 @@ public:
   Result()
   {
     init__(rapidjson::Value{});
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// The constructor.
   explicit Result(const int id)
   {
     init__(rapidjson::Value{id});
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @overload
@@ -292,7 +292,7 @@ public:
   {
     // Attention: calling allocator() assumes constructed rep_!
     init__(rapidjson::Value{id.data(), id.size(), allocator()});
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// Copy-constructible.
@@ -333,7 +333,7 @@ public:
   const rapidjson::Value& id() const override
   {
     const auto i = rep_.FindMember("id");
-    assert(i != rep_.MemberEnd());
+    DMITIGR_ASSERT(i != rep_.MemberEnd());
     return i->value;
   }
 
@@ -353,7 +353,7 @@ public:
   const rapidjson::Value& data() const
   {
     const auto i = rep_.FindMember("result");
-    assert(i != rep_.MemberEnd());
+    DMITIGR_ASSERT(i != rep_.MemberEnd());
     return i->value;
   }
 
@@ -398,14 +398,14 @@ private:
   explicit Result(const rapidjson::Value& id)
   {
     init__(rapidjson::Value{id, allocator()});
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   // Used by Response.
   explicit Result(rapidjson::Document&& rep)
     : rep_{std::move(rep)}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   void init__(rapidjson::Value&& id)

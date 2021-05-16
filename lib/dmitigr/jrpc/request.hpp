@@ -6,6 +6,7 @@
 #define DMITIGR_JRPC_REQUEST_HPP
 
 #include "response.hpp"
+#include "../assert.hpp"
 #include "../math.hpp"
 #include "../str.hpp"
 
@@ -180,14 +181,14 @@ public:
       : request_{request}
       , namepos_{std::to_string(pos)}
     {
-      assert(!is_valid());
+      DMITIGR_ASSERT(!is_valid());
     }
 
     Paramref(const Request& request, std::string name)
       : request_{request}
       , namepos_{std::move(name)}
     {
-      assert(!is_valid());
+      DMITIGR_ASSERT(!is_valid());
     }
 
     Paramref(const Request& request, const std::size_t pos, const rapidjson::Value& value)
@@ -195,7 +196,7 @@ public:
       , value_{&value}
       , namepos_{std::to_string(pos)}
     {
-      assert(is_valid());
+      DMITIGR_ASSERT(is_valid());
     }
 
     Paramref(const Request& request, std::string name, const rapidjson::Value& value)
@@ -203,7 +204,7 @@ public:
       , value_{&value}
       , namepos_{std::move(name)}
     {
-      assert(is_valid());
+      DMITIGR_ASSERT(is_valid());
     }
 
     /// Copy-constructible.
@@ -233,17 +234,17 @@ public:
   }
 
   /// Constructs an instance that represents a normal request.
-  Request(const Null /*id*/, std::string_view method)
+  Request(const Null /*id*/, const std::string_view method)
   {
     init_request__(rapidjson::Value{}, method);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @overload
   Request(const int id, const std::string_view method)
   {
     init_request__(rapidjson::Value{id}, method);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @overload
@@ -251,14 +252,14 @@ public:
   {
     // Attention: calling allocator() assumes constructed rep_!
     init_request__(rapidjson::Value{id.data(), id.size(), allocator()}, method);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// Constructs an instance that represents a notification.
   explicit Request(const std::string_view method)
   {
     init_notification__(method);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// Copy-constructible.
@@ -338,7 +339,7 @@ public:
   Paramref parameter(const std::size_t position) const noexcept
   {
     if (const auto* const p = params(); p && p->IsArray()) {
-      assert(position < p->Size());
+      DMITIGR_ASSERT(position < p->Size());
       return Paramref{*this, position, (*p)[position]};
     } else
       return Paramref{*this, position};
@@ -466,14 +467,14 @@ public:
       p = params__();
       p->Reserve(8, alloc);
     }
-    assert(p && p->IsArray());
+    DMITIGR_ASSERT(p && p->IsArray());
 
     if (position >= p->Size()) {
       const auto count = position - p->Size();
       for (std::size_t i = 0; i < count; ++i)
         p->PushBack(rapidjson::Value{}, alloc);
       p->PushBack(std::move(value), alloc);
-      assert(position < p->Size());
+      DMITIGR_ASSERT(position < p->Size());
     } else
       (*p)[position] = std::move(value);
   }
@@ -497,7 +498,7 @@ public:
    */
   void set_parameter(const std::string_view name, rapidjson::Value value)
   {
-    assert(!name.empty());
+    DMITIGR_CHECK_ARG(!name.empty());
 
     auto& alloc = allocator();
     rapidjson::Value* p = params__();
@@ -505,7 +506,7 @@ public:
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kObjectType}, alloc);
       p = params__();
     }
-    assert(p && p->IsObject());
+    DMITIGR_ASSERT(p && p->IsObject());
 
     const auto nr = rajson::to<rapidjson::Value::StringRefType>(name);
     if (auto m = p->FindMember(nr); m != p->MemberEnd())
@@ -559,7 +560,7 @@ public:
     else
       rep_.AddMember("params", rapidjson::Value{rapidjson::Type::kObjectType}, allocator());
 
-    assert(params() && parameter_count() == 0);
+    DMITIGR_ASSERT(params() && parameter_count() == 0);
   }
 
   /**
@@ -734,7 +735,7 @@ private:
     if (rep_.MemberCount() != expected_member_count)
       throw_invalid_request("unexpected member count");
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   void init_notification__(const std::string_view method)
