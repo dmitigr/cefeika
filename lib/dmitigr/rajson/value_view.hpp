@@ -7,7 +7,6 @@
 
 #include "conversions.hpp"
 
-#include <cassert>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -137,9 +136,9 @@ private:
   template<class Value>
   static auto optional_iterator__(Value& value, const std::string_view name)
   {
-    assert(!name.empty());
-    if (const auto m = value.FindMember(rapidjson::StringRef(name.data(), name.size())),
-                   e = value.MemberEnd(); m != e)
+    if (const auto e = value.MemberEnd(); name.empty())
+      return e;
+    else if (const auto m = value.FindMember(rapidjson::StringRef(name.data(), name.size())); m != e)
       return m;
     else
       return e;
