@@ -5,7 +5,8 @@
 #ifndef DMITIGR_NET_EXCEPTIONS_HPP
 #define DMITIGR_NET_EXCEPTIONS_HPP
 
-#include <cassert>
+#include "../assert.hpp"
+
 #include <cstdio>
 #include <string>
 #include <system_error>
@@ -35,7 +36,7 @@ public:
    */
   static void report(const char* const what) noexcept
   {
-    assert(what);
+    DMITIGR_ASSERT(what);
     std::fprintf(stderr, "%s: error %d\n", what, last_error());
   }
 
@@ -107,7 +108,7 @@ public:
    */
   static void report(const char* const func) noexcept
   {
-    assert(func);
+    DMITIGR_ASSERT(func);
     std::fprintf(stderr, "%s(): error %d\n", func, last_error());
   }
 

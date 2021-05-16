@@ -5,9 +5,9 @@
 #ifndef DMITIGR_NET_CONVERSIONS_HPP
 #define DMITIGR_NET_CONVERSIONS_HPP
 
+#include "../assert.hpp"
 #include "../endianness.hpp"
 
-#include <cassert>
 #include <cstdint>
 #include <stdexcept>
 
@@ -16,12 +16,15 @@ namespace dmitigr::net {
 /**
  * @brief If the host architecture is big endian, then the `src` is copyied to
  * `dest` as is. Otherwise, the bytes of `src` is copied to `dest` in reverse order.
+ *
+ * @par Requires
+ * `dest && src && src_size <= dest_size`.
  */
 inline void copy(void* const dest, const std::size_t dest_size, const void* const src, const std::size_t src_size)
 {
-  assert(dest);
-  assert(src);
-  assert(src_size <= dest_size);
+  DMITIGR_CHECK_ARG(dest);
+  DMITIGR_CHECK_ARG(src);
+  DMITIGR_CHECK_LENGTH(src_size <= dest_size);
   const auto src_ubytes = static_cast<const unsigned char*>(src);
   const auto dest_ubytes = static_cast<unsigned char*>(dest);
   switch (endianness()) {

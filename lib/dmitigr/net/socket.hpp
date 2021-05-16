@@ -319,7 +319,7 @@ inline void shutdown_socket(const Socket_native socket, const int how)
  * @returns The readiness of the socket according to the specified `mask`.
  *
  * @par Requires
- * `(socket >= 0)`.
+ * `is_socket_valid(socket)`.
  *
  * @remarks
  * `(timeout < 0)` means *no timeout* and the function can block indefinitely!
@@ -329,7 +329,7 @@ inline void shutdown_socket(const Socket_native socket, const int how)
 inline Socket_readiness poll(const Socket_native socket,
   const Socket_readiness mask, const std::chrono::milliseconds timeout)
 {
-  assert(is_socket_valid(socket));
+  DMITIGR_CHECK_ARG(is_socket_valid(socket));
 
   using std::chrono::seconds;
   using std::chrono::milliseconds;
@@ -344,9 +344,9 @@ inline Socket_readiness poll(const Socket_native socket,
     using Tv_usec = decltype (tv.tv_usec);
 
     const auto secs = duration_cast<seconds>(timeout);
-    assert(secs.count() <= std::numeric_limits<Tv_sec>::max());
+    DMITIGR_CHECK_ARG(secs.count() <= std::numeric_limits<Tv_sec>::max());
     const auto microsecs = duration_cast<microseconds>(timeout - secs);
-    assert(microsecs.count() <= std::numeric_limits<Tv_usec>::max());
+    DMITIGR_CHECK_ARG(microsecs.count() <= std::numeric_limits<Tv_usec>::max());
 
     tv_p->tv_sec  = static_cast<Tv_sec>(secs.count());
     tv_p->tv_usec = static_cast<Tv_usec>(microsecs.count());

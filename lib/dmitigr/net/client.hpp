@@ -8,8 +8,8 @@
 #include "descriptor.hpp"
 #include "endpoint.hpp"
 #include "socket.hpp"
+#include "../assert.hpp"
 
-#include <cassert>
 #include <memory>
 #include <utility>
 
@@ -75,7 +75,7 @@ inline std::unique_ptr<Descriptor> make_tcp_connection(const Client_options& opt
   case Communication_mode::net:
     return std::make_unique<Sockdesc>(make_tcp_connection({remote.net_address().value(), remote.net_port().value()}));
   }
-  assert(false);
+  DMITIGR_ASSERT(false);
 }
 
 } // namespace dmitigr::net

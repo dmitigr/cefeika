@@ -10,9 +10,9 @@
 #include "endpoint.hpp"
 #include "socket.hpp"
 #include "types_fwd.hpp"
+#include "../assert.hpp"
 #include "../filesystem.hpp"
 
-#include <cassert>
 #include <chrono>
 #include <memory>
 #include <optional>
@@ -42,7 +42,7 @@ public:
   explicit Listener_options(std::string pipe_name)
     : endpoint_{std::move(pipe_name)}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 #else
   /**
@@ -61,8 +61,8 @@ public:
     : endpoint_{std::move(path)}
     , backlog_{backlog}
   {
-    assert(backlog > 0);
-    assert(is_invariant_ok());
+    DMITIGR_CHECK_ARG(backlog > 0);
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 #endif
   /**
@@ -84,8 +84,9 @@ public:
     : endpoint_{std::move(address), port}
     , backlog_{backlog}
   {
-    assert(port > 0 && backlog > 0);
-    assert(is_invariant_ok());
+    DMITIGR_CHECK_ARG(port > 0);
+    DMITIGR_CHECK_ARG(backlog > 0);
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The endpoint identifier.
@@ -229,9 +230,9 @@ public:
   {
     const auto cm = options_.endpoint().communication_mode();
 #ifdef _WIN32
-    assert(cm == Communication_mode::net);
+    DMITIGR_ASSERT(cm == Communication_mode::net);
 #else
-    assert(cm == Communication_mode::uds || cm == Communication_mode::net);
+    DMITIGR_ASSERT(cm == Communication_mode::uds || cm == Communication_mode::net);
 #endif
 
     net_initialize();
@@ -249,7 +250,7 @@ public:
 
   void listen() override
   {
-    assert(!is_listening());
+    DMITIGR_CHECK(!is_listening());
 
     const auto& eid = options_.endpoint();
 
@@ -293,8 +294,8 @@ public:
     using std::chrono::milliseconds;
     using Sr = net::Socket_readiness;
 
-    assert(timeout >= milliseconds{-1});
-    assert(is_listening());
+    DMITIGR_CHECK_ARG(timeout >= milliseconds{-1});
+    DMITIGR_CHECK(is_listening());
 
     const auto mask = net::poll(socket_, Sr::read_ready, timeout);
     return bool(mask & Sr::read_ready);
@@ -302,7 +303,7 @@ public:
 
   std::unique_ptr<Descriptor> accept() override
   {
-    assert(is_listening());
+    DMITIGR_CHECK(is_listening());
 
     constexpr sockaddr* addr{};
 #ifdef _WIN32
@@ -374,9 +375,9 @@ public:
     : options_{std::move(options)}
     , pipe_path_{"\\\\.\\pipe\\"}
   {
-    assert((options_.endpoint().communication_mode() == Communication_mode::wnp));
+    DMITIGR_CHECK_ARG(options_.endpoint().communication_mode() == Communication_mode::wnp);
     pipe_path_.append(options_.endpoint().wnp_server_name().value());
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const Listener_options& options() const override
@@ -391,7 +392,7 @@ public:
 
   void listen() override
   {
-    assert(!is_listening());
+    DMITIGR_CHECK(!is_listening());
     is_listening_ = true;
   }
 
@@ -399,8 +400,8 @@ public:
   {
     using std::chrono::milliseconds;
 
-    assert(timeout >= milliseconds{-1});
-    assert(is_listening());
+    DMITIGR_CHECK_ARG(timeout >= milliseconds{-1});
+    DMITIGR_CHECK(is_listening());
 
     if (pipe_ != INVALID_HANDLE_VALUE)
       return true;
@@ -419,7 +420,7 @@ public:
         goto have_waited;
 
       case ERROR_IO_PENDING: {
-        assert(timeout.count() <= std::numeric_limits<DWORD>::max());
+        DMITIGR_ASSERT(timeout.count() <= std::numeric_limits<DWORD>::max());
         const DWORD tout = (timeout.count() == -1) ? INFINITE : static_cast<DWORD>(timeout.count());
         const DWORD r = ::WaitForSingleObject(ol.hEvent, tout);
         if (r == WAIT_OBJECT_0) {
@@ -452,7 +453,7 @@ public:
   std::unique_ptr<Descriptor> accept() override
   {
     wait();
-    assert(pipe_ != INVALID_HANDLE_VALUE);
+    DMITIGR_ASSERT(pipe_ != INVALID_HANDLE_VALUE);
     return std::make_unique<pipe_Descriptor>(std::move(pipe_));
   }
 

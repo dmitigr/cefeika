@@ -6,9 +6,9 @@
 #define DMITIGR_NET_DESCRIPTOR_HPP
 
 #include "socket.hpp"
+#include "../assert.hpp"
 
 #include <array>
-#include <cassert>
 #include <cstdio>
 #include <ios> // std::streamsize
 #include <utility> // std::move()
@@ -115,13 +115,13 @@ public:
   explicit socket_Descriptor(net::Socket_guard socket)
     : socket_{std::move(socket)}
   {
-    assert(net::is_socket_valid(socket_));
+    DMITIGR_ASSERT(net::is_socket_valid(socket_));
   }
 
   std::streamsize read(char* const buf, const std::streamsize len) override
   {
-    assert(buf);
-    assert(len <= max_read_size());
+    DMITIGR_CHECK_ARG(buf);
+    DMITIGR_CHECK_LENGTH(len <= max_read_size());
 
     constexpr int flags{};
     const auto result = ::recv(socket_, buf, static_cast<std::size_t>(len), flags);
@@ -133,8 +133,8 @@ public:
 
   std::streamsize write(const char* const buf, const std::streamsize len) override
   {
-    assert(buf);
-    assert(len <= max_write_size());
+    DMITIGR_CHECK_ARG(buf);
+    DMITIGR_CHECK_LENGTH(len <= max_write_size());
 
 #if defined(_WIN32) || defined(__APPLE__)
     constexpr int flags{};
@@ -225,13 +225,13 @@ public:
   explicit pipe_Descriptor(os::windows::Handle_guard pipe)
     : pipe_{std::move(pipe)}
   {
-    assert(pipe_ != INVALID_HANDLE_VALUE);
+    DMITIGR_ASSERT(pipe_ != INVALID_HANDLE_VALUE);
   }
 
   std::streamsize read(char* const buf, const std::streamsize len) override
   {
-    assert(buf);
-    assert(len <= max_read_size());
+    DMITIGR_CHECK_ARG(buf);
+    DMITIGR_CHECK_LENGTH(len <= max_read_size());
 
     DWORD result{};
     if (!::ReadFile(pipe_, buf, static_cast<DWORD>(len), &result, nullptr))
@@ -242,8 +242,8 @@ public:
 
   std::streamsize write(const char* const buf, const std::streamsize len) override
   {
-    assert(buf);
-    assert(len <= max_write_size());
+    DMITIGR_CHECK_ARG(buf);
+    DMITIGR_CHECK_LENGTH(len <= max_write_size());
 
     DWORD result{};
     if (!::WriteFile(pipe_, buf, static_cast<DWORD>(len), &result, nullptr))

@@ -5,9 +5,9 @@
 #ifndef DMITIGR_NET_ENDPOINT_HPP
 #define DMITIGR_NET_ENDPOINT_HPP
 
+#include "../assert.hpp"
 #include "../filesystem.hpp"
 
-#include <cassert>
 #include <optional>
 #include <string>
 #include <utility>
@@ -52,7 +52,7 @@ public:
     : wnp_pipe_name_{std::move(pipe_name)}
     , wnp_server_name_{std::move(server_name)}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 #else
   /**
@@ -61,7 +61,7 @@ public:
   explicit Endpoint(std::filesystem::path path)
     : uds_path_{std::move(path)}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 #endif
 
@@ -72,7 +72,7 @@ public:
     : net_address_{std::move(address)}
     , net_port_{port}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
