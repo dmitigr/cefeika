@@ -8,9 +8,9 @@
 #include "header.hpp"
 #include "syntax.hpp"
 #include "types_fwd.hpp"
+#include "../assert.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -27,14 +27,15 @@ public:
    * @brief The constructor.
    *
    * @par Requires
-   * `(is_valid_cookie_name(name_) && is_valid_cookie_value(value_))`.
+   * `(is_valid_cookie_name(name) && is_valid_cookie_value(value))`.
    */
   explicit Cookie_entry(std::string name, std::string value = {})
     : name_{std::move(name)}
     , value_{std::move(value)}
   {
-    assert(is_valid_cookie_name(name_) && is_valid_cookie_value(value_));
-    assert(is_invariant_ok());
+    DMITIGR_CHECK_ARG(is_valid_cookie_name(name_));
+    DMITIGR_CHECK_ARG(is_valid_cookie_value(value_));
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -53,7 +54,7 @@ public:
    */
   void set_name(std::string name)
   {
-    assert(is_valid_cookie_name(name));
+    DMITIGR_CHECK_ARG(is_valid_cookie_name(name));
     name_ = std::move(name);
   }
 
@@ -73,7 +74,7 @@ public:
    */
   void set_value(std::string value)
   {
-    assert(is_valid_cookie_value(value));
+    DMITIGR_CHECK_ARG(is_valid_cookie_value(value));
     value_ = std::move(value);
   }
 
@@ -121,17 +122,12 @@ public:
      * See also: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cookie
      */
 
-    if (input.empty()) {
-      assert(is_invariant_ok());
+    if (input.empty())
       return;
-    }
 
     enum { name, value, semicolon } state = name;
 
-    const auto append_invalid_entry = [&]()
-    {
-      entries_.emplace_back(Entry{});
-    };
+    const auto append_invalid_entry = [this]{ entries_.emplace_back(Entry{}); };
 
     append_invalid_entry();
     std::string* extracted = &entries_.back().name_; // extracting the name first
@@ -148,6 +144,7 @@ public:
 
       case value:
         if (c == ';') {
+          DMITIGR_ASSERT(entries_.back().is_invariant_ok()); // check the entry
           append_invalid_entry();
           extracted = &entries_.back().name_; // extracting the name now
           state = semicolon;
@@ -170,8 +167,6 @@ public:
 
     if (state != value)
       throw std::runtime_error{"dmitigr::http: invalid cookie string"};
-
-    assert(is_invariant_ok());
   }
 
   /// @see Header::to_header().
@@ -232,7 +227,7 @@ public:
   std::size_t entry_index_throw(const std::string_view name, const std::size_t offset = 0) const
   {
     const auto result = entry_index(name, offset);
-    assert(result);
+    DMITIGR_ASSERT(result);
     return *result;
   }
 
@@ -244,7 +239,7 @@ public:
    */
   const Entry& entry(const std::size_t index) const
   {
-    assert(index < entry_count());
+    DMITIGR_CHECK_RANGE(index < entry_count());
     return entries_[index];
   }
 
@@ -305,7 +300,6 @@ public:
   void append_entry(std::string name, std::string value)
   {
     entries_.emplace_back(std::move(name), std::move(value));
-    assert(is_invariant_ok());
   }
 
   /**
@@ -319,33 +313,26 @@ public:
    */
   void remove_entry(const std::size_t index)
   {
-    assert(index < entry_count());
+    DMITIGR_CHECK_RANGE(index < entry_count());
     entries_.erase(cbegin(entries_) + index);
-    assert(is_invariant_ok());
   }
 
   /**
    * @overload
    *
    * @par Effects
-   * `!has_parameter(name, offset)`.
+   * `!has_entry(name, offset)`.
    */
   void remove_entry(const std::string_view name, const std::size_t offset = 0)
   {
     if (const auto index = entry_index(name, offset))
       entries_.erase(cbegin(entries_) + *index);
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(!has_entry(name, offset));
   }
 
 private:
   std::vector<Entry> entries_;
-
-  bool is_invariant_ok() const
-  {
-    return std::all_of(cbegin(entries_), cend(entries_),
-      [](const auto& e) { return e.is_invariant_ok(); });
-  }
 };
 
 } // namespace dmitigr::http

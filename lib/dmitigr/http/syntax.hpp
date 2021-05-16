@@ -13,12 +13,12 @@ namespace dmitigr::http {
 
 namespace detail {
 
-inline bool is_ctl(const char c)
+constexpr bool is_ctl(const char c) noexcept
 {
   return (0 <= c && c <= 31) || (c == 127);
 }
 
-inline bool is_whitespace(const char c)
+constexpr bool is_whitespace(const char c) noexcept
 {
   return c == ' ' || c == '\t';
 }
@@ -31,12 +31,13 @@ namespace rfc6265 {
  * @returns `true` if `c` is a valid token character according to
  * https://tools.ietf.org/html/rfc6265#section-4.1.1, or `false` otherwise.
  */
-inline bool is_valid_token_character(const char c)
+inline bool is_valid_token_character(const char c) noexcept
 {
   constexpr char separators[] = {'(', ')', '<', '>', '@', ',', ';', ':', '\\', '"', '/', '[', ']', '?', '=', '{', '}', ' ', '\t'};
   static const std::locale l{"C"};
   return std::isalnum(c, l) || c == '_' || c == '-' ||
-    (!is_ctl(c) && std::none_of(std::cbegin(separators), std::cend(separators), [c](const char ch) { return c == ch; }));
+    (!is_ctl(c) && std::none_of(std::cbegin(separators),
+      std::cend(separators), [c](const char ch){return c == ch;}));
 }
 
 /**
@@ -45,12 +46,13 @@ inline bool is_valid_token_character(const char c)
  * @returns `true` if `c` is a valid cookie octet according to
  * https://tools.ietf.org/html/rfc6265#section-4.1.1, or `false` otherwise.
  */
-inline bool is_valid_cookie_octet(const char c)
+inline bool is_valid_cookie_octet(const char c) noexcept
 {
   constexpr char forbidden[] = {'"', ',', ';', '\\'};
   static const std::locale l{"C"};
   return std::isalnum(c, l) || (!is_ctl(c) && !is_whitespace(c) &&
-    std::none_of(std::cbegin(forbidden), std::cend(forbidden), [c](const char ch) { return c == ch;  }));
+    std::none_of(std::cbegin(forbidden), std::cend(forbidden),
+      [c](const char ch){return c == ch;}));
 }
 
 } // namespace rfc6265
@@ -63,10 +65,11 @@ inline bool is_valid_cookie_octet(const char c)
  * @returns `true` if the specified `name` is a valid cookie name, or
  * `false` otherwise.
  */
-inline bool is_valid_cookie_name(const std::string_view name)
+inline bool is_valid_cookie_name(const std::string_view name) noexcept
 {
   return !name.empty() &&
-    std::all_of(cbegin(name), cend(name), [](const char ch) { return detail::rfc6265::is_valid_token_character(ch); });
+    std::all_of(cbegin(name), cend(name),
+      [](const char ch){return detail::rfc6265::is_valid_token_character(ch);});
 }
 
 /**
@@ -75,9 +78,10 @@ inline bool is_valid_cookie_name(const std::string_view name)
  * @returns `true` if the specified `value` is a valid cookie value, or
  * `false` otherwise.
  */
-inline bool is_valid_cookie_value(const std::string_view value)
+inline bool is_valid_cookie_value(const std::string_view value) noexcept
 {
-  return std::all_of(cbegin(value), cend(value), [](const char ch) { return detail::rfc6265::is_valid_cookie_octet(ch); });
+  return std::all_of(cbegin(value), cend(value),
+    [](const char ch){return detail::rfc6265::is_valid_cookie_octet(ch);});
 }
 
 } // namespace dmitigr::http

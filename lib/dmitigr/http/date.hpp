@@ -8,7 +8,6 @@
 #include "header.hpp"
 #include "../dt/timestamp.hpp"
 
-#include <cassert>
 #include <string_view>
 
 namespace dmitigr::http {
@@ -43,9 +42,7 @@ public:
    */
   explicit Date(dt::Timestamp ts)
     : ts_{std::move(ts)}
-  {
-    assert(is_invariant_ok());
-  }
+  {}
 
   /// @see Header::to_header().
   std::unique_ptr<Header> to_header() const override
@@ -94,16 +91,10 @@ public:
   void set_timestamp(dt::Timestamp ts)
   {
     ts_ = std::move(ts);
-    assert(is_invariant_ok());
   }
 
 private:
   dt::Timestamp ts_;
-
-  constexpr bool is_invariant_ok() const noexcept
-  {
-    return true;
-  }
 };
 
 } // namespace dmitigr::http

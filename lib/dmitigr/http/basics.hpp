@@ -5,7 +5,6 @@
 #ifndef DMITIGR_HTTP_BASICS_HPP
 #define DMITIGR_HTTP_BASICS_HPP
 
-#include <cassert>
 #include <optional>
 #include <string_view>
 

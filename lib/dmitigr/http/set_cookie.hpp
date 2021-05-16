@@ -7,11 +7,11 @@
 
 #include "header.hpp"
 #include "syntax.hpp"
-#include "../dt/timestamp.hpp"
+#include "../assert.hpp"
 #include "../str.hpp"
+#include "../dt/timestamp.hpp"
 #include "../net/util.hpp"
 
-#include <cassert>
 #include <locale>
 #include <optional>
 #include <stdexcept>
@@ -63,13 +63,13 @@ public:
       return !detail::is_ctl(c) && c != ';';
     };
 
-    const auto store_name = [&](std::string& str)
+    const auto store_name = [this](std::string& str)
     {
       name_ = std::move(str);
       str = {};
     };
 
-    const auto store_value = [&](std::string& str)
+    const auto store_value = [this](std::string& str)
     {
       value_ = std::move(str);
       str = {};
@@ -87,19 +87,19 @@ public:
         throw std::runtime_error{"dmitigr::http: invalid attribute name"};
       str = {};
     };
-    const auto set_attr_type = [&](std::string& str)
+    const auto set_attr_type = [&attr_type](std::string& str)
     {
       str::lowercase(str);
       attr_type = std::move(str);
       str = {};
     };
 
-    const auto store_attr_value = [&](std::string& str)
+    const auto store_attr_value = [this, &attr_type](std::string& str)
     {
       if (str.empty())
         throw std::runtime_error{"dmitigr::http: empty values of attribute are not allowed"};
 
-      assert(attr_type != "secure" && attr_type != "httponly");
+      DMITIGR_ASSERT(attr_type != "secure" && attr_type != "httponly");
       if (attr_type == "expires") {
         expires_ = dt::Timestamp::from_rfc7231(str);
       } else if (attr_type == "max-age") {
@@ -230,11 +230,17 @@ public:
     case attr_value:
       store_attr_value(extracted);
       break;
-    default:
+    case name:
+      [[fallthrough]];
+    case before_value:
+      [[fallthrough]];
+    case value_quoted:
+      [[fallthrough]];
+    case semicolon:
       throw std::runtime_error{"dmitigr::http: invalid input (set-cookie-string)"};
     }
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -247,22 +253,24 @@ public:
     : name_{std::move(name)}
     , value_{std::move(value)}
   {
-    assert(is_valid_cookie_name(name_) && is_valid_cookie_value(value_));
-    assert(is_invariant_ok());
+    DMITIGR_CHECK_ARG(is_valid_cookie_name(name_));
+    DMITIGR_CHECK_ARG(is_valid_cookie_value(value_));
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @brief Swaps this instance with `other`.
-  void swap(Set_cookie& other)
+  void swap(Set_cookie& other) noexcept
   {
-    name_.swap(other.name_);
-    value_.swap(other.value_);
-    expires_.swap(other.expires_);
-    max_age_.swap(other.max_age_);
-    domain_.swap(other.domain_);
-    path_.swap(other.path_);
-    std::swap(is_secure_, other.is_secure_);
-    std::swap(is_http_only_, other.is_http_only_);
-    same_site_.swap(other.same_site_);
+    using std::swap;
+    swap(name_, other.name_);
+    swap(value_, other.value_);
+    swap(expires_, other.expires_);
+    swap(max_age_, other.max_age_);
+    swap(domain_, other.domain_);
+    swap(path_, other.path_);
+    swap(is_secure_, other.is_secure_);
+    swap(is_http_only_, other.is_http_only_);
+    swap(same_site_, other.same_site_);
   }
 
   /// @see Header::to_header().
@@ -320,10 +328,10 @@ public:
    */
   void set_name(std::string name)
   {
-    assert(is_valid_cookie_name(name));
+    DMITIGR_CHECK_ARG(is_valid_cookie_name(name));
     check_consistency(name, is_secure_, domain_, path_);
     name_ = std::move(name);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -346,9 +354,9 @@ public:
    */
   void set_value(std::string value)
   {
-    assert(is_valid_cookie_value(value));
+    DMITIGR_CHECK_ARG(is_valid_cookie_value(value));
     value_ = std::move(value);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -365,8 +373,7 @@ public:
   void set_expires(std::optional<dt::Timestamp> ts)
   {
     expires_ = std::move(ts);
-
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -377,8 +384,7 @@ public:
   void set_expires(const std::string_view input)
   {
     expires_ = dt::Timestamp::from_rfc7231(input);
-
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The value of "MaxAge" attribute of cookie.
@@ -391,8 +397,7 @@ public:
   void set_max_age(std::optional<int> ma)
   {
     max_age_ = ma;
-
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The value of "Domain" attribute of cookie.
@@ -406,7 +411,7 @@ public:
   {
     check_consistency(name_, is_secure_, domain, path_);
     domain_ = std::move(domain);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The value of "Path" attribute of cookie.
@@ -420,7 +425,7 @@ public:
   {
     check_consistency(name_, is_secure_, domain_, path);
     path_ = std::move(path);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns `true` if the "Secure" attribute is presents in cookie.
@@ -434,7 +439,7 @@ public:
   {
     check_consistency(name_, secure, domain_, path_);
     is_secure_ = secure;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns `true` if the "HttpOnly" attribute is presents in cookie.
@@ -447,7 +452,7 @@ public:
   void set_http_only(const bool http_only)
   {
     is_http_only_ = http_only;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The value of "SameSite" attribute of cookie.
@@ -460,7 +465,7 @@ public:
   void set_same_site(std::optional<Same_site> same_site)
   {
     same_site_ = std::move(same_site);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
 private:

@@ -7,14 +7,12 @@
 
 #include "basics.hpp"
 #include "types_fwd.hpp"
+#include "../assert.hpp"
 #include "../str.hpp"
 #include "../net/descriptor.hpp"
 
-//#include <iostream>
-
 #include <algorithm>
 #include <array>
-#include <cassert>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -100,7 +98,7 @@ public:
    */
   void send_header(const std::string_view name, const std::string_view value, const bool is_last = false)
   {
-    assert(!is_closed() && is_start_sent() && !is_headers_sent());
+    DMITIGR_CHECK(!is_closed() && is_start_sent() && !is_headers_sent());
     std::string whole;
     whole.reserve(name.size() + 2 + value.size() + 2 + (is_last ? 2 : 0));
     if (name.size() == 14) { // for Content-Length only
@@ -123,7 +121,7 @@ public:
       whole.append("\r\n");
     send__(whole, "dmitigr::http: unable to send header");
     is_headers_sent_ = is_last;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// Alternative of `send_header(name, value, true)`.
@@ -153,10 +151,10 @@ public:
    */
   void send_content(const std::string_view data)
   {
-    assert(!is_closed() && is_headers_sent() && data.size() <= static_cast<std::uintmax_t>(unsent_content_length()));
+    DMITIGR_CHECK(!is_closed() && is_headers_sent() && data.size() <= static_cast<std::uintmax_t>(unsent_content_length()));
     send__(data, "dmitigr::http: unable to send content");
     unsent_content_length_ -= data.size();
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -165,7 +163,7 @@ public:
    */
   void receive_head()
   {
-    assert(!is_closed() && !is_head_received() &&
+    DMITIGR_CHECK(!is_closed() && !is_head_received() &&
       ((is_server() && !is_start_sent()) ||
        (!is_server() && is_headers_sent() && !unsent_content_length())));
 
@@ -200,7 +198,7 @@ public:
           return -1;
 
         // path
-        assert(head_[hpos] == ' ');
+        DMITIGR_ASSERT(head_[hpos] == ' ');
         for (hpos++; hpos < head_size_ && head_[hpos] != ' '; hpos++);
 
         if (hpos >= head_size_)
@@ -211,7 +209,7 @@ public:
           return -1;
 
         // http version
-        assert(head_[hpos] == ' ');
+        DMITIGR_ASSERT(head_[hpos] == ' ');
         for (hpos++; hpos < head_size_ && head_[hpos] != '\r'; hpos++);
 
         if (hpos + 1 >= head_size_)
@@ -233,7 +231,7 @@ public:
           return -1;
 
         // http status code
-        assert(head_[hpos] == ' ');
+        DMITIGR_ASSERT(head_[hpos] == ' ');
         for (hpos++; hpos < head_size_ && head_[hpos] != ' '; hpos++);
 
         if (hpos >= head_size_)
@@ -244,7 +242,7 @@ public:
           return -1;
 
         // http status phrase
-        assert(head_[hpos] == ' ');
+        DMITIGR_ASSERT(head_[hpos] == ' ');
         for (hpos++; hpos < head_size_ && head_[hpos] != '\r'; hpos++);
 
         if (hpos + 1 >= head_size_)
@@ -386,7 +384,7 @@ public:
 
     unreceived_content_length_ = content_length();
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns `true` if start line and headers are received, or `false` otherwise.
@@ -428,7 +426,7 @@ public:
    */
   unsigned receive_content(char* buf, unsigned size)
   {
-    assert(is_head_received() && unreceived_content_length() > 0);
+    DMITIGR_CHECK(is_head_received() && unreceived_content_length() > 0);
 
     const unsigned head_content_size = head_size_ - head_content_offset_;
     if (head_content_size) {
@@ -445,14 +443,14 @@ public:
         } else {
           size -= head_content_size;
           buf += head_content_size;
-          assert(head_content_offset_ == head_size_);
+          DMITIGR_ASSERT(head_content_offset_ == head_size_);
         }
       }
     }
 
     const auto result = recv__(buf, std::min(static_cast<std::intmax_t>(size), unreceived_content_length_));
     unreceived_content_length_ -= result;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
     return head_content_size + result;
   }
 
@@ -479,8 +477,8 @@ public:
       if (n < bufsize)
         break;
     }
-    assert(!unreceived_content_length());
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(!unreceived_content_length());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// Closes the connection.
@@ -488,7 +486,7 @@ public:
   {
     io_->close();
     io_.reset();
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns `true` if connection is closed, or `false` otherwise.
@@ -505,7 +503,7 @@ public:
    */
   auto native_handle() const
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     return io_->native_handle();
   }
 
@@ -515,13 +513,13 @@ protected:
   explicit Connection(std::unique_ptr<net::Descriptor>&& io)
     : io_{std::move(io)}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   void init(std::unique_ptr<net::Descriptor>&& io)
   {
     io_ = std::move(io);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   Connection(const Connection&) = delete;
@@ -531,8 +529,8 @@ protected:
 
   void send__(const std::string_view data, const char* const errmsg)
   {
-    assert(!is_closed());
-    assert(errmsg);
+    DMITIGR_ASSERT(!is_closed());
+    DMITIGR_ASSERT(errmsg);
     const auto data_size = static_cast<std::streamsize>(data.size());
     const auto n = io_->write(data.data(), data_size);
     if (n != data_size)
@@ -541,13 +539,13 @@ protected:
 
   std::streamsize recv__(char* const buf, const std::streamsize size)
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     return io_->read(buf, size);
   }
 
   void send_start__(const std::string_view line)
   {
-    assert(!is_closed() && !is_start_sent());
+    DMITIGR_ASSERT(!is_closed() && !is_start_sent());
     send__(line, "dmitigr::http: unable to send start line");
     is_start_sent_ = true;
   }

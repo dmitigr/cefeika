@@ -7,6 +7,7 @@
 
 #include "connection.hpp"
 #include "types_fwd.hpp"
+#include "../assert.hpp"
 #include "../net/client.hpp"
 
 namespace dmitigr::http {
@@ -49,9 +50,9 @@ public:
    */
   void send_start(const Method method, const std::string_view path, const bool skip_headers = false)
   {
-    assert(!is_head_received());
+    DMITIGR_CHECK(!is_head_received());
     const auto m{to_string_view(method)};
-    assert(!m.empty());
+    DMITIGR_ASSERT(!m.empty());
     std::string line;
     line.reserve(7 + 1 + path.size() + 11);
     line.append(m).append(" ").append(path).append(" HTTP/1.0\r\n");
