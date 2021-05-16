@@ -5,9 +5,8 @@
 #ifndef DMITIGR_DT_TIMESTAMP_HPP
 #define DMITIGR_DT_TIMESTAMP_HPP
 
+#include "../assert.hpp"
 #include "basics.hpp"
-
-#include <cassert>
 
 namespace dmitigr::dt {
 
@@ -42,7 +41,7 @@ public:
 
     static const auto process_integer = [](int& dest, const std::string& extracted, const char* const error_message)
     {
-      assert(error_message);
+      DMITIGR_ASSERT(error_message);
       std::size_t pos{};
       dest = std::stoi(extracted, &pos);
       if (pos != extracted.size())
@@ -120,7 +119,7 @@ public:
         throw std::runtime_error{"dmitigr::dt: RFC 7231 invalid timezone"};
     }
 
-    assert(result.is_invariant_ok());
+    DMITIGR_ASSERT(result.is_invariant_ok());
 
     return result;
   }
@@ -169,13 +168,13 @@ public:
    * @par Requires
    * `is_date_acceptable(year, month, day)`.
    */
-  void set_date(const int year, const Month month, const int day) noexcept
+  void set_date(const int year, const Month month, const int day)
   {
-    assert(dt::is_date_acceptable(year, month, day));
+    DMITIGR_CHECK_ARG(dt::is_date_acceptable(year, month, day));
     year_ = year;
     month_ = month;
     day_ = day;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -184,17 +183,16 @@ public:
    * @par Requires
    * `(day_of_epoch > 0)`.
    */
-  void set_date(int day_of_epoch) noexcept
+  void set_date(int day_of_epoch)
   {
-    assert(day_of_epoch > 0);
-
+    DMITIGR_CHECK_ARG(day_of_epoch > 0);
     int y = 1583;
     for (int dc = day_count(y); day_of_epoch > dc; dc = day_count(y)) {
       day_of_epoch -= dc;
       ++y;
     }
 
-    assert(day_of_epoch <= day_count(y));
+    DMITIGR_ASSERT(day_of_epoch <= day_count(y));
 
     int m = static_cast<int>(Month::jan);
     for (int dc = day_count(y, static_cast<Month>(m)); day_of_epoch > dc; dc = day_count(y, static_cast<Month>(m))) {
@@ -202,8 +200,8 @@ public:
       ++m;
     }
 
-    assert(static_cast<int>(Month::jan) <= m && m <= static_cast<int>(Month::dec));
-    assert(day_of_epoch > 0);
+    DMITIGR_ASSERT(static_cast<int>(Month::jan) <= m && m <= static_cast<int>(Month::dec));
+    DMITIGR_ASSERT(day_of_epoch > 0);
 
     set_date(y, static_cast<Month>(m), day_of_epoch);
   }
@@ -220,11 +218,11 @@ public:
    * @par Requires
    * `(0 <= hour && hour <= 59)`.
    */
-  void set_hour(const int hour) noexcept
+  void set_hour(const int hour)
   {
-    assert(0 <= hour && hour <= 23);
+    DMITIGR_CHECK_RANGE(0 <= hour && hour <= 23);
     hour_ = hour;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The minute.
@@ -239,11 +237,11 @@ public:
    * @par Requires
    * `(0 <= minute && minute <= 59)`.
    */
-  void set_minute(const int minute) noexcept
+  void set_minute(const int minute)
   {
-    assert(0 <= minute && minute <= 59);
+    DMITIGR_CHECK_RANGE(0 <= minute && minute <= 59);
     minute_ = minute;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The second.
@@ -258,11 +256,11 @@ public:
    * @par Requires
    * `(0 <= second && second <= 59)`.
    */
-  void set_second(const int second) noexcept
+  void set_second(const int second)
   {
-    assert(0 <= second && second <= 59);
+    DMITIGR_CHECK_RANGE(0 <= second && second <= 59);
     second_ = second;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -271,13 +269,15 @@ public:
    * @par Requires
    * `(0 <= hour && hour <= 59) && (0 <= minute && minute <= 59) && (0 <= second && second <= 59)`.
    */
-  void set_time(const int hour, const int minute, const int second) noexcept
+  void set_time(const int hour, const int minute, const int second)
   {
-    assert((0 <= hour && hour <= 59) && (0 <= minute && minute <= 59) && (0 <= second && second <= 59));
+    DMITIGR_CHECK_RANGE(0 <= hour && hour <= 59);
+    DMITIGR_CHECK_RANGE(0 <= minute && minute <= 59);
+    DMITIGR_CHECK_RANGE(0 <= second && second <= 59);
     hour_ = hour;
     minute_ = minute;
     second_ = second;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @name Conversions

@@ -5,7 +5,8 @@
 #ifndef DMITIGR_DT_BASICS_HPP
 #define DMITIGR_DT_BASICS_HPP
 
-#include <cassert>
+#include "../assert.hpp"
+
 #include <string>
 #include <stdexcept>
 
@@ -23,9 +24,9 @@ enum class Month { jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec };
  * @par Requires
  * `(year >= 1583)`.
  */
-inline int day_count(const int year) noexcept
+inline int day_count(const int year)
 {
-  assert(year >= 1583);
+  DMITIGR_CHECK_ARG(year >= 1583);
   return ((year % 100) != 0 && (year % 4) == 0) || (year % 400 == 0) ? 366 : 365;
 }
 
@@ -48,7 +49,7 @@ inline bool is_leap_year(const int year) noexcept
  */
 inline int day_count(const int year, const Month month)
 {
-  assert(year >= 1583);
+  DMITIGR_CHECK_ARG(year >= 1583);
   switch (month) {
   case Month::jan: return 31;
   case Month::feb: return is_leap_year(year) ? 29 : 28;
@@ -63,8 +64,7 @@ inline int day_count(const int year, const Month month)
   case Month::nov: return 30;
   case Month::dec: return 31;
   };
-  assert(false);
-  std::terminate();
+  DMITIGR_ASSERT(false);
 }
 
 /**
@@ -108,9 +108,9 @@ inline Day_of_week to_day_of_week(const std::string_view str)
  * @par Requires
  * `is_date_acceptable(year, month, day)`.
  */
-inline Day_of_week day_of_week(const int year, const Month month, const int day) noexcept
+inline Day_of_week day_of_week(const int year, const Month month, const int day)
 {
-  assert(is_date_acceptable(year, month, day));
+  DMITIGR_CHECK_ARG(is_date_acceptable(year, month, day));
   const auto month1 = static_cast<int>(month) + 1;
   const int a = (14 - month1) / 12;
   const int y = year - a;
@@ -127,9 +127,9 @@ inline Day_of_week day_of_week(const int year, const Month month, const int day)
  *
  * @remarks Days starts at 1.
  */
-inline int day_of_year(const int year, const Month month, int day) noexcept
+inline int day_of_year(const int year, const Month month, int day)
 {
-  assert(is_date_acceptable(year, month, day));
+  DMITIGR_CHECK_ARG(is_date_acceptable(year, month, day));
   for (auto m = static_cast<int>(month) - 1; m >= 0; --m)
     day += day_count(year, static_cast<Month>(m));
   return day; // 1-based
@@ -143,9 +143,9 @@ inline int day_of_year(const int year, const Month month, int day) noexcept
  *
  * @remarks Epoch starts at Jan 1 1583. Days starts at 1.
  */
-inline int day_of_epoch(const int year, const Month month, const int day) noexcept
+inline int day_of_epoch(const int year, const Month month, const int day)
 {
-  assert(is_date_acceptable(year, month, day));
+  DMITIGR_CHECK_ARG(is_date_acceptable(year, month, day));
   int result{};
   for (int y = 1583; y < year; ++y)
     result += day_count(y);
@@ -165,8 +165,7 @@ inline std::string to_string(const Day_of_week dw)
   case Day_of_week::sat: return "Sat";
   case Day_of_week::sun: return "Sun";
   }
-  assert(false);
-  std::terminate();
+  DMITIGR_ASSERT(false);
 }
 
 /**
@@ -221,8 +220,7 @@ inline std::string to_string(const Month month)
   case Month::nov: return "Nov";
   case Month::dec: return "Dec";
   }
-  assert(false);
-  std::terminate();
+  DMITIGR_ASSERT(false);
 }
 
 } // namespace dmitigr::dt
