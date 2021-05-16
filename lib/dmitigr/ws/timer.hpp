@@ -49,8 +49,8 @@ public:
    * invokes first after `timeout` and then repeatedly after the specified value.
    *
    * @par Requires
-   * `((0 < timeout && timeout < 2147483648) &&
-   *   (0 <= repeat && repeat < 2147483648))`.
+   * `((0 < timeout && timeout < INT_MAX) &&
+   *   (0 <= repeat && repeat < INT_MAX))`.
    *
    * @see stop(), is_active().
    */

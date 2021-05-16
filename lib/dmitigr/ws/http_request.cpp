@@ -4,8 +4,7 @@
 
 #include "http_request.hpp"
 #include "uwebsockets.hpp"
-
-#include <cassert>
+#include "../assert.hpp"
 
 namespace dmitigr::ws::detail {
 
@@ -19,7 +18,7 @@ public:
     , remote_ip_{net::Ip_address::from_binary(remote_ip_address_binary)}
     , local_ip_{net::Ip_address::from_binary(local_ip_address_binary)}
   {
-    assert(rep_);
+    DMITIGR_ASSERT(rep_);
   }
 
   const net::Ip_address& remote_ip_address() const override

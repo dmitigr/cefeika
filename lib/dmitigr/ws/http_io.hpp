@@ -122,7 +122,7 @@ public:
    *   to send more data.
    *
    * @par Requires
-   * `(is_valid() && ((total_size == 0) || (data.size() <= total_size)))`.
+   * `is_valid()`.
    *
    * @par Effects
    * If the response handler is not set, then `(is_valid() == false)` after
@@ -175,7 +175,7 @@ public:
    * @brief Sets the abort handler.
    *
    * @par Requires
-   * `(is_valid() && !is_abort_handler_set()) && handler`.
+   * `(is_valid() && !is_abort_handler_set() && handler)`.
    *
    * @see Abort_handler.
    */

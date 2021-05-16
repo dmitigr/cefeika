@@ -10,9 +10,9 @@
 #include "timer.hpp"
 #include "util.hpp"
 #include "uwebsockets.hpp"
+#include "../assert.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <limits>
 #include <vector>
 #include <utility>
@@ -59,7 +59,7 @@ public:
     , loop_{uWS::Loop::get()}
   {
     options_ = options.to_listener_options();
-    assert(listener_ && loop_ && options_);
+    DMITIGR_ASSERT(listener_ && loop_ && options_);
   }
 
   const Options& options() const override
@@ -74,7 +74,7 @@ public:
 
   void listen() override
   {
-    assert(!is_listening());
+    DMITIGR_CHECK(!is_listening());
 
     using App = uWS::TemplatedApp<IsSsl>;
 
@@ -156,7 +156,7 @@ public:
         std::clog << "dmitigr::ws: .open emitted" << std::endl;
 #endif
         auto* const data = ws->getUserData();
-        assert(data);
+        DMITIGR_ASSERT(data);
         if (data->conn) {
           data->conn->rep_ = std::make_unique<Conn<IsSsl>>(ws);
           connections_.emplace_back(static_cast<Conn<IsSsl>*>(data->conn->rep_.get()));
@@ -167,7 +167,8 @@ public:
       result.message = [](auto* const ws, const std::string_view message, const uWS::OpCode oc)
       {
         auto* const data = ws->getUserData();
-        assert(data && data->conn);
+        DMITIGR_ASSERT(data);
+        DMITIGR_ASSERT(data->conn);
         const auto message_format = (oc == uWS::OpCode::TEXT) ? Data_format::text : Data_format::binary;
         data->conn->handle_message(message, message_format);
       };
@@ -178,7 +179,8 @@ public:
         std::clog << "dmitigr::ws: .drain emitted. Buffered amount is " << ws->getBufferedAmount() << std::endl;
 #endif
         auto* const data = ws->getUserData();
-        assert(data && data->conn);
+        DMITIGR_ASSERT(data);
+        DMITIGR_ASSERT(data->conn);
         data->conn->handle_drain();
       };
 
@@ -202,7 +204,7 @@ public:
         std::clog << "dmitigr::ws: .close emitted" << std::endl;
 #endif
         auto* const data = ws->getUserData();
-        assert(data);
+        DMITIGR_ASSERT(data);
         /*
          * If connection is closed from .open or .upgrade,
          * then (data->conn == nullptr) in such a case.
@@ -214,7 +216,7 @@ public:
             const auto b = cbegin(connections_);
             const auto e = cend(connections_);
             const auto i = std::find_if(b, e, [conn](const auto p) { return p == conn; });
-            assert(i != e);
+            DMITIGR_ASSERT(i != e);
             connections_.erase(i);
           }
           {
@@ -223,7 +225,7 @@ public:
           }
           data->conn.reset();
         }
-        assert(!data->conn);
+        DMITIGR_ASSERT(!data->conn);
       };
 
       return result;
@@ -241,7 +243,7 @@ public:
     {
       uWS::SocketContextOptions socket_options{};
       if (options().is_ssl_enabled()) {
-        assert(IsSsl);
+        DMITIGR_ASSERT(IsSsl);
         if (const auto& value = options().ssl_private_key_file()) {
           ssl_private_key_file = value->string();
           socket_options.key_file_name = ssl_private_key_file.c_str();
@@ -291,7 +293,7 @@ public:
     loop_->defer([this]
     {
       if (is_listening()) {
-        assert(listening_socket_);
+        DMITIGR_ASSERT(listening_socket_);
         us_listen_socket_close(IsSsl, listening_socket_);
         listening_socket_ = nullptr;
       }
@@ -311,7 +313,7 @@ public:
         } guard{*this};
 
         for (auto* const conn : connections_) {
-          assert(conn);
+          DMITIGR_ASSERT(conn);
           conn->close(code, reason);
         }
         connections_.clear();
@@ -329,7 +331,7 @@ public:
     loop_->defer([this, callback = std::move(callback)]
     {
       for (auto* const conn : connections_) {
-        assert(conn);
+        DMITIGR_ASSERT(conn);
         callback(conn->connection());
       }
     });
@@ -350,8 +352,8 @@ public:
 
   iTimer& add_timer(std::string name) override
   {
-    assert(loop_);
-    assert(!timer(name));
+    DMITIGR_ASSERT(loop_);
+    DMITIGR_CHECK_ARG(!timer(name));
     return timers_.emplace_back(std::move(name), reinterpret_cast<us_loop_t*>(loop_)).second;
   }
 
@@ -372,13 +374,13 @@ public:
 
   iTimer& timer(const std::size_t pos) const override
   {
-    assert(pos < timer_count());
+    DMITIGR_CHECK_RANGE(pos < timer_count());
     return timers_[pos].second;
   }
 
   const std::string& timer_name(const std::size_t pos) const override
   {
-    assert(pos < timer_count());
+    DMITIGR_CHECK_RANGE(pos < timer_count());
     return timers_[pos].first;
   }
 
@@ -414,7 +416,7 @@ DMITIGR_WS_INLINE Listener::Listener(const Options& options)
 #endif
     rep_ = std::make_unique<detail::Non_ssl_listener>(this, options);
 
-  assert(rep_);
+  DMITIGR_ASSERT(rep_);
 }
 
 DMITIGR_WS_INLINE auto Listener::options() const -> const Options&

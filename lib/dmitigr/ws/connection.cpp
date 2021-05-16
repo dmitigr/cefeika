@@ -6,9 +6,8 @@
 #include "connection.hpp"
 #include "util.hpp"
 #include "uwebsockets.hpp"
+#include "../assert.hpp"
 #include "../net/net.hpp"
-
-#include <cassert>
 
 namespace dmitigr::ws::detail {
 
@@ -42,65 +41,65 @@ public:
   explicit Conn(Underlying_type* const ws)
     : ws_{ws}
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
   }
 
   Connection* connection() const override
   {
     auto* const data = ws_->getUserData();
-    assert(data);
+    DMITIGR_ASSERT(data);
     return data->conn.get();
   }
 
   std::string remote_ip_address() const override
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     const auto ip = net::Ip_address::from_binary(ws_->getRemoteAddress());
     return ip.to_string();
   }
 
   std::string local_ip_address() const override
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     const auto ip = net::Ip_address::from_binary(detail::local_address(is_ssl(), reinterpret_cast<us_socket_t*>(ws_)));
     return ip.to_string();
   }
 
   std::size_t buffered_amount() const override
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     return ws_->getBufferedAmount();
   }
 
   bool send(const std::string_view data, const Data_format format) override
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     return ws_->send(data, (format == Data_format::text) ? uWS::OpCode::TEXT : uWS::OpCode::BINARY);
   }
 
   void close(const int code, const std::string_view reason) override
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     ws_->end(code, reason);
     ws_ = nullptr;
   }
 
   void abort() override
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     ws_->close();
     ws_ = nullptr;
   }
 
   bool is_closed() const override
   {
-    assert(ws_);
+    DMITIGR_ASSERT(ws_);
     return us_socket_is_closed(is_ssl(), reinterpret_cast<us_socket_t*>(ws_));
   }
 
   void event_loop_call_soon(std::function<void()> callback) override
   {
-    assert(!is_closed());
+    DMITIGR_ASSERT(!is_closed());
     auto* const uss = reinterpret_cast<us_socket_t*>(ws_);
     us_socket_context_t* const uss_ctx = us_socket_context(is_ssl(), uss);
     us_loop_t* const uss_loop = us_socket_context_loop(is_ssl(), uss_ctx);
@@ -141,25 +140,25 @@ DMITIGR_WS_INLINE bool Connection::is_connected() const
 
 DMITIGR_WS_INLINE std::string Connection::remote_ip_address() const
 {
-  assert(is_connected());
+  DMITIGR_CHECK(is_connected());
   return rep_->remote_ip_address();
 }
 
 DMITIGR_WS_INLINE std::string Connection::local_ip_address() const
 {
-  assert(is_connected());
+  DMITIGR_CHECK(is_connected());
   return rep_->local_ip_address();
 }
 
 DMITIGR_WS_INLINE std::size_t Connection::buffered_amount() const
 {
-  assert(is_connected());
+  DMITIGR_CHECK(is_connected());
   return rep_->buffered_amount();
 }
 
 DMITIGR_WS_INLINE void Connection::send(const std::string_view data, const Data_format format)
 {
-  assert(is_connected());
+  DMITIGR_CHECK(is_connected());
   rep_->send(data, format);
 }
 
@@ -177,14 +176,14 @@ DMITIGR_WS_INLINE void Connection::close(const int code, const std::string_view 
 {
   if (is_connected())
     rep_->close(code, reason);
-  assert(!is_connected());
+  DMITIGR_ASSERT(!is_connected());
 }
 
 DMITIGR_WS_INLINE void Connection::abort()
 {
   if (is_connected())
     rep_->abort();
-  assert(!is_connected());
+  DMITIGR_ASSERT(!is_connected());
 }
 
 } // namespace dmitigr::ws

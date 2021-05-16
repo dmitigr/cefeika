@@ -4,9 +4,9 @@
 
 #include "basics.hpp"
 #include "listener_options.hpp"
+#include "../assert.hpp"
 #include "../net/listener.hpp"
 
-#include <cassert>
 #include <limits>
 #include <stdexcept>
 
@@ -28,7 +28,7 @@ public:
   iListener_options(std::string address, const int port, const int backlog)
     : net_options_{std::move(address), port, backlog}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const net::Endpoint& endpoint() const
@@ -41,7 +41,7 @@ public:
     if (value)
       validate(value->count() >= 0, "connect timeout");
     idle_timeout_ = std::move(value);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   std::optional<std::chrono::milliseconds> idle_timeout() const
@@ -53,7 +53,7 @@ public:
   {
     validate(value <= std::numeric_limits<int>::max(), "max payload size");
     max_payload_size_ = value;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   std::size_t max_payload_size() const
@@ -65,7 +65,7 @@ public:
   {
     validate(value <= std::numeric_limits<int>::max(), "max buffered amount");
     max_buffered_amount_ = value;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   std::size_t max_buffered_amount() const
@@ -91,7 +91,7 @@ public:
         "DMITIGR_CEFEIKA_OPENSSL in order to enable SSL"};
 #endif
     is_ssl_enabled_ = value;
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   bool is_ssl_enabled() const
@@ -101,11 +101,11 @@ public:
 
   void set_ssl_pem_file_password(std::optional<std::string> value)
   {
-    assert(is_ssl_enabled());
+    DMITIGR_CHECK(is_ssl_enabled());
     if (value)
       validate(!value->empty(), "SSL PEM file password");
     ssl_pem_file_password_ = std::move(value);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const std::optional<std::string>& ssl_pem_file_password() const
@@ -115,11 +115,11 @@ public:
 
   void set_ssl_certificate_file(std::optional<std::filesystem::path> value)
   {
-    assert(is_ssl_enabled());
+    DMITIGR_CHECK(is_ssl_enabled());
     if (value)
       validate(!value->empty(), "SSL certificate file");
     ssl_certificate_file_ = std::move(value);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const std::optional<std::filesystem::path>& ssl_certificate_file() const
@@ -129,11 +129,11 @@ public:
 
   void set_ssl_private_key_file(std::optional<std::filesystem::path> value)
   {
-    assert(is_ssl_enabled());
+    DMITIGR_CHECK(is_ssl_enabled());
     if (value)
       validate(!value->empty(), "SSL private key file");
     ssl_private_key_file_ = std::move(value);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const std::optional<std::filesystem::path>& ssl_private_key_file() const
@@ -143,11 +143,11 @@ public:
 
   void set_ssl_certificate_authority_file(std::optional<std::filesystem::path> value)
   {
-    assert(is_ssl_enabled());
+    DMITIGR_CHECK(is_ssl_enabled());
     if (value)
       validate(!value->empty(), "SSL certificate authority file");
     ssl_certificate_authority_file_ = std::move(value);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const std::optional<std::filesystem::path>& ssl_certificate_authority_file() const
@@ -157,11 +157,11 @@ public:
 
   void set_ssl_dh_parameters_file(std::optional<std::filesystem::path> value)
   {
-    assert(is_ssl_enabled());
+    DMITIGR_CHECK(is_ssl_enabled());
     if (value)
       validate(!value->empty(), "SSL Diffie-Hellman parameters file");
     ssl_dh_parameters_file_ = std::move(value);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   const std::optional<std::filesystem::path>& ssl_dh_parameters_file() const
@@ -212,20 +212,20 @@ DMITIGR_WS_INLINE Listener_options::~Listener_options() = default;
 DMITIGR_WS_INLINE Listener_options::Listener_options(std::string address, const int port)
   : rep_{std::make_unique<detail::iListener_options>(std::move(address), port, /*FIXME: backlog*/ 512)}
 {
-  assert(rep_ && rep_->is_invariant_ok());
+  DMITIGR_ASSERT(rep_ && rep_->is_invariant_ok());
 }
 
 DMITIGR_WS_INLINE Listener_options::Listener_options(const Listener_options& rhs)
   : rep_{std::make_unique<detail::iListener_options>(*rhs.rep_)}
 {
-  assert(rep_ && rep_->is_invariant_ok());
+  DMITIGR_ASSERT(rep_ && rep_->is_invariant_ok());
 }
 
 DMITIGR_WS_INLINE Listener_options& Listener_options::operator=(const Listener_options& rhs)
 {
   Listener_options rhs_copy{rhs};
   swap(rhs_copy);
-  assert(rep_ && rep_->is_invariant_ok());
+  DMITIGR_ASSERT(rep_ && rep_->is_invariant_ok());
   return *this;
 }
 

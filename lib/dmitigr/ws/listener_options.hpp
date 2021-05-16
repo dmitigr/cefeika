@@ -145,7 +145,7 @@ public:
    * @brief Sets the password for encrypted PEM file.
    *
    * @par Requires
-   * `(!value || !value->empty())`.
+   * `(is_ssl_enabled() && (!value || !value->empty()))`.
    *
    * @see ssl_pem_file_password().
    */

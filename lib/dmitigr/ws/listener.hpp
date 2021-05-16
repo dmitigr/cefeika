@@ -102,6 +102,9 @@ public:
    * @brief Creates the timer associated with the specified `name`.
    *
    * @returns The reference to the created timer.
+   *
+   * @par Requires
+   * `!timer(name)`.
    */
   DMITIGR_WS_API Timer& add_timer(std::string name);
 

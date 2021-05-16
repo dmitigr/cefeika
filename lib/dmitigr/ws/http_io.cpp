@@ -5,8 +5,8 @@
 #include "http_io.hpp"
 #include "util.hpp"
 #include "uwebsockets.hpp"
+#include "../assert.hpp"
 
-#include <cassert>
 #include <string>
 
 namespace dmitigr::ws::detail {
@@ -24,7 +24,7 @@ public:
   explicit iHttp_io_templ(uWS::HttpResponse<IsSsl>* const rep)
     : rep_{rep}
   {
-    assert(rep_);
+    DMITIGR_ASSERT(rep_);
   }
 
   bool is_valid() const override
@@ -39,29 +39,31 @@ public:
 
   void end_handshake() override
   {
-    assert(is_valid() && connection());
+    DMITIGR_CHECK(is_valid());
+    DMITIGR_CHECK(connection());
     rep_->upgrade(std::move(ws_data_), sec_ws_key_, sec_ws_protocol_, sec_ws_extensions_, ctx_);
     rep_ = nullptr;
     sec_ws_key_ = sec_ws_protocol_ = sec_ws_extensions_ = {};
     ctx_ = nullptr;
-    assert(!is_valid() && !connection());
+    DMITIGR_ASSERT(!is_valid());
+    DMITIGR_ASSERT(!connection());
   }
 
   void send_status(const int code, const std::string_view phrase) override
   {
-    assert(is_valid());
+    DMITIGR_CHECK(is_valid());
     rep_->writeStatus(std::to_string(code).append(" ").append(phrase));
   }
 
   void send_header(const std::string_view name, const std::string_view value) override
   {
-    assert(is_valid());
+    DMITIGR_CHECK(is_valid());
     rep_->writeHeader(name, value);
   }
 
   std::pair<bool, bool> send_data(const std::string_view data, const std::uintmax_t total_size) override
   {
-    assert(is_valid());
+    DMITIGR_CHECK(is_valid());
     static_assert(sizeof(decltype(data.size())) <= sizeof(decltype(total_size)));
     if (!is_response_handler_set_) {
       end(data);
@@ -72,24 +74,25 @@ public:
 
   void end(const std::string_view data = {}) override
   {
-    assert(is_valid());
+    DMITIGR_CHECK(is_valid());
     rep_->end(data);
-    assert(rep_->hasResponded());
+    DMITIGR_ASSERT(rep_->hasResponded());
     rep_ = nullptr;
-    assert(!is_valid());
+    DMITIGR_ASSERT(!is_valid());
   }
 
   void set_response_handler(Response_handler handler) override
   {
-    assert(is_valid() && !is_response_handler_set());
-    assert(handler);
+    DMITIGR_CHECK(is_valid());
+    DMITIGR_CHECK(!is_response_handler_set());
+    DMITIGR_CHECK(handler);
     rep_->onWritable([this, handler = std::move(handler)](const std::uintmax_t position)
     {
-      assert(rep_);
+      DMITIGR_ASSERT(rep_);
       const auto ok = handler(position);
       if (ok) {
         rep_ = nullptr;
-        assert(!is_valid());
+        DMITIGR_ASSERT(!is_valid());
       }
       return ok;
     });
@@ -103,21 +106,22 @@ public:
 
   void abort() override
   {
-    assert(is_valid());
+    DMITIGR_CHECK(is_valid());
     rep_->close();
     rep_ = nullptr;
-    assert(!is_valid());
+    DMITIGR_ASSERT(!is_valid());
   }
 
   void set_abort_handler(Abort_handler handler) override
   {
-    assert(is_valid() && !is_abort_handler_set());
-    assert(handler);
+    DMITIGR_CHECK(is_valid());
+    DMITIGR_CHECK(!is_abort_handler_set());
+    DMITIGR_CHECK(handler);
     rep_->onAborted([this, handler = std::move(handler)]
     {
       handler();
       rep_ = nullptr;
-      assert(!is_valid());
+      DMITIGR_ASSERT(!is_valid());
     });
     is_abort_handler_set_ = true;
   }
@@ -129,8 +133,9 @@ public:
 
   void set_request_handler(Request_handler handler) override
   {
-    assert(is_valid() && !is_request_handler_set());
-    assert(handler);
+    DMITIGR_CHECK(is_valid());
+    DMITIGR_CHECK(!is_request_handler_set());
+    DMITIGR_CHECK(handler);
     rep_->onData(std::move(handler));
     is_request_handler_set_ = true;
   }
