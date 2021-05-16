@@ -23,10 +23,10 @@
 #ifndef DMITIGR_UUID_HPP
 #define DMITIGR_UUID_HPP
 
+#include "assert.hpp"
 #include "rng.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -70,7 +70,7 @@ public:
     result.data_.rep_.clock_seq_hi_and_reserved_ =
       (result.data_.rep_.clock_seq_hi_and_reserved_ & 0x3f) | 0x80;
 
-    assert(result.is_invariant_ok());
+    DMITIGR_ASSERT(result.is_invariant_ok());
     return result;
   }
 
@@ -94,7 +94,7 @@ public:
       data_.rep_.node_[3],
       data_.rep_.node_[4],
       data_.rep_.node_[5]);
-    assert(count == buf_size);
+    DMITIGR_ASSERT(count == buf_size);
     return std::string{buf, buf_size};
   }
 
