@@ -23,8 +23,9 @@
 #ifndef DMITIGR_STR_HPP
 #define DMITIGR_STR_HPP
 
+#include "assert.hpp"
+
 #include <algorithm>
-#include <cassert>
 #include <initializer_list>
 #include <functional>
 #include <limits>
@@ -53,7 +54,7 @@ template<typename Number>
 std::enable_if_t<std::is_integral<Number>::value, std::string>
 to_string(Number value, const Number base = 10)
 {
-  assert(2 <= base && base <= 36);
+  DMITIGR_CHECK_RANGE(2 <= base && base <= 36);
   static_assert(std::numeric_limits<Number>::min() <= 2 && std::numeric_limits<Number>::max() >= 36);
   static const char digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
@@ -161,9 +162,9 @@ inline const char* coalesce(std::initializer_list<const char*> literals) noexcep
  * `(pos < str.size())`.
  */
 inline auto
-line_number_by_position(const std::string& str, const std::string::size_type pos) noexcept
+line_number_by_position(const std::string& str, const std::string::size_type pos)
 {
-  assert(pos < str.size());
+  DMITIGR_CHECK_RANGE(pos < str.size());
   using Diff = decltype(cbegin(str))::difference_type;
   return std::count(cbegin(str), cbegin(str) + static_cast<Diff>(pos), '\n');
 }
@@ -176,9 +177,9 @@ line_number_by_position(const std::string& str, const std::string::size_type pos
  * `(pos < str.size())`.
  */
 inline std::pair<std::size_t, std::size_t>
-line_column_numbers_by_position(const std::string& str, const std::string::size_type pos) noexcept
+line_column_numbers_by_position(const std::string& str, const std::string::size_type pos)
 {
-  assert(pos < str.size());
+  DMITIGR_CHECK_RANGE(pos < str.size());
   std::size_t line{};
   std::size_t column{};
   for (std::size_t i = 0; i < pos; ++i) {
@@ -240,9 +241,9 @@ inline bool is_begins_with(const std::string_view input, const std::string_view 
  * [pos, str.size()), or `std::string_view::npos` if there is no such a position.
  */
 inline std::string_view::size_type
-position_of_non_space(const std::string_view str, const std::string_view::size_type pos, const std::locale& loc = {}) noexcept
+position_of_non_space(const std::string_view str, const std::string_view::size_type pos, const std::locale& loc = {})
 {
-  assert(pos <= str.size());
+  DMITIGR_CHECK_RANGE(pos <= str.size());
   const auto b = cbegin(str);
   const auto e = cend(str);
   const auto i = std::find_if(b + pos, e, std::bind(is_non_space_character, std::placeholders::_1, loc));
@@ -258,7 +259,7 @@ template<typename Pred>
 std::pair<std::string, std::string::size_type>
 substring_if(const std::string& str, Pred&& pred, std::string::size_type pos, const std::locale& loc = {})
 {
-  assert(pos <= str.size());
+  DMITIGR_CHECK_RANGE(pos <= str.size());
   std::pair<std::string, std::string::size_type> result;
   const auto input_size = str.size();
   for (; pos < input_size; ++pos) {
@@ -279,7 +280,7 @@ substring_if(const std::string& str, Pred&& pred, std::string::size_type pos, co
 inline std::pair<std::string, std::string::size_type>
 substring_if_simple_identifier(const std::string& str, const std::string::size_type pos, const std::locale& loc = {})
 {
-  assert(pos <= str.size());
+  DMITIGR_CHECK_RANGE(pos <= str.size());
   return std::isalpha(str[pos], loc) ?
     substring_if(str, std::bind(is_simple_identifier_character, std::placeholders::_1, loc), pos) :
     std::make_pair(std::string{}, pos);
@@ -303,7 +304,7 @@ substring_if_no_spaces(const std::string& str, const std::string::size_type pos,
 inline std::pair<std::string, std::string::size_type>
 unquoted_substring(const std::string& str, std::string::size_type pos, const std::locale& loc = {})
 {
-  assert(pos <= str.size());
+  DMITIGR_CHECK_RANGE(pos <= str.size());
   if (pos == str.size())
     return {std::string{}, pos};
 
@@ -413,7 +414,7 @@ inline std::vector<S> split(const std::string_view input,
   std::string_view::size_type offset{};
   while (offset < input.size()) {
     pos = input.find_first_of(separators, offset);
-    assert(offset <= pos);
+    DMITIGR_ASSERT(offset <= pos);
     const auto part_size = std::min<std::string_view::size_type>(pos, input.size()) - offset;
     result.push_back(S{input.substr(offset, part_size)});
     offset += part_size + 1;
