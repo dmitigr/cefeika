@@ -23,8 +23,9 @@
 #ifndef DMITIGR_TTPL_HPP
 #define DMITIGR_TTPL_HPP
 
+#include "assert.hpp"
+
 #include <algorithm>
-#include <cassert>
 #include <list>
 #include <locale>
 #include <optional>
@@ -101,7 +102,7 @@ public:
   explicit Logic_less_template(const std::string_view input = {})
   {
     if (input.empty()) {
-      assert(is_invariant_ok());
+      DMITIGR_ASSERT(is_invariant_ok());
       return;
     }
 
@@ -223,7 +224,7 @@ public:
     if (!extracted_text.empty())
       store_extracted_text();
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The vector of parameters.
@@ -256,7 +257,7 @@ public:
   std::size_t parameter_index_throw(const std::string_view name) const
   {
     const auto result = parameter_index(name);
-    assert(result);
+    DMITIGR_ASSERT(result);
     return *result;
   }
 
@@ -266,9 +267,9 @@ public:
    * @par Requires
    * `(index < parameter_count())`.
    */
-  const Parameter& parameter(const std::size_t index) const noexcept
+  const Parameter& parameter(const std::size_t index) const
   {
-    assert(index < parameter_count());
+    DMITIGR_CHECK_RANGE(index < parameter_count());
     return parameters_[index];
   }
 
@@ -338,8 +339,8 @@ public:
    */
   void replace_parameter(const std::string_view name, const Logic_less_template& replacement)
   {
-    assert(has_parameter(name));
-    assert(&replacement != this);
+    DMITIGR_CHECK_ARG(has_parameter(name));
+    DMITIGR_CHECK_ARG(&replacement != this);
 
     auto old_fragments = fragments_;
     auto old_parameters = parameters_;
@@ -363,7 +364,7 @@ public:
 
       // Borrowing parameters from the replacement.
       const auto idx = parameter_index(name);
-      assert(idx);
+      DMITIGR_ASSERT(idx);
       const auto itr = parameters_.erase(begin(parameters_) + *idx);
       parameters_.insert(itr, begin(replacement.parameters_), end(replacement.parameters_));
     } catch (...) {
@@ -372,7 +373,7 @@ public:
       throw;
     }
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @overload
