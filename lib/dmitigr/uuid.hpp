@@ -57,7 +57,7 @@ public:
     {
       constexpr auto minimum = static_cast<unsigned char>(1);
       constexpr auto maximum = std::numeric_limits<unsigned char>::max();
-      for (std::size_t i = 0; i < sizeof (result.data_.raw_); ++i)
+      for (std::size_t i = 0; i < sizeof(result.data_.raw_); ++i)
         result.data_.raw_[i] = rng::cpp_pl_3rd(minimum, maximum);
     }
 
@@ -81,7 +81,7 @@ public:
   {
     constexpr std::size_t buf_size = 36;
     char buf[buf_size + 1];
-    const int count = std::snprintf(buf, sizeof (buf),
+    const int count = std::snprintf(buf, sizeof(buf),
       "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
       data_.rep_.time_low_,
       data_.rep_.time_mid_,

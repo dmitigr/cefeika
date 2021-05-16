@@ -59,16 +59,16 @@ public:
    */
   Ip_address(const std::string& str)
   {
-    unsigned char buf[sizeof (::in6_addr)];
+    unsigned char buf[sizeof(::in6_addr)];
     for (const auto fam : {AF_INET, AF_INET6}) {
       if (const int result = inet_pton__(fam, str.c_str(), buf)) {
         if (result > 0) {
           if (fam == AF_INET) {
             binary_ = ::in_addr{};
-            std::memcpy(binary__(), buf, sizeof (::in_addr));
+            std::memcpy(binary__(), buf, sizeof(::in_addr));
           } else {
             binary_ = ::in6_addr{};
-            std::memcpy(binary__(), buf, sizeof (::in6_addr));
+            std::memcpy(binary__(), buf, sizeof(::in6_addr));
           }
           return; // done
         }
@@ -99,7 +99,7 @@ public:
    */
   static bool is_valid(const std::string& str)
   {
-    unsigned char buf[sizeof (::in6_addr)];
+    unsigned char buf[sizeof(::in6_addr)];
     if (inet_pton__(AF_INET, str.c_str(), buf) > 0)
       return true;
     else if (inet_pton__(AF_INET6, str.c_str(), buf) > 0)
@@ -216,7 +216,7 @@ public:
   {
     if (ip.family() == Protocol_family::ipv4) {
       ::sockaddr_in addr{};
-      constexpr auto addr_size = sizeof (addr);
+      constexpr auto addr_size = sizeof(addr);
       std::memset(&addr, 0, addr_size);
       addr.sin_family = AF_INET;
       addr.sin_addr = *static_cast<const ::in_addr*>(ip.binary());
@@ -224,7 +224,7 @@ public:
       binary_ = addr;
     } else if (ip.family() == Protocol_family::ipv6) {
       ::sockaddr_in6 addr{};
-      constexpr auto addr_size = sizeof (addr);
+      constexpr auto addr_size = sizeof(addr);
       std::memset(&addr, 0, addr_size);
       addr.sin6_family = AF_INET6;
       addr.sin6_addr = *static_cast<const ::in6_addr*>(ip.binary());
@@ -242,8 +242,8 @@ public:
   {
     ::sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
-    if (path.native().size() <= sizeof (::sockaddr_un::sun_path) - 1)
-      std::strncpy(addr.sun_path, path.native().c_str(), sizeof (::sockaddr_un::sun_path));
+    if (path.native().size() <= sizeof(::sockaddr_un::sun_path) - 1)
+      std::strncpy(addr.sun_path, path.native().c_str(), sizeof(::sockaddr_un::sun_path));
     else
       throw std::runtime_error{"UDS path too long"};
     binary_ = addr;

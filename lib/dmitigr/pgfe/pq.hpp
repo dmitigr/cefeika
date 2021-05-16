@@ -91,7 +91,7 @@ public:
     const auto typlen = -1;
     const auto atttypmod = -1;
     ::PGresAttDesc attributes[] = {{name, tableid, columnid, format, typid, typlen, atttypmod}};
-    set_attributes(attributes, sizeof (attributes) / sizeof (::PGresAttDesc));
+    set_attributes(attributes, sizeof(attributes) / sizeof(::PGresAttDesc));
   }
 
   /// Non copy-constructible.

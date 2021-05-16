@@ -259,9 +259,9 @@ public:
 
       const int optval = 1;
 #ifdef _WIN32
-      const auto optlen = static_cast<int>(sizeof (optval));
+      const auto optlen = static_cast<int>(sizeof(optval));
 #else
-      const auto optlen = static_cast<::socklen_t>(sizeof (optval));
+      const auto optlen = static_cast<::socklen_t>(sizeof(optval));
 #endif
       if (::setsockopt(socket_, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&optval), optlen) != 0)
         throw DMITIGR_NET_EXCEPTION{"setsockopt"};
