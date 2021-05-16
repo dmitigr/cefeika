@@ -154,7 +154,7 @@ protected:
     DMITIGR_ASSERT(buffer && (2048 <= size && size <= 65528));
 
     if ((eback() != nullptr && eback() != buffer_) ||
-        (pbase() != nullptr && pbase() != buffer_ + sizeof (detail::Header)))
+        (pbase() != nullptr && pbase() != buffer_ + sizeof(detail::Header)))
       throw std::runtime_error{"dmitigr::fcgi: cannot set buffer (there are pending data)"};
 
     constexpr std::streamsize alignment = 8;
@@ -172,7 +172,7 @@ protected:
        * epptr() can be used to store this byte.
        */
       setg(nullptr, nullptr, nullptr);
-      setp(buffer_ + sizeof (detail::Header), buffer_ + buffer_size_ - 1);
+      setp(buffer_ + sizeof(detail::Header), buffer_ + buffer_size_ - 1);
     }
 
     DMITIGR_ASSERT(is_invariant_ok());
@@ -244,7 +244,7 @@ protected:
 
       // Accumulating the header.
       {
-        const std::size_t count = std::min(sizeof (header) - read_header_length, static_cast<std::size_t>(buffer_end_ - gptr()));
+        const std::size_t count = std::min(sizeof(header) - read_header_length, static_cast<std::size_t>(buffer_end_ - gptr()));
         std::memcpy(reinterpret_cast<char*>(&header) + read_header_length, gptr(), count);
         read_header_length += count;
         gbump(static_cast<int>(count)); // Already consumed.
@@ -454,7 +454,7 @@ private:
     const bool put_area_ok = is_reader() ||
       (is_closed() ||
         ((pbase() <= pptr() && pptr() <= epptr()) &&
-          (is_end_of_stream_ || (pbase() == buffer_ + sizeof (detail::Header)))));
+          (is_end_of_stream_ || (pbase() == buffer_ + sizeof(detail::Header)))));
     const bool get_area_ok = !is_reader() ||
       (is_closed() ||
         (eback() <= gptr() && gptr() <= egptr() && egptr() <= buffer_end_));
