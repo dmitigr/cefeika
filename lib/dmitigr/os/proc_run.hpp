@@ -7,11 +7,11 @@
 
 #include "log.hpp"
 #include "proc_detach.hpp"
+#include "../assert.hpp"
 #include "../filesystem.hpp"
 #include "../progpar.hpp"
 
 #include <atomic>
-#include <cassert>
 #include <csignal>
 #include <cstdlib>
 #include <exception> // set_terminate()
@@ -47,8 +47,7 @@ inline dmitigr::progpar::Program_parameters prog_params;
  */
 [[noreturn]] inline void usage(const std::string_view info = {})
 {
-  assert(proc::prog_params.is_valid());
-
+  DMITIGR_CHECK_ARG(proc::prog_params.is_valid());
   std::cerr << "usage: " << proc::prog_params.path();
   if (!info.empty())
     std::cerr << " " << info;
@@ -148,7 +147,7 @@ inline void run(void(*startup)(), void(*cleanup)(), void(*signals)(int))
  * @param log_file_mode A file mode for the log file.
  *
  * @par Requires
- * `prog_params.is_valid()`.
+ * `startup && !proc::is_running && prog_params.is_valid()`.
  */
 inline void start(const bool detach,
   void(*startup)(),
@@ -159,9 +158,9 @@ inline void start(const bool detach,
   std::filesystem::path log_file = {},
   const std::ios_base::openmode log_file_mode = std::ios_base::trunc | std::ios_base::out)
 {
-  assert(startup);
-  assert(!proc::is_running);
-  assert(proc::prog_params.is_valid());
+  DMITIGR_CHECK_ARG(startup);
+  DMITIGR_CHECK(!proc::is_running);
+  DMITIGR_CHECK(proc::prog_params.is_valid());
 
   // Preparing.
 

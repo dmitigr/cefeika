@@ -11,9 +11,9 @@
 
 #include "log.hpp"
 #include "proc.hpp"
+#include "../assert.hpp"
 #include "../filesystem.hpp"
 
-#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -47,10 +47,10 @@ inline void detach(const std::function<void()>& startup,
   const std::filesystem::path& log_file,
   const std::ios_base::openmode log_file_openmode = std::ios_base::app | std::ios_base::ate | std::ios_base::out)
 {
-  assert(startup);
-  assert(!working_directory.empty());
-  assert(!pid_file.empty());
-  assert(!log_file.empty());
+  DMITIGR_CHECK_ARG(startup);
+  DMITIGR_CHECK_ARG(!working_directory.empty());
+  DMITIGR_CHECK_ARG(!pid_file.empty());
+  DMITIGR_CHECK_ARG(!log_file.empty());
 
   // Forking for a first time
   if (const auto pid = ::fork(); pid < 0) {
