@@ -121,6 +121,8 @@ set(dmitigr_cefeika_libraries_all
   algo assert cfg concur endianness enum_bitmask filesystem fsmisc math mem
   progpar reader rng str testo ttpl uuid
 
+  mulf url
+
   dt os rajson
 
   jrpc net

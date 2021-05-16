@@ -9,6 +9,8 @@ set(dmitigr_cefeika_fsmisc_deps filesystem)
 set(dmitigr_cefeika_progpar_deps filesystem)
 set(dmitigr_cefeika_reader_deps filesystem)
 set(dmitigr_cefeika_uuid_deps rng)
+set(dmitigr_cefeika_mulf_deps assert str)
+set(dmitigr_cefeika_url_deps assert str)
 
 set(dmitigr_cefeika_rajson_deps thirdparty_rapidjson)
 set(dmitigr_cefeika_fcgi_deps net)
