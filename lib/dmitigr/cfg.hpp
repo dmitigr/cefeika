@@ -23,11 +23,11 @@
 #ifndef DMITIGR_CFG_HPP
 #define DMITIGR_CFG_HPP
 
+#include "assert.hpp"
 #include "filesystem.hpp"
 #include "reader.hpp"
 #include "str.hpp"
 
-#include <cassert>
 #include <locale>
 #include <map>
 #include <optional>
@@ -91,7 +91,7 @@ private:
     std::string param;
     std::string value;
     std::string::size_type pos = str::position_of_non_space(line, 0);
-    assert(pos < line.size());
+    DMITIGR_ASSERT(pos < line.size());
 
     // Returns the position of the first character of a parameter value.
     static const auto position_of_value = [](const std::string& str, std::string::size_type pos)
@@ -114,7 +114,7 @@ private:
     // Reading the parameter value.
     if (pos = position_of_value(line, pos); pos < line.size()) {
       std::tie(value, pos) = str::unquoted_substring(line, pos);
-      assert(!value.empty());
+      DMITIGR_ASSERT(!value.empty());
       if (pos < line.size()) {
         if (pos = str::position_of_non_space(line, pos); pos < line.size())
           throw std::runtime_error{"junk in the config entry"};
