@@ -23,14 +23,15 @@
 #ifndef DMITIGR_TESTO_HPP
 #define DMITIGR_TESTO_HPP
 
-#include <cassert>
+#include "assert.hpp"
+
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <string_view>
 
 #ifndef ASSERT
-#define ASSERT(a) assert(a)
+#define ASSERT(a) DMITIGR_ASSERT(a)
 #endif
 
 namespace dmitigr::testo {
