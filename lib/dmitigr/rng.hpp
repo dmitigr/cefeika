@@ -23,7 +23,8 @@
 #ifndef DMITIGR_RNG_HPP
 #define DMITIGR_RNG_HPP
 
-#include <cassert>
+#include "assert.hpp"
+
 #include <chrono>
 #include <cstdlib>
 #include <string>
@@ -54,11 +55,16 @@ constexpr T cpp_pl_3rd(const T maximum) noexcept
   return static_cast<T>(maximum * (rand_num / RAND_MAX));
 }
 
-/// @overload
+/**
+ * @overload
+ *
+ * @par Requires
+ * `(minimum < maximum)`.
+ */
 template<typename T>
-constexpr T cpp_pl_3rd(const T minimum, const T maximum) noexcept
+constexpr T cpp_pl_3rd(const T minimum, const T maximum)
 {
-  assert(minimum < maximum);
+  DMITIGR_CHECK_ARG(minimum < maximum);
   const auto range_length = maximum - minimum;
   return (cpp_pl_3rd(maximum) % range_length) + minimum;
 }
@@ -98,7 +104,7 @@ inline std::string random_string(const std::string& palette,
 inline std::string random_string(const char beg, const char end,
   const std::string::size_type size)
 {
-  assert(beg <= end);
+  DMITIGR_CHECK_ARG(beg <= end);
   std::string result;
   if (beg < end) {
     result.resize(size);
