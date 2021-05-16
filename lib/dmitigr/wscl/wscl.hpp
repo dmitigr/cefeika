@@ -24,9 +24,9 @@
 #define DMITIGR_WSCL_WSCL_HPP
 
 #include "version.hpp"
+#include "../assert.hpp"
 #include "../thirdparty/uwsc/uwsc.h"
 
-#include <cassert>
 #include <cstring>
 #include <chrono>
 #include <memory>
@@ -127,11 +127,16 @@ public:
   /// Default-constructible.
   Connection() = default;
 
-  /// Constructs an instance and initiates connection open.
+  /**
+   * Constructs an instance and initiates connection open.
+   *
+   * @par Requires
+   * `loop`.
+   */
   Connection(void* const loop, Options options)
     : options_{std::move(options)}
   {
-    assert(loop);
+    DMITIGR_CHECK_ARG(loop);
 
     rep_.reset(uwsc_new(static_cast<struct ev_loop*>(loop), options_.url().c_str(),
         options_.ping_interval().count(), options_.extra_headers().c_str()));
@@ -172,7 +177,7 @@ public:
    */
   void set_ping_interval(const std::chrono::seconds interval) noexcept
   {
-    assert(is_open_);
+    DMITIGR_CHECK(is_open_);
     options_.ping_interval(interval);
     rep_->ping_interval = interval.count();
   }
@@ -185,7 +190,7 @@ public:
    */
   void send(const std::string_view data, const bool is_binary)
   {
-    assert(is_open_);
+    DMITIGR_CHECK(is_open_);
     rep_->send(rep_.get(), data.data(), data.size(), is_binary ? UWSC_OP_BINARY : UWSC_OP_TEXT);
   }
 
@@ -197,7 +202,7 @@ public:
    */
   void send_text(const std::string_view data)
   {
-    assert(is_open_);
+    DMITIGR_CHECK(is_open_);
     rep_->send(rep_.get(), data.data(), data.size(), UWSC_OP_TEXT);
   }
 
@@ -209,7 +214,7 @@ public:
    */
   void send_binary(const std::string_view data)
   {
-    assert(is_open_);
+    DMITIGR_CHECK(is_open_);
     rep_->send(rep_.get(), data.data(), data.size(), UWSC_OP_BINARY);
   }
 
@@ -221,7 +226,7 @@ public:
    */
   void ping()
   {
-    assert(is_open_);
+    DMITIGR_CHECK(is_open_);
     rep_->ping(rep_.get());
   }
 
@@ -289,9 +294,9 @@ private:
 
   static Connection* self(uwsc_client* const cl) noexcept
   {
-    assert(cl);
+    DMITIGR_ASSERT(cl);
     auto* const self = static_cast<Connection*>(cl->ext);
-    assert(self);
+    DMITIGR_ASSERT(self);
     return self;
   }
 };

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include "../../lib/dmitigr/wscl.hpp"
+#include "../../lib/dmitigr/testo.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -17,7 +18,7 @@ public:
 private:
   void handle_open() override
   {
-    assert(is_open());
+    ASSERT(is_open());
     std::cout << "Connection open!" << std::endl;
     send_text("Hello from dmitigr::wscl!");
   }
@@ -34,13 +35,13 @@ private:
 
   void handle_error(const int code, const std::string_view message) override
   {
-    assert(!is_open());
+    ASSERT(!is_open());
     std::cout << "Connection error: " << code << " (" << message << ")" << std::endl;
   }
 
   void handle_close(const int code, const std::string_view reason) override
   {
-    assert(!is_open());
+    ASSERT(!is_open());
     std::cout << "Connection closed: " << code << " (" << reason << ")" << std::endl;
   }
 };
