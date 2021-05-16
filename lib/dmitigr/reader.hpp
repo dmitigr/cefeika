@@ -23,9 +23,9 @@
 #ifndef DMITIGR_READER_HPP
 #define DMITIGR_READER_HPP
 
+#include "assert.hpp"
 #include "filesystem.hpp"
 
-#include <cassert>
 #include <cstddef>
 #include <istream>
 #include <fstream>
@@ -191,7 +191,7 @@ inline std::string simple_phrase_to_string(std::istream& input)
 
       if (ch != quote_char) {
         // The trailing quote character was NOT reached.
-        assert(input.eof());
+        DMITIGR_ASSERT(input.eof());
         throw Exception{Errc::invalid_input, std::move(result)};
       }
     } else {
