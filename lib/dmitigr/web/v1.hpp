@@ -6,6 +6,7 @@
 #define DMITIGR_WEB_V1_HPP
 
 #include "mulf.hpp"
+#include "../assert.hpp"
 #include "../fcgi/fcgi.hpp"
 #include "../http/http.hpp"
 #include "../jrpc/jrpc.hpp"
@@ -14,7 +15,6 @@
 #include "../str.hpp"
 #include "../ttpl.hpp"
 
-#include <cassert>
 #include <functional>
 #include <map>
 #include <optional>
@@ -94,10 +94,13 @@ make_expanded_llt(const std::filesystem::path& tplfile, const std::filesystem::p
  *
  * @param fcgi Connection to handle
  * @param opts Options for handling
+ *
+ * @par Requires
+ * `fcgi`.
  */
 inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& opts)
 {
-  assert(fcgi);
+  DMITIGR_CHECK_ARG(fcgi);
 
   const auto location = fcgi->parameter("SCRIPT_NAME")->value();
   const auto method = fcgi->parameter("REQUEST_METHOD")->value();
@@ -150,7 +153,7 @@ inline void handle(fcgi::Server_connection* const fcgi, const Handle_options& op
           std::regex::icase | std::regex::optimize};
         std::smatch sm;
         if (std::regex_search(content_type, sm, mpfdre)) {
-          assert(sm.size() >= 2);
+          DMITIGR_ASSERT(sm.size() >= 2);
           if (const auto i = opts.formers.find(location); i != opts.formers.cend()) {
             if (!i->second)
               throw std::logic_error{hins("former")};

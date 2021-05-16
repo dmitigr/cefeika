@@ -5,10 +5,10 @@
 #ifndef DMITIGR_WEB_MULF_HPP
 #define DMITIGR_WEB_MULF_HPP
 
+#include "../assert.hpp"
 #include "../str.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <cstddef>
 #include <locale>
 #include <optional>
@@ -26,7 +26,7 @@ public:
   explicit Form_data_entry(std::string name)
     : name_{std::move(name)}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -49,9 +49,9 @@ public:
    */
   void set_name(std::string name)
   {
-    assert(!name.empty());
+    DMITIGR_CHECK_ARG(!name.empty());
     name_ = std::move(name);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -74,9 +74,9 @@ public:
    */
   void set_filename(std::optional<std::string> filename)
   {
-    assert(!filename || !filename->empty());
+    DMITIGR_CHECK_ARG(!filename || !filename->empty());
     filename_ = std::move(filename);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -99,9 +99,9 @@ public:
    */
   void set_content_type(std::optional<std::string> content_type)
   {
-    assert(!content_type || !content_type->empty());
+    DMITIGR_CHECK_ARG(!content_type || !content_type->empty());
     content_type_ = std::move(content_type);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -124,9 +124,9 @@ public:
    */
   void set_charset(std::optional<std::string> charset)
   {
-    assert(!charset || !charset->empty());
+    DMITIGR_CHECK_ARG(!charset || !charset->empty());
     charset_ = std::move(charset);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -153,9 +153,9 @@ public:
    */
   void set_content(std::optional<std::string_view> view)
   {
-    assert(!view || !view->empty());
+    DMITIGR_CHECK_ARG(!view || !view->empty());
     content_ = std::move(view);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -168,9 +168,9 @@ public:
    */
   void set_content(std::optional<std::string> content)
   {
-    assert(!content || !content->empty());
+    DMITIGR_CHECK_ARG(!content || !content->empty());
     content_ = std::move(content);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
 private:
@@ -237,12 +237,12 @@ public:
       if (next_delimiter_pos == std::string::npos)
         throw std::runtime_error{"dmitigr::mulf: unclosed boundary"};
 
-      assert(pos < data_.size());
+      DMITIGR_ASSERT(pos < data_.size());
 
       Entry entry;
       entries_.emplace_back(std::move(entry));
       pos = set_headers(entries_.back(), data_, pos);
-      assert(pos <= next_delimiter_pos);
+      DMITIGR_ASSERT(pos <= next_delimiter_pos);
       if (pos < next_delimiter_pos)
         set_content(entries_.back(), data_, pos, next_delimiter_pos);
 
@@ -260,8 +260,6 @@ public:
       } else
         throw std::runtime_error{"dmitigr::mulf: no close-delimiter"};
     }
-
-    assert(is_invariant_ok());
   }
 
   /// @returns The number of entries.
@@ -291,7 +289,7 @@ public:
   std::size_t entry_index_throw(const std::string_view name, const std::size_t offset = 0) const
   {
     const auto result = entry_index(name, offset);
-    assert(result);
+    DMITIGR_ASSERT(result);
     return *result;
   }
 
@@ -301,9 +299,9 @@ public:
    * @par Requires
    * `(index < entry_count())`.
    */
-  const Entry& entry(const std::size_t index) const noexcept
+  const Entry& entry(const std::size_t index) const
   {
-    assert(index < entry_count());
+    DMITIGR_CHECK_RANGE(index < entry_count());
     return entries_[index];
   }
 
@@ -312,7 +310,7 @@ public:
    *
    * @returns `entry(entry_index_throw(name, offset))`.
    */
-  const Entry* entry(const std::string_view name, const std::size_t offset = 0) const noexcept
+  const Entry* entry(const std::string_view name, const std::size_t offset = 0) const
   {
     const auto index = entry_index_throw(name, offset);
     return &entries_[index];
@@ -333,11 +331,6 @@ public:
 private:
   std::string data_;
   std::vector<Entry> entries_;
-
-  constexpr bool is_invariant_ok() noexcept
-  {
-    return true;
-  }
 
   /**
    * @returns `true` if the `boundary` contains only allowed characters
@@ -363,7 +356,7 @@ private:
    */
   static std::string::size_type skip_transport_padding(const std::string& data, std::string::size_type pos)
   {
-    assert(pos < data.size());
+    DMITIGR_ASSERT(pos < data.size());
 
     bool is_crlf_reached{};
     if (const char c = data[pos]; c == ' ' || c == '\t' || c == '\r' || c == '\n') {
@@ -399,7 +392,7 @@ private:
    */
   static std::string::size_type skip_mandatory_crlf(const std::string& data, const std::string::size_type pos)
   {
-    assert(pos < data.size());
+    DMITIGR_ASSERT(pos < data.size());
 
     if (pos + 1 < data.size() && data[pos] == '\r' && data[pos + 1] == '\n')
       return pos + 2;
@@ -426,8 +419,7 @@ private:
   static std::string::size_type set_headers(Entry& entry,
     const std::string& data, std::string::size_type pos)
   {
-
-    assert(pos < data.size());
+    DMITIGR_ASSERT(pos < data.size());
 
     enum { name = 1,
            before_parameter_name,
@@ -632,8 +624,7 @@ private:
         throw std::runtime_error{"dmitigr::mulf: expected CRLFCRLF not found"};
 
       case crlfcrlf:
-        assert(!true);
-        std::terminate();
+        DMITIGR_ASSERT(false);
       }
 
       extracted += c;
@@ -642,7 +633,7 @@ private:
     if (entry.name().empty() || !form_data_extracted || state != crlfcrlf)
       throw std::runtime_error{"dmitigr::mulf: invalid MIME-part-headers"};
 
-    assert(entry.is_invariant_ok());
+    DMITIGR_ASSERT(entry.is_invariant_ok());
 
     return pos;
   }
@@ -654,9 +645,9 @@ private:
   static void set_content(Entry& entry, const std::string& data,
     const std::string::size_type beg, const std::string::size_type end)
   {
-    assert(beg < end && end < data.size());
+    DMITIGR_ASSERT(beg < end && end < data.size());
     entry.content_ = std::string_view{data.data() + beg, end - beg};
-    assert(entry.is_invariant_ok());
+    DMITIGR_ASSERT(entry.is_invariant_ok());
   }
 };
 

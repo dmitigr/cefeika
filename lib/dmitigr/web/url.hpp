@@ -5,10 +5,10 @@
 #ifndef DMITIGR_WEB_URL_HPP
 #define DMITIGR_WEB_URL_HPP
 
+#include "../assert.hpp"
 #include "../str.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <limits>
 #include <locale>
 #include <optional>
@@ -26,7 +26,7 @@ public:
     : name_{std::move(name)}
     , value_{std::move(value)}
   {
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The parameter name.
@@ -98,7 +98,7 @@ public:
   explicit Query_string(const std::string_view input = {})
   {
     if (input.empty()) {
-      assert(is_invariant_ok());
+      DMITIGR_ASSERT(is_invariant_ok());
       return;
     }
 
@@ -120,7 +120,7 @@ public:
       parameters_.emplace_back(Parameter{});
     };
 
-    assert(!input.empty());
+    DMITIGR_ASSERT(!input.empty());
     append_invalid_parameter();
     std::string* extracted = &parameters_.back().name_; // extracting the name first
     for (const auto c : input) {
@@ -148,7 +148,7 @@ public:
         } else if (c == '+') {
           *extracted += ' ';
         } else if (c == '%') {
-          assert(state == param || state == value);
+          DMITIGR_ASSERT(state == param || state == value);
           state = (state == param) ? param_hex : value_hex;
           continue; // skip %
         } else
@@ -160,17 +160,17 @@ public:
 
       case value_hex /* or param_hex */:
         if (is_hexademical_character(c)) {
-          assert(hex.size() < 2);
+          DMITIGR_ASSERT(hex.size() < 2);
           hex += c;
           if (hex.size() == 2) {
             // Note: hex == "20" - space, hex == "2B" - +.
             std::size_t pos{};
             const int code = std::stoi(hex, &pos, 16);
-            assert(pos == hex.size());
-            assert(code <= std::numeric_limits<unsigned char>::max());
+            DMITIGR_ASSERT(pos == hex.size());
+            DMITIGR_ASSERT(code <= std::numeric_limits<unsigned char>::max());
             *extracted += char(code);
             hex.clear();
-            assert(state == param_hex || state == value_hex);
+            DMITIGR_ASSERT(state == param_hex || state == value_hex);
             state = (state == param_hex) ? param : value;
           }
         } else
@@ -182,7 +182,7 @@ public:
     if (parameters_.back().name().empty())
       throw std::runtime_error{"dmitigr::url: parameter name is empty"};
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @returns The vector of parameters.
@@ -218,7 +218,7 @@ public:
   std::size_t parameter_index_throw(const std::string_view name, const std::size_t offset) const
   {
     const auto result = parameter_index(name, offset);
-    assert(result);
+    DMITIGR_ASSERT(result);
     return *result;
   }
 
@@ -228,9 +228,9 @@ public:
    * @par Requires
    * `(index < parameter_count())`.
    */
-  const Parameter& parameter(const std::size_t index) const noexcept
+  const Parameter& parameter(const std::size_t index) const
   {
-    assert(index < parameter_count());
+    DMITIGR_CHECK_RANGE(index < parameter_count());
     return parameters_[index];
   }
 
@@ -279,7 +279,7 @@ public:
   void append_parameter(std::string name, std::optional<std::string> value)
   {
     parameters_.emplace_back(std::move(name), std::move(value));
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -290,9 +290,9 @@ public:
    */
   void remove_parameter(const std::size_t index)
   {
-    assert(index < parameter_count());
+    DMITIGR_CHECK_RANGE(index < parameter_count());
     parameters_.erase(cbegin(parameters_) + index);
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /**
@@ -306,7 +306,7 @@ public:
     if (const auto index = parameter_index(name, offset))
       parameters_.erase(cbegin(parameters_) + *index);
 
-    assert(is_invariant_ok());
+    DMITIGR_ASSERT(is_invariant_ok());
   }
 
   /// @name Conversions
