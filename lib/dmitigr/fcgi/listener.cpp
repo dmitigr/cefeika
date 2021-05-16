@@ -7,10 +7,10 @@
 #include "listener_options.hpp"
 #include "server_connection.hpp"
 #include "streams.hpp"
+#include "../assert.hpp"
 #include "../net/net.hpp"
 
 #include <array>
-#include <cassert>
 #include <cstdio>
 #include <limits>
 
@@ -157,7 +157,7 @@ public:
     {
       const detail::End_request_record record{header.request_id(), 0, protocol_status};
       const auto count = io->write(reinterpret_cast<const char*>(&record), sizeof(record));
-      assert(count == sizeof(record));
+      DMITIGR_ASSERT(count == sizeof(record));
     };
 
     if (header.record_type() == detail::Record_type::begin_request &&

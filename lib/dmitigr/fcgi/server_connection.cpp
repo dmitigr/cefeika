@@ -2,10 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or fcgi.hpp
 
+#include "../assert.hpp"
 #include "basics.hpp"
 #include "server_connection.hpp"
-
-#include <cassert>
 
 namespace dmitigr::fcgi::detail {
 
@@ -24,7 +23,7 @@ public:
     , request_id_{request_id}
   {
     io_ = std::move(io);
-    assert(io_);
+    DMITIGR_ASSERT(io_);
   }
 
   // ---------------------------------------------------------------------------
@@ -54,13 +53,13 @@ public:
   std::size_t parameter_index_throw(const std::string_view name) const override
   {
     const auto result = parameter_index(name);
-    assert(result);
+    DMITIGR_ASSERT(result);
     return *result;
   }
 
   const detail::Name_value* parameter(const std::size_t index) const override
   {
-    assert(index < parameter_count());
+    DMITIGR_CHECK_RANGE(index < parameter_count());
     return parameters_.pair(index);
   }
 
