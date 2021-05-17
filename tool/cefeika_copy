@@ -28,8 +28,18 @@ err()
 
 usage()
 {
-  err "usage: $0 library... path-to-destination-root"
+  err "usage: $0 [-d] [-t] library... path-to-destination-root"
 }
+
+while getopts dt opt
+do
+  case $opt in
+    d) with_doc=1 ;;
+    t) with_tests=1 ;;
+    ?) usage ;;
+  esac
+done
+shift `expr $OPTIND - 1`
 
 if [ $# -lt 2 ]; then
   usage
@@ -66,7 +76,9 @@ copy_lib()
 }
 
 # Recreate the destination subdirectories
-for d in cmake doc lib/dmitigr test tool; do
+[ X"$with_doc" = X ] || docdir=doc
+[ X"$with_tests" = X ] || testdir=test
+for d in cmake $docdir lib/dmitigr $testdir tool; do
   rm -rf "$dst/$d" && mkdir -p "$dst/$d" || exit $?
 done
 
@@ -95,20 +107,24 @@ for lib in $libs; do
   done
   copy_lib $lib
 
-  # Copy documentation
-  cp -R "$src/doc/Doxyfile.in" "$dst/doc" || exit $?
-  for f in $deps $lib; do
-    if [ -d "$src/doc/$f" ]; then
-      cp -R "$src/doc/$f" "$dst/doc" || exit $?
-    fi
-  done
+  if [ X"$with_doc" != X ]; then
+    # Copy documentation
+    cp -R "$src/doc/Doxyfile.in" "$dst/doc" || exit $?
+    for f in $deps $lib; do
+      if [ -d "$src/doc/$f" ]; then
+        cp -R "$src/doc/$f" "$dst/doc" || exit $?
+      fi
+    done
+  fi
 
-  # Copy tests
-  for d in $deps $lib; do
-    if [ -d "$src/test/$d" ]; then
-      cp -R "$src/test/$b" "$dst/test" || exit $?
-    fi
-  done
+  if [ X"$with_tests" != X ]; then
+    # Copy tests
+    for d in $deps $lib; do
+      if [ -d "$src/test/$d" ]; then
+        cp -R "$src/test/$d" "$dst/test" || exit $?
+      fi
+    done
+  fi
 done
 
 # Copy this script
