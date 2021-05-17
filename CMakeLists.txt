@@ -116,13 +116,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Getting the actual list of libraries
 # ------------------------------------------------------------------------------
 
+set(dmitigr_content)
 foreach(lib ${dmitigr_cefeika_libraries_all})
   set(dmitigr_p "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}")
   if(EXISTS "${dmitigr_p}" OR EXISTS "${dmitigr_p}.hpp")
     list(APPEND dmitigr_cefeika_libraries ${lib})
   endif()
+
+  dmitigr_cefeika_get_deps(lib_deps "${lib}")
+  set(dmitigr_content "${dmitigr_content}${lib}_deps=\"")
+  foreach(dep ${lib_deps})
+    set(dmitigr_content "${dmitigr_content}${dep} ")
+  endforeach()
+  set(dmitigr_content "${dmitigr_content}\"\n")
 endforeach()
+file(WRITE tool/cefeika_deps.sh "${dmitigr_content}")
 unset(dmitigr_p)
+unset(dmitigr_content)
 
 configure_file(cmake/dmitigr_cefeika_libraries.cmake.in
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/dmitigr_cefeika_libraries.cmake @ONLY
