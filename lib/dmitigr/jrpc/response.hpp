@@ -9,7 +9,6 @@
 #include "std_system_error.hpp"
 #include "types_fwd.hpp"
 #include "../assert.hpp"
-
 #include "../rajson/conversions.hpp"
 
 #include <memory>
