@@ -180,7 +180,7 @@ install(FILES LICENSE.txt
   DESTINATION ${DMITIGR_CEFEIKA_SHARE_INSTALL_DIR})
 
 install(FILES
-  cmake/dmitigr_cefeika.cmake
+  cmake/dmitigr_cefeika_libraries.cmake
   cmake/dmitigr_cefeika-config.cmake
   DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR})
 
