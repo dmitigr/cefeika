@@ -52,20 +52,21 @@ copy_lib()
   local thirdparty_re='^thirdparty_+'
   if [[ $lib =~ $thirdparty_re ]]; then
     lib=$(echo "$lib" | sed -E 's/thirdparty_(.*)$/thirdparty\/\1/g')
+    mkdir -p "$dst/lib/dmitigr/thirdparty" || exit $?
   fi
   local src_pre="$src/lib/dmitigr/$lib"
   local dst_pre="$dst/lib/dmitigr/$lib"
   if [ -d "$src_pre" ]; then
-    echo "cp -R $src_pre $dst_pre" || exit $?
-  elif [ -f "$src_pre.hpp" ]; then
-    echo "cp $src_pre.hpp $dst_pre.hpp" || exit $?
+    cp -R "$src_pre" "$dst_pre" || exit $?
+  elif [ -f "${src_pre}.hpp" ]; then
+    cp "${src_pre}.hpp" "${dst_pre}.hpp" || exit $?
   else
     err "no library found -- $lib"
   fi
 }
 
 # Recreate the destination subdirectories
-for d in cmake doc lib/dmitigr test; do
+for d in cmake doc lib/dmitigr test tool; do
   rm -rf "$dst/$d" && mkdir -p "$dst/$d" || exit $?
 done
 
@@ -81,6 +82,7 @@ done
 
 # Copy CMake stuff
 cp -R "$src/cmake" "$dst" || exit $?
+cp -R "$src/lib/dmitigr/CMakeLists.txt" "$dst/lib/dmitigr"
 rm -f "$dst/cmake/dmitigr_cefeika_libraries.cmake" || exit $?
 
 # Copy libraries, documentation, tests
@@ -94,8 +96,11 @@ for lib in $libs; do
   copy_lib $lib
 
   # Copy documentation
-  for f in $deps $lib Doxyfile.in; do
-    cp -R "$src/doc/$f" "$dst/doc" || exit $?
+  cp -R "$src/doc/Doxyfile.in" "$dst/doc" || exit $?
+  for f in $deps $lib; do
+    if [ -d "$src/doc/$f" ]; then
+      cp -R "$src/doc/$f" "$dst/doc" || exit $?
+    fi
   done
 
   # Copy tests
@@ -105,3 +110,6 @@ for lib in $libs; do
     fi
   done
 done
+
+# Copy this script
+cp "$0" "$dst/tool" || exit $?
