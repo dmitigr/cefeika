@@ -113,31 +113,50 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ------------------------------------------------------------------------------
-# Getting the actual list of libraries
+# Get the actual list of libraries
 # ------------------------------------------------------------------------------
 
-set(dmitigr_content "#!/bin/bash\n# Copyright (C) Dmitry Igrishin\n\n")
 foreach(lib ${dmitigr_cefeika_libraries_all})
-  set(dmitigr_p "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}")
-  if(EXISTS "${dmitigr_p}" OR EXISTS "${dmitigr_p}.hpp")
+  set(pref "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}")
+  if(EXISTS "${pref}" OR EXISTS "${pref}.hpp")
     list(APPEND dmitigr_cefeika_libraries ${lib})
   endif()
-
-  dmitigr_cefeika_get_deps(lib_deps "${lib}")
-  set(dmitigr_content "${dmitigr_content}${lib}_deps=\"")
-  foreach(dep ${lib_deps})
-    set(dmitigr_content "${dmitigr_content}${dep} ")
-  endforeach()
-  set(dmitigr_content "${dmitigr_content}\"\n")
 endforeach()
-file(WRITE tool/cefeika_deps.sh "${dmitigr_content}")
-unset(dmitigr_p)
-unset(dmitigr_content)
+unset(pref)
 
 configure_file(cmake/dmitigr_cefeika_libraries.cmake.in
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/dmitigr_cefeika_libraries.cmake @ONLY
   NEWLINE_STYLE UNIX)
 
+# ------------------------------------------------------------------------------
+# Check the dependencies of the actual libraries
+# ------------------------------------------------------------------------------
+
+set(content "#!/bin/bash\n# Copyright (C) Dmitry Igrishin\n\n")
+foreach(lib ${dmitigr_cefeika_libraries})
+  set(content "${content}${lib}_deps=\"")
+  dmitigr_cefeika_get_deps(lib_deps "${lib}")
+  foreach(dep ${lib_deps})
+    # Check that the dependency is present
+    string(FIND "${dep}" "thirdparty_" pos)
+    if(pos EQUAL 0)
+      string(REGEX REPLACE "^thirdparty_(.*)" "thirdparty/\\1" dep_path "${dep}")
+    else()
+      set(dep_path "${dep}")
+    endif()
+    set(pref "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${dep_path}")
+    if((NOT EXISTS "${pref}") AND (NOT EXISTS "${pref}.hpp"))
+      message(FATAL_ERROR "${lib} is depends on ${dep} which is not present")
+    endif()
+
+    # Append the content for cefeika_deps.sh
+    set(content "${content}${dep} ")
+  endforeach()
+  string(STRIP "${content}" content)
+  set(content "${content}\"\n")
+endforeach()
+file(WRITE tool/cefeika_deps.sh "${content}")
+unset(content)
 message("Dmitigr Cefeika: libraries ${dmitigr_cefeika_libraries}")
 
 # ------------------------------------------------------------------------------

@@ -3,14 +3,8 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 function(dmitigr_cefeika_load_with_deps component)
-  # Loading dependencies
-  string(FIND "${component}" "thirdparty_" pos)
-  if (pos EQUAL 0)
-    set(comp "${component}")
-  else()
-    string(REGEX REPLACE "^([a-z0-9]+).*" "\\1" comp "${component}")
-  endif()
-  foreach(dep ${dmitigr_cefeika_${comp}_deps})
+  # Loading the component's dependencies
+  foreach(dep ${dmitigr_cefeika_${component}_deps})
     dmitigr_cefeika_load_with_deps(${dep})
   endforeach()
 
