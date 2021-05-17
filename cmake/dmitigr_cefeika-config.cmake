@@ -3,9 +3,7 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 function(dmitigr_cefeika_load_with_deps component)
-  #
-  # Loading the dependencies
-  #
+  # Loading dependencies
   string(FIND "${component}" "thirdparty_" pos)
   if (pos EQUAL 0)
     set(comp "${component}")
@@ -16,9 +14,7 @@ function(dmitigr_cefeika_load_with_deps component)
     dmitigr_cefeika_load_with_deps(${dep})
   endforeach()
 
-  #
   # Loading the component
-  #
   string(REGEX MATCH "(shared|static|interface)$" suffix "${component}")
   if(NOT suffix)
     if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/dmitigr_${component}_shared-config.cmake)
@@ -30,7 +26,6 @@ function(dmitigr_cefeika_load_with_deps component)
     endif()
     set(component "${component}_${suffix}")
   endif()
-
   set(config_file "${CMAKE_CURRENT_LIST_DIR}/dmitigr_${component}-config.cmake")
   if(EXISTS ${config_file})
     include(${config_file})
