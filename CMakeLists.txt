@@ -116,7 +116,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Getting the actual list of libraries
 # ------------------------------------------------------------------------------
 
-set(dmitigr_content)
+set(dmitigr_content "#!/bin/bash\n# Copyright (C) Dmitry Igrishin\n\n")
 foreach(lib ${dmitigr_cefeika_libraries_all})
   set(dmitigr_p "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}")
   if(EXISTS "${dmitigr_p}" OR EXISTS "${dmitigr_p}.hpp")

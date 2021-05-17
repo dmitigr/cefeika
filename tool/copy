@@ -1,0 +1,107 @@
+#!/bin/bash
+# Copyright (C) 2021 Dmitry Igrishin
+
+# This software is provided 'as-is', without any express or implied
+# warranty. In no event will the authors be held liable for any damages
+# arising from the use of this software.
+
+# Permission is granted to anyone to use this software for any purpose,
+# including commercial applications, and to alter it and redistribute it
+# freely, subject to the following restrictions:
+
+# 1. The origin of this software must not be misrepresented; you must not
+#    claim that you wrote the original software. If you use this software
+#    in a product, an acknowledgment in the product documentation would be
+#    appreciated but is not required.
+# 2. Altered source versions must be plainly marked as such, and must not be
+#    misrepresented as being the original software.
+# 3. This notice may not be removed or altered from any source distribution.
+
+script_dir=$(dirname "$0")
+. "${script_dir}/cefeika_deps.sh" || exit $?
+
+err()
+{
+  echo $* >&2
+  exit 1
+}
+
+usage()
+{
+  err "usage: $0 library... path-to-destination-root"
+}
+
+if [ $# -lt 2 ]; then
+  usage
+fi
+
+src=$(realpath "${script_dir}/..")
+while [ $# -gt 1 ]; do
+  if [ ! -d "$src/lib/dmitigr/$1" -a ! -f "$src/lib/dmitigr/$1.hpp" ]; then
+    err "unknown library specified -- $1"
+  fi
+  libs="$libs $1"
+  shift
+done
+dst=$1
+
+# $1 - lib
+copy_lib()
+{
+  local lib=$1
+  local thirdparty_re='^thirdparty_+'
+  if [[ $lib =~ $thirdparty_re ]]; then
+    lib=$(echo "$lib" | sed -E 's/thirdparty_(.*)$/thirdparty\/\1/g')
+  fi
+  local src_pre="$src/lib/dmitigr/$lib"
+  local dst_pre="$dst/lib/dmitigr/$lib"
+  if [ -d "$src_pre" ]; then
+    echo "cp -R $src_pre $dst_pre" || exit $?
+  elif [ -f "$src_pre.hpp" ]; then
+    echo "cp $src_pre.hpp $dst_pre.hpp" || exit $?
+  else
+    err "no library found -- $lib"
+  fi
+}
+
+# Recreate the destination subdirectories
+for d in cmake doc lib/dmitigr test; do
+  rm -rf "$dst/$d" && mkdir -p "$dst/$d" || exit $?
+done
+
+# Copy special stuff
+for f in .editorconfig .gitattributes .gitignore CMakeLists.txt LICENSE.txt README.md; do
+  cp "$src/$f" "$dst" || exit $?
+done
+
+# Copy special .in stuff
+for f in dll.hpp lib.cpp lib.hpp version.hpp version.rc; do
+  cp -R "$src/lib/dmitigr/${f}.in" "$dst/lib/dmitigr" || exit $?
+done
+
+# Copy CMake stuff
+cp -R "$src/cmake" "$dst" || exit $?
+rm -f "$dst/cmake/dmitigr_cefeika_libraries.cmake" || exit $?
+
+# Copy libraries, documentation, tests
+for lib in $libs; do
+  # Copy library and it's dependencies
+  deps=${lib}_deps
+  deps=${!deps}
+  for dep in $deps; do
+    copy_lib $dep
+  done
+  copy_lib $lib
+
+  # Copy documentation
+  for f in $deps $lib Doxyfile.in; do
+    cp -R "$src/doc/$f" "$dst/doc" || exit $?
+  done
+
+  # Copy tests
+  for d in $deps $lib; do
+    if [ -d "$src/test/$d" ]; then
+      cp -R "$src/test/$b" "$dst/test" || exit $?
+    fi
+  done
+done
