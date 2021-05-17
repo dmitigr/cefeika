@@ -10,4 +10,4 @@ add_custom_target(dmitigr_rajson_copy_test_resources ALL
   "${dmitigr_cefeika_resource_destination_dir}"
   )
 
-dmitigr_propagate_tests_settings(rajson)
+dmitigr_cefeika_propagate_tests_settings(rajson)

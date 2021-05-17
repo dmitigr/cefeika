@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(rajson 0 1 "RapidJSON wrapper")
+dmitigr_cefeika_set_library_info(rajson 0 1 "RapidJSON wrapper")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -25,4 +25,4 @@ set(dmitigr_rajson_implementations
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(rajson)
+dmitigr_cefeika_propagate_library_settings(rajson)

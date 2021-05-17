@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(fcgi 1 0 "FastCGI implementation")
+dmitigr_cefeika_set_library_info(fcgi 1 0 "FastCGI implementation")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -36,4 +36,4 @@ set(dmitigr_fcgi_implementations
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(fcgi)
+dmitigr_cefeika_propagate_library_settings(fcgi)

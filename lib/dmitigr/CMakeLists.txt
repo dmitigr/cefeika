@@ -16,5 +16,5 @@ endif()
 # ------------------------------------------------------------------------------
 
 foreach(lib concur filesystem)
-  dmitigr_propagate_library_settings(${lib})
+  dmitigr_cefeika_propagate_library_settings(${lib})
 endforeach()

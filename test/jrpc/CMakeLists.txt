@@ -4,4 +4,4 @@
 
 set(dmitigr_jrpc_tests request response)
 set(dmitigr_jrpc_tests_target_link_libraries)
-dmitigr_propagate_tests_settings(jrpc)
+dmitigr_cefeika_propagate_tests_settings(jrpc)

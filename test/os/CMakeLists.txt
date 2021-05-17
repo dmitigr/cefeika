@@ -5,4 +5,4 @@
 if(UNIX AND NOT CMAKE_SYSTEM_NAME MATCHES MSYS|MinGW|Cygwin)
   set(dmitigr_os_tests detach proc_run)
 endif()
-dmitigr_propagate_tests_settings(os)
+dmitigr_cefeika_propagate_tests_settings(os)

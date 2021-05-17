@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(sqlixx 0 1 "Powerful client API for SQLite")
+dmitigr_cefeika_set_library_info(sqlixx 0 1 "Powerful client API for SQLite")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -39,4 +39,4 @@ endif()
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(sqlixx)
+dmitigr_cefeika_propagate_library_settings(sqlixx)

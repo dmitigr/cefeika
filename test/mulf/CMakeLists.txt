@@ -4,7 +4,7 @@
 
 set(dmitigr_mulf_tests valid)
 set(dmitigr_mulf_tests_target_link_libraries)
-dmitigr_propagate_tests_settings(mulf)
+dmitigr_cefeika_propagate_tests_settings(mulf)
 
 add_custom_target(dmitigr_mulf_copy_test_resources ALL
   COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/mulf-form-data-valid1.txt"

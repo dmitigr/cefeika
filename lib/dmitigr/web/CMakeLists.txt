@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(web 0 1 "Web frameworks")
+dmitigr_cefeika_set_library_info(web 0 1 "Web frameworks")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -24,4 +24,4 @@ set(dmitigr_web_implementations
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(web)
+dmitigr_cefeika_propagate_library_settings(web)

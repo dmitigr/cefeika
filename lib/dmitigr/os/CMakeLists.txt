@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(os 0 1 "OS interaction")
+dmitigr_cefeika_set_library_info(os 0 1 "OS interaction")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -32,4 +32,4 @@ endif()
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(os)
+dmitigr_cefeika_propagate_library_settings(os)

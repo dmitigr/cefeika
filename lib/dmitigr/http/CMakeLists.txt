@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(http 0 1 "HTTP library")
+dmitigr_cefeika_set_library_info(http 0 1 "HTTP library")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -35,4 +35,4 @@ set(dmitigr_http_implementations
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(http)
+dmitigr_cefeika_propagate_library_settings(http)

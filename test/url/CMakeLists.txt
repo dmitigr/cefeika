@@ -4,4 +4,4 @@
 
 set(dmitigr_url_tests test)
 set(dmitigr_url_tests_target_link_libraries)
-dmitigr_propagate_tests_settings(url)
+dmitigr_cefeika_propagate_tests_settings(url)

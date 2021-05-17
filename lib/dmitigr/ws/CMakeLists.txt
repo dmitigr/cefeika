@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(ws 0 1 "WebSocket library")
+dmitigr_cefeika_set_library_info(ws 0 1 "WebSocket library")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -56,4 +56,4 @@ endif()
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(ws)
+dmitigr_cefeika_propagate_library_settings(ws)

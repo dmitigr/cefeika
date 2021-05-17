@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(jrpc 0 1 "JSON RPC implementation")
+dmitigr_cefeika_set_library_info(jrpc 0 1 "JSON RPC implementation")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -28,4 +28,4 @@ set(dmitigr_jrpc_implementations
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(jrpc)
+dmitigr_cefeika_propagate_library_settings(jrpc)

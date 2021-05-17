@@ -11,7 +11,7 @@ if (NOT (UNIX OR WIN32))
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${dmitigr_cefeika_SOURCE_DIR}/cmake)
-include(dmitigr)
+include(dmitigr_cefeika)
 
 # ------------------------------------------------------------------------------
 # Build options
@@ -116,22 +116,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Getting the actual list of libraries
 # ------------------------------------------------------------------------------
 
-# Full list of libraries.
-set(dmitigr_cefeika_libraries_all
-  algo assert cfg concur endianness enum_bitmask filesystem fsmisc math mem
-  progpar reader rng str testo ttpl uuid
-
-  mulf url
-
-  dt os rajson
-
-  jrpc net
-
-  fcgi http pgfe sqlixx ws wscl
-
-  web
-  )
-
 foreach(lib ${dmitigr_cefeika_libraries_all})
   set(dmitigr_p "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}")
   if(EXISTS "${dmitigr_p}" OR EXISTS "${dmitigr_p}.hpp")
@@ -140,10 +124,9 @@ foreach(lib ${dmitigr_cefeika_libraries_all})
 endforeach()
 unset(dmitigr_p)
 
-configure_file(cmake/dmitigr_cefeika.cmake.in
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/dmitigr_cefeika.cmake @ONLY
+configure_file(cmake/dmitigr_cefeika_libraries.cmake.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/dmitigr_cefeika_libraries.cmake @ONLY
   NEWLINE_STYLE UNIX)
-include(dmitigr_cefeika)
 
 message("Dmitigr Cefeika: libraries ${dmitigr_cefeika_libraries}")
 
@@ -225,7 +208,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
     set(${dmlib}_one_header_only False)
   endif()
 
-  dmitigr_set_library_info_lib_variables(${lib})
+  dmitigr_cefeika_set_library_info_lib_variables(${lib})
 
   # -------------
   # Documentation
@@ -314,7 +297,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # One-header-only library source is already added to the both
   # ${dmlib}_root_headers and ${dmlib}_sources.
   if(NOT ${${dmlib}_one_header_only})
-    foreach(st ${dmitigr_source_types})
+    foreach(st ${dmitigr_cefeika_source_types})
       list(TRANSFORM ${dmlib}_${st} PREPEND "lib/dmitigr/${lib}/")
       list(APPEND ${dmlib}_sources ${${dmlib}_${st}})
     endforeach()
@@ -357,7 +340,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
       VERSION ${${dmlib}_version_major}.${${dmlib}_version_minor}
       DEBUG_POSTFIX "d")
 
-    dmitigr_target_compile_options(${dmlib})
+    dmitigr_cefeika_target_compile_options(${dmlib})
   else() # header-only
     target_compile_definitions(${dmlib} INTERFACE ${DMLIB}_HEADER_ONLY)
   endif()
@@ -480,7 +463,7 @@ if(DMITIGR_CEFEIKA_TESTS)
     set(src "${CMAKE_CURRENT_SOURCE_DIR}/test/${lib}/${full_name}.cpp")
     add_executable(${exe} ${src})
     target_link_libraries(${exe} PRIVATE ${dmlib} ${${dmlib}_tests_target_link_libraries})
-    dmitigr_target_compile_options(${exe})
+    dmitigr_cefeika_target_compile_options(${exe})
     if(is_unit_test)
       add_test(NAME ${exe} COMMAND ${exe})
     endif()

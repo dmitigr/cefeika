@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(wscl 0 1 "Asynchronous WebSocket client library")
+dmitigr_cefeika_set_library_info(wscl 0 1 "Asynchronous WebSocket client library")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -41,4 +41,4 @@ endif()
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(wscl)
+dmitigr_cefeika_propagate_library_settings(wscl)

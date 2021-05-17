@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(net 0 1 "Networking library")
+dmitigr_cefeika_set_library_info(net 0 1 "Networking library")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -44,4 +44,4 @@ endif()
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(net)
+dmitigr_cefeika_propagate_library_settings(net)

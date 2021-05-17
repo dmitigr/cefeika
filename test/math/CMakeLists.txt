@@ -3,4 +3,4 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 set(dmitigr_math_tests test)
-dmitigr_propagate_tests_settings(math)
+dmitigr_cefeika_propagate_tests_settings(math)

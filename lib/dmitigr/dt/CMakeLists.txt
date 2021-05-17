@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(dt 0 1 "Date and time library")
+dmitigr_cefeika_set_library_info(dt 0 1 "Date and time library")
 
 # ------------------------------------------------------------------------------
 # Sources
@@ -26,4 +26,4 @@ set(dmitigr_dt_implementations
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(dt)
+dmitigr_cefeika_propagate_library_settings(dt)

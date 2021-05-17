@@ -9,4 +9,4 @@ if(WIN32)
   set(dmitigr_wscl_tests_target_compile_definitions WIN32_LEAN_AND_MEAN)
 endif()
 
-dmitigr_propagate_tests_settings(wscl)
+dmitigr_cefeika_propagate_tests_settings(wscl)

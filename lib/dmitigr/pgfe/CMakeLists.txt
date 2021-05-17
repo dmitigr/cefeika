@@ -6,7 +6,7 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_set_library_info(pgfe 1 0 "Powerful client API for PostgreSQL")
+dmitigr_cefeika_set_library_info(pgfe 1 0 "Powerful client API for PostgreSQL")
 
 # ------------------------------------------------------------------------------
 # Default connection options
@@ -340,4 +340,4 @@ endif()
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_propagate_library_settings(pgfe)
+dmitigr_cefeika_propagate_library_settings(pgfe)

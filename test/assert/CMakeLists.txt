@@ -3,4 +3,4 @@
 # For conditions of distribution and use, see file LICENSE.txt
 
 set(dmitigr_assert_tests test)
-dmitigr_propagate_tests_settings(assert)
+dmitigr_cefeika_propagate_tests_settings(assert)

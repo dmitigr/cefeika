@@ -4,4 +4,4 @@
 
 set(dmitigr_http_tests basics cookie date set_cookie server client)
 set(dmitigr_http_tests_target_link_libraries)
-dmitigr_propagate_tests_settings(http)
+dmitigr_cefeika_propagate_tests_settings(http)
