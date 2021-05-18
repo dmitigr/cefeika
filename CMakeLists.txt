@@ -10,7 +10,7 @@ if (NOT (UNIX OR WIN32))
   message(FATAL_ERROR "Dmitigr Cefeika only supports Unix-like or Windows")
 endif()
 
-list(APPEND CMAKE_MODULE_PATH ${dmitigr_cefeika_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(dmitigr_cefeika)
 
 # ------------------------------------------------------------------------------
@@ -72,6 +72,10 @@ endif()
 if(DMITIGR_CEFEIKA_TESTS)
   message("Dmitigr Cefeika: building tests.")
 endif()
+
+# The libraries sources root directory.
+set(lib_root ".")
+
 # ------------------------------------------------------------------------------
 # Installation options
 # ------------------------------------------------------------------------------
@@ -117,7 +121,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # ------------------------------------------------------------------------------
 
 foreach(lib ${dmitigr_cefeika_libraries_all})
-  set(pref "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}")
+  set(pref "${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}")
   if(EXISTS "${pref}" OR EXISTS "${pref}.hpp")
     list(APPEND dmitigr_cefeika_libraries ${lib})
   endif()
@@ -144,7 +148,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
     else()
       set(dep_path "${dep}")
     endif()
-    set(pref "${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${dep_path}")
+    set(pref "${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${dep_path}")
     if((NOT EXISTS "${pref}") AND (NOT EXISTS "${pref}.hpp"))
       message(FATAL_ERROR "${lib} is depends on ${dep} which is not present")
     endif()
@@ -164,16 +168,16 @@ message("Dmitigr Cefeika: libraries ${dmitigr_cefeika_libraries}")
 # ------------------------------------------------------------------------------
 
 if ("rajson" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(lib/dmitigr/thirdparty/rapidjson)
+  add_subdirectory(${lib_root}/thirdparty/rapidjson)
 endif()
 
 if ("ws" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(lib/dmitigr/thirdparty/usockets)
-  add_subdirectory(lib/dmitigr/thirdparty/uwebsockets)
+  add_subdirectory(${lib_root}/thirdparty/usockets)
+  add_subdirectory(${lib_root}/thirdparty/uwebsockets)
 endif()
 
 if ("wscl" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(lib/dmitigr/thirdparty/uwsc)
+  add_subdirectory(${lib_root}/thirdparty/uwsc)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -217,15 +221,18 @@ install(FILES
 # Libraries
 # ------------------------------------------------------------------------------
 
-# Add one-header-only stuff first
-add_subdirectory(lib/dmitigr)
+# One-header-only libraries dependencies specific first
+dmitigr_append_cppfs(dmitigr_filesystem_target_link_libraries_interface)
+if(UNIX)
+  list(APPEND dmitigr_concur_target_link_libraries_interface pthread)
+endif()
 
 foreach(lib ${dmitigr_cefeika_libraries})
   string(TOUPPER "${lib}" LIB)
 
   set(dmlib dmitigr_${lib})
   set(DMLIB DMITIGR_${LIB})
-  set(${dmlib}_rel_path_prefix "lib/dmitigr/${lib}")
+  set(${dmlib}_rel_path_prefix "${lib_root}/${lib}")
   set(${dmlib}_abs_path_prefix "${CMAKE_CURRENT_SOURCE_DIR}/${${dmlib}_rel_path_prefix}")
 
   if(NOT IS_DIRECTORY "${${dmlib}_abs_path_prefix}")
@@ -263,8 +270,8 @@ foreach(lib ${dmitigr_cefeika_libraries})
     # Some preprocessed headers (like dll.hpp) must be included for every
     # library with implementation files.
     foreach(file dll.hpp)
-      configure_file(lib/dmitigr/${file}.in
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${file} @ONLY
+      configure_file(${lib_root}/${file}.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}/${file} @ONLY
         NEWLINE_STYLE UNIX)
       list(APPEND ${dmlib}_preprocessed_headers ${file})
     endforeach()
@@ -284,10 +291,10 @@ foreach(lib ${dmitigr_cefeika_libraries})
     set(export_file_suffix "interface")
   endif()
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/${lib}.hpp)
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}/${lib}.hpp)
     # Root headers
-    configure_file(lib/dmitigr/lib.hpp.in
-      ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.hpp @ONLY
+    configure_file(${lib_root}/lib.hpp.in
+      ${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}.hpp @ONLY
       NEWLINE_STYLE UNIX)
     list(APPEND ${dmlib}_root_headers "../${lib}.hpp")
 
@@ -297,8 +304,8 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   if(NOT ${${dmlib}_header_only})
     # Transunits
-    configure_file(lib/dmitigr/lib.cpp.in
-      ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}.cpp @ONLY
+    configure_file(${lib_root}/lib.cpp.in
+      ${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}.cpp @ONLY
       NEWLINE_STYLE UNIX)
     list(APPEND ${dmlib}_transunits "../${lib}.cpp")
   endif()
@@ -309,14 +316,14 @@ foreach(lib ${dmitigr_cefeika_libraries})
   if(DEFINED ${dmlib}_version_major)
     if((${${dmlib}_version_major} GREATER 0) OR (${${dmlib}_version_minor} GREATER 0))
       # Preprocessing
-      configure_file(lib/dmitigr/version.hpp.in
-        ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.hpp @ONLY
+      configure_file(${lib_root}/version.hpp.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}/version.hpp @ONLY
         NEWLINE_STYLE UNIX)
       list(APPEND ${dmlib}_preprocessed_headers version.hpp)
 
       if(WIN32 AND NOT ${${dmlib}_header_only})
-        configure_file(lib/dmitigr/version.rc.in
-          ${CMAKE_CURRENT_SOURCE_DIR}/lib/dmitigr/${lib}/version.rc @ONLY
+        configure_file(${lib_root}/version.rc.in
+          ${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}/version.rc @ONLY
           NEWLINE_STYLE UNIX)
         list(APPEND ${dmlib}_build_only_sources version.rc)
       endif()
@@ -327,7 +334,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # ${dmlib}_root_headers and ${dmlib}_sources.
   if(NOT ${${dmlib}_one_header_only})
     foreach(st ${dmitigr_cefeika_source_types})
-      list(TRANSFORM ${dmlib}_${st} PREPEND "lib/dmitigr/${lib}/")
+      list(TRANSFORM ${dmlib}_${st} PREPEND "${lib_root}/${lib}/")
       list(APPEND ${dmlib}_sources ${${dmlib}_${st}})
     endforeach()
   endif()

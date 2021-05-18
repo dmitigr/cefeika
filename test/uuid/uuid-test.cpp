@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/rng.hpp"
-#include "../../lib/dmitigr/testo.hpp"
-#include "../../lib/dmitigr/uuid.hpp"
+#include "../../rng.hpp"
+#include "../../testo.hpp"
+#include "../../uuid.hpp"
 
 int main(int, char* argv[])
 {

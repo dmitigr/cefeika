@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/math.hpp"
-#include "../../lib/dmitigr/testo.hpp"
+#include "../../math.hpp"
+#include "../../testo.hpp"
 
 #include <array>
 #include <vector>

@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt or sqlixx.hpp
 
-#include "../../lib/dmitigr/assert.hpp"
-#include "../../lib/dmitigr/sqlixx.hpp"
+#include "../../assert.hpp"
+#include "../../sqlixx.hpp"
 #include <iostream>
 
 int main()

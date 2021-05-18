@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/http.hpp"
-#include "../../lib/dmitigr/testo.hpp"
+#include "../../http.hpp"
+#include "../../testo.hpp"
 
 int main(int argc, char* argv[])
 {

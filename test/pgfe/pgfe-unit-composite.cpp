@@ -2,9 +2,9 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/testo.hpp"
-#include "../../lib/dmitigr/pgfe/composite.hpp"
-#include "../../lib/dmitigr/pgfe/data.hpp"
+#include "../../testo.hpp"
+#include "../../pgfe/composite.hpp"
+#include "../../pgfe/data.hpp"
 
 int main(int, char* argv[])
 {

@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/testo.hpp"
-#include "../../lib/dmitigr/ttpl.hpp"
+#include "../../testo.hpp"
+#include "../../ttpl.hpp"
 
 int main(int, char* argv[])
 {

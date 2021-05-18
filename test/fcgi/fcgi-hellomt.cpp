@@ -2,7 +2,7 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/fcgi.hpp"
+#include "../../fcgi.hpp"
 
 #include <iostream>
 #include <thread>

@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/jrpc.hpp"
-#include "../../lib/dmitigr/testo.hpp"
+#include "../../jrpc.hpp"
+#include "../../testo.hpp"
 
 int main(int, char* argv[])
 {

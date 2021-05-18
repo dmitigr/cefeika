@@ -2,8 +2,8 @@
 // Copyright (C) Dmitry Igrishin
 // For conditions of distribution and use, see files LICENSE.txt
 
-#include "../../lib/dmitigr/wscl.hpp"
-#include "../../lib/dmitigr/testo.hpp"
+#include "../../wscl.hpp"
+#include "../../testo.hpp"
 
 #include <chrono>
 #include <iostream>
