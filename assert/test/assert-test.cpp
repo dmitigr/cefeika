@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include "../../assert.hpp"
-#include "../../testo.hpp"
 
 #include <chrono>
 #include <thread>
@@ -20,10 +19,16 @@ void handle_terminate() noexcept
 
 int main()
 {
-  namespace testo = dmitigr::testo;
-
-  DMITIGR_ASSERT(testo::is_throw_works<std::logic_error>(
-      []{DMITIGR_CHECK(false);}));
+  bool ok{};
+  DMITIGR_ASSERT([&ok]
+  {
+    try {
+      DMITIGR_CHECK(false);
+    } catch (const std::logic_error&) {
+      return true;
+    }
+    return false;
+  }());
 
   std::set_terminate(&handle_terminate);
   DMITIGR_ASSERT(false);
