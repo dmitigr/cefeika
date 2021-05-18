@@ -23,6 +23,8 @@ set(DMITIGR_CLANG_USE_LIBCPP On CACHE BOOL
   "Use libc++ with Clang?")
 set(DMITIGR_CEFEIKA_HEADER_ONLY Off CACHE BOOL
   "Whole header-only?")
+set(DMITIGR_CEFEIKA_DOXYGEN Off CACHE BOOL
+  "Build configurations for Doxygen?")
 set(DMITIGR_CEFEIKA_TESTS On CACHE BOOL
   "Build tests?")
 set(DMITIGR_CEFEIKA_OPENSSL Off CACHE BOOL
@@ -67,6 +69,10 @@ if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   endif()
 else()
   message("Dmitigr Cefeika: not building libraries (header-only mode).")
+endif()
+
+if(DMITIGR_CEFEIKA_DOXYGEN)
+  message("Dmitigr Cefeika: generating Doxygen configurations.")
 endif()
 
 if(DMITIGR_CEFEIKA_TESTS)
@@ -161,7 +167,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
 endforeach()
 file(WRITE tool/cefeika_deps.sh "${content}")
 unset(content)
-message("Dmitigr Cefeika: libraries ${dmitigr_cefeika_libraries}")
+message("Dmitigr Cefeika: libraries: ${dmitigr_cefeika_libraries}")
 
 # ------------------------------------------------------------------------------
 # Third-party dependencies
@@ -244,15 +250,17 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Documentation
   # -------------
 
-  configure_file(Doxyfile.in
-    ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/Doxyfile @ONLY
-    NEWLINE_STYLE UNIX)
+  if(DMITIGR_CEFEIKA_DOXYGEN)
+    configure_file(Doxyfile.in
+      ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/${lib}/Doxyfile @ONLY
+      NEWLINE_STYLE UNIX)
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${lib}/doxyfile.specific)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${lib}/doxyfile.specific
-      DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib})
-  else()
-    file(TOUCH ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/doxyfile.specific)
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${lib}/doxyfile.specific)
+      file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${lib}/doxyfile.specific
+        DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/${lib})
+    else()
+      file(TOUCH ${CMAKE_CURRENT_SOURCE_DIR}/doxygen/${lib}/doxyfile.specific)
+    endif()
   endif()
 
   # -------------------------------------
