@@ -143,6 +143,16 @@ configure_file(cmake/dmitigr_cefeika_libraries.cmake.in
 # ------------------------------------------------------------------------------
 
 set(content "#!/bin/bash\n# Copyright (C) Dmitry Igrishin\n\n")
+
+# Dump library list
+set(content "${content}cefeika_libraries=\"")
+foreach(lib ${dmitigr_cefeika_libraries})
+  set(content "${content}${lib} ")
+endforeach()
+string(STRIP "${content}" content)
+set(content "${content}\"\n")
+
+# Dump dependency lists
 foreach(lib ${dmitigr_cefeika_libraries})
   set(content "${content}${lib}_deps=\"")
   dmitigr_cefeika_get_deps(lib_deps "${lib}")
