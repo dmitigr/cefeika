@@ -221,12 +221,6 @@ install(FILES
 # Libraries
 # ------------------------------------------------------------------------------
 
-# One-header-only libraries dependencies specific first
-dmitigr_append_cppfs(dmitigr_filesystem_target_link_libraries_interface)
-if(UNIX)
-  list(APPEND dmitigr_concur_target_link_libraries_interface pthread)
-endif()
-
 foreach(lib ${dmitigr_cefeika_libraries})
   string(TOUPPER "${lib}" LIB)
 
