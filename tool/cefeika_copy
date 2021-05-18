@@ -28,14 +28,13 @@ err()
 
 usage()
 {
-  err "usage: $0 [-d] [-t] library... path-to-destination-root"
+  err "usage: $0 [-T] library... path-to-destination-root"
 }
 
-while getopts dt opt
+while getopts T opt
 do
   case $opt in
-    d) with_doc=1 ;;
-    t) with_tests=1 ;;
+    T) without_tests=1 ;;
     ?) usage ;;
   esac
 done
@@ -47,7 +46,7 @@ fi
 
 src=$(realpath "${script_dir}/..")
 while [ $# -gt 1 ]; do
-  if [ ! -d "$src/lib/dmitigr/$1" -a ! -f "$src/lib/dmitigr/$1.hpp" ]; then
+  if [ ! -d "$src/$1" -a ! -f "$src/${1}.hpp" ]; then
     err "unknown library specified -- $1"
   fi
   libs="$libs $1"
@@ -62,25 +61,21 @@ copy_lib()
   local thirdparty_re='^thirdparty_+'
   if [[ $lib =~ $thirdparty_re ]]; then
     lib=$(echo "$lib" | sed -E 's/thirdparty_(.*)$/thirdparty\/\1/g')
-    mkdir -p "$dst/lib/dmitigr/thirdparty" || exit $?
+    mkdir -p "$dst/thirdparty" || exit $?
   fi
-  local src_pre="$src/lib/dmitigr/$lib"
-  local dst_pre="$dst/lib/dmitigr/$lib"
-  if [ -d "$src_pre" ]; then
-    cp -R "$src_pre" "$dst_pre" || exit $?
-  elif [ -f "${src_pre}.hpp" ]; then
-    cp "${src_pre}.hpp" "${dst_pre}.hpp" || exit $?
+  if [ -d "$src/$lib" ]; then
+    rm -rf "$dst/$lib" || exit $?
+    cp -R "$src/$lib" "$dst" || exit $?
+  elif [ -f "$src/${lib}.hpp" ]; then
+    rm -f "$dst/${lib}.hpp" || exit $?
+    cp "$src/${lib}.hpp" "$dst" || exit $?
   else
     err "no library found -- $lib"
   fi
 }
 
-# Recreate the destination subdirectories
-[ X"$with_doc" = X ] || docdir=doc
-[ X"$with_tests" = X ] || testdir=test
-for d in cmake $docdir lib/dmitigr $testdir tool; do
-  rm -rf "$dst/$d" && mkdir -p "$dst/$d" || exit $?
-done
+# Create the destination
+mkdir -p $dst || exit $?
 
 # Copy special stuff
 for f in .editorconfig .gitattributes .gitignore CMakeLists.txt LICENSE.txt README.md; do
@@ -88,13 +83,13 @@ for f in .editorconfig .gitattributes .gitignore CMakeLists.txt LICENSE.txt READ
 done
 
 # Copy special .in stuff
-for f in dll.hpp lib.cpp lib.hpp version.hpp version.rc; do
-  cp -R "$src/lib/dmitigr/${f}.in" "$dst/lib/dmitigr" || exit $?
+for f in dll.hpp lib.cpp lib.hpp version.hpp version.rc Doxyfile; do
+  cp -R "$src/${f}.in" "$dst" || exit $?
 done
 
 # Copy CMake stuff
+rm -rf "$dst/cmake" || exit $?
 cp -R "$src/cmake" "$dst" || exit $?
-cp -R "$src/lib/dmitigr/CMakeLists.txt" "$dst/lib/dmitigr"
 rm -f "$dst/cmake/dmitigr_cefeika_libraries.cmake" || exit $?
 
 # Copy libraries, documentation, tests
@@ -105,27 +100,19 @@ for lib in $libs; do
   for dep in $deps; do
     copy_lib $dep
   done
+  rm -rf "$dst/$lib" || exit $?
   copy_lib $lib
 
-  if [ X"$with_doc" != X ]; then
-    # Copy documentation
-    cp -R "$src/doc/Doxyfile.in" "$dst/doc" || exit $?
-    for f in $deps $lib; do
-      if [ -d "$src/doc/$f" ]; then
-        cp -R "$src/doc/$f" "$dst/doc" || exit $?
-      fi
-    done
-  fi
-
-  if [ X"$with_tests" != X ]; then
+  if [ X"$without_tests" = X ]; then
     # Copy tests
     for d in $deps $lib; do
-      if [ -d "$src/test/$d" ]; then
-        cp -R "$src/test/$d" "$dst/test" || exit $?
+      if [ -d "$src/$d/test" ]; then
+        cp -R "$src/$d/test" "$dst/$d" || exit $?
       fi
     done
   fi
 done
 
 # Copy this script
+mkdir -p "$dst/tool" || exit $?
 cp "$0" "$dst/tool" || exit $?
