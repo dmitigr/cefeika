@@ -20,6 +20,9 @@
 script_dir=$(dirname "$0")
 . "${script_dir}/cefeika_deps.sh" || exit $?
 
+# For cp "$src/$lib"/*.!(test) "$dst/$lib"
+shopt -s extglob
+
 err()
 {
   echo $* >&2
@@ -65,7 +68,13 @@ copy_lib()
   fi
   if [ -d "$src/$lib" ]; then
     rm -rf "$dst/$lib" || exit $?
-    cp -R "$src/$lib" "$dst" || exit $?
+    mkdir -p "$dst/$lib" || exit $?
+    cp "$src/$lib"/*.!(test) "$dst/$lib" || exit $?
+    if [ X"$without_tests" = X ]; then
+      if [ -d "$src/$lib/test" ]; then
+        cp -R "$src/$lib/test" "$dst/$lib" || exit $?
+      fi
+    fi
   elif [ -f "$src/${lib}.hpp" ]; then
     rm -f "$dst/${lib}.hpp" || exit $?
     cp "$src/${lib}.hpp" "$dst" || exit $?
@@ -92,7 +101,7 @@ rm -rf "$dst/cmake" || exit $?
 cp -R "$src/cmake" "$dst" || exit $?
 rm -f "$dst/cmake/dmitigr_cefeika_libraries.cmake" || exit $?
 
-# Copy libraries, documentation, tests
+# Copy libraries
 for lib in $libs; do
   # Copy library and it's dependencies
   deps=${lib}_deps
@@ -102,15 +111,6 @@ for lib in $libs; do
   done
   rm -rf "$dst/$lib" || exit $?
   copy_lib $lib
-
-  if [ X"$without_tests" = X ]; then
-    # Copy tests
-    for d in $deps $lib; do
-      if [ -d "$src/$d/test" ]; then
-        cp -R "$src/$d/test" "$dst/$d" || exit $?
-      fi
-    done
-  fi
 done
 
 # Copy this script
