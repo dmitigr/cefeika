@@ -49,7 +49,7 @@ fi
 
 src=$(realpath "${script_dir}/..")
 while [ $# -gt 1 ]; do
-  if [ ! -d "$src/$1" -a ! -f "$src/${1}.hpp" ]; then
+  if [ ! -d "$src/$1" ]; then
     err "unknown library specified -- $1"
   fi
   libs="$libs $1"
@@ -67,7 +67,6 @@ copy_lib()
     mkdir -p "$dst/thirdparty" || exit $?
   fi
   if [ -d "$src/$lib" ]; then
-    rm -rf "$dst/$lib" || exit $?
     mkdir -p "$dst/$lib" || exit $?
     cp "$src/$lib"/*.!(test) "$dst/$lib" || exit $?
     if [ X"$without_tests" = X ]; then
@@ -75,9 +74,6 @@ copy_lib()
         cp -R "$src/$lib/test" "$dst/$lib" || exit $?
       fi
     fi
-  elif [ -f "$src/${lib}.hpp" ]; then
-    rm -f "$dst/${lib}.hpp" || exit $?
-    cp "$src/${lib}.hpp" "$dst" || exit $?
   else
     err "no library found -- $lib"
   fi
@@ -93,13 +89,12 @@ done
 
 # Copy special .in stuff
 for f in dll.hpp lib.cpp lib.hpp version.hpp version.rc Doxyfile; do
-  cp -R "$src/${f}.in" "$dst" || exit $?
+  cp "$src/${f}.in" "$dst" || exit $?
 done
 
 # Copy CMake stuff
-rm -rf "$dst/cmake" || exit $?
-cp -R "$src/cmake" "$dst" || exit $?
-rm -f "$dst/cmake/dmitigr_cefeika_libraries.cmake" || exit $?
+mkdir -p "$dst/cmake" || exit $?
+cp -R "$src"/cmake/*.!(dmitigr_cefeika_libraries.cmake) "$dst/cmake" || exit $?
 
 # Copy libraries
 for lib in $libs; do
@@ -109,7 +104,6 @@ for lib in $libs; do
   for dep in $deps; do
     copy_lib $dep
   done
-  rm -rf "$dst/$lib" || exit $?
   copy_lib $lib
 done
 
