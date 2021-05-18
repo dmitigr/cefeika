@@ -269,18 +269,18 @@ For conditions of distribution and use, please see the corresponding license.
 [dmitigr_fcgi]: https://github.com/dmitigr/fcgi.git
 [dmitigr_pgfe]: https://github.com/dmitigr/pgfe.git
 
-[dt]: https://github.com/dmitigr/cefeika/tree/master/doc/dt
-[fcgi]: https://github.com/dmitigr/cefeika/tree/master/doc/fcgi
-[http]: https://github.com/dmitigr/cefeika/tree/master/doc/http
-[jrpc]: https://github.com/dmitigr/cefeika/tree/master/doc/jrpc
-[net]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/net
-[os]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/os
-[pgfe]: https://github.com/dmitigr/cefeika/tree/master/doc/pgfe
-[rajson]: https://github.com/dmitigr/cefeika/tree/master/doc/rajson
-[sqlixx]: https://github.com/dmitigr/cefeika/tree/master/doc/sqlixx
-[web]: https://github.com/dmitigr/cefeika/tree/master/lib/dmitigr/web
-[ws]: https://github.com/dmitigr/cefeika/tree/master/doc/ws
-[wscl]: https://github.com/dmitigr/cefeika/tree/master/doc/wscl
+[dt]: https://github.com/dmitigr/cefeika/tree/master/dt
+[fcgi]: https://github.com/dmitigr/cefeika/tree/master/fcgi
+[http]: https://github.com/dmitigr/cefeika/tree/master/http
+[jrpc]: https://github.com/dmitigr/cefeika/tree/master/jrpc
+[net]: https://github.com/dmitigr/cefeika/tree/master/net
+[os]: https://github.com/dmitigr/cefeika/tree/master/os
+[pgfe]: https://github.com/dmitigr/cefeika/tree/master/pgfe
+[rajson]: https://github.com/dmitigr/cefeika/tree/master/rajson
+[sqlixx]: https://github.com/dmitigr/cefeika/tree/master/sqlixx
+[web]: https://github.com/dmitigr/cefeika/tree/master/web
+[ws]: https://github.com/dmitigr/cefeika/tree/master/ws
+[wscl]: https://github.com/dmitigr/cefeika/tree/master/wscl
 
 [CMake]: https://cmake.org/
 [CMake_find_package]: https://cmake.org/cmake/help/latest/command/find_package.html

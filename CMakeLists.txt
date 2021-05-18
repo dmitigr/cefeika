@@ -244,14 +244,15 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Documentation
   # -------------
 
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/doc)
-    configure_file(doc/Doxyfile.in
-      ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/Doxyfile @ONLY
-      NEWLINE_STYLE UNIX)
+  configure_file(Doxyfile.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/Doxyfile @ONLY
+    NEWLINE_STYLE UNIX)
 
-    if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/doxyfile.specific)
-      file(TOUCH ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/doxyfile.specific)
-    endif()
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${lib}/doxyfile.specific)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${lib}/doxyfile.specific
+      DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib})
+  else()
+    file(TOUCH ${CMAKE_CURRENT_SOURCE_DIR}/doc/${lib}/doxyfile.specific)
   endif()
 
   # -------------------------------------
