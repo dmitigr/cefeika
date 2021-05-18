@@ -5,7 +5,7 @@
 #ifndef DMITIGR_PGFE_BASICS_HPP
 #define DMITIGR_PGFE_BASICS_HPP
 
-#include "../enum_bitmask.hpp"
+#include "../base/enum_bitmask.hpp"
 
 #include <string_view>
 

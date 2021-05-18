@@ -6,13 +6,14 @@
 # Info
 # ------------------------------------------------------------------------------
 
-dmitigr_cefeika_set_library_info(enum_bitmask 0 0 "Enum bitmasks")
+dmitigr_cefeika_set_library_info(base 0 0 "Basics")
 
 # ------------------------------------------------------------------------------
 # Sources
 # ------------------------------------------------------------------------------
 
-set(dmitigr_enum_bitmask_headers
+set(dmitigr_base_headers
+  endianness.hpp
   enum_bitmask.hpp
   )
 
@@ -20,4 +21,4 @@ set(dmitigr_enum_bitmask_headers
 # Variables propagation
 # ------------------------------------------------------------------------------
 
-dmitigr_cefeika_propagate_library_settings(enum_bitmask)
+dmitigr_cefeika_propagate_library_settings(base)

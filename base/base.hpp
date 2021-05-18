@@ -20,13 +20,10 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifndef DMITIGR_BASE_BASE_HPP
+#define DMITIGR_BASE_BASE_HPP
 
-#ifndef DMITIGR_ENUM_BITMASK_HPP
-#define DMITIGR_ENUM_BITMASK_HPP
+#include "endianness.hpp"
+#include "enum_bitmask.hpp"
 
-#include "enum_bitmask/enum_bitmask.hpp"
-
-#endif  // DMITIGR_ENUM_BITMASK_HPP
+#endif  // DMITIGR_BASE_BASE_HPP

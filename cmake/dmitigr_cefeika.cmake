@@ -9,8 +9,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/dmitigr.cmake)
 # ------------------------------------------------------------------------------
 
 set(dmitigr_cefeika_libraries_all
-  # Independent (or third-party only dependent)
-  algo assert endianness enum_bitmask filesystem mem rajson
+  # Independent (or std only dependent)
+  algo assert base filesystem mem
+  # Third-party only dependent
+  rajson
   #
   wscl
   #
@@ -32,8 +34,7 @@ set(dmitigr_cefeika_assert_deps)
 set(dmitigr_cefeika_cfg_deps assert filesystem reader str)
 set(dmitigr_cefeika_concur_deps assert)
 set(dmitigr_cefeika_dt_deps assert)
-set(dmitigr_cefeika_endianness_deps)
-set(dmitigr_cefeika_enum_bitmask_deps)
+set(dmitigr_cefeika_base_deps)
 set(dmitigr_cefeika_fcgi_deps assert filesystem math net)
 set(dmitigr_cefeika_filesystem_deps)
 set(dmitigr_cefeika_fsmisc_deps filesystem)
@@ -42,9 +43,9 @@ set(dmitigr_cefeika_jrpc_deps assert math rajson str)
 set(dmitigr_cefeika_math_deps assert)
 set(dmitigr_cefeika_mem_deps)
 set(dmitigr_cefeika_mulf_deps assert str)
-set(dmitigr_cefeika_net_deps assert endianness enum_bitmask filesystem os)
+set(dmitigr_cefeika_net_deps assert base filesystem os)
 set(dmitigr_cefeika_os_deps assert filesystem progpar)
-set(dmitigr_cefeika_pgfe_deps assert enum_bitmask filesystem mem net os str)
+set(dmitigr_cefeika_pgfe_deps assert base filesystem mem net os str)
 set(dmitigr_cefeika_progpar_deps assert filesystem)
 set(dmitigr_cefeika_rajson_deps thirdparty_rapidjson)
 set(dmitigr_cefeika_reader_deps assert filesystem)

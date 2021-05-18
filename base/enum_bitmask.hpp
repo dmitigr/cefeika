@@ -20,8 +20,8 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_ENUM_BITMASK_ENUM_BITMASK_HPP
-#define DMITIGR_ENUM_BITMASK_ENUM_BITMASK_HPP
+#ifndef DMITIGR_BASE_ENUM_BITMASK_HPP
+#define DMITIGR_BASE_ENUM_BITMASK_HPP
 
 #include <type_traits>
 
@@ -141,4 +141,4 @@ operator^=(T& lhs, const T rhs) noexcept
     return dmitigr::operator^=(lhs, rhs);                   \
   }
 
-#endif  // DMITIGR_ENUM_BITMASK_ENUM_BITMASK_HPP
+#endif  // DMITIGR_BASE_ENUM_BITMASK_HPP

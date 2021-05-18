@@ -6,7 +6,7 @@
 #define DMITIGR_NET_CONVERSIONS_HPP
 
 #include "../assert.hpp"
-#include "../endianness.hpp"
+#include "../base/endianness.hpp"
 
 #include <cstdint>
 #include <stdexcept>
