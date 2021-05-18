@@ -245,14 +245,7 @@ foreach(lib ${dmitigr_cefeika_libraries})
   set(${dmlib}_rel_path_prefix "${lib_root}/${lib}")
   set(${dmlib}_abs_path_prefix "${CMAKE_CURRENT_SOURCE_DIR}/${${dmlib}_rel_path_prefix}")
 
-  if(NOT IS_DIRECTORY "${${dmlib}_abs_path_prefix}")
-    list(APPEND ${dmlib}_root_headers "${${dmlib}_rel_path_prefix}.hpp")
-    list(APPEND ${dmlib}_sources ${${dmlib}_root_headers})
-    set(${dmlib}_one_header_only True)
-  else()
-    add_subdirectory(${${dmlib}_rel_path_prefix})
-    set(${dmlib}_one_header_only False)
-  endif()
+  add_subdirectory(${${dmlib}_rel_path_prefix})
 
   dmitigr_cefeika_set_library_info_lib_variables(${lib})
 
@@ -325,7 +318,6 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   # Both major and minor versions of 0 means that the library handles
   # versioning by itself, so no version.* files needs to be configured.
-  # ${dmlib}_version_major is NOT DEFINED when ${dmlib}_one_header_only.
   if(DEFINED ${dmlib}_version_major)
     if((${${dmlib}_version_major} GREATER 0) OR (${${dmlib}_version_minor} GREATER 0))
       # Preprocessing
@@ -341,16 +333,14 @@ foreach(lib ${dmitigr_cefeika_libraries})
         list(APPEND ${dmlib}_build_only_sources version.rc)
       endif()
     endif()
+  else()
+    message(FATAL_ERROR "Variable ${dmlib}_version_major is not defined")
   endif()
 
-  # One-header-only library source is already added to the both
-  # ${dmlib}_root_headers and ${dmlib}_sources.
-  if(NOT ${${dmlib}_one_header_only})
-    foreach(st ${dmitigr_cefeika_source_types})
-      list(TRANSFORM ${dmlib}_${st} PREPEND "${lib_root}/${lib}/")
-      list(APPEND ${dmlib}_sources ${${dmlib}_${st}})
-    endforeach()
-  endif()
+  foreach(st ${dmitigr_cefeika_source_types})
+    list(TRANSFORM ${dmlib}_${st} PREPEND "${lib_root}/${lib}/")
+    list(APPEND ${dmlib}_sources ${${dmlib}_${st}})
+  endforeach()
 
   set_source_files_properties(
     ${${dmlib}_implementations}
