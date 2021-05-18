@@ -25,7 +25,7 @@ set(DMITIGR_CEFEIKA_HEADER_ONLY Off CACHE BOOL
   "Whole header-only?")
 set(DMITIGR_CEFEIKA_DOXYGEN Off CACHE BOOL
   "Build configurations for Doxygen?")
-set(DMITIGR_CEFEIKA_TESTS On CACHE BOOL
+set(DMITIGR_CEFEIKA_TESTS Off CACHE BOOL
   "Build tests?")
 set(DMITIGR_CEFEIKA_OPENSSL Off CACHE BOOL
   "Link to OpenSSL where possible?")
