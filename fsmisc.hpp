@@ -20,84 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_FSMISC_HPP
 #define DMITIGR_FSMISC_HPP
 
-#include "filesystem.hpp"
-
-#include <optional>
-#include <vector>
-
-namespace dmitigr::fsmisc {
-
-/**
- * @returns The vector of the paths.
- *
- * @param root - the search root;
- * @param extension - the extension of files to be included into the result;
- * @param recursive - if `true` then do the recursive search;
- * @param include_heading - if `true` then include the "heading file" (see
- * remarks) into the result.
- *
- * @remarks The "heading file" - is a regular file with the given `extension`
- * which has the same parent directory as the `root`.
- */
-inline std::vector<std::filesystem::path>
-file_paths_by_extension(const std::filesystem::path& root,
-  const std::filesystem::path& extension,
-  const bool recursive, const bool include_heading = false)
-{
-  std::vector<std::filesystem::path> result;
-
-  if (is_regular_file(root) && root.extension() == extension)
-    return {root};
-
-  if (include_heading) {
-    auto heading_file = root;
-    heading_file.replace_extension(extension);
-    if (is_regular_file(heading_file))
-      result.push_back(heading_file);
-  }
-
-  if (is_directory(root)) {
-    const auto traverse = [&](auto iterator)
-    {
-      for (const auto& dirent : iterator) {
-        const auto& path = dirent.path();
-        if (is_regular_file(path) && path.extension() == extension)
-          result.push_back(dirent);
-      }
-    };
-
-    if (recursive)
-      traverse(std::filesystem::recursive_directory_iterator{root});
-    else
-      traverse(std::filesystem::directory_iterator{root});
-  }
-  return result;
-}
-
-/**
- * @brief Searches for the `dir` directory starting from the current working
- * directory and up to the root directory.
- *
- * @returns The first path found to the `dir` directory, or
- * `std::nullopt` if no specified directory found.
- */
-inline std::optional<std::filesystem::path>
-parent_directory_path(const std::filesystem::path& dir)
-{
-  auto path = std::filesystem::current_path();
-  while (true) {
-    if (is_directory(path / dir))
-      return path;
-    else if (path.has_relative_path())
-      path = path.parent_path();
-    else
-      return std::nullopt;
-  }
-}
-
-} // namespace dmitigr::fsmisc
+#include "fsmisc/fsmisc.hpp"
 
 #endif  // DMITIGR_FSMISC_HPP

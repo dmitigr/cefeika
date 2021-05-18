@@ -20,48 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_ASSERT_HPP
 #define DMITIGR_ASSERT_HPP
 
-#include <iostream>
-#include <stdexcept>
-#include <string>
-
-namespace dmitigr {
-
-/// The debug mode indicator.
-#ifndef NDEBUG
-constexpr bool is_debug{true};
-#else
-constexpr bool is_debug{false};
-#endif
-
-} // namespace dmitigr
-
-// Helpers
-#define DMITIGR_ASSERT_STR(s) #s
-#define DMITIGR_ASSERT_XSTR(s) DMITIGR_ASSERT_STR(s)
-
-/// Checks `a` always, regardless of `NDEBUG`.
-#define DMITIGR_ASSERT(a) do {                                          \
-    if (!(a)) {                                                         \
-      std::cerr<<"assertion ("<<#a<<") failed at "<<__FILE__<<":"<<__LINE__<<"\n"; \
-      std::terminate();                                                 \
-    }                                                                   \
-  } while (false)
-
-/// Checks `a` always, regardless of `NDEBUG`.
-#define DMITIGR_CHECK_GENERIC(a, E) do {                \
-    if (!(a)) {                                         \
-      throw E{"check (" #a ") failed at "               \
-        __FILE__ ":" DMITIGR_ASSERT_XSTR(__LINE__)};    \
-    }                                                   \
-  } while (false)
-
-#define DMITIGR_CHECK(a) DMITIGR_CHECK_GENERIC(a, std::logic_error)
-#define DMITIGR_CHECK_ARG(a) DMITIGR_CHECK_GENERIC(a, std::invalid_argument)
-#define DMITIGR_CHECK_DOMAIN(a) DMITIGR_CHECK_GENERIC(a, std::domain_error)
-#define DMITIGR_CHECK_LENGTH(a) DMITIGR_CHECK_GENERIC(a, std::length_error)
-#define DMITIGR_CHECK_RANGE(a) DMITIGR_CHECK_GENERIC(a, std::out_of_range)
+#include "assert/assert.hpp"
 
 #endif  // DMITIGR_ASSERT_HPP

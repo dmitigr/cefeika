@@ -20,125 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_ENUM_BITMASK_HPP
 #define DMITIGR_ENUM_BITMASK_HPP
 
-#include <type_traits>
-
-namespace dmitigr {
-
-// The following code is inspired by the exposition from 14822:2014 17.5.2.1.3.
-
-template<typename T> struct Is_bitmask_enum : std::false_type {};
-
-/// Bitwise AND for `T`.
-template<typename T>
-constexpr std::enable_if_t<Is_bitmask_enum<T>::value, T>
-operator&(const T lhs, const T rhs) noexcept
-{
-  using U = std::underlying_type_t<T>;
-  return static_cast<T>(U(lhs) & U(rhs));
-}
-
-/// Bitwise OR for `T`.
-template<typename T>
-constexpr std::enable_if_t<Is_bitmask_enum<T>::value, T>
-operator|(const T lhs, const T rhs) noexcept
-{
-  using U = std::underlying_type_t<T>;
-  return static_cast<T>(U(lhs) | U(rhs));
-}
-
-/// Bitwise XOR for `T`.
-template<typename T>
-constexpr std::enable_if_t<Is_bitmask_enum<T>::value, T>
-operator^(const T lhs, const T rhs) noexcept
-{
-  using U = std::underlying_type_t<T>;
-  return static_cast<T>(U(lhs) ^ U(rhs));
-}
-
-/// Bitwise NOT for `T`.
-template<typename T>
-constexpr std::enable_if_t<Is_bitmask_enum<T>::value, T>
-operator~(const T rhs) noexcept
-{
-  using U = std::underlying_type_t<T>;
-  return static_cast<T>(~U(rhs));
-}
-
-/// Bitwise AND for `T` with assignment to lvalue.
-template<class T>
-constexpr std::enable_if_t<Is_bitmask_enum<T>::value, T&>
-operator&=(T& lhs, const T rhs) noexcept
-{
-  return lhs = (lhs & rhs);
-}
-
-/// Bitwise OR for `T` with assignment to lvalue.
-template<class T>
-constexpr std::enable_if_t<Is_bitmask_enum<T>::value, T&>
-operator|=(T& lhs, const T rhs) noexcept
-{
-  return lhs = (lhs | rhs);
-}
-
-/// Bitwise XOR for `T` with assignment to lvalue.
-template<class T>
-constexpr std::enable_if_t<Is_bitmask_enum<T>::value, T&>
-operator^=(T& lhs, const T rhs) noexcept
-{
-  return lhs = (lhs ^ rhs);
-}
-
-} // namespace dmitigr
-
-/**
- * @brief The helper macro for defining enum bitmask operators.
- *
- * @param T The type name.
- */
-#define DMITIGR_DEFINE_ENUM_BITMASK_OPERATORS(T)            \
-  /** Bitwise AND for `T`. */                               \
-  constexpr T operator&(const T lhs, const T rhs) noexcept  \
-  {                                                         \
-    return dmitigr::operator&(lhs, rhs);                    \
-  }                                                         \
-                                                            \
-  /** Bitwise OR for `T`. */                                \
-  constexpr T operator|(const T lhs, const T rhs) noexcept  \
-  {                                                         \
-    return dmitigr::operator|(lhs, rhs);                    \
-  }                                                         \
-                                                            \
-  /** Bitwise XOR for `T`. */                               \
-  constexpr T operator^(const T lhs, const T rhs) noexcept  \
-  {                                                         \
-    return dmitigr::operator^(lhs, rhs);                    \
-  }                                                         \
-                                                            \
-  /** Bitwise NOT for `T`. */                               \
-  constexpr T operator~(const T rhs) noexcept               \
-  {                                                         \
-    return dmitigr::operator~(rhs);                         \
-  }                                                         \
-                                                            \
-  /** Bitwise AND for `T` with assignment to lvalue. */     \
-  constexpr T& operator&=(T& lhs, T rhs) noexcept           \
-  {                                                         \
-    return dmitigr::operator&=(lhs, rhs);                   \
-  }                                                         \
-                                                            \
-  /** Bitwise OR for `T` with assignment to lvalue. */      \
-  constexpr T& operator|=(T& lhs, T rhs) noexcept           \
-  {                                                         \
-    return dmitigr::operator|=(lhs, rhs);                   \
-  }                                                         \
-                                                            \
-  /** Bitwise XOR for `T` with assignment to lvalue. */     \
-  constexpr T& operator^=(T& lhs, T rhs) noexcept           \
-  {                                                         \
-    return dmitigr::operator^=(lhs, rhs);                   \
-  }
+#include "enum_bitmask/enum_bitmask.hpp"
 
 #endif  // DMITIGR_ENUM_BITMASK_HPP

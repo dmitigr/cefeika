@@ -20,47 +20,13 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// This file is generated automatically. Edit lib.hpp.in instead!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifndef DMITIGR_MEM_HPP
 #define DMITIGR_MEM_HPP
 
-#include <memory>
-
-namespace dmitigr::mem {
-
-/// A custom deleter for smart pointers.
-template<typename T>
-class Conditional_delete final {
-public:
-  /**
-   * @brief The constructor.
-   *
-   * @par Effects
-   * `condition() == condition`.
-   */
-  explicit constexpr Conditional_delete(const bool condition = true) noexcept
-    : condition_(condition)
-  {}
-
-  /// @returns The value of condition.
-  constexpr bool condition() const noexcept
-  {
-    return condition_;
-  }
-
-  /**
-   * @brief Applies `std::default_delete::operator()` to the
-   * pointer `o` if and only if `(condition() == true)`.
-   */
-  void operator()(T* const o) const noexcept
-  {
-    if (condition())
-      std::default_delete<T>{}(o);
-  }
-
-private:
-  bool condition_{true};
-};
-
-} // namespace dmitigr::mem
+#include "mem/mem.hpp"
 
 #endif  // DMITIGR_MEM_HPP
