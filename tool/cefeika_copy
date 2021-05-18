@@ -31,29 +31,6 @@ usage()
   err "usage: $0 [-T] library... path-to-destination-root"
 }
 
-while getopts T opt
-do
-  case $opt in
-    T) without_tests=1 ;;
-    ?) usage ;;
-  esac
-done
-shift `expr $OPTIND - 1`
-
-if [ $# -lt 2 ]; then
-  usage
-fi
-
-src=$(realpath "${script_dir}/..")
-while [ $# -gt 1 ]; do
-  if [ ! -d "$src/$1" ]; then
-    err "unknown library specified -- $1"
-  fi
-  libs="$libs $1"
-  shift
-done
-dst=$1
-
 # $1 - lib
 copy_lib()
 {
@@ -76,6 +53,30 @@ copy_lib()
     err "no library found -- $lib"
   fi
 }
+
+# Process options
+while getopts T opt
+do
+  case $opt in
+    T) without_tests=1 ;;
+    ?) usage ;;
+  esac
+done
+shift `expr $OPTIND - 1`
+
+# Process arguments
+if [ $# -lt 2 ]; then
+  usage
+fi
+src=$(realpath "${script_dir}/..")
+while [ $# -gt 1 ]; do
+  if [ ! -d "$src/$1" ]; then
+    err "unknown library specified -- $1"
+  fi
+  libs="$libs $1"
+  shift
+done
+dst=$1
 
 # Create the destination
 mkdir -p $dst || exit $?
