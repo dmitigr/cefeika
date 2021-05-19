@@ -77,11 +77,17 @@ else()
   target_compile_definitions(${dmlib} PRIVATE LIBUS_NO_SSL)
 endif()
 
-install(FILES libusockets.h libusockets_dmitigr.h
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/usockets")
-install(TARGETS ${dmlib} ${usockets_sni_tree}
-  EXPORT ${dmlib}_export
-  ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
-install(EXPORT ${dmlib}_export
-  DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
-  FILE "${dmlib}_static-config.cmake")
+if(DMITIGR_CEFEIKA_INSTALL_INCLUDES)
+  install(FILES libusockets.h libusockets_dmitigr.h
+    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/usockets")
+endif()
+if(DMITIGR_CEFEIKA_INSTALL_LIBS)
+  install(TARGETS ${dmlib} ${usockets_sni_tree}
+    EXPORT ${dmlib}_export
+    ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
+endif()
+if(DMITIGR_CEFEIKA_INSTALL_CMAKE)
+  install(EXPORT ${dmlib}_export
+    DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
+    FILE "${dmlib}_static-config.cmake")
+endif()

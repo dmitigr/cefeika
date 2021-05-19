@@ -11,11 +11,15 @@ target_compile_definitions(${dmlib}
   RAPIDJSON_HAS_STDSTRING=1
   RAPIDJSON_NO_SIZETYPEDEFINE)
 
-install(DIRECTORY "./"
-  DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/rapidjson"
-  FILES_MATCHING PATTERN "*.h")
-install(TARGETS ${dmlib}
-  EXPORT ${dmlib}_export)
-install(EXPORT ${dmlib}_export
-  DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
-  FILE ${dmlib}_interface-config.cmake)
+if(DMITIGR_CEFEIKA_INSTALL_INCLUDES)
+  install(DIRECTORY "./"
+    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/rapidjson"
+    FILES_MATCHING PATTERN "*.h")
+endif()
+if(DMITIGR_CEFEIKA_INSTALL_CMAKE)
+  install(TARGETS ${dmlib}
+    EXPORT ${dmlib}_export)
+  install(EXPORT ${dmlib}_export
+    DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
+    FILE ${dmlib}_interface-config.cmake)
+endif()

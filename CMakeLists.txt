@@ -23,6 +23,8 @@ set(DMITIGR_CLANG_USE_LIBCPP On CACHE BOOL
   "Use libc++ with Clang?")
 set(DMITIGR_CEFEIKA_HEADER_ONLY Off CACHE BOOL
   "Whole header-only?")
+set(DMITIGR_CEFEIKA_BUNDLED Off CACHE BOOL
+  "Bundled (no install) mode?")
 set(DMITIGR_CEFEIKA_DOXYGEN Off CACHE BOOL
   "Build configurations for Doxygen?")
 set(DMITIGR_CEFEIKA_TESTS Off CACHE BOOL
@@ -86,13 +88,25 @@ set(lib_root ".")
 # Installation options
 # ------------------------------------------------------------------------------
 
+if(DMITIGR_CEFEIKA_BUNDLED)
+  set(not_bundled Off)
+else()
+  set(not_bundled On)
+endif()
+set(DMITIGR_CEFEIKA_INSTALL_SHARE ${not_bundled} CACHE BOOL
+  "Install shared stuff?")
+set(DMITIGR_CEFEIKA_INSTALL_CMAKE ${not_bundled} CACHE BOOL
+  "Install cmake stuff?")
+set(DMITIGR_CEFEIKA_INSTALL_LIBS ${not_bundled} CACHE BOOL
+  "Install libraries?")
+set(DMITIGR_CEFEIKA_INSTALL_INCLUDES ${not_bundled} CACHE BOOL
+  "Install includes?")
+
 if(UNIX)
   set(DMITIGR_CEFEIKA_SHARE_INSTALL_DIR "share/dmitigr_cefeika" CACHE
     STRING "Name of the installation directory for the shared stuff relative to ${CMAKE_INSTALL_PREFIX}")
   set(DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR "${DMITIGR_CEFEIKA_SHARE_INSTALL_DIR}/cmake" CACHE
     STRING "Name of the installation directory for the CMake stuff relative to ${CMAKE_INSTALL_PREFIX}")
-  set(DMITIGR_CEFEIKA_DOC_INSTALL_DIR "${DMITIGR_CEFEIKA_SHARE_INSTALL_DIR}/doc" CACHE
-    STRING "Name of the installation directory for the documentation relative to ${CMAKE_INSTALL_PREFIX}")
   set(DMITIGR_CEFEIKA_LIB_INSTALL_DIR "lib" CACHE
     STRING "Name of the installation directory for the libraries relative to ${CMAKE_INSTALL_PREFIX}")
   set(DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR "include" CACHE
@@ -106,8 +120,6 @@ elseif(WIN32)
     STRING "Name of the installation directory for the shared stuff relative to ${CMAKE_INSTALL_PREFIX}")
   set(DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR "cmake" CACHE
     STRING "Name of the installation directory for the CMake stuff relative to ${CMAKE_INSTALL_PREFIX}")
-  set(DMITIGR_CEFEIKA_DOC_INSTALL_DIR "doc" CACHE
-    STRING "Name of the installation directory for the documentation relative to ${CMAKE_INSTALL_PREFIX}")
   set(DMITIGR_CEFEIKA_LIB_INSTALL_DIR "lib" CACHE
     STRING "Name of the installation directory for the libraries relative to ${CMAKE_INSTALL_PREFIX}")
   set(DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR "include" CACHE
@@ -225,13 +237,17 @@ add_custom_target(dmitigr_cefeika_create_resource_destination_dir ALL
 # Installing
 # --------------------------------------
 
-install(FILES LICENSE.txt
-  DESTINATION ${DMITIGR_CEFEIKA_SHARE_INSTALL_DIR})
+if(DMITIGR_CEFEIKA_INSTALL_SHARE)
+  install(FILES LICENSE.txt
+    DESTINATION ${DMITIGR_CEFEIKA_SHARE_INSTALL_DIR})
+endif()
 
-install(FILES
-  cmake/dmitigr_cefeika_libraries.cmake
-  cmake/dmitigr_cefeika-config.cmake
-  DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR})
+if(DMITIGR_CEFEIKA_INSTALL_CMAKE)
+  install(FILES
+    cmake/dmitigr_cefeika_libraries.cmake
+    cmake/dmitigr_cefeika-config.cmake
+    DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR})
+endif()
 
 # ------------------------------------------------------------------------------
 # Libraries
@@ -427,37 +443,41 @@ foreach(lib ${dmitigr_cefeika_libraries})
   # Installing
   # ------------------------------------
 
-  install(FILES ${${dmlib}_root_headers}
-    DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr)
+  if(DMITIGR_CEFEIKA_INSTALL_INCLUDES)
+    install(FILES ${${dmlib}_root_headers}
+      DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr)
 
-  install(FILES ${${dmlib}_preprocessed_headers}
-    DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
-
-  install(FILES ${${dmlib}_headers}
-    DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
-
-  if(NOT ${${dmlib}_header_only})
-    install(TARGETS ${dmlib}
-      EXPORT ${dmlib}_export
-      ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
-      LIBRARY  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
-      RUNTIME  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
-      INCLUDES DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
-  else()
-    install(TARGETS ${dmlib}
-      EXPORT ${dmlib}_export
-      INCLUDES DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
-
-    install(FILES ${${dmlib}_implementations}
+    install(FILES ${${dmlib}_preprocessed_headers}
       DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
+
+    install(FILES ${${dmlib}_headers}
+      DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
+
+    if(NOT ${${dmlib}_header_only})
+      install(TARGETS ${dmlib}
+        EXPORT ${dmlib}_export
+        ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
+        LIBRARY  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
+        RUNTIME  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}
+        INCLUDES DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
+    else()
+      install(TARGETS ${dmlib}
+        EXPORT ${dmlib}_export
+        INCLUDES DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
+
+      install(FILES ${${dmlib}_implementations}
+        DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
+    endif()
   endif()
 
-  # Don't use NAMESPACE, since ${dmlib} contains "dmitigr_" prefix already
-  # and it seems there is no way to omit it in order to use NAMESPACE...
-  install(EXPORT ${dmlib}_export
-    # NAMESPACE dmitigr::
-    DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
-    FILE ${dmlib}_${export_file_suffix}-config.cmake)
+  if(DMITIGR_CEFEIKA_INSTALL_CMAKE)
+    # Don't use NAMESPACE, since ${dmlib} contains "dmitigr_" prefix already
+    # and it seems there is no way to omit it in order to use NAMESPACE...
+    install(EXPORT ${dmlib}_export
+      # NAMESPACE dmitigr::
+      DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}
+      FILE ${dmlib}_${export_file_suffix}-config.cmake)
+  endif()
 
   # ------------------------------------
   # Uninstalling
@@ -465,7 +485,6 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   add_custom_command(TARGET dmitigr_cefeika_uninstall PRE_BUILD
     COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}/${dmlib}*
-    COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_DOC_INSTALL_DIR}/${dmlib}*
     COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/${dmlib}*
     COMMAND cmake -E rm -f ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_LIB_INSTALL_DIR}/lib${dmlib}*
     COMMAND cmake -E rm -rf ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib}*
