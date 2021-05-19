@@ -25,7 +25,7 @@ set(dmitigr_pgfe_tests
   sql_vector
   )
 
-set(dmitigr_pgfe_tests_target_link_libraries dmitigr::os)
+set(dmitigr_pgfe_tests_target_link_libraries dmitigr_os dmitigr_reader dmitigr_testo)
 
 add_custom_target(dmitigr_pgfe_copy_test_resources ALL
   COMMAND cmake -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/pgfe-unit-sql_vector.sql"
