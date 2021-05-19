@@ -19,6 +19,7 @@
 
 script_dir=$(dirname "$0")
 . "${script_dir}/cefeika_deps.sh" || exit $?
+. "${script_dir}/cefeika_test_deps.sh" || exit $?
 
 err()
 {
@@ -47,11 +48,27 @@ copy_lib()
     if [ X"$without_tests" = X ]; then
       if [ -d "$src/$lib/test" ]; then
         cp -R "$src/$lib/test" "$dst/$lib" || exit $?
+        local test_deps=${lib}_test_deps
+        copy_libs ${!test_deps}
       fi
     fi
   else
     err "no library found -- $lib"
   fi
+}
+
+# $* - libs
+copy_libs()
+{
+  for lib in $*; do
+    # Copy library and it's dependencies
+    deps=${lib}_deps
+    deps=${!deps}
+    for dep in $deps; do
+      copy_lib $dep
+    done
+    copy_lib $lib
+  done
 }
 
 # Process options
@@ -97,15 +114,7 @@ find "$src/cmake" -mindepth 1 ! -name 'dmitigr_cefeika_libraries.cmake' -print0 
   xargs -0 -I% cp -R % "$dst/cmake" || exit $?
 
 # Copy libraries
-for lib in $libs; do
-  # Copy library and it's dependencies
-  deps=${lib}_deps
-  deps=${!deps}
-  for dep in $deps; do
-    copy_lib $dep
-  done
-  copy_lib $lib
-done
+copy_libs $libs
 
 # Copy this script
 mkdir -p "$dst/tool" || exit $?
