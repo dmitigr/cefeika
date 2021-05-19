@@ -205,6 +205,12 @@ endmacro()
 # ------------------------------------------------------------------------------
 
 macro(dmitigr_cefeika_propagate_tests_settings lib)
+  foreach(test ${dmitigr_${lib}_tests})
+    set(dmitigr_${lib}_test_${test}_target_link_libraries
+      ${dmitigr_${lib}_test_${test}_target_link_libraries} PARENT_SCOPE)
+    set(dmitigr_${lib}_test_${test}_target_compile_definitions
+      ${dmitigr_${lib}_test_${test}_target_compile_definitions} PARENT_SCOPE)
+  endforeach()
   set(dmitigr_${lib}_tests ${dmitigr_${lib}_tests} PARENT_SCOPE)
   set(dmitigr_${lib}_tests_target_link_libraries ${dmitigr_${lib}_tests_target_link_libraries} PARENT_SCOPE)
   set(dmitigr_${lib}_tests_target_compile_definitions ${dmitigr_${lib}_tests_target_compile_definitions} PARENT_SCOPE)
