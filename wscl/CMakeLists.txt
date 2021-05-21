@@ -17,6 +17,7 @@ set(dmitigr_wscl_headers
   )
 
 set(dmitigr_wscl_implementations
+  wscl.cpp
   )
 
 # ------------------------------------------------------------------------------
@@ -28,6 +29,11 @@ if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
 else()
   set(suffix "interface")
 endif()
+
+# dmitigr_3rdparty_uwsc must be exported anyway. If header-only mode is off,
+# it will be exported as interface. Otherwise, it will be exported as static
+# library. So, target_link_libraries cannot be private in this case.
+set(dmitigr_wscl_target_link_libraries_${suffix} dmitigr_3rdparty_uwsc)
 
 if(WIN32)
   set(dmitigr_wscl_target_compile_definitions_${suffix} WIN32_LEAN_AND_MEAN)

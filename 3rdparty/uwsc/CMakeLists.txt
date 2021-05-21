@@ -55,7 +55,21 @@ endif()
 # ------------------------------------------------------------------------------
 
 set(dmlib dmitigr_3rdparty_uwsc)
-add_library(${dmlib} STATIC ${uwsc_implementations} ${uwsc_headers})
+
+if(DMITIGR_CEFEIKA_HEADER_ONLY)
+  # In header-only mode we build a static library to be exported.
+  set(dmlib_type STATIC)
+  set(dmlib_export_type "static")
+else()
+  # In not header-only mode build an object library which will be exported as
+  # interface automatically. The object library will be included (directly
+  # linked) into the our libraries. The interface definition of the object
+  # library will contains compile definitions.
+  set(dmlib_type OBJECT)
+  set(dmlib_export_type "interface")
+endif()
+
+add_library(${dmlib} ${dmlib_type} ${uwsc_implementations} ${uwsc_headers})
 set_target_properties(${dmlib}
   PROPERTIES
   OUTPUT_NAME "${dmlib}"
@@ -76,10 +90,10 @@ endif()
 if(DMITIGR_CEFEIKA_INSTALL_LIBS)
   install(TARGETS ${dmlib}
     EXPORT ${dmlib}_export
-    ARCHIVE  DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
+    ARCHIVE DESTINATION ${DMITIGR_CEFEIKA_LIB_INSTALL_DIR})
 endif()
 if(DMITIGR_CEFEIKA_INSTALL_CMAKE)
   install(EXPORT ${dmlib}_export
     DESTINATION "${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR}"
-    FILE "${dmlib}_static-config.cmake")
+    FILE "${dmlib}_${dmlib_export_type}-config.cmake")
 endif()

@@ -23,14 +23,12 @@
 #ifndef DMITIGR_WSCL_WSCL_HPP
 #define DMITIGR_WSCL_WSCL_HPP
 
+#include "dll.hpp"
 #include "version.hpp"
-#include "../assert.hpp"
 #include "../3rdparty/uwsc/uwsc.h"
 
-#include <cstring>
 #include <chrono>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 
@@ -60,47 +58,27 @@ public:
    *
    * URL scheme must be "ws" or "wss".
    */
-  Connection_options& url(std::string value)
-  {
-    url_ = std::move(value);
-    return *this;
-  }
+  DMITIGR_WSCL_API Connection_options& url(std::string value);
 
   /// @returns The current WebSocket server URL.
-  const std::string& url() const noexcept
-  {
-    return url_;
-  }
+  DMITIGR_WSCL_API const std::string& url() const noexcept;
 
   /**
    * @brief Sets the ping interval.
    *
    * @remarks `value` less then `0` disables pings.
    */
-  Connection_options& ping_interval(const std::chrono::seconds value)
-  {
-    ping_interval_ = value;
-    return *this;
-  }
+  DMITIGR_WSCL_API Connection_options& ping_interval(const std::chrono::seconds value);
 
   /// @returns The current ping interval.
-  std::chrono::seconds ping_interval() const noexcept
-  {
-    return ping_interval_;
-  }
+  DMITIGR_WSCL_API std::chrono::seconds ping_interval() const noexcept;
 
   /// Adds the extra header to pass upon handshake.
-  Connection_options& extra_header(const std::string_view name, const std::string_view value)
-  {
-    extra_headers_.append(name).append(":").append(value).append("\r\n");
-    return *this;
-  }
+  DMITIGR_WSCL_API Connection_options& extra_header(const std::string_view name,
+    const std::string_view value);
 
   /// @returns The extra headers to pass upon handshake.
-  const std::string& extra_headers() const noexcept
-  {
-    return extra_headers_;
-  }
+  DMITIGR_WSCL_API const std::string& extra_headers() const noexcept;
 
 private:
   std::string url_;
@@ -119,10 +97,7 @@ public:
   using Options = Connection_options;
 
   /// Closes connection with normal status.
-  ~Connection()
-  {
-    close(UWSC_CLOSE_STATUS_NORMAL);
-  }
+  DMITIGR_WSCL_API ~Connection();
 
   /// Default-constructible.
   Connection() = default;
@@ -133,22 +108,7 @@ public:
    * @par Requires
    * `loop`.
    */
-  Connection(void* const loop, Options options)
-    : options_{std::move(options)}
-  {
-    DMITIGR_CHECK_ARG(loop);
-
-    rep_.reset(uwsc_new(static_cast<struct ev_loop*>(loop), options_.url().c_str(),
-        options_.ping_interval().count(), options_.extra_headers().c_str()));
-    if (!rep_)
-      throw std::runtime_error{"cannot create instance of type uwsc::Connection"};
-
-    rep_->ext = this;
-    rep_->onopen = handle_open__;
-    rep_->onmessage = handle_message__;
-    rep_->onerror = handle_error__;
-    rep_->onclose = handle_close__;
-  }
+  DMITIGR_WSCL_API Connection(void* const loop, Options options);
 
   /**
    * @returns `true` if the connection is open.
@@ -157,16 +117,10 @@ public:
    *
    * @see handle_open().
    */
-  bool is_open() const noexcept
-  {
-    return is_open_;
-  }
+  DMITIGR_WSCL_API bool is_open() const noexcept;
 
   /// @returns Connection options.
-  const Options& options() const noexcept
-  {
-    return options_;
-  }
+  DMITIGR_WSCL_API const Options& options() const noexcept;
 
   /**
    * Sets the ping interval on open connection. (Overwrites
@@ -175,12 +129,7 @@ public:
    * @par Requires
    * `is_open()`.
    */
-  void set_ping_interval(const std::chrono::seconds interval) noexcept
-  {
-    DMITIGR_CHECK(is_open_);
-    options_.ping_interval(interval);
-    rep_->ping_interval = interval.count();
-  }
+  DMITIGR_WSCL_API void set_ping_interval(const std::chrono::seconds interval) noexcept;
 
   /**
    * Sends the data of specified format to the WebSocket server.
@@ -188,11 +137,7 @@ public:
    * @par Requires
    * `is_open()`.
    */
-  void send(const std::string_view data, const bool is_binary)
-  {
-    DMITIGR_CHECK(is_open_);
-    rep_->send(rep_.get(), data.data(), data.size(), is_binary ? UWSC_OP_BINARY : UWSC_OP_TEXT);
-  }
+  DMITIGR_WSCL_API void send(const std::string_view data, const bool is_binary);
 
   /**
    * Sends the text data to the WebSocket server.
@@ -200,11 +145,7 @@ public:
    * @par Requires
    * `is_open()`.
    */
-  void send_text(const std::string_view data)
-  {
-    DMITIGR_CHECK(is_open_);
-    rep_->send(rep_.get(), data.data(), data.size(), UWSC_OP_TEXT);
-  }
+  DMITIGR_WSCL_API void send_text(const std::string_view data);
 
   /**
    * Sends the binary data to the WebSocket server.
@@ -212,11 +153,7 @@ public:
    * @par Requires
    * `is_open()`.
    */
-  void send_binary(const std::string_view data)
-  {
-    DMITIGR_CHECK(is_open_);
-    rep_->send(rep_.get(), data.data(), data.size(), UWSC_OP_BINARY);
-  }
+  DMITIGR_WSCL_API void send_binary(const std::string_view data);
 
   /**
    * Pings the WebSocket server.
@@ -224,26 +161,20 @@ public:
    * @par Requires
    * `is_open()`.
    */
-  void ping()
-  {
-    DMITIGR_CHECK(is_open_);
-    rep_->ping(rep_.get());
-  }
+  DMITIGR_WSCL_API void ping();
 
   /**
    * Initiates connection close.
    *
-   * @remarks is_open() starts return `false` only just before call of handle_close().
+   * @remarks is_open() starts return `false` only just before call of
+   * handle_close().
    */
-  void close(const int code, const std::string& reason = {}) noexcept
-  {
-    if (is_open_)
-      rep_->send_close(rep_.get(), code, reason.c_str());
-  }
+  DMITIGR_WSCL_API void close(const int code, const std::string& reason = {}) noexcept;
 
 protected:
   /// @name Callbacks
-  /// @remarks These functions are called on the thread of the associated event loop.
+  /// @remarks These functions are called on the thread of the associated event
+  /// loop.
   /// @{
 
   /// This function is called just after successful connection open.
@@ -265,42 +196,24 @@ private:
   std::unique_ptr<uwsc_client> rep_;
   Options options_;
 
-  static void handle_open__(uwsc_client* const cl) noexcept
-  {
-    auto* const s = self(cl);
-    s->is_open_ = true;
-    s->handle_open();
-  }
+  static void handle_open__(uwsc_client* const cl) noexcept;
 
   static void handle_message__(uwsc_client* const cl, void* const data,
-    const std::size_t size, const bool binary) noexcept
-  {
-    self(cl)->handle_message({static_cast<char*>(data), size}, binary);
-  }
+    const std::size_t size, const bool binary) noexcept;
 
-  static void handle_error__(uwsc_client* const cl, const int code, const char* const message) noexcept
-  {
-    auto* const s = self(cl);
-    s->is_open_ = false;
-    s->handle_error(code, {message, std::strlen(message)});
-  }
+  static void handle_error__(uwsc_client* const cl, const int code,
+    const char* const message) noexcept;
 
-  static void handle_close__(uwsc_client* const cl, const int code, const char* const reason) noexcept
-  {
-    auto* const s = self(cl);
-    s->is_open_ = false;
-    s->handle_close(code, {reason, std::strlen(reason)});
-  }
+  static void handle_close__(uwsc_client* const cl, const int code,
+    const char* const reason) noexcept;
 
-  static Connection* self(uwsc_client* const cl) noexcept
-  {
-    DMITIGR_ASSERT(cl);
-    auto* const self = static_cast<Connection*>(cl->ext);
-    DMITIGR_ASSERT(self);
-    return self;
-  }
+  static Connection* self(uwsc_client* const cl) noexcept;
 };
 
 } // namespace dmitigr::wscl
+
+#ifdef DMITIGR_WSCL_HEADER_ONLY
+#include "wscl.cpp"
+#endif
 
 #endif  // DMITIGR_WSCL_WSCL_HPP
