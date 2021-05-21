@@ -54,7 +54,7 @@ endif()
 
 # ------------------------------------------------------------------------------
 
-set(dmlib dmitigr_thirdparty_uwsc)
+set(dmlib dmitigr_3rdparty_uwsc)
 add_library(${dmlib} STATIC ${uwsc_implementations} ${uwsc_headers})
 set_target_properties(${dmlib}
   PROPERTIES
@@ -71,7 +71,7 @@ target_link_libraries(${dmlib} PUBLIC ${uwsc_link_libraries_public})
 
 if(DMITIGR_CEFEIKA_INSTALL_INCLUDES)
   install(FILES ${uwsc_headers}
-    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/uwsc")
+    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/3rdparty/uwsc")
 endif()
 if(DMITIGR_CEFEIKA_INSTALL_LIBS)
   install(TARGETS ${dmlib}

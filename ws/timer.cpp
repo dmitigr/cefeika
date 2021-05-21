@@ -4,7 +4,7 @@
 
 #include "timer.hpp"
 #include "../assert.hpp"
-#include "../thirdparty/usockets/libusockets.h"
+#include "../3rdparty/usockets/libusockets.h"
 
 #include <uv.h> // instead of <internal/eventing/libuv.h>
 

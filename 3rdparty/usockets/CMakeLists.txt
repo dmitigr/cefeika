@@ -39,8 +39,8 @@ set(usockets_sources
   )
 if (DMITIGR_CEFEIKA_OPENSSL)
   list(APPEND usockets_sources crypto/openssl.c)
-  add_library(dmitigr_thirdparty_usockets_sni_tree OBJECT crypto/sni_tree.cpp)
-  list(APPEND usockets_sni_tree dmitigr_thirdparty_usockets_sni_tree)
+  add_library(dmitigr_3rdparty_usockets_sni_tree OBJECT crypto/sni_tree.cpp)
+  list(APPEND usockets_sni_tree dmitigr_3rdparty_usockets_sni_tree)
 endif()
 
 if(WIN32)
@@ -51,7 +51,7 @@ endif()
 
 # ------------------------------------------------------------------------------
 
-set(dmlib dmitigr_thirdparty_usockets)
+set(dmlib dmitigr_3rdparty_usockets)
 
 add_library(${dmlib} STATIC ${usockets_sources})
 set_target_properties(${dmlib}
@@ -79,7 +79,7 @@ endif()
 
 if(DMITIGR_CEFEIKA_INSTALL_INCLUDES)
   install(FILES libusockets.h libusockets_dmitigr.h
-    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/usockets")
+    DESTINATION "${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/3rdparty/usockets")
 endif()
 if(DMITIGR_CEFEIKA_INSTALL_LIBS)
   install(TARGETS ${dmlib} ${usockets_sni_tree}

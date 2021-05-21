@@ -36,21 +36,21 @@ usage()
 copy_lib()
 {
   local lib=$1
-  local thirdparty_re='^thirdparty_+'
+  local thirdparty_re='^3rdparty_+'
   if [[ $lib =~ $thirdparty_re ]]; then
-    lib=$(echo "$lib" | sed -E 's/thirdparty_(.*)$/thirdparty\/\1/g')
-    mkdir -p "$dst/thirdparty" || exit $?
+    libpath=$(echo "$lib" | sed -E 's/3rdparty_(.*)$/3rdparty\/\1/g')
+    mkdir -p "$dst/3rdparty" || exit $?
   fi
-  if [ -f "$src/${lib}.hpp" ]; then
-    cp "$src/${lib}.hpp" "$dst" || exit $?
+  if [ -f "$src/${libpath}.hpp" ]; then
+    cp "$src/${libpath}.hpp" "$dst" || exit $?
   fi
-  if [ -d "$src/$lib" ]; then
-    mkdir -p "$dst/$lib" || exit $?
-    find "$src/$lib" -mindepth 1 ! -name 'test' ! -path "$src/$lib/test/*" -print0 | \
-      xargs -0 -I% cp -R % "$dst/$lib" || exit $?
+  if [ -d "$src/$libpath" ]; then
+    mkdir -p "$dst/$libpath" || exit $?
+    find "$src/$libpath" -mindepth 1 ! -name 'test' ! -path "$src/$libpath/test/*" -print0 | \
+      xargs -0 -I% cp -R % "$dst/$libpath" || exit $?
     if [ X"$without_tests" = X ]; then
-      if [ -d "$src/$lib/test" ]; then
-        cp -R "$src/$lib/test" "$dst/$lib" || exit $?
+      if [ -d "$src/$libpath/test" ]; then
+        cp -R "$src/$libpath/test" "$dst/$libpath" || exit $?
         local test_deps=${lib}_test_deps
         copy_libs ${!test_deps}
       fi

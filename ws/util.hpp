@@ -6,7 +6,7 @@
 #define DMITIGR_WS_UTIL_HPP
 
 #include "../assert.hpp"
-#include "../thirdparty/usockets/libusockets_dmitigr.h"
+#include "../3rdparty/usockets/libusockets_dmitigr.h"
 
 #include <string_view>
 

@@ -16,6 +16,6 @@ namespace rapidjson {
 using SizeType = std::size_t;
 } // namespace rapidjson
 
-#include "../thirdparty/rapidjson/fwd.h"
+#include "../3rdparty/rapidjson/fwd.h"
 
 #endif  // DMITIGR_RAJSON_FWD_HPP

@@ -196,11 +196,11 @@ target_link_libraries(foo dmitigr_fcgi dmitigr_pgfe)
 ```
 
 The next code demonstrates how to import the standalone [Pgfe][dmitigr_pgfe]
-library dropped directly into the project's source directory `thirdparty/pgfe`:
+library dropped directly into the project's source directory `3rdparty/pgfe`:
 
 ```cmake
 set(DMITIGR_CEFEIKA_HEADER_ONLY ON CACHE BOOL "Header-only?")
-add_subdirectory(thirdparty/pgfe)
+add_subdirectory(3rdparty/pgfe)
 ```
 
 Note, that all CMake variables described in [CMake options](#cmake-options) are
@@ -256,10 +256,10 @@ distributed under zlib [LICENSE](LICENSE.txt).
 
 Cefeika includes the following software of third parties:
 
-  - [RapidJSON] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/rapidjson/license.txt);
-  - [uSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/usockets/LICENSE);
-  - [uWebSockets] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwebsockets/LICENSE);
-  - [libuwsc] is distributed under the following [LICENSE](lib/dmitigr/thirdparty/uwsc/LICENSE).
+  - [RapidJSON] is distributed under the following [LICENSE](lib/dmitigr/3rdparty/rapidjson/license.txt);
+  - [uSockets] is distributed under the following [LICENSE](lib/dmitigr/3rdparty/usockets/LICENSE);
+  - [uWebSockets] is distributed under the following [LICENSE](lib/dmitigr/3rdparty/uwebsockets/LICENSE);
+  - [libuwsc] is distributed under the following [LICENSE](lib/dmitigr/3rdparty/uwsc/LICENSE).
 
 For conditions of distribution and use, please see the corresponding license.
 

@@ -25,7 +25,7 @@
 
 #include "version.hpp"
 #include "../assert.hpp"
-#include "../thirdparty/uwsc/uwsc.h"
+#include "../3rdparty/uwsc/uwsc.h"
 
 #include <cstring>
 #include <chrono>

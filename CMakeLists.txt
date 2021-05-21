@@ -170,9 +170,9 @@ foreach(lib ${dmitigr_cefeika_libraries})
   dmitigr_cefeika_get_deps(lib_deps "${lib}")
   foreach(dep ${lib_deps})
     # Check that the dependency is present
-    string(FIND "${dep}" "thirdparty_" pos)
+    string(FIND "${dep}" "3rdparty_" pos)
     if(pos EQUAL 0)
-      string(REGEX REPLACE "^thirdparty_(.*)" "thirdparty/\\1" dep_path "${dep}")
+      string(REGEX REPLACE "^3rdparty_(.*)" "3rdparty/\\1" dep_path "${dep}")
     else()
       set(dep_path "${dep}")
     endif()
@@ -196,16 +196,16 @@ message("Dmitigr Cefeika: libraries: ${dmitigr_cefeika_libraries}")
 # ------------------------------------------------------------------------------
 
 if ("rajson" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(${lib_root}/thirdparty/rapidjson)
+  add_subdirectory(${lib_root}/3rdparty/rapidjson)
 endif()
 
 if ("ws" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(${lib_root}/thirdparty/usockets)
-  add_subdirectory(${lib_root}/thirdparty/uwebsockets)
+  add_subdirectory(${lib_root}/3rdparty/usockets)
+  add_subdirectory(${lib_root}/3rdparty/uwebsockets)
 endif()
 
 if ("wscl" IN_LIST dmitigr_cefeika_libraries)
-  add_subdirectory(${lib_root}/thirdparty/uwsc)
+  add_subdirectory(${lib_root}/3rdparty/uwsc)
 endif()
 
 # ------------------------------------------------------------------------------
@@ -492,11 +492,11 @@ foreach(lib ${dmitigr_cefeika_libraries})
 
   dmitigr_cefeika_get_deps(res ${lib})
   foreach(dep ${res})
-    string(FIND "${dep}" "thirdparty_" pos)
+    string(FIND "${dep}" "3rdparty_" pos)
     if (pos EQUAL 0)
       string(SUBSTRING "${dep}" 11 -1 dep)
       add_custom_command(TARGET dmitigr_cefeika_uninstall PRE_BUILD
-        COMMAND cmake -E rm -rf ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/thirdparty/*${dep}*)
+        COMMAND cmake -E rm -rf ${CMAKE_INSTALL_PREFIX}/${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/3rdparty/*${dep}*)
     endif()
   endforeach()
 endforeach()

@@ -12,9 +12,9 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-#include "../thirdparty/uwebsockets/App.h"
-#include "../thirdparty/uwebsockets/HttpParser.h"
-#include "../thirdparty/uwebsockets/HttpResponse.h"
+#include "../3rdparty/uwebsockets/App.h"
+#include "../3rdparty/uwebsockets/HttpParser.h"
+#include "../3rdparty/uwebsockets/HttpResponse.h"
 
 #ifdef __GNUG__
 #pragma GCC diagnostic pop
