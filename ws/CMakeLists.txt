@@ -44,6 +44,11 @@ else()
   set(suffix "interface")
 endif()
 
+# dmitigr_3rdparty_usockets must be exported anyway. If header-only mode is off,
+# it will be exported as interface. Otherwise, it will be exported as static
+# library. So, target_link_libraries cannot be private in this case.
+set(dmitigr_ws_target_link_libraries_${suffix} dmitigr_3rdparty_usockets)
+
 if(WIN32)
   set(dmitigr_ws_target_compile_definitions_${suffix} WIN32_LEAN_AND_MEAN)
 endif()

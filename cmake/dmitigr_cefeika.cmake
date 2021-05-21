@@ -57,7 +57,7 @@ set(dmitigr_cefeika_ttpl_deps assert)
 set(dmitigr_cefeika_url_deps assert str)
 set(dmitigr_cefeika_uuid_deps assert rng)
 set(dmitigr_cefeika_web_deps assert fcgi filesystem http jrpc mulf reader str ttpl)
-set(dmitigr_cefeika_ws_deps assert filesystem net 3rdparty_usockets 3rdparty_uwebsockets)
+set(dmitigr_cefeika_ws_deps assert filesystem net 3rdparty_uwebsockets)
 set(dmitigr_cefeika_wscl_deps assert 3rdparty_uwsc)
 set(dmitigr_cefeika_3rdparty_uwebsockets_deps 3rdparty_usockets)
 

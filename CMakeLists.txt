@@ -57,28 +57,28 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 # Set default CMAKE_BUILD_TYPE.
-if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
-  if(NOT DEFINED CMAKE_BUILD_TYPE OR NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING
-      "Build type: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-  endif()
+if(NOT DEFINED CMAKE_BUILD_TYPE OR NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING
+    "Build type: Debug Release RelWithDebInfo MinSizeRel" FORCE)
+endif()
+message("Dmitigr Cefeika: build type is ${CMAKE_BUILD_TYPE}")
 
-  message("Dmitigr Cefeika: build mode is ${CMAKE_BUILD_TYPE}.")
+if (NOT DMITIGR_CEFEIKA_HEADER_ONLY)
   if(BUILD_SHARED_LIBS)
-    message("Dmitigr Cefeika: building shared libraries.")
+    message("Dmitigr Cefeika: building shared libraries")
   else()
-    message("Dmitigr Cefeika: building static libraries.")
+    message("Dmitigr Cefeika: building static libraries")
   endif()
 else()
-  message("Dmitigr Cefeika: not building libraries (header-only mode).")
+  message("Dmitigr Cefeika: building only 3rdparties without header-only option")
 endif()
 
 if(DMITIGR_CEFEIKA_DOXYGEN)
-  message("Dmitigr Cefeika: generating Doxygen configurations.")
+  message("Dmitigr Cefeika: generating Doxygen configurations")
 endif()
 
 if(DMITIGR_CEFEIKA_TESTS)
-  message("Dmitigr Cefeika: building tests.")
+  message("Dmitigr Cefeika: building tests")
 endif()
 
 # The libraries sources root directory.
