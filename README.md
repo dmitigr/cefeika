@@ -1,4 +1,4 @@
-# The cross-platform C++ toolkit for the backend development
+# C++ toolkit for backend development
 
 Dmitigr Cefeika (hereinafter referred to as Cefeika) includes:
 
