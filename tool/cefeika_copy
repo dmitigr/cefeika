@@ -40,6 +40,8 @@ copy_lib()
   if [[ $lib =~ $thirdparty_re ]]; then
     libpath=$(echo "$lib" | sed -E 's/3rdparty_(.*)$/3rdparty\/\1/g')
     mkdir -p "$dst/3rdparty" || exit $?
+  else
+    libpath=$lib
   fi
   if [ -f "$src/${libpath}.hpp" ]; then
     cp "$src/${libpath}.hpp" "$dst" || exit $?
