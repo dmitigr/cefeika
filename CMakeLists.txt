@@ -247,6 +247,7 @@ endif()
 if(DMITIGR_CEFEIKA_INSTALL_CMAKE)
   install(FILES
     cmake/dmitigr_cefeika_libraries.cmake
+    cmake/dmitigr_cefeika_libraries_all.cmake
     cmake/dmitigr_cefeika-config.cmake
     DESTINATION ${DMITIGR_CEFEIKA_CMAKE_INSTALL_DIR})
 endif()

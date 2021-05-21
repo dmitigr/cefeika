@@ -31,6 +31,7 @@ endfunction()
 # ------------------------------------------------------------------------------
 
 include(${CMAKE_CURRENT_LIST_DIR}/dmitigr_cefeika_libraries.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/dmitigr_cefeika_libraries_all.cmake)
 
 if(NOT dmitigr_cefeika_FIND_COMPONENTS)
   set(dmitigr_cefeika_FIND_COMPONENTS ${dmitigr_cefeika_libraries})
