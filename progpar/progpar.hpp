@@ -70,7 +70,7 @@ public:
     /// @returns `true` if the instance is valid (references an option).
     bool is_valid() const noexcept
     {
-      return name_ && !name_->empty();
+      return is_valid_;
     }
 
     /// @returns `is_valid()`.
@@ -85,62 +85,95 @@ public:
       return program_parameters_;
     }
 
-    /// @returns The name of this option if `is_valid()`.
+    /// @returns The name of this option.
     const std::string& name() const
     {
-      DMITIGR_CHECK(is_valid());
-      return *name_;
+      return name_;
     }
 
-    /// @returns The value of this option if `is_valid()`.
+    /// @returns The value of this option.
     const std::optional<std::string>& value() const
     {
-      DMITIGR_CHECK(is_valid());
-      return *value_;
+      return value_;
     }
 
-    /// @returns `value().value()` or `val`.
+    /**
+     * @returns `*value()` if `value()`.
+     *
+     * @throws `std::runtime_error` if `!value()`.
+     */
+    const std::string& not_empty_value() const
+    {
+      if (const auto& val = value())
+        return *val;
+      else
+        throw_error("requires an argument");
+    }
+
+    /// @returns `value().value_or(val)`.
     std::string value_or(std::string val) const
     {
-      DMITIGR_CHECK(is_valid());
-      return value_->value_or(std::move(val));
+      return value().value_or(std::move(val));
     }
 
     /**
      * @returns `is_valid()` if the given option presents.
      *
-     * @throws `std::runtime_error` if the given option presents with an argument.
+     * @throws `std::runtime_error` if the given option presents with an
+     * argument.
      */
-    bool is_valid_throw_if_value() const
+    bool throw_if_value() const
     {
       if (is_valid() && value())
-        throw std::runtime_error{std::string{"option --"}.append(name())
-          .append(" doesn't need an argument")};
+        throw_error("doesn't need an argument");
+      return is_valid();
+    }
+
+    /**
+     * @returns `is_valid()` if the given option presents.
+     *
+     * @throws `std::runtime_error` if the given option presents without an
+     * argument.
+     */
+    bool throw_if_no_value() const
+    {
+      if (is_valid() && !value())
+        throw_error("requires an argument");
       return is_valid();
     }
 
   private:
     friend Program_parameters;
 
+    bool is_valid_{};
     const Program_parameters& program_parameters_;
-    const std::string* name_{};
-    const std::optional<std::string>* value_{};
+    std::string name_;
+    std::optional<std::string> value_;
 
     /// The constructor. (Constructs invalid instance.)
-    explicit Optref(const Program_parameters& pp) noexcept
+    Optref(const Program_parameters& pp, std::string name) noexcept
       : program_parameters_{pp}
+      , name_{std::move(name)}
     {
       DMITIGR_ASSERT(!is_valid());
     }
 
     /// The constructor.
     explicit Optref(const Program_parameters& pp,
-      const std::string& name, const std::optional<std::string>& value) noexcept
-      : program_parameters_{pp}
-      , name_{&name}
-      , value_{&value}
+      std::string name, std::optional<std::string> value) noexcept
+      : is_valid_{true}
+      , program_parameters_{pp}
+      , name_{std::move(name)}
+      , value_{std::move(value)}
     {
       DMITIGR_ASSERT(is_valid());
+    }
+
+    /// @throws `std::runtime_error`.
+    [[noreturn]] void throw_error(const std::string& message) const
+    {
+      throw std::runtime_error{std::string{"option --"}.append(name())
+        .append(" ").append(message)};
     }
   };
 
@@ -151,31 +184,36 @@ public:
    * @brief The constructor.
    *
    * @par Requires
-   * `(argc > 0 && argv && argv[0])`.
+   * `(argc > 0 && argv && argv[0] && std::strlen(argv[0]) > 0)`.
    */
   Program_parameters(const int argc, const char* const* argv)
   {
     DMITIGR_CHECK_ARG(argc > 0);
     DMITIGR_CHECK_ARG(argv);
     DMITIGR_CHECK_ARG(argv[0]);
+    path_ = argv[0];
+    DMITIGR_CHECK_ARG(!path_.empty());
 
     static const auto opt = [](const std::string_view arg)
       -> std::optional<std::pair<std::string, std::optional<std::string>>>
       {
         if (auto pos = arg.find("--"); pos == 0) {
           if (arg.size() == 2) {
+            // Explicit end-of-opts.
             return std::make_pair(std::string{}, std::nullopt);
           } else if (pos = arg.find('=', 2); pos != std::string::npos) {
+            // Option with an argument.
             auto name = arg.substr(2, pos - 2);
             auto value = arg.substr(pos + 1);
-            return std::make_pair(std::string{name}, std::string{value});
+            return std::pair<std::string, std::string>(std::move(name),
+              std::move(value));
           } else
+            // Option without an argument.
             return std::make_pair(std::string{arg.substr(2)}, std::nullopt);
         } else
+          // Not an option.
           return std::nullopt;
       };
-
-    path_.assign(argv[0]);
 
     if (argc == 1)
       return;
@@ -186,11 +224,13 @@ public:
     for (; argi < argc; ++argi) {
       if (auto o = opt(argv[argi])) {
         if (o->first.empty()) {
+          // Explicit end-of-opts detected.
           ++argi;
           break;
         } else
           options_[std::move(o->first)] = std::move(o->second);
       } else
+        // First argument detected.
         break;
     }
 
@@ -245,19 +285,21 @@ public:
   Optref option(const std::string& name) const noexcept
   {
     const auto i = options_.find(name);
-    return i != cend(options_) ? Optref{*this, i->first, i->second} : Optref{*this};
+    return i != cend(options_) ? Optref{*this, i->first, i->second} :
+      Optref{*this, name};
   }
 
-  /**
-   * @returns A value of type `std::tuple<Optref, ..., bool>`. The last
-   * value of returned tuple indicates whether the all options are specified
-   * in the `names` or not.
-   */
+  /// @returns A value of type `std::tuple<Optref, ...>`.
   template<class ... Types>
   auto options(Types&& ... names) const noexcept
   {
-    return options__(std::make_index_sequence<sizeof ... (Types)>{},
-      std::forward<Types>(names)...);
+    return std::make_tuple(option(std::forward<Types>(names))...);
+  }
+
+  /// @returns `option(option_name)`.
+  Optref operator[](const std::string& option_name) const noexcept
+  {
+    return option(option_name);
   }
 
   /// @returns `arguments()[argument_index]`.
@@ -267,33 +309,10 @@ public:
     return arguments_[argument_index];
   }
 
-  /// @returns `option(option_name)`.
-  Optref operator[](const std::string& option_name) const noexcept
-  {
-    return option(option_name);
-  }
-
 private:
   std::filesystem::path path_;
   Option_map options_;
   Argument_vector arguments_;
-
-  template<std::size_t ... I, typename ... Types>
-  auto options__(std::index_sequence<I...>, Types&& ... names) const noexcept
-  {
-    static_assert(sizeof...(I) == sizeof...(names));
-    static const auto incf = [](std::size_t& count, const auto& opt) noexcept
-    {
-      if (opt)
-        ++count;
-    };
-    auto result = std::make_tuple(option(names)..., true);
-    std::size_t count{};
-    (incf(count, std::get<I>(result)), ...);
-    if (count < options_.size())
-      std::get<sizeof...(I)>(result) = false;
-    return result;
-  }
 };
 
 } // namespace dmitigr::progpar
