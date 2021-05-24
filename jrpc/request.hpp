@@ -43,13 +43,13 @@ public:
       return request_;
     }
 
-    /// @returns The pointer to the value of this parameter if `is_valid()`.
+    /// @returns The pointer to the value of this parameter.
     const rapidjson::Value* value() const noexcept
     {
       return value_;
     }
 
-    /// @returns The position or name of this parameter if `is_valid()`.
+    /// @returns The position or name of this parameter.
     const std::string& namepos() const noexcept
     {
       return namepos_;
@@ -176,7 +176,6 @@ public:
       });
     }
 
-  public:
     Paramref(const Request& request, const std::size_t pos)
       : request_{request}
       , namepos_{std::to_string(pos)}
@@ -206,18 +205,6 @@ public:
     {
       DMITIGR_ASSERT(is_valid());
     }
-
-    /// Copy-constructible.
-    Paramref(const Paramref& rhs) = default;
-
-    /// Copy-assignable.
-    Paramref& operator=(const Paramref& rhs) = default;
-
-    /// Move-constructible.
-    Paramref(Paramref&& rhs) = default;
-
-    /// Move-assignable.
-    Paramref& operator=(Paramref&& rhs) = default;
   };
 
   /// @name Constructors
