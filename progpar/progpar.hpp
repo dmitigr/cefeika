@@ -91,16 +91,23 @@ public:
       return name_;
     }
 
-    /// @returns The value of this option.
+    /**
+     * @returns The value of this option if `is_valid()`.
+     *
+     * @throws `std::runtime_error` if `!is_valid()`.
+     */
     const std::optional<std::string>& value() const
     {
-      return value_;
+      if (is_valid())
+        return value_;
+      else
+        throw_error("isn't specified");
     }
 
     /**
-     * @returns `*value()` if `value()`.
+     * @returns `*value()` if `is_valid() && value()`.
      *
-     * @throws `std::runtime_error` if `!value()`.
+     * @throws `std::runtime_error` if `!is_valid() || !value()`.
      */
     const std::string& not_empty_value() const
     {
@@ -110,7 +117,11 @@ public:
         throw_error("requires an argument");
     }
 
-    /// @returns `value().value_or(val)`.
+    /**
+     * @returns `value().value_or(std::move(val))`.
+     *
+     * @throws `std::runtime_error` if `!is_valid()`.
+     */
     std::string value_or(std::string val) const
     {
       return value().value_or(std::move(val));
@@ -122,7 +133,7 @@ public:
      * @throws `std::runtime_error` if the given option presents with an
      * argument.
      */
-    bool throw_if_value() const
+    bool check_value() const
     {
       if (is_valid() && value())
         throw_error("doesn't need an argument");
@@ -135,7 +146,7 @@ public:
      * @throws `std::runtime_error` if the given option presents without an
      * argument.
      */
-    bool throw_if_no_value() const
+    bool check_no_value() const
     {
       if (is_valid() && !value())
         throw_error("requires an argument");
@@ -172,7 +183,7 @@ public:
     /// @throws `std::runtime_error`.
     [[noreturn]] void throw_error(const std::string& message) const
     {
-      throw std::runtime_error{std::string{"option --"}.append(name())
+      throw std::runtime_error{std::string{"option --"}.append(name_)
         .append(" ").append(message)};
     }
   };
