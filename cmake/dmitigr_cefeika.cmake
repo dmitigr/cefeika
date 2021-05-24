@@ -2,7 +2,6 @@
 # Copyright (C) Dmitry Igrishin
 # For conditions of distribution and use, see file LICENSE.txt
 
-include(${CMAKE_CURRENT_LIST_DIR}/dmitigr.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/dmitigr_cefeika_libraries_all.cmake)
 
 # ------------------------------------------------------------------------------

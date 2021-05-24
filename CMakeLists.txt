@@ -11,6 +11,7 @@ if (NOT (UNIX OR WIN32))
 endif()
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(dmitigr)
 include(dmitigr_cefeika)
 
 # ------------------------------------------------------------------------------
