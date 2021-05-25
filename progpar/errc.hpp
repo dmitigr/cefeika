@@ -12,11 +12,14 @@ enum class Errc {
   /// Option isn't specified.
   option_not_specified = 1,
 
-  /// Option doesn't need an argument.
-  option_with_argument,
+  /// Option requires a value.
+  option_without_value,
 
-  /// Option requires an argument.
-  option_without_argument
+  /// Option requires a non-empty value.
+  option_with_empty_value,
+
+  /// Option doesn't need a value.
+  option_with_value,
 };
 
 /**
@@ -28,10 +31,12 @@ constexpr const char* str(const Errc value) noexcept
   switch (value) {
   case Errc::option_not_specified:
     return "option is not specified";
-  case Errc::option_with_argument:
-    return "option does not need an argument";
-  case Errc::option_without_argument:
-    return "option requires an argument";
+  case Errc::option_without_value:
+    return "option requires a value";
+  case Errc::option_with_empty_value:
+    return "option requires a non-empty value";
+  case Errc::option_with_value:
+    return "option does not need a value";
   }
   return nullptr;
 }

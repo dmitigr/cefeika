@@ -44,10 +44,10 @@ namespace dmitigr::progpar {
  * @brief Program parameters.
  *
  * Stores the parsed program parameters like the following:
- *   prog [--opt1 --opt2=arg] [--] [arg1 arg2]
+ *   prog [--opt1 --opt2=val] [--] [arg1 arg2]
  *
- * Each option may have an argument which is specified after the "=" character.
- * The sequence of two dashes ("--") indicates that the remaining parameters
+ * Each option may have a value specified after the "=" character. The sequence
+ * of two dashes ("--") indicates "end of options", so the remaining parameters
  * should be treated as arguments rather than as options.
  *
  * @remarks Short options notation (e.g. `-o` or `-o 1`) doesn't supported
@@ -96,7 +96,7 @@ public:
     /**
      * @returns The value of this option if `is_valid()`.
      *
-     * @throws `std::runtime_error` if `!is_valid()`.
+     * @throws Exception if `!is_valid()`.
      */
     const std::optional<std::string>& value() const
     {
@@ -109,20 +109,33 @@ public:
     /**
      * @returns `*value()` if `is_valid() && value()`.
      *
-     * @throws `std::runtime_error` if `!is_valid() || !value()`.
+     * @throws Exception if `!is_valid() || !value()`.
      */
-    const std::string& not_empty_value() const
+    const std::string& not_null_value() const
     {
       if (const auto& val = value())
         return *val;
       else
-        throw_error(Errc::option_without_argument);
+        throw_error(Errc::option_without_value);
+    }
+
+    /**
+     * @returns `*value()` if `is_valid() && value() && !value().empty()`.
+     *
+     * @throws Exception if `!is_valid() || !value() || value().empty()`.
+     */
+    const std::string& not_empty_value() const
+    {
+      if (const auto& val = not_null_value(); !val.empty())
+        return val;
+      else
+        throw_error(Errc::option_with_empty_value);
     }
 
     /**
      * @returns `value().value_or(std::move(val))`.
      *
-     * @throws `std::runtime_error` if `!is_valid()`.
+     * @throws Exception if `!is_valid()`.
      */
     std::string value_or(std::string val) const
     {
@@ -132,26 +145,24 @@ public:
     /**
      * @returns `is_valid()` if the given option presents.
      *
-     * @throws `std::runtime_error` if the given option presents with an
-     * argument.
+     * @throws Exception if the given option presents with a value.
      */
-    bool check_value() const
+    bool check_no_value() const
     {
       if (is_valid() && value())
-        throw_error(Errc::option_with_argument);
+        throw_error(Errc::option_with_value);
       return is_valid();
     }
 
     /**
      * @returns `is_valid()` if the given option presents.
      *
-     * @throws `std::runtime_error` if the given option presents without an
-     * argument.
+     * @throws Exception if the given option presents without a value.
      */
-    bool check_no_value() const
+    bool check_value() const
     {
       if (is_valid() && !value())
-        throw_error(Errc::option_with_argument);
+        throw_error(Errc::option_without_value);
       return is_valid();
     }
 
@@ -216,13 +227,13 @@ public:
             // Explicit end-of-opts.
             return std::make_pair(std::string{}, std::nullopt);
           } else if (pos = arg.find('=', 2); pos != std::string::npos) {
-            // Option with an argument.
+            // Option with value.
             auto name = arg.substr(2, pos - 2);
             auto value = arg.substr(pos + 1);
             return std::pair<std::string, std::string>(std::move(name),
               std::move(value));
           } else
-            // Option without an argument.
+            // Option without value.
             return std::make_pair(std::string{arg.substr(2)}, std::nullopt);
         }
 
@@ -245,7 +256,7 @@ public:
         } else
           options_[std::move(o->first)] = std::move(o->second);
       } else
-        // First argument detected.
+        // First argument (implicit end-of-opts) detected.
         break;
     }
 
