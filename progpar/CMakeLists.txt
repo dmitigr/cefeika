@@ -13,7 +13,10 @@ dmitigr_cefeika_set_library_info(progpar 0 1 "Program parameters processing")
 # ------------------------------------------------------------------------------
 
 set(dmitigr_progpar_headers
+  errc.hpp
+  exception.hpp
   progpar.hpp
+  std_system_error.hpp
   )
 
 # ------------------------------------------------------------------------------

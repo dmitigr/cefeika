@@ -23,6 +23,7 @@
 #ifndef DMITIGR_PROGPAR_PROGPAR_HPP
 #define DMITIGR_PROGPAR_PROGPAR_HPP
 
+#include "exception.hpp"
 #include "version.hpp"
 #include "../assert.hpp"
 #include "../filesystem.hpp"
@@ -30,6 +31,7 @@
 #include <algorithm>
 #include <map>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -42,7 +44,7 @@ namespace dmitigr::progpar {
  * @brief Program parameters.
  *
  * Stores the parsed program parameters like the following:
- *   executabe [--opt1 --opt2=arg] [--] [arg1 arg2]
+ *   prog [--opt1 --opt2=arg] [--] [arg1 arg2]
  *
  * Each option may have an argument which is specified after the "=" character.
  * The sequence of two dashes ("--") indicates that the remaining parameters
@@ -101,7 +103,7 @@ public:
       if (is_valid())
         return value_;
       else
-        throw_error("isn't specified");
+        throw_error(Errc::option_not_specified);
     }
 
     /**
@@ -114,7 +116,7 @@ public:
       if (const auto& val = value())
         return *val;
       else
-        throw_error("requires an argument");
+        throw_error(Errc::option_without_argument);
     }
 
     /**
@@ -136,7 +138,7 @@ public:
     bool check_value() const
     {
       if (is_valid() && value())
-        throw_error("doesn't need an argument");
+        throw_error(Errc::option_with_argument);
       return is_valid();
     }
 
@@ -149,7 +151,7 @@ public:
     bool check_no_value() const
     {
       if (is_valid() && !value())
-        throw_error("requires an argument");
+        throw_error(Errc::option_with_argument);
       return is_valid();
     }
 
@@ -180,11 +182,12 @@ public:
       DMITIGR_ASSERT(is_valid());
     }
 
-    /// @throws `std::runtime_error`.
-    [[noreturn]] void throw_error(const std::string& message) const
+    /// @throws `Exception`.
+    [[noreturn]] void throw_error(const Errc errc) const
     {
-      throw std::runtime_error{std::string{"option --"}.append(name_)
-        .append(" ").append(message)};
+      std::string what{"option --"};
+      what.append(name_).append(": ").append(str(errc));
+      throw Exception{errc, std::move(what), name_};
     }
   };
 
@@ -221,9 +224,10 @@ public:
           } else
             // Option without an argument.
             return std::make_pair(std::string{arg.substr(2)}, std::nullopt);
-        } else
-          // Not an option.
-          return std::nullopt;
+        }
+
+        // Not an option.
+        return std::nullopt;
       };
 
     if (argc == 1)
