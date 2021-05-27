@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Jianhui Zhao <zhaojh329@gmail.com>
+ * Copyright (c) 2021 Jianhui Zhao <zhaojh329@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,16 +32,67 @@
 
 #include "log.h"
 
-static int log_threshold = LOG_DEBUG;
-static bool log_initialized;
+int __log_level__ = LOG_ERR;
 static const char *ident;
 
 void (*log_write)(int priority, const char *fmt, va_list ap);
 
-static const char *log_ident()
+static const char *prioritynames[] = {
+    [LOG_EMERG] = "emerg",
+    [LOG_ALERT] = "alert",
+    [LOG_CRIT] = "crit",
+    [LOG_ERR] = "err",
+    [LOG_WARNING] = "warn",
+    [LOG_NOTICE] = "notice",
+    [LOG_INFO] = "info",
+    [LOG_DEBUG] = "debug"
+};
+
+void log_level(int level)
 {
-    FILE *self;
+    __log_level__ = level;
+}
+
+void ___log(const char *filename, int line, int priority, const char *fmt, ...)
+{
+    char new_fmt[256];
+    va_list ap;
+
+    priority = LOG_PRI(priority);
+
+    if (priority > __log_level__)
+        return;
+
+    snprintf(new_fmt, sizeof(new_fmt), "(%s:%d) %s", filename, line, fmt);
+
+    va_start(ap, fmt);
+    log_write(priority, new_fmt, ap);
+    va_end(ap);
+}
+
+static inline void log_to_stdout(int priority, const char *fmt, va_list ap)
+{
+    time_t now;
+    struct tm tm;
+    char buf[32];
+
+    now = time(NULL);
+    localtime_r(&now, &tm);
+    strftime(buf, sizeof(buf), "%Y/%m/%d %H:%M:%S", &tm);
+
+    fprintf(stderr, "%s %s ", buf, prioritynames[priority]);
+    vfprintf(stderr, fmt, ap);
+}
+
+static inline void log_to_syslog(int priority, const char *fmt, va_list ap)
+{
+    vsyslog(priority, fmt, ap);
+}
+
+static void __attribute__((constructor)) init()
+{
     static char line[64];
+    FILE *self;
     char *p = NULL;
     char *sbuf;
 
@@ -56,75 +107,13 @@ static const char *log_ident()
         fclose(self);
     }
 
-    return p;
-}
-
-static inline void log_write_stdout(int priority, const char *fmt, va_list ap)
-{
-    time_t now;
-    struct tm tm;
-    char buf[32];
-
-    now = time(NULL);
-    localtime_r(&now, &tm);
-    strftime(buf, sizeof(buf), "%Y/%m/%d %H:%M:%S", &tm);
-
-    fprintf(stderr, "%s ", buf);
-    vfprintf(stderr, fmt, ap);
-}
-
-static inline void log_write_syslog(int priority, const char *fmt, va_list ap)
-{
-    vsyslog(priority, fmt, ap);
-}
-
-static inline void log_init()
-{
-    if (log_initialized)
-        return;
-
-    ident = log_ident();
+    ident = p;
 
     if (isatty(STDOUT_FILENO)) {
-        log_write = log_write_stdout;
+        log_write = log_to_stdout;
     } else {
-        log_write = log_write_syslog;
+        log_write = log_to_syslog;
 
         openlog(ident, 0, LOG_DAEMON);
     }
-
-    log_initialized = true;
-}
-
-
-void uwsc_log_threshold(int threshold)
-{
-    log_threshold = threshold;
-}
-
-void uwsc_log_close()
-{
-    if (!log_initialized)
-        return;
-
-    closelog();
-
-    log_initialized = 0;
-}
-
-void __uwsc_log(const char *filename, int line, int priority, const char *fmt, ...)
-{
-    static char new_fmt[256];
-    va_list ap;
-
-    if (priority > log_threshold)
-        return;
-
-    log_init();
-
-    snprintf(new_fmt, sizeof(new_fmt), "(%s:%d) %s", filename, line, fmt);
-
-    va_start(ap, fmt);
-    log_write(priority, new_fmt, ap);
-    va_end(ap);
 }

@@ -6,6 +6,10 @@ enable_language(C)
 set(C_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 
+set(UWSC_VERSION_MAJOR 3)
+set(UWSC_VERSION_MINOR 3)
+set(UWSC_VERSION_PATCH 5)
+
 set(uwsc_headers
   buffer.h
   config.h
@@ -28,10 +32,12 @@ set(uwsc_include_directories_public ${Ev_INCLUDE_DIRS})
 
 if(DMITIGR_CEFEIKA_OPENSSL)
   find_package(OpenSSL REQUIRED)
-  set(uwsc_compile_definitions_public UWSC_SSL_SUPPORT UWSC_HAVE_OPENSSL)
   list(APPEND uwsc_link_libraries_public OpenSSL::SSL OpenSSL::Crypto)
   list(APPEND uwsc_headers ssl.h)
-  list(APPEND uwsc_implementations ssl.c)
+  list(APPEND uwsc_implementations openssl.c)
+
+  # The following will lead to adding #define SSL_SUPPORT to config.h by CMake.
+  set(SSL_SUPPORT On)
 endif()
 
 if(MSVC)
@@ -51,6 +57,10 @@ if(WIN32)
 else()
   list(APPEND uwsc_defines _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE _GNU_SOURCE)
 endif()
+
+configure_file(config.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/config.h @ONLY
+  NEWLINE_STYLE UNIX)
 
 # ------------------------------------------------------------------------------
 

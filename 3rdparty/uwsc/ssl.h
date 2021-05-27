@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Jianhui Zhao <zhaojh329@gmail.com>
+ * Copyright (c) 2021 Jianhui Zhao <zhaojh329@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,25 +22,43 @@
  * SOFTWARE.
  */
 
-#ifndef _UWSC_SSL_H
-#define _UWSC_SSL_H
+#ifndef __SSL_H
+#define __SSL_H
 
-#include <stdint.h>
-#include <sys/types.h>
+#include <stdbool.h>
 
-#include "config.h"
+enum {
+    SSL_OK = 0,
+    SSL_ERROR = -1,
+    SSL_PENDING = -2
+};
 
-#if UWSC_SSL_SUPPORT
+extern int ssl_err_code;
 
-struct uwsc_ssl_ctx;
+struct ssl_context;
 
-int uwsc_ssl_init(struct uwsc_ssl_ctx **ctx, int sock, char *host);
-int uwsc_ssl_handshake(struct uwsc_ssl_ctx *ctx);
-void uwsc_ssl_free(struct uwsc_ssl_ctx *ctx);
+char *ssl_strerror(int error, char *buffer, int len);
 
-int uwsc_ssl_read(int fd, void *buf, size_t count, void *arg);
-int uwsc_ssl_write(int fd, void *buf, size_t count, void *arg);
+struct ssl_context *ssl_context_new(bool server);
+void ssl_context_free(struct ssl_context *ctx);
 
-#endif
+void *ssl_session_new(struct ssl_context *ctx, int sock);
+void ssl_session_free(void *ssl);
+
+int ssl_load_ca_crt_file(struct ssl_context *ctx, const char *file);
+int ssl_load_crt_file(struct ssl_context *ctx, const char *file);
+int ssl_load_key_file(struct ssl_context *ctx, const char *file);
+
+int ssl_set_ciphers(struct ssl_context *ctx, const char *ciphers);
+
+int ssl_set_require_validation(struct ssl_context *ctx, bool require);
+
+void ssl_set_server_name(void *ssl, const char *name);
+
+int ssl_read(void *ssl, void *buf, int len);
+int ssl_write(void *ssl, const void *buf, int len);
+
+int ssl_connect(void *ssl, bool server,
+        void (*on_verify_error)(int error, const char *str, void *arg), void *arg);
 
 #endif

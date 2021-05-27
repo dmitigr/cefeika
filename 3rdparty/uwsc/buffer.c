@@ -243,6 +243,20 @@ size_t buffer_pull(struct buffer *b, void *dest, size_t len)
     return len;
 }
 
+size_t buffer_get(struct buffer *b, ssize_t offset, void *dest, size_t len)
+{
+    if (unlikely(buffer_length(b) - 1 < offset))
+        return 0;
+
+    if (unlikely(len > buffer_length(b) - offset))
+        len = buffer_length(b) - offset;
+
+    if (likely(len > 0))
+        memcpy(dest, b->data + offset, len);
+
+    return len;
+}
+
 int buffer_pull_to_fd_ex(struct buffer *b, int fd, ssize_t len,
                          int (*wr)(int fd, void *buf, size_t count, void *arg), void *arg)
 {
