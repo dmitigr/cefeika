@@ -459,6 +459,13 @@ foreach(lib ${dmitigr_cefeika_libraries})
     install(FILES ${${dmlib}_headers}
       DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
 
+    if(${${dmlib}_header_only})
+      install(FILES ${${dmlib}_implementations}
+        DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
+    endif()
+  endif()
+
+  if(DMITIGR_CEFEIKA_INSTALL_LIBS)
     if(NOT ${${dmlib}_header_only})
       install(TARGETS ${dmlib}
         EXPORT ${dmlib}_export
@@ -470,9 +477,6 @@ foreach(lib ${dmitigr_cefeika_libraries})
       install(TARGETS ${dmlib}
         EXPORT ${dmlib}_export
         INCLUDES DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR})
-
-      install(FILES ${${dmlib}_implementations}
-        DESTINATION ${DMITIGR_CEFEIKA_INCLUDE_INSTALL_DIR}/dmitigr/${lib})
     endif()
   endif()
 
