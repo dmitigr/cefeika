@@ -141,6 +141,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Get the actual list of libraries
 # ------------------------------------------------------------------------------
 
+# Ensure that dmitigr_cefeika_libraries is empty!
+set(dmitigr_cefeika_libraries)
 foreach(lib ${dmitigr_cefeika_libraries_all})
   set(pref "${CMAKE_CURRENT_SOURCE_DIR}/${lib_root}/${lib}")
   if(EXISTS "${pref}" OR EXISTS "${pref}.hpp")
