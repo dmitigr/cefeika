@@ -13,10 +13,12 @@
 
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace dmitigr::rajson {
 
@@ -238,20 +240,158 @@ struct Conversions<rapidjson::GenericStringRef<CharType>> final {
 /// Partial specialization for `rapidjson::GenericValue`.
 template<class Encoding, class Allocator>
 struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
-  template<typename T>
-  static auto from(T&& value, Allocator& alloc)
-  {
-    using U = std::decay_t<T>;
-    using R = rapidjson::GenericValue<Encoding, Allocator>;
+  using Result = rapidjson::GenericValue<Encoding, Allocator>;
 
-    if constexpr (std::is_arithmetic_v<U>) {
-      (void)alloc;
-      return R{value};
-    } else if constexpr (std::is_same_v<U, std::string_view>) {
-      (void)alloc;
-      return R{value.data(), value.size()};
-    } else
-      return R{std::forward<T>(value), alloc};
+  template<typename T>
+  static std::enable_if_t<
+    !std::is_arithmetic_v<std::decay_t<T>> &&
+    !std::is_same_v<std::decay_t<T>, std::string_view> &&
+    !std::is_same_v<std::decay_t<T>, std::vector<T>> &&
+    !std::is_same_v<std::decay_t<T>, std::vector<std::optional<T>>>,
+    Result
+    >
+  from(T&& value, Allocator& alloc)
+  {
+    return Result{std::forward<T>(value), alloc};
+  }
+
+  template<typename T>
+  static std::enable_if_t<
+    std::is_arithmetic_v<std::decay_t<T>>,
+    Result
+    >
+  from(const T value, Allocator& alloc)
+  {
+    (void)alloc;
+    return Result{value};
+  }
+
+  static auto from(const std::string_view value, Allocator& alloc)
+  {
+    (void)alloc;
+    return Result{value.data(), value.size()};
+  }
+
+  template<typename T>
+  static auto from(const std::vector<std::optional<T>>& value, Allocator& alloc)
+  {
+    Result result{rapidjson::kArrayType};
+    result.Reserve(value.size(), alloc);
+    for (const auto& val : value)
+      result.PushBack(val ? to<Result>(*val, alloc) : Result{}, alloc);
+    return result;
+  }
+
+  /// @overload
+  template<typename T>
+  static auto from(std::vector<std::optional<T>>&& value, Allocator& alloc)
+  {
+    Result result{rapidjson::kArrayType};
+    result.Reserve(value.size(), alloc);
+    for (auto& val : value)
+      result.PushBack(val ? to<Result>(std::move(*val), alloc) : Result{}, alloc);
+    return result;
+  }
+
+  template<typename T>
+  static auto from(const std::vector<T>& value, Allocator& alloc)
+  {
+    Result result{rapidjson::kArrayType};
+    result.Reserve(value.size(), alloc);
+    for (const auto& val : value)
+      result.PushBack(val, alloc);
+    return result;
+  }
+
+  /// @overload
+  template<typename T>
+  static auto from(std::vector<T>&& value, Allocator& alloc)
+  {
+    Result result{rapidjson::kArrayType};
+    result.Reserve(value.size(), alloc);
+    for (auto& val : value)
+      result.PushBack(std::move(val), alloc);
+    return result;
+  }
+};
+
+/// Partial specialization for `std::vector<std::optional<T>>`.
+template<typename T>
+struct Conversions<std::vector<std::optional<T>>> final {
+  using Result = std::vector<std::optional<T>>;
+
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsArray()) {
+      const auto arr = value.GetArray();
+      Result result;
+      result.reserve(arr.Size());
+      for (const auto& val : arr)
+        result.emplace_back(!val.IsNull() ? to<T>(val) : std::optional<T>{});
+      return result;
+    }
+
+    throw std::invalid_argument{"invalid source for std::vector<std::optional<T>>"};
+  }
+
+  /// @overload
+  template<class Encoding, class Allocator>
+  static auto from(rapidjson::GenericValue<Encoding, Allocator>&& value)
+  {
+    if (value.IsArray()) {
+      auto arr = value.GetArray();
+      Result result;
+      result.reserve(arr.Size());
+      for (auto& val : arr)
+        result.emplace_back(!val.IsNull() ? to<T>(std::move(val)) : std::optional<T>{});
+      return result;
+    }
+
+    throw std::invalid_argument{"invalid source for std::vector<std::optional<T>>"};
+  }
+};
+
+/// Partial specialization for `std::vector<T>`.
+template<typename T>
+struct Conversions<std::vector<T>> final {
+  using Result = std::vector<T>;
+
+  template<class Encoding, class Allocator>
+  static auto from(const rapidjson::GenericValue<Encoding, Allocator>& value)
+  {
+    if (value.IsArray()) {
+      const auto arr = value.GetArray();
+      Result result;
+      result.reserve(arr.Size());
+      for (const auto& val : arr) {
+        if (val.IsNull())
+          throw std::invalid_argument{"NULL cannot be an element of std::vector<T>"};
+        result.emplace_back(to<T>(val));
+      }
+      return result;
+    }
+
+    throw std::invalid_argument{"invalid source for std::vector<T>"};
+  }
+
+  /// @overload
+  template<class Encoding, class Allocator>
+  static auto from(rapidjson::GenericValue<Encoding, Allocator>&& value)
+  {
+    if (value.IsArray()) {
+      const auto arr = value.GetArray();
+      Result result;
+      result.reserve(arr.Size());
+      for (auto& val : arr) {
+        if (val.IsNull())
+          throw std::invalid_argument{"NULL cannot be an element of std::vector<T>"};
+        result.emplace_back(to<T>(std::move(val)));
+      }
+      return result;
+    }
+
+    throw std::invalid_argument{"invalid source for std::vector<T>"};
   }
 };
 
