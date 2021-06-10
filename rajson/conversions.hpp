@@ -245,6 +245,12 @@ template<class Encoding, class Allocator>
 struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
   using Result = rapidjson::GenericValue<Encoding, Allocator>;
 
+  static auto from(Result&& value, Allocator& alloc) noexcept
+  {
+    (void)alloc;
+    return std::move(value);
+  }
+
   template<typename T>
   static std::enable_if_t<
     std::is_arithmetic_v<std::decay_t<T>>,
