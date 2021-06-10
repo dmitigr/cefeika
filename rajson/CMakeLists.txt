@@ -14,8 +14,9 @@ dmitigr_cefeika_set_library_info(rajson 0 1 "RapidJSON wrapper")
 
 set(dmitigr_rajson_headers
   conversions.hpp
-  value_view.hpp
+  error.hpp
   fwd.hpp
+  value_view.hpp
   )
 
 set(dmitigr_rajson_implementations
