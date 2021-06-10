@@ -6,6 +6,7 @@
 #define DMITIGR_RAJSON_CONVERSIONS_HPP
 
 #include "fwd.hpp"
+#include "error.hpp"
 #include "../3rdparty/rapidjson/document.h"
 #include "../3rdparty/rapidjson/schema.h"
 #include "../3rdparty/rapidjson/stringbuffer.h"
@@ -37,7 +38,9 @@ std::string to_stringified(const rapidjson::GenericValue<Encoding, Allocator>& v
 inline rapidjson::Document to_document(const std::string_view input)
 {
   rapidjson::Document result;
-  result.Parse(input.data(), input.size());
+  const rapidjson::ParseResult pr{result.Parse(input.data(), input.size())};
+  if (!pr)
+    throw Parse_exception{pr};
   return result;
 }
 
@@ -244,19 +247,6 @@ struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
 
   template<typename T>
   static std::enable_if_t<
-    !std::is_arithmetic_v<std::decay_t<T>> &&
-    !std::is_same_v<std::decay_t<T>, std::string_view> &&
-    !std::is_same_v<std::decay_t<T>, std::vector<T>> &&
-    !std::is_same_v<std::decay_t<T>, std::vector<std::optional<T>>>,
-    Result
-    >
-  from(T&& value, Allocator& alloc)
-  {
-    return Result{std::forward<T>(value), alloc};
-  }
-
-  template<typename T>
-  static std::enable_if_t<
     std::is_arithmetic_v<std::decay_t<T>>,
     Result
     >
@@ -266,10 +256,24 @@ struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
     return Result{value};
   }
 
+  static auto from(const char* const value, Allocator& alloc)
+  {
+    // Don't copy `value` to result.
+    (void)alloc;
+    return Result{value, alloc};
+  }
+
   static auto from(const std::string_view value, Allocator& alloc)
   {
+    // Don't copy `value` to result.
     (void)alloc;
     return Result{value.data(), value.size()};
+  }
+
+  static auto from(const std::string& value, Allocator& alloc)
+  {
+    // Copy `value` to result.
+    return Result{value, alloc};
   }
 
   template<typename T>
@@ -282,17 +286,6 @@ struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
     return result;
   }
 
-  /// @overload
-  template<typename T>
-  static auto from(std::vector<std::optional<T>>&& value, Allocator& alloc)
-  {
-    Result result{rapidjson::kArrayType};
-    result.Reserve(value.size(), alloc);
-    for (auto& val : value)
-      result.PushBack(val ? to<Result>(std::move(*val), alloc) : Result{}, alloc);
-    return result;
-  }
-
   template<typename T>
   static auto from(const std::vector<T>& value, Allocator& alloc)
   {
@@ -300,17 +293,6 @@ struct Conversions<rapidjson::GenericValue<Encoding, Allocator>> final {
     result.Reserve(value.size(), alloc);
     for (const auto& val : value)
       result.PushBack(val, alloc);
-    return result;
-  }
-
-  /// @overload
-  template<typename T>
-  static auto from(std::vector<T>&& value, Allocator& alloc)
-  {
-    Result result{rapidjson::kArrayType};
-    result.Reserve(value.size(), alloc);
-    for (auto& val : value)
-      result.PushBack(std::move(val), alloc);
     return result;
   }
 };
@@ -334,22 +316,6 @@ struct Conversions<std::vector<std::optional<T>>> final {
 
     throw std::invalid_argument{"invalid source for std::vector<std::optional<T>>"};
   }
-
-  /// @overload
-  template<class Encoding, class Allocator>
-  static auto from(rapidjson::GenericValue<Encoding, Allocator>&& value)
-  {
-    if (value.IsArray()) {
-      auto arr = value.GetArray();
-      Result result;
-      result.reserve(arr.Size());
-      for (auto& val : arr)
-        result.emplace_back(!val.IsNull() ? to<T>(std::move(val)) : std::optional<T>{});
-      return result;
-    }
-
-    throw std::invalid_argument{"invalid source for std::vector<std::optional<T>>"};
-  }
 };
 
 /// Partial specialization for `std::vector<T>`.
@@ -368,25 +334,6 @@ struct Conversions<std::vector<T>> final {
         if (val.IsNull())
           throw std::invalid_argument{"NULL cannot be an element of std::vector<T>"};
         result.emplace_back(to<T>(val));
-      }
-      return result;
-    }
-
-    throw std::invalid_argument{"invalid source for std::vector<T>"};
-  }
-
-  /// @overload
-  template<class Encoding, class Allocator>
-  static auto from(rapidjson::GenericValue<Encoding, Allocator>&& value)
-  {
-    if (value.IsArray()) {
-      const auto arr = value.GetArray();
-      Result result;
-      result.reserve(arr.Size());
-      for (auto& val : arr) {
-        if (val.IsNull())
-          throw std::invalid_argument{"NULL cannot be an element of std::vector<T>"};
-        result.emplace_back(to<T>(std::move(val)));
       }
       return result;
     }
