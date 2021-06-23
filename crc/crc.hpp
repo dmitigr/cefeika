@@ -23,6 +23,8 @@
 #ifndef DMITIGR_CRC_CRC_HPP
 #define DMITIGR_CRC_CRC_HPP
 
+#include "version.hpp"
+
 #include <cstdint>
 
 namespace dmitigr::crc {
