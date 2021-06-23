@@ -1,10 +1,11 @@
 #!/bin/bash
 # Copyright (C) Dmitry Igrishin
 
-cefeika_libraries="algo assert base filesystem mem rajson wscl concur dt math fsmisc progpar reader rng sqlixx str testo ttpl cfg jrpc mulf net os url uuid fcgi http pgfe ws web"
+cefeika_libraries="algo assert base crc filesystem mem rajson wscl concur dt math fsmisc progpar reader rng sqlixx str testo ttpl cfg jrpc mulf net os url uuid fcgi http pgfe ws web"
 algo_deps=""
 assert_deps=""
 base_deps=""
+crc_deps=""
 filesystem_deps=""
 mem_deps=""
 rajson_deps="3rdparty_rapidjson"

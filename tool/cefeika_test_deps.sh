@@ -1,8 +1,9 @@
 #!/bin/bash
 # Copyright (C) Dmitry Igrishin
 
-cefeika_libraries_with_tests="assert rajson wscl concur dt math progpar sqlixx str testo ttpl jrpc mulf net os url uuid fcgi http pgfe ws web"
+cefeika_libraries_with_tests="assert crc rajson wscl concur dt math progpar sqlixx str testo ttpl jrpc mulf net os url uuid fcgi http pgfe ws web"
 assert_test_deps=""
+crc_test_deps="testo"
 rajson_test_deps="filesystem reader testo"
 wscl_test_deps="testo"
 concur_test_deps="testo"
