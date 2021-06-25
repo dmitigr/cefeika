@@ -61,7 +61,7 @@ public:
 
   constexpr value_type* data() noexcept
   {
-    return data_.data() + offset_;
+    return const_cast<value_type*>(static_cast<const decltype(this)>(this)->data());
   }
 
   constexpr const value_type& back() const noexcept
@@ -71,7 +71,7 @@ public:
 
   constexpr value_type& back() noexcept
   {
-    return data_.back();
+    return const_cast<value_type&>(static_cast<const decltype(this)>(this)->back());
   }
 
   constexpr const value_type& front() const noexcept
@@ -81,7 +81,7 @@ public:
 
   constexpr value_type& front() noexcept
   {
-    return *(data_.begin() + offset_);
+    return const_cast<value_type&>(static_cast<const decltype(this)>(this)->front());
   }
 
   constexpr void push_back(const value_type value)
@@ -96,8 +96,17 @@ public:
 
   constexpr void pop_front() noexcept
   {
-    ++offset_;
-    if (empty()) clear(); // Prevent memory exhaustion.
+    offset_ = std::min(offset_ + 1, data_.size());
+  }
+
+  constexpr void unpop_front() noexcept
+  {
+    if (offset_) --offset_;
+  }
+
+  constexpr void unpop_all() noexcept
+  {
+    offset_ = 0;
   }
 
   constexpr size_type size() const noexcept

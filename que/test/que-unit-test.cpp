@@ -56,6 +56,27 @@ int main(int, char* argv[])
       s.pop_front();
       DMITIGR_ASSERT(s.size() == 0);
       DMITIGR_ASSERT(s.view().empty());
+
+      s.unpop_front();
+      DMITIGR_ASSERT(s.size() == 1);
+      DMITIGR_ASSERT(s.view() == "I");
+      DMITIGR_ASSERT(s.front() == 'I');
+      DMITIGR_ASSERT(s.back() == 'I');
+
+      for (unsigned i = 0; i < 10; ++i) s.unpop_front();
+      DMITIGR_ASSERT(s.size() == 2);
+      DMITIGR_ASSERT(s.view() == "DI");
+      DMITIGR_ASSERT(s.front() == 'D');
+      DMITIGR_ASSERT(s.back() == 'I');
+
+      s.pop_front();
+      s.pop_front();
+      DMITIGR_ASSERT(s.empty());
+      for (unsigned i = 0; i < 10; ++i) s.unpop_all();
+      DMITIGR_ASSERT(s.size() == 2);
+      DMITIGR_ASSERT(s.view() == "DI");
+      DMITIGR_ASSERT(s.front() == 'D');
+      DMITIGR_ASSERT(s.back() == 'I');
     }
   } catch (const std::exception& e) {
     report_failure(argv[0], e);
