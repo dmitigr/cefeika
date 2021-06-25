@@ -20,11 +20,11 @@
 // Dmitry Igrishin
 // dmitigr@gmail.com
 
-#ifndef DMITIGR_QUE_FIFO_STRING_HPP
-#define DMITIGR_QUE_FIFO_STRING_HPP
+#ifndef DMITIGR_QUE_FIFO_ARRAY_HPP
+#define DMITIGR_QUE_FIFO_ARRAY_HPP
 
 #include <algorithm>
-#include <string>
+#include <array>
 #include <utility>
 
 namespace dmitigr::que {
@@ -34,84 +34,78 @@ namespace dmitigr::que {
  *
  * This class can be used as the underlying container of `std::queue`.
  */
-template<class CharT, class Traits = std::char_traits<CharT>,
-  class Allocator = std::allocator<CharT>>
-class Basic_fifo_string final {
+template<class T, std::size_t N>
+class Fifo_array final {
 public:
-  using Underlying_type = std::basic_string<CharT, Traits, Allocator>;
+  using Underlying_type = std::array<T, N>;
   using value_type = typename Underlying_type::value_type;
   using reference = typename Underlying_type::reference;
   using const_reference = typename Underlying_type::const_reference;
   using size_type = typename Underlying_type::size_type;
 
   template<typename ... Types>
-  constexpr explicit Basic_fifo_string(Types&& ... args)
-    : data_(std::forward<Types>(args)...)
+  constexpr explicit Fifo_array(Types&& ... args)
+    : data_{std::forward<Types>(args)...}
   {}
-
-  constexpr std::basic_string_view<CharT, Traits> view() const noexcept
-  {
-    return {data(), size()};
-  }
 
   constexpr const value_type* data() const noexcept
   {
-    return data_.data() + offset_;
+    return data_.data() + pop_offset_;
   }
 
   constexpr value_type* data() noexcept
   {
-    return const_cast<value_type*>(static_cast<const Basic_fifo_string*>(this)->data());
+    return const_cast<value_type*>(static_cast<const Fifo_array*>(this)->data());
   }
 
   constexpr const value_type& back() const noexcept
   {
-    return data_.back();
+    return *(data_.begin() + push_offset_ - 1);
   }
 
   constexpr value_type& back() noexcept
   {
-    return const_cast<value_type&>(static_cast<const Basic_fifo_string*>(this)->back());
+    return const_cast<value_type&>(static_cast<const Fifo_array*>(this)->back());
   }
 
   constexpr const value_type& front() const noexcept
   {
-    return *(data_.begin() + offset_);
+    return *(data_.begin() + pop_offset_);
   }
 
   constexpr value_type& front() noexcept
   {
-    return const_cast<value_type&>(static_cast<const Basic_fifo_string*>(this)->front());
+    return const_cast<value_type&>(static_cast<const Fifo_array*>(this)->front());
   }
 
-  constexpr void push_back(const value_type value)
+  constexpr void push_back(const value_type value) noexcept
   {
-    data_.push_back(value);
+    data_[push_offset_++] = value;
   }
 
-  constexpr void emplace_back(const value_type value)
+  constexpr void emplace_back(const value_type value) noexcept
   {
     push_back(value);
   }
 
   constexpr void pop_front() noexcept
   {
-    offset_ = std::min(offset_ + 1, data_.size());
+    pop_offset_ = std::min(pop_offset_ + 1, data_.size());
   }
 
   constexpr void unpop_front() noexcept
   {
-    if (offset_) --offset_;
+    if (pop_offset_) --pop_offset_;
   }
 
   constexpr void unpop_all() noexcept
   {
-    offset_ = 0;
+    pop_offset_ = 0;
   }
 
   constexpr size_type size() const noexcept
   {
-    return data_.size() - offset_;
+    return push_offset_ - pop_offset_;
   }
 
   constexpr bool empty() const noexcept
@@ -121,33 +115,30 @@ public:
 
   constexpr void clear() noexcept
   {
-    data_.clear();
-    offset_ = 0;
+    pop_offset_ = push_offset_ = 0;
   }
 
-  constexpr void swap(Basic_fifo_string& other) noexcept
+  constexpr void swap(Fifo_array& other) noexcept
   {
     using std::swap;
     swap(data_, other.data_);
-    swap(offset_, other.offset_);
+    swap(pop_offset_, other.pop_offset_);
+    swap(push_offset_, other.push_offset_);
   }
 
 private:
   Underlying_type data_;
-  size_type offset_{};
+  size_type pop_offset_{};
+  size_type push_offset_{};
 };
 
 /// Swaps `lhs` and `rhs`.
-template<class CharT, class Traits = std::char_traits<CharT>,
-  class Allocator = std::allocator<CharT>>
-void swap(Basic_fifo_string<CharT, Traits, Allocator>& lhs,
-  Basic_fifo_string<CharT, Traits, Allocator>& rhs) noexcept
+template<class T, std::size_t N>
+void swap(Fifo_array<T, N>& lhs, Fifo_array<T, N>& rhs) noexcept
 {
   lhs.swap(rhs);
 }
 
-using Fifo_string = Basic_fifo_string<char>;
-
 } // namespace dmitigr::que
 
-#endif  // DMITIGR_QUE_FIFO_STRING_HPP
+#endif  // DMITIGR_QUE_FIFO_ARRAY_HPP

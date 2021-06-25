@@ -23,6 +23,7 @@
 #ifndef DMITIGR_QUE_QUE_HPP
 #define DMITIGR_QUE_QUE_HPP
 
+#include "fifo_array.hpp"
 #include "fifo_string.hpp"
 
 #endif  // DMITIGR_QUE_QUE_HPP

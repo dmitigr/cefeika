@@ -13,6 +13,7 @@ dmitigr_cefeika_set_library_info(que 0 1 "Queue stuff")
 # ------------------------------------------------------------------------------
 
 set(dmitigr_que_headers
+  fifo_array.hpp
   fifo_string.hpp
   )
 
