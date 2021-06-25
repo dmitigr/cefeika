@@ -17,4 +17,4 @@
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
-set(dmitigr_cefeika_libraries "algo;assert;base;crc;filesystem;mem;rajson;wscl;concur;dt;math;fsmisc;progpar;reader;rng;sqlixx;str;testo;ttpl;cfg;jrpc;mulf;net;os;url;uuid;fcgi;http;pgfe;ws;web")
+set(dmitigr_cefeika_libraries "algo;assert;base;crc;filesystem;mem;que;rajson;wscl;concur;dt;math;fsmisc;progpar;reader;rng;sqlixx;str;testo;ttpl;cfg;jrpc;mulf;net;os;url;uuid;fcgi;http;pgfe;ws;web")

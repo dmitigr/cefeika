@@ -23,8 +23,8 @@
 
 set(dmitigr_cefeika_libraries_all
   # Independent (or std only dependent)
-  algo assert base crc filesystem mem
-  # Third-party only dependent
+  algo assert base crc filesystem mem que
+  # Third-party dependent
   rajson
   #
   wscl
