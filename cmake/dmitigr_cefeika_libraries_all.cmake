@@ -29,7 +29,7 @@ set(dmitigr_cefeika_libraries_all
   #
   wscl
   #
-  concur dt math fsmisc progpar reader rng sqlixx str testo ttpl
+  concur dt math fsmisc progpar rng sqlixx str testo ttpl
   #
   cfg jrpc mulf net os url uuid
   #
@@ -45,7 +45,7 @@ set(dmitigr_cefeika_libraries_all
 set(dmitigr_cefeika_algo_deps)
 set(dmitigr_cefeika_assert_deps)
 set(dmitigr_cefeika_base_deps)
-set(dmitigr_cefeika_cfg_deps assert filesystem reader str)
+set(dmitigr_cefeika_cfg_deps assert filesystem str)
 set(dmitigr_cefeika_concur_deps assert)
 set(dmitigr_cefeika_dt_deps assert)
 set(dmitigr_cefeika_fcgi_deps assert filesystem math net)
@@ -61,7 +61,6 @@ set(dmitigr_cefeika_os_deps assert filesystem progpar)
 set(dmitigr_cefeika_pgfe_deps assert base filesystem mem net os str)
 set(dmitigr_cefeika_progpar_deps assert filesystem)
 set(dmitigr_cefeika_rajson_deps 3rdparty_rapidjson)
-set(dmitigr_cefeika_reader_deps assert filesystem)
 set(dmitigr_cefeika_rng_deps assert)
 set(dmitigr_cefeika_sqlixx_deps assert filesystem)
 set(dmitigr_cefeika_str_deps assert)
@@ -69,7 +68,7 @@ set(dmitigr_cefeika_testo_deps assert)
 set(dmitigr_cefeika_ttpl_deps assert)
 set(dmitigr_cefeika_url_deps assert str)
 set(dmitigr_cefeika_uuid_deps assert rng)
-set(dmitigr_cefeika_web_deps assert fcgi filesystem http jrpc mulf reader str ttpl)
+set(dmitigr_cefeika_web_deps assert fcgi filesystem http jrpc mulf str ttpl)
 set(dmitigr_cefeika_ws_deps assert filesystem net 3rdparty_uwebsockets)
 set(dmitigr_cefeika_wscl_deps assert 3rdparty_uwsc)
 set(dmitigr_cefeika_3rdparty_uwebsockets_deps 3rdparty_usockets)

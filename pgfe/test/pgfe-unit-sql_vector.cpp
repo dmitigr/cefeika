@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see files LICENSE.txt
 
 #include "pgfe-unit.hpp"
-#include "../../reader.hpp"
+#include "../../str.hpp"
 
 namespace pgfe = dmitigr::pgfe;
-namespace reader = dmitigr::reader;
+namespace str = dmitigr::str;
 namespace testo = dmitigr::testo;
 
 int main(int, char* argv[])
@@ -41,7 +41,7 @@ try {
 
   const std::filesystem::path this_exe_file_name{argv[0]};
   const auto this_exe_dir_name = this_exe_file_name.parent_path();
-  const auto input = reader::file_to_string(this_exe_dir_name / "pgfe-unit-sql_vector.sql");
+  const auto input = str::to_string(this_exe_dir_name / "pgfe-unit-sql_vector.sql");
   bunch = pgfe::Sql_vector{input};
   ASSERT(bunch.size() == 2);
   ASSERT(bunch[0].extra().size() == 1);

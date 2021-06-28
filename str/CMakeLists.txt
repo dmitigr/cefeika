@@ -13,7 +13,15 @@ dmitigr_cefeika_set_library_info(str 0 1 "Standard string miscellaneous")
 # ------------------------------------------------------------------------------
 
 set(dmitigr_str_headers
-  str.hpp
+  c_str.hpp
+  line.hpp
+  numeric.hpp
+  predicate.hpp
+  sequence.hpp
+  simple_phrase.hpp
+  stream.hpp
+  substr.hpp
+  transform.hpp
   )
 
 # ------------------------------------------------------------------------------

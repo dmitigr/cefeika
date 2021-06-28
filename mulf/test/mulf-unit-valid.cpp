@@ -4,20 +4,20 @@
 
 #include "../../filesystem.hpp"
 #include "../../mulf.hpp"
-#include "../../reader.hpp"
+#include "../../str.hpp"
 #include "../../testo.hpp"
 
 int main(int, char* argv[])
 {
   namespace mulf = dmitigr::mulf;
-  namespace reader = dmitigr::reader;
+  namespace str = dmitigr::str;
   using mulf::Form_data;
   using namespace dmitigr::testo;
 
   try {
     const std::filesystem::path this_exe_file_name{argv[0]};
     const auto this_exe_dir_name = this_exe_file_name.parent_path();
-    const auto form_data = reader::file_to_string(this_exe_dir_name / "mulf-form-data-valid1.txt");
+    const auto form_data = str::to_string(this_exe_dir_name / "mulf-form-data-valid1.txt");
 
     const std::string boundary{"AaB03x"};
     const Form_data data{form_data, boundary};
