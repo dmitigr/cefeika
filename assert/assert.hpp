@@ -38,18 +38,18 @@ constexpr bool is_debug{false};
 
 /// Logic error - exception class derived from `std::logic_error`.
 template<class E>
-class Exception : public E {
+class Logic_error : public E {
 public:
   /// Lifted constructors.
   using E::E;
 
   /// The constructor.
-  Exception(const char* const file, const int line, const char* const what)
+  Logic_error(const char* const file, const int line, const char* const what)
     : E{what}
     , file_{file}
     , line_{line}
   {
-    static_assert(std::is_base_of_v<std::exception, Exception>);
+    static_assert(std::is_base_of_v<std::logic_error, Logic_error>);
   }
 
   /// @returns The name of file from where the exception thrown.
@@ -86,7 +86,7 @@ private:
 /// Checks `a` always, regardless of `NDEBUG`.
 #define DMITIGR_CHECK_GENERIC(a, E) do {                                \
     if (!(a)) {                                                         \
-      throw dmitigr::Exception<E>{__FILE__, __LINE__,                   \
+      throw dmitigr::Logic_error<E>{__FILE__, __LINE__,                 \
         "check (" #a ") failed at " __FILE__ ":" DMITIGR_ASSERT_XSTR(__LINE__)}; \
     }                                                                   \
   } while (false)
