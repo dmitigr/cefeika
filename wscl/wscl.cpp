@@ -95,7 +95,7 @@ DMITIGR_WSCL_INLINE auto Connection::options() const noexcept -> const Options&
   return options_;
 }
 
-DMITIGR_WSCL_INLINE void Connection::set_ping_interval(const std::chrono::seconds interval) noexcept
+DMITIGR_WSCL_INLINE void Connection::set_ping_interval(const std::chrono::seconds interval)
 {
   DMITIGR_CHECK(is_open_);
   options_.ping_interval(interval);

@@ -129,7 +129,7 @@ public:
    * @par Requires
    * `is_open()`.
    */
-  DMITIGR_WSCL_API void set_ping_interval(const std::chrono::seconds interval) noexcept;
+  DMITIGR_WSCL_API void set_ping_interval(const std::chrono::seconds interval);
 
   /**
    * Sends the data of specified format to the WebSocket server.
