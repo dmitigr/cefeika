@@ -36,20 +36,58 @@ constexpr bool is_debug{true};
 constexpr bool is_debug{false};
 #endif
 
-/// Logic error - exception class derived from `std::logic_error`.
-template<class E>
-class Logic_error : public E {
+/**
+ * An exception class derived from either `std::logic_error` or
+ * `std::runtime_error` which provides the information about the source from
+ * where the exception is thrown.
+ *
+ * @tparam Base The base exception class derived from either `std::logic_error`
+ * or `std::runtime_error`.
+ */
+template<class Base>
+class Sourced_exception : public Base {
 public:
-  /// Lifted constructors.
-  using E::E;
+  /**
+   * Lifted constructors.
+   *
+   * @par Effects
+   * file() returns `nullptr`, line() returns `0`.
+   *
+   * @see file(), line().
+   */
+  using Base::Base;
 
-  /// The constructor.
-  Logic_error(const char* const file, const int line, const char* const what)
-    : E{what}
+  /**
+   * The constructor of a logic error.
+   *
+   * @param file The name of file from where the exception thrown.
+   * @param line The line of file from where the exception thrown.
+   * @param what The error description.
+   */
+  Sourced_exception(const char* const file, const int line, const char* const what)
+    : Base{what}
     , file_{file}
     , line_{line}
   {
-    static_assert(std::is_base_of_v<std::logic_error, Logic_error>);
+    static_assert(std::is_base_of_v<std::logic_error, Sourced_exception>);
+  }
+
+  /**
+   * The constructor of a runtime error with an error code.
+   *
+   * @param file The name of file from where the exception thrown.
+   * @param line The line of file from where the exception thrown.
+   * @param errc The runtime error code/condition.
+   */
+  template<typename T>
+  Sourced_exception(const char* const file, const int line,
+    std::enable_if_t<std::is_enum_v<T>, const T> errc)
+    : Base{errc}
+    , file_{file}
+    , line_{line}
+  {
+    static_assert(std::is_base_of_v<std::runtime_error, Sourced_exception>);
+    static_assert(std::is_enum_v<T>);
   }
 
   /// @returns The name of file from where the exception thrown.
@@ -84,9 +122,9 @@ private:
   } while (false)
 
 /// Checks `a` always, regardless of `NDEBUG`.
-#define DMITIGR_CHECK_GENERIC(a, E) do {                                \
+#define DMITIGR_CHECK_GENERIC(a, Base) do {                             \
     if (!(a)) {                                                         \
-      throw dmitigr::Logic_error<E>{__FILE__, __LINE__,                 \
+      throw dmitigr::Sourced_exception<Base>{__FILE__, __LINE__,        \
         "check (" #a ") failed at " __FILE__ ":" DMITIGR_ASSERT_XSTR(__LINE__)}; \
     }                                                                   \
   } while (false)
